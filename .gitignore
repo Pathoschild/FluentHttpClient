@@ -1,6 +1,10 @@
-# Build Folders (you can keep bin if you'd like, to store dlls and pdbs)
-bin
-obj
-
-# mstest test results
-TestResults
+*.suo
+*.sln.docstates
+Thumbs.db
+[Bb]in
+[Dd]ebug*/
+obj/
+[Rr]elease*/
+_ReSharper*/
+packages/**
+*.user
