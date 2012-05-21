@@ -25,6 +25,10 @@ namespace Pathoschild.FluentHttpClient
 		/***
 		** Async
 		***/
+		/// <summary>Execute the request and asynchronously retrieve the response as a raw response message.</summary>
+		/// <exception cref="ApiException">An error occurred processing the response.</exception>
+		Task<HttpResponseMessage> AsMessageAsync();
+
 		/// <summary>Execute the request and asynchronously retrieve the response as a deserialized model.</summary>
 		/// <typeparam name="T">The response model to deserialize into.</typeparam>
 		/// <exception cref="ApiException">An error occurred processing the response.</exception>
@@ -53,6 +57,10 @@ namespace Pathoschild.FluentHttpClient
 		/***
 		** Sync
 		***/
+		/// <summary>Execute the request and retrieve the response as a raw response message.</summary>
+		/// <exception cref="ApiException">An error occurred processing the response.</exception>
+		HttpResponseMessage AsMessage();
+
 		/// <summary>Execute the request and retrieve the response as a deserialized model.</summary>
 		/// <typeparam name="T">The response model to deserialize into.</typeparam>
 		/// <exception cref="ApiException">The HTTP response returned a non-success <see cref="HttpStatusCode"/>, and <see cref="ThrowError"/> is <c>true</c>.</exception>
