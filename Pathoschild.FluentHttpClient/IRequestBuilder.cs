@@ -54,13 +54,13 @@ namespace Pathoschild.FluentHttpClient
 		/// <param name="throwError">Whether to handle errors from the upstream server by throwing an exception.</param>
 		/// <returns>Returns a deserialized model.</returns>
 		/// <exception cref="ApiException">The HTTP response returned a non-success <see cref="HttpStatusCode"/>, and <paramref name="throwError"/> is <c>true</c>.</exception>
-		TResponse Retrieve<TResponse>(bool throwError = true);
+		TResponse RetrieveAs<TResponse>(bool throwError = true);
 
 		/// <summary>Execute the request and retrieve the response as a deserialized list of models.</summary>
 		/// <typeparam name="TResponse">The response body type.</typeparam>
 		/// <param name="throwError">Whether to handle errors from the upstream server by throwing an exception.</param>
 		/// <returns>Returns a deserialized list of models.</returns>
 		/// <exception cref="ApiException">The HTTP response returned a non-success <see cref="HttpStatusCode"/>, and <paramref name="throwError"/> is <c>true</c>.</exception>
-		List<TResponse> RetrieveList<TResponse>(bool throwError = true);
+		List<TResponse> RetrieveAsList<TResponse>(bool throwError = true);
 	}
 }
