@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Formatting;
+using System.Net.Http.Headers;
 
 namespace Pathoschild.FluentHttpClient
 {
@@ -24,8 +25,9 @@ namespace Pathoschild.FluentHttpClient
 		*********/
 		/// <summary>Set the body content of the HTTP request.</summary>
 		/// <param name="body">The HTTP body content.</param>
+		/// <param name="contentType">The request body format (or <c>null</c> to use the first supported Content-Type in the <see cref="Formatters"/>).</param>
 		/// <returns>Returns the request builder for chaining.</returns>
-		IRequestBuilder WithBody<T>(T body);
+		IRequestBuilder WithBody<T>(T body, MediaTypeHeaderValue contentType = null);
 
 		/// <summary>Set an HTTP header.</summary>
 		/// <param name="key">The key of the HTTP header.</param>

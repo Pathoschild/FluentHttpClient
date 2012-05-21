@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Formatting;
+using System.Net.Http.Headers;
 using System.Threading.Tasks;
 
 namespace Pathoschild.FluentHttpClient.Default
@@ -39,10 +41,12 @@ namespace Pathoschild.FluentHttpClient.Default
 
 		/// <summary>Set the body content of the HTTP request.</summary>
 		/// <param name="body">The HTTP body content.</param>
+		/// <param name="contentType">The request body format (or <c>null</c> to use the first supported Content-Type in the <see cref="Formatters"/>).</param>
 		/// <returns>Returns the request builder for chaining.</returns>
-		public IRequestBuilder WithBody<T>(T body)
+		public IRequestBuilder WithBody<T>(T body, MediaTypeHeaderValue contentType = null)
 		{
 			this.Message.Content = this.Message.CreateContent<T>(body);
+			this.Message.Content.Headers.ContentType = contentType ?? this.Formatters.SelectMany(p => p.SupportedMediaTypes).First();
 			return this;
 		}
 
