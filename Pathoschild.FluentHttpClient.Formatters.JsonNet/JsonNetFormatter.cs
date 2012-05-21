@@ -4,7 +4,6 @@ using System.Net;
 using System.Net.Http.Formatting;
 using System.Net.Http.Headers;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Bson;
 using Pathoschild.FluentHttpClient.Framework;
 
 namespace Pathoschild.FluentHttpClient.Formatters.JsonNet
@@ -26,9 +25,8 @@ namespace Pathoschild.FluentHttpClient.Formatters.JsonNet
 		/// <returns>Returns a deserialized object.</returns>
 		protected override object Deserialize(Type type, Stream stream, HttpContentHeaders contentHeaders, FormatterContext formatterContext)
 		{
-			JsonSerializer serializer = new JsonSerializer();
-			BsonReader reader = new BsonReader(stream);
-			return serializer.Deserialize(reader);
+			using (StreamReader reader = new StreamReader(stream))
+				return JsonConvert.DeserializeObject(reader.ReadToEnd(), type);
 		}
 
 		/// <summary>Serialize an object into the stream.</summary>
@@ -40,9 +38,11 @@ namespace Pathoschild.FluentHttpClient.Formatters.JsonNet
 		/// <param name="transportContext">The <see cref="TransportContext"/>.</param>
 		protected override void Serialize(Type type, object value, Stream stream, HttpContentHeaders contentHeaders, FormatterContext formatterContext, TransportContext transportContext)
 		{
-			JsonSerializer serializer = new JsonSerializer();
-			BsonWriter writer = new BsonWriter(stream);
-			serializer.Serialize(writer, value);
+			using (StreamWriter writer = new StreamWriter(stream))
+			{
+				string serialized = JsonConvert.SerializeObject(value);
+				writer.Write(serialized);
+			}
 		}
 	}
 }
