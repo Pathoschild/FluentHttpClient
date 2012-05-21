@@ -90,7 +90,7 @@ namespace Pathoschild.FluentHttpClient.Default
 		/// <param name="method">The HTTP method.</param>
 		/// <param name="resource">The URI to send the request to.</param>
 		/// <returns>Returns a request builder.</returns>
-		public IRequestBuilder Send(HttpMethod method, string resource)
+		public virtual IRequestBuilder Send(HttpMethod method, string resource)
 		{
 			Uri uri = new Uri(this.BaseClient.BaseAddress, resource);
 			HttpRequestMessage message = new HttpRequestMessage(method, uri);
@@ -100,7 +100,8 @@ namespace Pathoschild.FluentHttpClient.Default
 		/// <summary>Create a request.</summary>
 		/// <param name="message">The HTTP request message to send.</param>
 		/// <returns>Returns a request builder.</returns>
-		public IRequestBuilder Send(HttpRequestMessage message)
+		/// <remarks>This is the base method which executes every request.</remarks>
+		public virtual IRequestBuilder Send(HttpRequestMessage message)
 		{
 			return new RequestBuilder(message, this.Formatters, request => this.BaseClient.SendAsync(request.Message));
 		}

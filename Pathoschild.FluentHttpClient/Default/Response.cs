@@ -180,7 +180,7 @@ namespace Pathoschild.FluentHttpClient.Default
 		/// <summary>Assert that the HTTP response is valid.</summary>
 		/// <param name="message">The response message to validate.</param>
 		/// <exception cref="ApiException">The HTTP response returned a non-success <see cref="HttpStatusCode"/>, and <see cref="ThrowError"/> is <c>true</c>.</exception>
-		protected void ValidateResponse(HttpResponseMessage message)
+		protected virtual void ValidateResponse(HttpResponseMessage message)
 		{
 			if (this.ThrowError && !message.IsSuccessStatusCode)
 				throw new ApiException(message.StatusCode, String.Format("The API query failed with status code {0}: {1}", message.StatusCode, message.ReasonPhrase));

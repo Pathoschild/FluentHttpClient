@@ -78,14 +78,6 @@ namespace Pathoschild.FluentHttpClient.Default
 			return this;
 		}
 
-		/// <summary>Execute the request and retrieve the response.</summary>
-		/// <param name="throwError">Whether to handle errors from the upstream server by throwing an exception.</param>
-		/// <returns>Returns a response.</returns>
-		public IResponse Retrieve(bool throwError = true)
-		{
-			return new Response(this.Message, this.ResponseBuilder(this), this.Formatters, throwError);
-		}
-
 		/// <summary>Execute the request and retrieve the response as a deserialized model.</summary>
 		/// <typeparam name="TResponse">The response body type.</typeparam>
 		/// <param name="throwError">Whether to handle errors from the upstream server by throwing an exception.</param>
@@ -104,6 +96,15 @@ namespace Pathoschild.FluentHttpClient.Default
 		public List<TResponse> RetrieveAsList<TResponse>(bool throwError = true)
 		{
 			return this.Retrieve(throwError).AsList<TResponse>();
+		}
+
+		/// <summary>Execute the request and retrieve the response.</summary>
+		/// <param name="throwError">Whether to handle errors from the upstream server by throwing an exception.</param>
+		/// <returns>Returns a response.</returns>
+		/// <remarks>This is the base method which executes every request.</remarks>
+		public virtual IResponse Retrieve(bool throwError = true)
+		{
+			return new Response(this.Message, this.ResponseBuilder(this), this.Formatters, throwError);
 		}
 	}
 }
