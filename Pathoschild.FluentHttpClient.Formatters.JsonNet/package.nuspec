@@ -1,0 +1,19 @@
+﻿<?xml version="1.0"?>
+<package>
+	<metadata>
+		<id>Pathoschild.FluentHttpClient.Formatters.JsonNet</id>
+		<version>0.1.1-alpha</version>
+		<authors>Jesse Plamondon-Willard</authors>
+		<description>Provides MediaTypeFormatters for JSON and BSON using Json.NET. These can be used by the .Net 4.5 HttpClient and the ASP.NET Web API for serializing message bodies.</description>
+		<tags>api http httpclient wcf web webapi</tags>
+		<licenseUrl>https://creativecommons.org/licenses/by/3.0/</licenseUrl>
+		<projectUrl>https://github.com/Pathoschild/Pathoschild.FluentHttpClient#readme</projectUrl>
+		<requireLicenseAcceptance>false</requireLicenseAcceptance>
+		<dependencies>
+			<dependency id="Pathoschild.FluentHttpClient" version="0.1.1-alpha" />
+			<dependency id="System.Net.Http" version="2.0" />
+			<dependency id="System.Net.Http.Formatting" version="4.0" />
+			<dependency id="Newtonsoft.Json" version="4.5" />
+		</dependencies>
+	</metadata>
+</package>

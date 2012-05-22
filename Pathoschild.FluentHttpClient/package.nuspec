@@ -1,0 +1,17 @@
+﻿<?xml version="1.0"?>
+<package>
+	<metadata>
+		<id>Pathoschild.FluentHttpClient</id>
+		<version>0.1.1-alpha</version>
+		<authors>Jesse Plamondon-Willard</authors>
+		<description>A fluent, strongly-typed HTTP client for .NET 4.0 built on top of the new BCL HttpClient beta.</description>
+		<tags>api http httpclient wcf web webapi</tags>
+		<licenseUrl>https://creativecommons.org/licenses/by/3.0/</licenseUrl>
+		<projectUrl>https://github.com/Pathoschild/Pathoschild.FluentHttpClient#readme</projectUrl>
+		<requireLicenseAcceptance>false</requireLicenseAcceptance>
+		<dependencies>
+			<dependency id="System.Net.Http" version="2.0" />
+			<dependency id="System.Net.Http.Formatting" version="4.0" />
+		</dependencies>
+	</metadata>
+</package>

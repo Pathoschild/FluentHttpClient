@@ -1,10 +1,12 @@
+*.nupkg
 *.suo
 *.sln.docstates
+*.user
+*.vsp
 Thumbs.db
 [Bb]in
 [Dd]ebug*/
 obj/
+packages/
 [Rr]elease*/
 _ReSharper*/
-packages/**
-*.user

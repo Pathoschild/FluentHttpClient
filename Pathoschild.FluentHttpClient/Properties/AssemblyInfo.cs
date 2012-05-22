@@ -6,11 +6,11 @@ using System.Runtime.InteropServices;
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 [assembly: AssemblyTitle("Pathoschild.FluentHttpClient")]
-[assembly: AssemblyDescription("")]
+[assembly: AssemblyDescription("A fluent, strongly-typed HTTP client for .NET 4.0 built on top of the new BCL HttpClient beta.")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
 [assembly: AssemblyProduct("Pathoschild.FluentHttpClient")]
-[assembly: AssemblyCopyright("Copyright © Jesse Plamondon-Willard 2012")]
+[assembly: AssemblyCopyright("Copyright Jesse Plamondon-Willard 2012")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
@@ -32,5 +32,5 @@ using System.Runtime.InteropServices;
 // You can specify all the values or you can default the Build and Revision Numbers 
 // by using the '*' as shown below:
 // [assembly: AssemblyVersion("1.0.*")]
-[assembly: AssemblyVersion("1.0.0.0")]
-[assembly: AssemblyFileVersion("1.0.0.0")]
+[assembly: AssemblyVersion("0.1.1.0")]
+[assembly: AssemblyFileVersion("0.1.1.0")]
