@@ -5,12 +5,12 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("Pathoschild.Http.FluentClient.Tests")]
+[assembly: AssemblyTitle("Pathoschild.Http.Formatters.Core")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("Pathoschild.Http.FluentClient")]
-[assembly: AssemblyCopyright("Copyright Jesse Plamondon-Willard 2012")]
+[assembly: AssemblyProduct("Pathoschild.Http.Formatters.Core")]
+[assembly: AssemblyCopyright("Copyright ©  2012")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
@@ -20,7 +20,7 @@ using System.Runtime.InteropServices;
 [assembly: ComVisible(false)]
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
-[assembly: Guid("1f1735db-9846-4cb2-a2e3-cc6822a73333")]
+[assembly: Guid("9b9dbd48-0e36-49ca-af74-ab615abdba46")]
 
 // Version information for an assembly consists of the following four values:
 //

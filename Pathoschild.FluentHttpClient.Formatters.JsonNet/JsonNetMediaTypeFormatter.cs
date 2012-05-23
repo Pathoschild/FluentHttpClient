@@ -4,9 +4,9 @@ using System.Net;
 using System.Net.Http.Formatting;
 using System.Net.Http.Headers;
 using Newtonsoft.Json;
-using Pathoschild.FluentHttpClient.Framework;
+using Pathoschild.Http.Formatters.Core;
 
-namespace Pathoschild.FluentHttpClient.Formatters.JsonNet
+namespace Pathoschild.Http.Formatters.JsonNet
 {
 	/// <summary>Serializes and deserializes data as BSON.</summary>
 	public class JsonNetMediaTypeFormatter : SerializerMediaTypeFormatterBase

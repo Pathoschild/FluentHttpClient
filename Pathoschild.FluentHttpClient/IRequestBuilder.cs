@@ -5,7 +5,7 @@ using System.Net.Http;
 using System.Net.Http.Formatting;
 using System.Net.Http.Headers;
 
-namespace Pathoschild.FluentHttpClient
+namespace Pathoschild.Http.FluentClient
 {
 	/// <summary>Builds an HTTP request.</summary>
 	public interface IRequestBuilder

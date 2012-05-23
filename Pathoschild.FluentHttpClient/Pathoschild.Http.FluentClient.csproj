@@ -5,11 +5,11 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProductVersion>8.0.30703</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{CD970965-13A8-4323-A8A4-D319D81D6DC0}</ProjectGuid>
+    <ProjectGuid>{B1D02CCF-5DF5-4678-AD54-243DEFB92032}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Pathoschild.FluentHttpClient.Formatters.JsonNet</RootNamespace>
-    <AssemblyName>Pathoschild.FluentHttpClient.Formatters.JsonNet</AssemblyName>
+    <RootNamespace>Pathoschild.Http.FluentClient</RootNamespace>
+    <AssemblyName>Pathoschild.Http.FluentClient</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\</SolutionDir>
@@ -23,7 +23,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <DocumentationFile>bin\Debug\Pathoschild.FluentHttpClient.Formatters.JsonNet.XML</DocumentationFile>
+    <DocumentationFile>bin\Debug\Pathoschild.Http.FluentClient.xml</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -34,9 +34,6 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Newtonsoft.Json">
-      <HintPath>..\packages\Newtonsoft.Json.4.5.5\lib\net40\Newtonsoft.Json.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Net.Http, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
@@ -49,16 +46,16 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="JsonNetBsonMediaTypeFormatter.cs" />
-    <Compile Include="JsonNetMediaTypeFormatter.cs" />
+    <Compile Include="ApiException.cs" />
+    <Compile Include="Default\Client.cs" />
+    <Compile Include="Default\RequestBuilder.cs" />
+    <Compile Include="Default\Response.cs" />
+    <Compile Include="IClient.cs" />
+    <Compile Include="IRequestBuilder.cs" />
+    <Compile Include="IResponse.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\Pathoschild.FluentHttpClient\Pathoschild.FluentHttpClient.csproj">
-      <Project>{B1D02CCF-5DF5-4678-AD54-243DEFB92032}</Project>
-      <Name>Pathoschild.FluentHttpClient</Name>
-    </ProjectReference>
-  </ItemGroup>
+  <ItemGroup />
   <ItemGroup>
     <None Include="package.nuspec" />
     <None Include="packages.config" />

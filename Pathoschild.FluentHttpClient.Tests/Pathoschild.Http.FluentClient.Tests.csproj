@@ -8,8 +8,8 @@
     <ProjectGuid>{4531E61C-D06A-42AD-B631-EE9DFB532602}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Pathoschild.FluentHttpClient.Tests</RootNamespace>
-    <AssemblyName>Pathoschild.FluentHttpClient.Tests</AssemblyName>
+    <RootNamespace>Pathoschild.Http.FluentClient.Tests</RootNamespace>
+    <AssemblyName>Pathoschild.Http.FluentClient.Tests</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\</SolutionDir>
@@ -58,9 +58,9 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Pathoschild.FluentHttpClient\Pathoschild.FluentHttpClient.csproj">
+    <ProjectReference Include="..\Pathoschild.FluentHttpClient\Pathoschild.Http.FluentClient.csproj">
       <Project>{B1D02CCF-5DF5-4678-AD54-243DEFB92032}</Project>
-      <Name>Pathoschild.FluentHttpClient</Name>
+      <Name>Pathoschild.Http.FluentClient</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

@@ -7,7 +7,7 @@ using System.Net.Http;
 using System.Net.Http.Formatting;
 using System.Threading.Tasks;
 
-namespace Pathoschild.FluentHttpClient.Default
+namespace Pathoschild.Http.FluentClient.Default
 {
 	/// <summary>Executes an HTTP request and retrieves the response.</summary>
 	public class Response : IResponse

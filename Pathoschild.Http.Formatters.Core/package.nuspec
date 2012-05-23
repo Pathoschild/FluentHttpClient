@@ -1,11 +1,11 @@
 ﻿<?xml version="1.0"?>
 <package>
 	<metadata>
-		<id>Pathoschild.Http.FluentClient</id>
+		<id>Pathoschild.Http.Formatters.Core</id>
 		<version>0.1.2-alpha</version>
 		<authors>Jesse Plamondon-Willard</authors>
-		<description>A fluent, strongly-typed HTTP client for .NET 4.0 built on top of the new BCL HttpClient beta.</description>
-		<tags>api http httpclient wcf web webapi</tags>
+		<description>Provides a base implementation of the .NET MediaTypeFormatter for serializers. This handles the common code involved, so you only need to implement the "Serialize" and "Deserialize" methods without worrying about the asynchronous logic.</description>
+		<tags>api wcf web webapi</tags>
 		<licenseUrl>https://creativecommons.org/licenses/by/3.0/</licenseUrl>
 		<projectUrl>https://github.com/Pathoschild/Pathoschild.FluentHttpClient#readme</projectUrl>
 		<requireLicenseAcceptance>false</requireLicenseAcceptance>

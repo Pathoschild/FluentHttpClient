@@ -1,8 +1,8 @@
 ﻿using System.Net.Http;
 using NUnit.Framework;
-using Pathoschild.FluentHttpClient.Default;
+using Pathoschild.Http.FluentClient.Default;
 
-namespace Pathoschild.FluentHttpClient.Tests.Default
+namespace Pathoschild.Http.FluentClient.Tests.Default
 {
 	/// <summary>Integration tests verifying that the default <see cref="Client"/> correctly creates and alters the underlying objects.</summary>
 	[TestFixture]
