@@ -58,7 +58,7 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Pathoschild.FluentHttpClient\Pathoschild.Http.FluentClient.csproj">
+    <ProjectReference Include="..\Pathoschild.Http.FluentClient\Pathoschild.Http.FluentClient.csproj">
       <Project>{B1D02CCF-5DF5-4678-AD54-243DEFB92032}</Project>
       <Name>Pathoschild.Http.FluentClient</Name>
     </ProjectReference>
