@@ -19,11 +19,25 @@ namespace Pathoschild.Http.FluentClient.Tests.Default
 		/*********
 		** Objects
 		*********/
+		/// <summary>An example type which can be serialized into and deserialized from HTTP message bodies.</summary>
+		/// <typeparam name="T">The example property value type.</typeparam>
 		public class Model<T>
 		{
+			/*********
+			** Accessors
+			*********/
+			/// <summary>An example property value.</summary>
 			public T Value { get; set; }
 
+
+			/*********
+			** Public methods
+			*********/
+			/// <summary>Construct an instance.</summary>
 			public Model() { }
+
+			/// <summary>Construct an instance.</summary>
+			/// <param name="value">An example property value.</param>
 			public Model(T value)
 			{
 				this.Value = value;
@@ -70,6 +84,24 @@ namespace Pathoschild.Http.FluentClient.Tests.Default
 		/***
 		** AsMessage
 		***/
+		[Test(Description = "The response can block the current thread without altering the underlying HttpResponseMessage.")]
+		[TestCase("model value")]
+		public void Wait(string content)
+		{
+			// set up
+			HttpResponseMessage<string> message;
+
+			// execute
+			HttpResponseMessage actual = this
+				.ConstructResponse(content, out message)
+				.Wait()
+				.AsMessage();
+
+			// test
+			Assert.That(actual, Is.Not.Null, "response message");
+			Assert.That(actual.ToString(), Is.EqualTo(message.ToString()), "response message");
+		}
+
 		[Test(Description = "The response can return the underlying HttpResponseMessage.")]
 		[TestCase("model value")]
 		public void AsMessage(string content)

@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace Pathoschild.Http.FluentClient.Default
 {
-	/// <summary>Executes an HTTP request and retrieves the response.</summary>
+	/// <summary>Retrieves the response from an asynchronous HTTP request.</summary>
 	public class Response : IResponse
 	{
 		/*********
@@ -51,14 +51,14 @@ namespace Pathoschild.Http.FluentClient.Default
 		/***
 		** Async
 		***/
-		/// <summary>Execute the request and asynchronously retrieve the response as a raw response message.</summary>
+		/// <summary>Asynchronously retrieve the underlying response message.</summary>
 		/// <exception cref="ApiException">An error occurred processing the response.</exception>
 		public Task<HttpResponseMessage> AsMessageAsync()
 		{
 			return this.Task;
 		}
 
-		/// <summary>Execute the request and asynchronously retrieve the response as a deserialized model.</summary>
+		/// <summary>Asynchronously retrieve the response body as a deserialized model.</summary>
 		/// <typeparam name="T">The response model to deserialize into.</typeparam>
 		/// <exception cref="ApiException">An error occurred processing the response.</exception>
 		public Task<T> AsAsync<T>()
@@ -68,7 +68,7 @@ namespace Pathoschild.Http.FluentClient.Default
 				.Unwrap();
 		}
 
-		/// <summary>Execute the request and asynchronously retrieve the response as a list of deserialized models.</summary>
+		/// <summary>Asynchronously retrieve the response body as a list of deserialized models.</summary>
 		/// <typeparam name="T">The response model to deserialize into.</typeparam>
 		/// <exception cref="ApiException">An error occurred processing the response.</exception>
 		public Task<List<T>> AsListAsync<T>()
@@ -76,7 +76,7 @@ namespace Pathoschild.Http.FluentClient.Default
 			return this.AsAsync<List<T>>();
 		}
 
-		/// <summary>Execute the request and asynchronously retrieve the response body as an array of <see cref="byte"/>.</summary>
+		/// <summary>Asynchronously retrieve the response body as an array of <see cref="byte"/>.</summary>
 		/// <returns>Returns the response body, or <c>null</c> if the response has no body.</returns>
 		/// <exception cref="ApiException">An error occurred processing the response.</exception>
 		public Task<byte[]> AsByteArrayAsync()
@@ -86,7 +86,7 @@ namespace Pathoschild.Http.FluentClient.Default
 				.Unwrap();
 		}
 
-		/// <summary>Execute the request and asynchronously retrieve the response body as a <see cref="string"/>.</summary>
+		/// <summary>Asynchronously retrieve the response body as a <see cref="string"/>.</summary>
 		/// <returns>Returns the response body, or <c>null</c> if the response has no body.</returns>
 		/// <exception cref="ApiException">An error occurred processing the response.</exception>
 		public Task<string> AsStringAsync()
@@ -96,7 +96,7 @@ namespace Pathoschild.Http.FluentClient.Default
 				.Unwrap();
 		}
 
-		/// <summary>Execute the request and asynchronously retrieve the response body as a <see cref="Stream"/>.</summary>
+		/// <summary>Asynchronously retrieve the response body as a <see cref="Stream"/>.</summary>
 		/// <returns>Returns the response body, or <c>null</c> if the response has no body.</returns>
 		/// <exception cref="ApiException">An error occurred processing the response.</exception>
 		public Task<Stream> AsStreamAsync()
@@ -114,14 +114,24 @@ namespace Pathoschild.Http.FluentClient.Default
 		/***
 		** Sync
 		***/
-		/// <summary>Execute the request and retrieve the response as a raw response message.</summary>
+		/// <summary>Block the current thread until the asynchronous request completes.</summary>
+		/// <returns>Returns this instance for chaining.</returns>
+		/// <exception cref="ApiException">The HTTP response returned a non-success <see cref="HttpStatusCode"/>, and <see cref="ThrowError"/> is <c>true</c>.</exception>
+		public IResponse Wait()
+		{
+			this.AsMessage();
+			return this;
+		}
+
+		/// <summary>Retrieve the underlying response message.</summary>
 		/// <exception cref="ApiException">An error occurred processing the response.</exception>
+		/// <exception cref="ApiException">The HTTP response returned a non-success <see cref="HttpStatusCode"/>, and <see cref="ThrowError"/> is <c>true</c>.</exception>
 		public HttpResponseMessage AsMessage()
 		{
 			return this.Synchronize(this.AsMessageAsync());
 		}
 
-		/// <summary>Execute the request and retrieve the response as a deserialized model.</summary>
+		/// <summary>Retrieve the response body as a deserialized model.</summary>
 		/// <typeparam name="T">The response model to deserialize into.</typeparam>
 		/// <exception cref="ApiException">The HTTP response returned a non-success <see cref="HttpStatusCode"/>, and <see cref="IResponse.ThrowError"/> is <c>true</c>.</exception>
 		public T As<T>()
@@ -129,7 +139,7 @@ namespace Pathoschild.Http.FluentClient.Default
 			return this.Synchronize(this.AsAsync<T>());
 		}
 
-		/// <summary>Execute the request and retrieve the response as a list of deserialized models.</summary>
+		/// <summary>Retrieve the response body as a list of deserialized models.</summary>
 		/// <typeparam name="T">The response model to deserialize into.</typeparam>
 		/// <exception cref="ApiException">The HTTP response returned a non-success <see cref="HttpStatusCode"/>, and <see cref="IResponse.ThrowError"/> is <c>true</c>.</exception>
 		public List<T> AsList<T>()
@@ -137,7 +147,7 @@ namespace Pathoschild.Http.FluentClient.Default
 			return this.Synchronize(this.AsListAsync<T>());
 		}
 
-		/// <summary>Execute the request and retrieve the response body as an array of <see cref="byte"/>.</summary>
+		/// <summary>Retrieve the response body as an array of <see cref="byte"/>.</summary>
 		/// <returns>Returns the response body, or <c>null</c> if the response has no body.</returns>
 		/// <exception cref="ApiException">The HTTP response returned a non-success <see cref="HttpStatusCode"/>, and <see cref="IResponse.ThrowError"/> is <c>true</c>.</exception>
 		public byte[] AsByteArray()
@@ -145,7 +155,7 @@ namespace Pathoschild.Http.FluentClient.Default
 			return this.Synchronize(this.AsByteArrayAsync());
 		}
 
-		/// <summary>Execute the request and retrieve the response body as a <see cref="string"/>.</summary>
+		/// <summary>Retrieve the response body as a <see cref="string"/>.</summary>
 		/// <returns>Returns the response body, or <c>null</c> if the response has no body.</returns>
 		/// <exception cref="ApiException">The HTTP response returned a non-success <see cref="HttpStatusCode"/>, and <see cref="IResponse.ThrowError"/> is <c>true</c>.</exception>
 		public string AsString()
@@ -153,7 +163,7 @@ namespace Pathoschild.Http.FluentClient.Default
 			return this.Synchronize(this.AsStringAsync());
 		}
 
-		/// <summary>Execute the request and retrieve the response body as a <see cref="Stream"/>.</summary>
+		/// <summary>Retrieve the response body as a <see cref="Stream"/>.</summary>
 		/// <returns>Returns the response body, or <c>null</c> if the response has no body.</returns>
 		/// <exception cref="ApiException">The HTTP response returned a non-success <see cref="HttpStatusCode"/>, and <see cref="IResponse.ThrowError"/> is <c>true</c>.</exception>
 		public Stream AsStream()

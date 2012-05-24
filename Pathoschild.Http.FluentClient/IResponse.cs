@@ -2,11 +2,12 @@ using System.Collections.Generic;
 using System.IO;
 using System.Net;
 using System.Net.Http;
+using System.Net.Http.Formatting;
 using System.Threading.Tasks;
 
 namespace Pathoschild.Http.FluentClient
 {
-	/// <summary>Executes an HTTP request and retrieves the response.</summary>
+	/// <summary>Retrieves the response from an asynchronous HTTP request.</summary>
 	public interface IResponse
 	{
 		/*********
@@ -18,6 +19,9 @@ namespace Pathoschild.Http.FluentClient
 		/// <summary>Whether to handle errors from the upstream server by throwing an exception.</summary>
 		bool ThrowError { get; }
 
+		/// <summary>The formatters used for serializing and deserializing message bodies.</summary>
+		MediaTypeFormatterCollection Formatters { get; }
+
 
 		/*********
 		** Methods
@@ -25,31 +29,31 @@ namespace Pathoschild.Http.FluentClient
 		/***
 		** Async
 		***/
-		/// <summary>Execute the request and asynchronously retrieve the response as a raw response message.</summary>
+		/// <summary>Asynchronously retrieve the underlying response message.</summary>
 		/// <exception cref="ApiException">An error occurred processing the response.</exception>
 		Task<HttpResponseMessage> AsMessageAsync();
 
-		/// <summary>Execute the request and asynchronously retrieve the response as a deserialized model.</summary>
+		/// <summary>Asynchronously retrieve the response body as a deserialized model.</summary>
 		/// <typeparam name="T">The response model to deserialize into.</typeparam>
 		/// <exception cref="ApiException">An error occurred processing the response.</exception>
 		Task<T> AsAsync<T>();
 
-		/// <summary>Execute the request and asynchronously retrieve the response as a list of deserialized models.</summary>
+		/// <summary>Asynchronously retrieve the response body as a list of deserialized models.</summary>
 		/// <typeparam name="T">The response model to deserialize into.</typeparam>
 		/// <exception cref="ApiException">An error occurred processing the response.</exception>
 		Task<List<T>> AsListAsync<T>();
 
-		/// <summary>Execute the request and asynchronously retrieve the response body as an array of <see cref="byte"/>.</summary>
+		/// <summary>Asynchronously retrieve the response body as an array of <see cref="byte"/>.</summary>
 		/// <returns>Returns the response body, or <c>null</c> if the response has no body.</returns>
 		/// <exception cref="ApiException">An error occurred processing the response.</exception>
 		Task<byte[]> AsByteArrayAsync();
 
-		/// <summary>Execute the request and asynchronously retrieve the response body as a <see cref="string"/>.</summary>
+		/// <summary>Asynchronously retrieve the response body as a <see cref="string"/>.</summary>
 		/// <returns>Returns the response body, or <c>null</c> if the response has no body.</returns>
 		/// <exception cref="ApiException">An error occurred processing the response.</exception>
 		Task<string> AsStringAsync();
 
-		/// <summary>Execute the request and asynchronously retrieve the response body as a <see cref="Stream"/>.</summary>
+		/// <summary>Asynchronously retrieve the response body as a <see cref="Stream"/>.</summary>
 		/// <returns>Returns the response body, or <c>null</c> if the response has no body.</returns>
 		/// <exception cref="ApiException">An error occurred processing the response.</exception>
 		Task<Stream> AsStreamAsync();
@@ -57,31 +61,37 @@ namespace Pathoschild.Http.FluentClient
 		/***
 		** Sync
 		***/
-		/// <summary>Execute the request and retrieve the response as a raw response message.</summary>
+		/// <summary>Block the current thread until the asynchronous request completes.</summary>
+		/// <returns>Returns this instance for chaining.</returns>
+		/// <exception cref="ApiException">The HTTP response returned a non-success <see cref="HttpStatusCode"/>, and <see cref="ThrowError"/> is <c>true</c>.</exception>
+		IResponse Wait();
+
+		/// <summary>Retrieve the underlying response message.</summary>
 		/// <exception cref="ApiException">An error occurred processing the response.</exception>
+		/// <exception cref="ApiException">The HTTP response returned a non-success <see cref="HttpStatusCode"/>, and <see cref="ThrowError"/> is <c>true</c>.</exception>
 		HttpResponseMessage AsMessage();
 
-		/// <summary>Execute the request and retrieve the response as a deserialized model.</summary>
+		/// <summary>Retrieve the response body as a deserialized model.</summary>
 		/// <typeparam name="T">The response model to deserialize into.</typeparam>
 		/// <exception cref="ApiException">The HTTP response returned a non-success <see cref="HttpStatusCode"/>, and <see cref="ThrowError"/> is <c>true</c>.</exception>
 		T As<T>();
 
-		/// <summary>Execute the request and retrieve the response as a list of deserialized models.</summary>
+		/// <summary>Retrieve the response body as a list of deserialized models.</summary>
 		/// <typeparam name="T">The response model to deserialize into.</typeparam>
 		/// <exception cref="ApiException">The HTTP response returned a non-success <see cref="HttpStatusCode"/>, and <see cref="ThrowError"/> is <c>true</c>.</exception>
 		List<T> AsList<T>();
 
-		/// <summary>Execute the request and retrieve the response body as an array of <see cref="byte"/>.</summary>
+		/// <summary>Retrieve the response body as an array of <see cref="byte"/>.</summary>
 		/// <returns>Returns the response body, or <c>null</c> if the response has no body.</returns>
 		/// <exception cref="ApiException">The HTTP response returned a non-success <see cref="HttpStatusCode"/>, and <see cref="ThrowError"/> is <c>true</c>.</exception>
 		byte[] AsByteArray();
 
-		/// <summary>Execute the request and retrieve the response body as a <see cref="string"/>.</summary>
+		/// <summary>Retrieve the response body as a <see cref="string"/>.</summary>
 		/// <returns>Returns the response body, or <c>null</c> if the response has no body.</returns>
 		/// <exception cref="ApiException">The HTTP response returned a non-success <see cref="HttpStatusCode"/>, and <see cref="ThrowError"/> is <c>true</c>.</exception>
 		string AsString();
 
-		/// <summary>Execute the request and retrieve the response body as a <see cref="Stream"/>.</summary>
+		/// <summary>Retrieve the response body as a <see cref="Stream"/>.</summary>
 		/// <returns>Returns the response body, or <c>null</c> if the response has no body.</returns>
 		/// <exception cref="ApiException">The HTTP response returned a non-success <see cref="HttpStatusCode"/>, and <see cref="ThrowError"/> is <c>true</c>.</exception>
 		Stream AsStream();
