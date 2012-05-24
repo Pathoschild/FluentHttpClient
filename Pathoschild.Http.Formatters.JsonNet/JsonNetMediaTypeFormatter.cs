@@ -11,6 +11,16 @@ namespace Pathoschild.Http.Formatters.JsonNet
 	/// <summary>Serializes and deserializes data as BSON.</summary>
 	public class JsonNetMediaTypeFormatter : SerializerMediaTypeFormatterBase
 	{
+		/*********
+		** Accessors
+		*********/
+		/// <summary>Whether to format the serialized JSON for human-readability.</summary>
+		public bool Format { get; set; }
+
+
+		/*********
+		** Public methods
+		*********/
 		/// <summary>Construct a new instance.</summary>
 		public JsonNetMediaTypeFormatter()
 		{
@@ -40,7 +50,7 @@ namespace Pathoschild.Http.Formatters.JsonNet
 		{
 			using (StreamWriter writer = new StreamWriter(stream))
 			{
-				string serialized = JsonConvert.SerializeObject(value);
+				string serialized = JsonConvert.SerializeObject(value, (this.Format ? Formatting.Indented : Formatting.None));
 				writer.Write(serialized);
 			}
 		}
