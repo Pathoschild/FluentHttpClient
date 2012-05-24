@@ -7,7 +7,7 @@ using System.Net.Http.Headers;
 
 namespace Pathoschild.Http.FluentClient
 {
-	/// <summary>Builds an HTTP request.</summary>
+	/// <summary>Builds an asynchronous HTTP request.</summary>
 	public interface IRequestBuilder
 	{
 		/*********
@@ -46,19 +46,19 @@ namespace Pathoschild.Http.FluentClient
 		/// <returns>Returns the request builder for chaining.</returns>
 		IRequestBuilder WithCustom(Action<HttpRequestMessage> request);
 
-		/// <summary>Execute the request and retrieve the response.</summary>
+		/// <summary>Asynchronously dispatch the request.</summary>
 		/// <param name="throwError">Whether to handle errors from the upstream server by throwing an exception.</param>
 		/// <returns>Returns a response.</returns>
 		IResponse Retrieve(bool throwError = true);
 
-		/// <summary>Execute the request and retrieve the response as a deserialized model.</summary>
+		/// <summary>Dispatch the request and retrieve the response as a deserialized model.</summary>
 		/// <typeparam name="TResponse">The response body type.</typeparam>
 		/// <param name="throwError">Whether to handle errors from the upstream server by throwing an exception.</param>
 		/// <returns>Returns a deserialized model.</returns>
 		/// <exception cref="ApiException">The HTTP response returned a non-success <see cref="HttpStatusCode"/>, and <paramref name="throwError"/> is <c>true</c>.</exception>
 		TResponse RetrieveAs<TResponse>(bool throwError = true);
 
-		/// <summary>Execute the request and retrieve the response as a deserialized list of models.</summary>
+		/// <summary>Dispatch the request and retrieve the response as a deserialized list of models.</summary>
 		/// <typeparam name="TResponse">The response body type.</typeparam>
 		/// <param name="throwError">Whether to handle errors from the upstream server by throwing an exception.</param>
 		/// <returns>Returns a deserialized list of models.</returns>

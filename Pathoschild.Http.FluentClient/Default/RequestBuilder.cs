@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace Pathoschild.Http.FluentClient.Default
 {
-	/// <summary>Builds an HTTP request.</summary>
+	/// <summary>Builds an asynchronous HTTP request.</summary>
 	public class RequestBuilder : IRequestBuilder
 	{
 		/*********
@@ -41,7 +41,7 @@ namespace Pathoschild.Http.FluentClient.Default
 
 		/// <summary>Set the body content of the HTTP request.</summary>
 		/// <param name="body">The HTTP body content.</param>
-		/// <param name="contentType">The request body format (or <c>null</c> to use the first supported Content-Type in the <see cref="Formatters"/>).</param>
+		/// <param name="contentType">The request body format (or <c>null</c> to use the first supported Content-Type in the <see cref="IRequestBuilder.Formatters"/>).</param>
 		/// <returns>Returns the request builder for chaining.</returns>
 		public IRequestBuilder WithBody<T>(T body, MediaTypeHeaderValue contentType = null)
 		{
@@ -82,7 +82,15 @@ namespace Pathoschild.Http.FluentClient.Default
 			return this;
 		}
 
-		/// <summary>Execute the request and retrieve the response as a deserialized model.</summary>
+		/// <summary>Asynchronously dispatch the request.</summary>
+		/// <param name="throwError">Whether to handle errors from the upstream server by throwing an exception.</param>
+		/// <returns>Returns a response.</returns>
+		public virtual IResponse Retrieve(bool throwError = true)
+		{
+			return new Response(this.Message, this.ResponseBuilder(this), this.Formatters, throwError);
+		}
+
+		/// <summary>Dispatch the request and retrieve the response as a deserialized model.</summary>
 		/// <typeparam name="TResponse">The response body type.</typeparam>
 		/// <param name="throwError">Whether to handle errors from the upstream server by throwing an exception.</param>
 		/// <returns>Returns a deserialized model.</returns>
@@ -92,7 +100,7 @@ namespace Pathoschild.Http.FluentClient.Default
 			return this.Retrieve(throwError).As<TResponse>();
 		}
 
-		/// <summary>Execute the request and retrieve the response as a deserialized list of models.</summary>
+		/// <summary>Dispatch the request and retrieve the response as a deserialized list of models.</summary>
 		/// <typeparam name="TResponse">The response body type.</typeparam>
 		/// <param name="throwError">Whether to handle errors from the upstream server by throwing an exception.</param>
 		/// <returns>Returns a deserialized list of models.</returns>
@@ -100,15 +108,6 @@ namespace Pathoschild.Http.FluentClient.Default
 		public List<TResponse> RetrieveAsList<TResponse>(bool throwError = true)
 		{
 			return this.Retrieve(throwError).AsList<TResponse>();
-		}
-
-		/// <summary>Execute the request and retrieve the response.</summary>
-		/// <param name="throwError">Whether to handle errors from the upstream server by throwing an exception.</param>
-		/// <returns>Returns a response.</returns>
-		/// <remarks>This is the base method which executes every request.</remarks>
-		public virtual IResponse Retrieve(bool throwError = true)
-		{
-			return new Response(this.Message, this.ResponseBuilder(this), this.Formatters, throwError);
 		}
 	}
 }

@@ -34,7 +34,7 @@ namespace Pathoschild.Http.FluentClient.Default
 			: this(new HttpClient { BaseAddress = new Uri(baseUri) })
 		{ }
 
-		/// <summary>Create an HTTP DELETE request.</summary>
+		/// <summary>Create an asynchronous HTTP DELETE request.</summary>
 		/// <param name="resource">The URI to send the request to.</param>
 		/// <returns>Returns a request builder.</returns>
 		public IRequestBuilder Delete(string resource)
@@ -42,7 +42,7 @@ namespace Pathoschild.Http.FluentClient.Default
 			return this.Send(HttpMethod.Delete, resource);
 		}
 
-		/// <summary>Create an HTTP GET request.</summary>
+		/// <summary>Create an asynchronous HTTP GET request.</summary>
 		/// <param name="resource">The URI to send the request to.</param>
 		/// <returns>Returns a request builder.</returns>
 		public IRequestBuilder Get(string resource)
@@ -50,7 +50,7 @@ namespace Pathoschild.Http.FluentClient.Default
 			return this.Send(HttpMethod.Get, resource);
 		}
 
-		/// <summary>Create an HTTP POST request.</summary>
+		/// <summary>Create an asynchronous HTTP POST request.</summary>
 		/// <param name="resource">The URI to send the request to.</param>
 		/// <returns>Returns a request builder.</returns>
 		public IRequestBuilder Post(string resource)
@@ -58,7 +58,7 @@ namespace Pathoschild.Http.FluentClient.Default
 			return this.Send(HttpMethod.Post, resource);
 		}
 
-		/// <summary>Create an HTTP POST request.</summary>
+		/// <summary>Create an asynchronous HTTP POST request.</summary>
 		/// <typeparam name="TBody">The request body type.</typeparam>
 		/// <param name="resource">The URI to send the request to.</param>
 		/// <param name="body">The request body.</param>
@@ -68,7 +68,7 @@ namespace Pathoschild.Http.FluentClient.Default
 			return this.Post(resource).WithBody(body);
 		}
 
-		/// <summary>Create an HTTP PUT request.</summary>
+		/// <summary>Create an asynchronous HTTP PUT request.</summary>
 		/// <param name="resource">The URI to send the request to.</param>
 		/// <returns>Returns a request builder.</returns>
 		public IRequestBuilder Put(string resource)
@@ -76,7 +76,7 @@ namespace Pathoschild.Http.FluentClient.Default
 			return this.Send(HttpMethod.Put, resource);
 		}
 
-		/// <summary>Create an HTTP PUT request.</summary>
+		/// <summary>Create an asynchronous HTTP PUT request.</summary>
 		/// <typeparam name="TBody">The request body type.</typeparam>
 		/// <param name="resource">The URI to send the request to.</param>
 		/// <param name="body">The request body.</param>
@@ -86,7 +86,7 @@ namespace Pathoschild.Http.FluentClient.Default
 			return this.Put(resource).WithBody(body);
 		}
 
-		/// <summary>Create a request.</summary>
+		/// <summary>Create a asynchronous request.</summary>
 		/// <param name="method">The HTTP method.</param>
 		/// <param name="resource">The URI to send the request to.</param>
 		/// <returns>Returns a request builder.</returns>
@@ -97,7 +97,7 @@ namespace Pathoschild.Http.FluentClient.Default
 			return this.Send(message);
 		}
 
-		/// <summary>Create a request.</summary>
+		/// <summary>Create a asynchronous request.</summary>
 		/// <param name="message">The HTTP request message to send.</param>
 		/// <returns>Returns a request builder.</returns>
 		/// <remarks>This is the base method which executes every request.</remarks>
