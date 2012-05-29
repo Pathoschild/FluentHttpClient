@@ -193,7 +193,7 @@ namespace Pathoschild.Http.FluentClient.Default
 		protected virtual void ValidateResponse(HttpResponseMessage message)
 		{
 			if (this.ThrowError && !message.IsSuccessStatusCode)
-				throw new ApiException(message.StatusCode, String.Format("The API query failed with status code {0}: {1}", message.StatusCode, message.ReasonPhrase));
+				throw new ApiException(message, message.StatusCode, String.Format("The API query failed with status code {0}: {1}", message.StatusCode, message.ReasonPhrase));
 		}
 
 		/// <summary>Synchronously await a task and return its result.</summary>

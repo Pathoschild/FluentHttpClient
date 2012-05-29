@@ -2,7 +2,7 @@
 <package>
 	<metadata>
 		<id>Pathoschild.Http.FluentClient</id>
-		<version>0.1.4-alpha</version>
+		<version>0.1.5-alpha</version>
 		<authors>Jesse Plamondon-Willard</authors>
 		<description>A fluent, strongly-typed HTTP client built on top of Microsoft's new HttpClient.</description>
 		<tags>api http httpclient wcf web webapi</tags>
