@@ -44,8 +44,8 @@
     <Reference Include="System.Net.Http.Formatting, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="JsonNetBsonMediaTypeFormatter.cs" />
-    <Compile Include="JsonNetMediaTypeFormatter.cs" />
+    <Compile Include="JsonNetBsonFormatter.cs" />
+    <Compile Include="JsonNetFormatter.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

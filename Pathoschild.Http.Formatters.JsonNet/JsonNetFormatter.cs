@@ -24,10 +24,8 @@ namespace Pathoschild.Http.Formatters.JsonNet
 		/// <summary>Construct a new instance.</summary>
 		public JsonNetFormatter()
 		{
-			this.SupportedMediaTypes.Add(new MediaTypeHeaderValue("text/json"));
-			this.SupportedMediaTypes.Add(new MediaTypeHeaderValue("text/jsonfm"));
 			this.SupportedMediaTypes.Add(new MediaTypeHeaderValue("application/json"));
-			this.SupportedMediaTypes.Add(new MediaTypeHeaderValue("application/jsonfm"));
+			this.SupportedMediaTypes.Add(new MediaTypeHeaderValue("text/json"));
 		}
 
 		/// <summary>Deserialize an object from the stream.</summary>
@@ -52,8 +50,7 @@ namespace Pathoschild.Http.Formatters.JsonNet
 		/// <param name="transportContext">The <see cref="TransportContext"/>.</param>
 		public override void Serialize(Type type, object value, Stream stream, HttpContentHeaders contentHeaders, TransportContext transportContext)
 		{
-			bool format = this.Format || contentHeaders.ContentType.MediaType.EndsWith("jsonfm");
-			JsonSerializer serializer = new JsonSerializer { Formatting = format ? Formatting.Indented : Formatting.None };
+			JsonSerializer serializer = new JsonSerializer { Formatting = this.Format ? Formatting.Indented : Formatting.None };
 			StreamWriter streamWriter = new StreamWriter(stream); // don't dispose (stream disposal is handled elsewhere)
 			JsonTextWriter writer = new JsonTextWriter(streamWriter);
 			serializer.Serialize(writer, value);
