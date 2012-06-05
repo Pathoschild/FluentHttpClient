@@ -12,39 +12,39 @@ namespace Pathoschild.Http.Formatters.Core
 	public abstract class SerializerMediaTypeFormatterBase : MediaTypeFormatter
 	{
 		/*********
-		** Protected methods
+		** Public methods
 		*********/
 		/***
 		** Generic
 		***/
 		/// <summary>Determines whether this <see cref="MediaTypeFormatter"/> can deserialize an object of the specified type.</summary>
 		/// <param name="type">The type of object that will be deserialized.</param>
-		/// <returns>Returns <c>true</c> if this <see cref="MediaTypeFormatter"/> can deserialize an object of that type; otherwise false.</returns>
-		protected override bool CanReadType(Type type)
+		/// <returns>true if this <see cref="MediaTypeFormatter"/> can deserialize an object of that type; otherwise false.</returns>
+		public override bool CanReadType(Type type)
 		{
-			return type != typeof(IKeyValueModel);
+			return true;
 		}
 
-		/// <summary>Determines whether this <see cref="MediaTypeFormatter"/> can serialize an object of the specified type.</summary>
+		/// <summary>Determines whether this <see cref="MediaTypeFormatter"/> can serialize an object of the specified type. </summary>
 		/// <param name="type">The type of object that will be serialized.</param>
 		/// <returns>true if this <see cref="MediaTypeFormatter"/> can serialize an object of that type; otherwise false.</returns>
-		protected override bool CanWriteType(Type type)
+		public override bool CanWriteType(Type type)
 		{
-			return type != typeof(IKeyValueModel);
+			return true;
 		}
 
-		/// <summary>Called to read an object from the stream asynchronously.</summary>
+		/// <summary>Reads an object from the stream asynchronously.</summary>
 		/// <param name="type">The type of object to read.</param>
-		/// <param name="stream">The <see cref="Stream"/> from which to read.</param>
-		/// <param name="contentHeaders">The <see cref="HttpContentHeaders"/> for the content being read.</param>
-		/// <param name="formatterContext">The <see cref="FormatterContext"/> containing the respective request or response.</param>
-		/// <returns>A <see cref="Task"/> that will write the object to the stream asynchronously.</returns>
-		protected override Task<object> OnReadFromStreamAsync(Type type, Stream stream, HttpContentHeaders contentHeaders, FormatterContext formatterContext)
+		/// <param name="stream">The stream from which to read.</param>
+		/// <param name="contentHeaders">The HTTP content headers for the content being read.</param>
+		/// <param name="formatterLogger">The trace message logger.</param>
+		/// <returns>A task which writes the object to the stream asynchronously.</returns>
+		public override Task<object> ReadFromStreamAsync(Type type, Stream stream, HttpContentHeaders contentHeaders, IFormatterLogger formatterLogger)
 		{
 			var completionSource = new TaskCompletionSource<object>();
 			try
 			{
-				object result = this.Deserialize(type, stream, contentHeaders, formatterContext);
+				object result = this.Deserialize(type, stream, contentHeaders, formatterLogger);
 				completionSource.SetResult(result);
 			}
 			catch (Exception ex)
@@ -55,20 +55,19 @@ namespace Pathoschild.Http.Formatters.Core
 			return completionSource.Task;
 		}
 
-		/// <summary>Called to write an object to the stream asynchronously.</summary>
+		/// <summary>Writes an object to the stream asynchronously.</summary>
 		/// <param name="type">The type of object to write.</param>
 		/// <param name="value">The object instance to write.</param>
-		/// <param name="stream">The <see cref="Stream"/> to which to write.</param>
-		/// <param name="contentHeaders">The <see cref="HttpContentHeaders"/> for the content being written.</param>
-		/// <param name="formatterContext">The <see cref="FormatterContext"/> containing the respective request or response.</param>
+		/// <param name="stream">The stream to which to write.</param>
+		/// <param name="contentHeaders">The HTTP content headers for the content being written.</param>
 		/// <param name="transportContext">The <see cref="TransportContext"/>.</param>
-		/// <returns>A <see cref="Task"/> that will read the object from the stream asynchronously.</returns>
-		protected override Task OnWriteToStreamAsync(Type type, object value, Stream stream, HttpContentHeaders contentHeaders, FormatterContext formatterContext, TransportContext transportContext)
+		/// <returns>A task which writes the object to the stream asynchronously.</returns>
+		public override Task WriteToStreamAsync(Type type, object value, Stream stream, HttpContentHeaders contentHeaders, TransportContext transportContext)
 		{
 			var completionSource = new TaskCompletionSource<object>();
 			try
 			{
-				this.Serialize(type, value, stream, contentHeaders, formatterContext, transportContext);
+				this.Serialize(type, value, stream, contentHeaders, transportContext);
 				completionSource.SetResult(null);
 			}
 			catch (Exception ex)
@@ -79,24 +78,24 @@ namespace Pathoschild.Http.Formatters.Core
 			return completionSource.Task;
 		}
 
+
 		/***
 		** Abstract
 		***/
 		/// <summary>Deserialize an object from the stream.</summary>
 		/// <param name="type">The type of object to read.</param>
-		/// <param name="stream">The <see cref="Stream"/> from which to read.</param>
-		/// <param name="contentHeaders">The <see cref="HttpContentHeaders"/> for the content being read.</param>
-		/// <param name="formatterContext">The <see cref="FormatterContext"/> containing the respective request or response.</param>
+		/// <param name="stream">The stream from which to read.</param>
+		/// <param name="contentHeaders">The HTTP content headers for the content being read.</param>
+		/// <param name="formatterLogger">The trace message logger.</param>
 		/// <returns>Returns a deserialized object.</returns>
-		protected abstract object Deserialize(Type type, Stream stream, HttpContentHeaders contentHeaders, FormatterContext formatterContext);
+		public abstract object Deserialize(Type type, Stream stream, HttpContentHeaders contentHeaders, IFormatterLogger formatterLogger);
 
 		/// <summary>Serialize an object into the stream.</summary>
 		/// <param name="type">The type of object to write.</param>
 		/// <param name="value">The object instance to write.</param>
-		/// <param name="stream">The <see cref="Stream"/> to which to write.</param>
-		/// <param name="contentHeaders">The <see cref="HttpContentHeaders"/> for the content being written.</param>
-		/// <param name="formatterContext">The <see cref="FormatterContext"/> containing the respective request or response.</param>
+		/// <param name="stream">The stream to which to write.</param>
+		/// <param name="contentHeaders">The HTTP content headers for the content being written.</param>
 		/// <param name="transportContext">The <see cref="TransportContext"/>.</param>
-		protected abstract void Serialize(Type type, object value, Stream stream, HttpContentHeaders contentHeaders, FormatterContext formatterContext, TransportContext transportContext);
+		public abstract void Serialize(Type type, object value, Stream stream, HttpContentHeaders contentHeaders, TransportContext transportContext);
 	}
 }

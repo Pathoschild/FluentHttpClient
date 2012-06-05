@@ -72,6 +72,26 @@ namespace Pathoschild.Http.FluentClient.Tests.Default
 			Assert.That(request.Message.Content.ReadAsStringAsync().Result, Is.EqualTo('"' + body.ToString() + '"'), "The message body is invalid.");
 		}
 
+		[Test(Description = "Ensure that WithBody sets the request body and does not incorrectly alter request state.")]
+		[TestCase("DELETE", "body value")]
+		[TestCase("GET", "body value")]
+		[TestCase("HEAD", "body value")]
+		[TestCase("PUT", "body value")]
+		[TestCase("OPTIONS", "body value")]
+		[TestCase("POST", "body value")]
+		[TestCase("TRACE", "body value")]
+		public void WithBody_AndFormatter(string methodName, object body)
+		{
+			// execute
+			IRequestBuilder request = this
+				.ConstructRequest(methodName)
+				.WithBody(body, new JsonMediaTypeFormatter());
+
+			// verify
+			this.AssertEqual(request.Message, methodName, ignoreArguments: true);
+			Assert.That(request.Message.Content.ReadAsStringAsync().Result, Is.EqualTo('"' + body.ToString() + '"'), "The message body is invalid.");
+		}
+
 		[Test(Description = "Ensure that WithCustom persists the custom changes and does not incorrectly alter request state.")]
 		[TestCase("DELETE", "body value")]
 		[TestCase("GET", "body value")]
@@ -80,16 +100,16 @@ namespace Pathoschild.Http.FluentClient.Tests.Default
 		[TestCase("OPTIONS", "body value")]
 		[TestCase("POST", "body value")]
 		[TestCase("TRACE", "body value")]
-		public void WithCustom(string methodName, object customBody)
+		public void WithCustom(string methodName, string customBody)
 		{
 			// execute
 			IRequestBuilder request = this
 				.ConstructRequest(methodName)
-				.WithCustom(r => r.Content = r.CreateContent(customBody));
+				.WithCustom(r => r.Content = new ObjectContent<string>(customBody, new JsonMediaTypeFormatter()));
 
 			// verify
 			this.AssertEqual(request.Message, methodName, ignoreArguments: true);
-			Assert.That(request.Message.Content.ReadAsStringAsync().Result, Is.EqualTo('"' + customBody.ToString() + '"'), "The customized message body is invalid.");
+			Assert.That(request.Message.Content.ReadAsStringAsync().Result, Is.EqualTo('"' + customBody + '"'), "The customized message body is invalid.");
 		}
 
 		[Test(Description = "Ensure that WithHeader sets the expected header and does not incorrectly alter request state.")]

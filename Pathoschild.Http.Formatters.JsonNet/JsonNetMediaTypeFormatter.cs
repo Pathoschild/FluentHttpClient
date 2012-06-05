@@ -8,7 +8,7 @@ using Pathoschild.Http.Formatters.Core;
 
 namespace Pathoschild.Http.Formatters.JsonNet
 {
-	/// <summary>Serializes and deserializes data as BSON.</summary>
+	/// <summary>Serializes and deserializes data as JSON.</summary>
 	public class JsonNetMediaTypeFormatter : SerializerMediaTypeFormatterBase
 	{
 		/*********
@@ -24,35 +24,40 @@ namespace Pathoschild.Http.Formatters.JsonNet
 		/// <summary>Construct a new instance.</summary>
 		public JsonNetMediaTypeFormatter()
 		{
+			this.SupportedMediaTypes.Add(new MediaTypeHeaderValue("text/json"));
+			this.SupportedMediaTypes.Add(new MediaTypeHeaderValue("text/jsonfm"));
 			this.SupportedMediaTypes.Add(new MediaTypeHeaderValue("application/json"));
+			this.SupportedMediaTypes.Add(new MediaTypeHeaderValue("application/jsonfm"));
 		}
 
 		/// <summary>Deserialize an object from the stream.</summary>
 		/// <param name="type">The type of object to read.</param>
-		/// <param name="stream">The <see cref="Stream"/> from which to read.</param>
-		/// <param name="contentHeaders">The <see cref="HttpContentHeaders"/> for the content being read.</param>
-		/// <param name="formatterContext">The <see cref="FormatterContext"/> containing the respective request or response.</param>
+		/// <param name="stream">The stream from which to read.</param>
+		/// <param name="contentHeaders">The HTTP content headers for the content being read.</param>
+		/// <param name="formatterLogger">The trace message logger.</param>
 		/// <returns>Returns a deserialized object.</returns>
-		protected override object Deserialize(Type type, Stream stream, HttpContentHeaders contentHeaders, FormatterContext formatterContext)
+		public override object Deserialize(Type type, Stream stream, HttpContentHeaders contentHeaders, IFormatterLogger formatterLogger)
 		{
-			using (StreamReader reader = new StreamReader(stream))
-				return JsonConvert.DeserializeObject(reader.ReadToEnd(), type);
+			JsonSerializer serializer = new JsonSerializer();
+			StreamReader streamReader = new StreamReader(stream); // don't dispose (stream disposal is handled elsewhere)
+			JsonTextReader reader = new JsonTextReader(streamReader);
+			return serializer.Deserialize(reader, type);
 		}
 
 		/// <summary>Serialize an object into the stream.</summary>
 		/// <param name="type">The type of object to write.</param>
 		/// <param name="value">The object instance to write.</param>
-		/// <param name="stream">The <see cref="Stream"/> to which to write.</param>
-		/// <param name="contentHeaders">The <see cref="HttpContentHeaders"/> for the content being written.</param>
-		/// <param name="formatterContext">The <see cref="FormatterContext"/> containing the respective request or response.</param>
+		/// <param name="stream">The stream to which to write.</param>
+		/// <param name="contentHeaders">The HTTP content headers for the content being written.</param>
 		/// <param name="transportContext">The <see cref="TransportContext"/>.</param>
-		protected override void Serialize(Type type, object value, Stream stream, HttpContentHeaders contentHeaders, FormatterContext formatterContext, TransportContext transportContext)
+		public override void Serialize(Type type, object value, Stream stream, HttpContentHeaders contentHeaders, TransportContext transportContext)
 		{
-			using (StreamWriter writer = new StreamWriter(stream))
-			{
-				string serialized = JsonConvert.SerializeObject(value, (this.Format ? Formatting.Indented : Formatting.None));
-				writer.Write(serialized);
-			}
+			bool format = this.Format || contentHeaders.ContentType.MediaType.EndsWith("jsonfm");
+			JsonSerializer serializer = new JsonSerializer { Formatting = format ? Formatting.Indented : Formatting.None };
+			StreamWriter streamWriter = new StreamWriter(stream); // don't dispose (stream disposal is handled elsewhere)
+			JsonTextWriter writer = new JsonTextWriter(streamWriter);
+			serializer.Serialize(writer, value);
+			writer.Flush();
 		}
 	}
 }

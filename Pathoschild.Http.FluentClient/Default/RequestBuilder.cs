@@ -43,10 +43,21 @@ namespace Pathoschild.Http.FluentClient.Default
 		/// <param name="body">The HTTP body content.</param>
 		/// <param name="contentType">The request body format (or <c>null</c> to use the first supported Content-Type in the <see cref="IRequestBuilder.Formatters"/>).</param>
 		/// <returns>Returns the request builder for chaining.</returns>
+		/// <exception cref="InvalidOperationException">No MediaTypeFormatters are available on the API client for this content type.</exception>
 		public IRequestBuilder WithBody<T>(T body, MediaTypeHeaderValue contentType = null)
 		{
-			this.Message.Content = this.Message.CreateContent<T>(body);
-			this.Message.Content.Headers.ContentType = contentType ?? this.Formatters.SelectMany(p => p.SupportedMediaTypes).First();
+			MediaTypeFormatter formatter = this.GetFormatter(contentType);
+			return this.WithBody<T>(body, formatter, contentType != null ? contentType.MediaType : null);
+		}
+
+		/// <summary>Set the body content of the HTTP request.</summary>
+		/// <param name="body">The HTTP body content.</param>
+		/// <param name="formatter">The media type formatter with which to format the request body format.</param>
+		/// <param name="mediaType">The HTTP media type (or <c>null</c> for the <paramref name="formatter"/>'s default).</param>
+		/// <returns>Returns the request builder for chaining.</returns>
+		public IRequestBuilder WithBody<T>(T body, MediaTypeFormatter formatter, string mediaType = null)
+		{
+			this.Message.Content = new ObjectContent<T>(body, formatter, mediaType);
 			return this;
 		}
 
@@ -108,6 +119,27 @@ namespace Pathoschild.Http.FluentClient.Default
 		public List<TResponse> RetrieveAsList<TResponse>(bool throwError = true)
 		{
 			return this.Retrieve(throwError).AsList<TResponse>();
+		}
+
+
+		/*********
+		** Protected methods
+		*********/
+		/// <summary>Get the formatter for an HTTP content type.</summary>
+		/// <param name="contentType">The HTTP content type (or <c>null</c> to automatically select one).</param>
+		/// <exception cref="InvalidOperationException">No MediaTypeFormatters are available on the API client for this content type.</exception>
+		protected MediaTypeFormatter GetFormatter(MediaTypeHeaderValue contentType = null)
+		{
+			if (!this.Formatters.Any())
+				throw new InvalidOperationException("No MediaTypeFormatters are available on the API client.");
+
+			MediaTypeFormatter formatter = contentType != null
+				? this.Formatters.FirstOrDefault(f => f.MediaTypeMappings.Any(m => m.MediaType.MediaType == contentType.MediaType))
+				: this.Formatters.FirstOrDefault();
+			if (formatter == null)
+				throw new InvalidOperationException(String.Format("No MediaTypeFormatters are available on the API client for the '{0}' content-type.", contentType));
+
+			return formatter;
 		}
 	}
 }

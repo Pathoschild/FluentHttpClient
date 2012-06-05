@@ -12,19 +12,22 @@ namespace Pathoschild.Http.Formatters.JsonNet
 	/// <summary>Serializes and deserializes data as BSON.</summary>
 	public class JsonNetBsonMediaTypeFormatter : SerializerMediaTypeFormatterBase
 	{
+		/*********
+		** Public methods
+		*********/
 		/// <summary>Construct a new instance.</summary>
 		public JsonNetBsonMediaTypeFormatter()
 		{
 			this.SupportedMediaTypes.Add(new MediaTypeHeaderValue("application/bson"));
 		}
-
+		
 		/// <summary>Deserialize an object from the stream.</summary>
 		/// <param name="type">The type of object to read.</param>
-		/// <param name="stream">The <see cref="Stream"/> from which to read.</param>
-		/// <param name="contentHeaders">The <see cref="HttpContentHeaders"/> for the content being read.</param>
-		/// <param name="formatterContext">The <see cref="FormatterContext"/> containing the respective request or response.</param>
+		/// <param name="stream">The stream from which to read.</param>
+		/// <param name="contentHeaders">The HTTP content headers for the content being read.</param>
+		/// <param name="formatterLogger">The trace message logger.</param>
 		/// <returns>Returns a deserialized object.</returns>
-		protected override object Deserialize(Type type, Stream stream, HttpContentHeaders contentHeaders, FormatterContext formatterContext)
+		public override object Deserialize(Type type, Stream stream, HttpContentHeaders contentHeaders, IFormatterLogger formatterLogger)
 		{
 			JsonSerializer serializer = new JsonSerializer();
 			BsonReader reader = new BsonReader(stream);
@@ -34,11 +37,10 @@ namespace Pathoschild.Http.Formatters.JsonNet
 		/// <summary>Serialize an object into the stream.</summary>
 		/// <param name="type">The type of object to write.</param>
 		/// <param name="value">The object instance to write.</param>
-		/// <param name="stream">The <see cref="Stream"/> to which to write.</param>
-		/// <param name="contentHeaders">The <see cref="HttpContentHeaders"/> for the content being written.</param>
-		/// <param name="formatterContext">The <see cref="FormatterContext"/> containing the respective request or response.</param>
+		/// <param name="stream">The stream to which to write.</param>
+		/// <param name="contentHeaders">The HTTP content headers for the content being written.</param>
 		/// <param name="transportContext">The <see cref="TransportContext"/>.</param>
-		protected override void Serialize(Type type, object value, Stream stream, HttpContentHeaders contentHeaders, FormatterContext formatterContext, TransportContext transportContext)
+		public override void Serialize(Type type, object value, Stream stream, HttpContentHeaders contentHeaders, TransportContext transportContext)
 		{
 			JsonSerializer serializer = new JsonSerializer();
 			BsonWriter writer = new BsonWriter(stream);

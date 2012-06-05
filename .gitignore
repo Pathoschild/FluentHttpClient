@@ -3,6 +3,7 @@
 *.sln.docstates
 *.user
 *.vsp
+pack.bat
 Thumbs.db
 [Bb]in
 [Dd]ebug*/
