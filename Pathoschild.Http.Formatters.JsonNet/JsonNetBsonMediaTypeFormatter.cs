@@ -10,13 +10,13 @@ using Pathoschild.Http.Formatters.Core;
 namespace Pathoschild.Http.Formatters.JsonNet
 {
 	/// <summary>Serializes and deserializes data as BSON.</summary>
-	public class JsonNetBsonMediaTypeFormatter : SerializerMediaTypeFormatterBase
+	public class JsonNetBsonFormatter : SerializerMediaTypeFormatterBase
 	{
 		/*********
 		** Public methods
 		*********/
 		/// <summary>Construct a new instance.</summary>
-		public JsonNetBsonMediaTypeFormatter()
+		public JsonNetBsonFormatter()
 		{
 			this.SupportedMediaTypes.Add(new MediaTypeHeaderValue("application/bson"));
 		}

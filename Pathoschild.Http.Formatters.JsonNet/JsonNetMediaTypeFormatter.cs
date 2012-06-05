@@ -9,7 +9,7 @@ using Pathoschild.Http.Formatters.Core;
 namespace Pathoschild.Http.Formatters.JsonNet
 {
 	/// <summary>Serializes and deserializes data as JSON.</summary>
-	public class JsonNetMediaTypeFormatter : SerializerMediaTypeFormatterBase
+	public class JsonNetFormatter : SerializerMediaTypeFormatterBase
 	{
 		/*********
 		** Accessors
@@ -22,7 +22,7 @@ namespace Pathoschild.Http.Formatters.JsonNet
 		** Public methods
 		*********/
 		/// <summary>Construct a new instance.</summary>
-		public JsonNetMediaTypeFormatter()
+		public JsonNetFormatter()
 		{
 			this.SupportedMediaTypes.Add(new MediaTypeHeaderValue("text/json"));
 			this.SupportedMediaTypes.Add(new MediaTypeHeaderValue("text/jsonfm"));
