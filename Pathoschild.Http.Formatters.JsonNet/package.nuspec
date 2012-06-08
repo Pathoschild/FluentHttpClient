@@ -2,7 +2,7 @@
 <package>
 	<metadata>
 		<id>Pathoschild.Http.Formatters.JsonNet</id>
-		<version>0.2.0-alpha</version>
+		<version>0.2.1-alpha</version>
 		<authors>Jesse Plamondon-Willard</authors>
 		<description>Provides MediaTypeFormatters for JSON and BSON using Json.NET. These can be used by the .NET 4.5 HttpClient and Web API for serializing message bodies.</description>
 		<tags>api http httpclient wcf web webapi</tags>
@@ -13,6 +13,6 @@
 			<dependency id="Pathoschild.Http.Formatters.Core" version="0.2.0-alpha" />
 			<dependency id="Newtonsoft.Json" version="4.5" />
 		</dependencies>
-		<releaseNotes>Added compatibility for the .NET 4.5 release candidate. (This is no longer compatible with the beta.)</releaseNotes>
+		<releaseNotes>Allow access to the serializer settings.</releaseNotes>
 	</metadata>
 </package>
