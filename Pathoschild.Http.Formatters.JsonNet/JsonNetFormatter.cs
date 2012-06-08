@@ -15,7 +15,14 @@ namespace Pathoschild.Http.Formatters.JsonNet
 		** Accessors
 		*********/
 		/// <summary>Whether to format the serialized JSON for human-readability.</summary>
-		public bool Format { get; set; }
+		public bool Format
+		{
+			get { return this.SerializerSettings.Formatting == Formatting.Indented; }
+			set { this.SerializerSettings.Formatting = value ? Formatting.Indented : Formatting.None; }
+		}
+
+		/// <summary>The JSON serialization settings.</summary>
+		public JsonSerializerSettings SerializerSettings { get; set; }
 
 
 		/*********
@@ -23,9 +30,16 @@ namespace Pathoschild.Http.Formatters.JsonNet
 		*********/
 		/// <summary>Construct a new instance.</summary>
 		public JsonNetFormatter()
+			: this(new JsonSerializerSettings())
+		{ }
+
+		/// <summary>Construct a new instance.</summary>
+		/// <param name="settings">The JSON serialization settings.</param>
+		public JsonNetFormatter(JsonSerializerSettings settings)
 		{
 			this.SupportedMediaTypes.Add(new MediaTypeHeaderValue("application/json"));
 			this.SupportedMediaTypes.Add(new MediaTypeHeaderValue("text/json"));
+			this.SerializerSettings = settings;
 		}
 
 		/// <summary>Deserialize an object from the stream.</summary>
@@ -36,7 +50,7 @@ namespace Pathoschild.Http.Formatters.JsonNet
 		/// <returns>Returns a deserialized object.</returns>
 		public override object Deserialize(Type type, Stream stream, HttpContentHeaders contentHeaders, IFormatterLogger formatterLogger)
 		{
-			JsonSerializer serializer = new JsonSerializer();
+			JsonSerializer serializer = JsonSerializer.Create(this.SerializerSettings);
 			StreamReader streamReader = new StreamReader(stream); // don't dispose (stream disposal is handled elsewhere)
 			JsonTextReader reader = new JsonTextReader(streamReader);
 			return serializer.Deserialize(reader, type);
@@ -50,7 +64,7 @@ namespace Pathoschild.Http.Formatters.JsonNet
 		/// <param name="transportContext">The <see cref="TransportContext"/>.</param>
 		public override void Serialize(Type type, object value, Stream stream, HttpContentHeaders contentHeaders, TransportContext transportContext)
 		{
-			JsonSerializer serializer = new JsonSerializer { Formatting = this.Format ? Formatting.Indented : Formatting.None };
+			JsonSerializer serializer = JsonSerializer.Create(this.SerializerSettings);
 			StreamWriter streamWriter = new StreamWriter(stream); // don't dispose (stream disposal is handled elsewhere)
 			JsonTextWriter writer = new JsonTextWriter(streamWriter);
 			serializer.Serialize(writer, value);
