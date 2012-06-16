@@ -49,16 +49,16 @@ You also can do everything asynchronously:
 ```
 
 ### Reference
-The code documentation provides more details on usage: see [`IClient`](https://github.com/Pathoschild/Pathoschild.FluentHttpClient/blob/master/Pathoschild.FluentHttpClient/IClient.cs#L6), [`IRequestBuilder`](https://github.com/Pathoschild/Pathoschild.FluentHttpClient/blob/master/Pathoschild.FluentHttpClient/IRequestBuilder.cs#L9), and [`IResponse`](https://github.com/Pathoschild/Pathoschild.FluentHttpClient/blob/master/Pathoschild.FluentHttpClient/IResponse.cs#L9).
+The code documentation provides more details on usage: see [`IClient`](https://github.com/Pathoschild/Pathoschild.FluentHttpClient/blob/master/Pathoschild.Http.FluentClient/IClient.cs#L6), [`IRequestBuilder`](https://github.com/Pathoschild/Pathoschild.FluentHttpClient/blob/master/Pathoschild.Http.FluentClient/IRequestBuilder.cs#L10), and [`IResponse`](https://github.com/Pathoschild/Pathoschild.FluentHttpClient/blob/master/Pathoschild.Http.FluentClient/IResponse.cs#L10).
 
 ## Extending the client
 ### Media type formatters
-The client uses the abstract [`MediaTypeFormatter`](http://msdn.microsoft.com/en-us/library/system.net.http.formatting.mediatypeformatter.aspx) for serializing and deserializing models for HTTP messages. This is the same type used by the underlying `HttpClient` and the .NET Web API, so there are many implementations already available. You can also create your own implementation ([`SerializerMediaTypeFormatterBase`](https://github.com/Pathoschild/Pathoschild.FluentHttpClient/blob/master/Pathoschild.FluentHttpClient/Framework/MediaTypeFormatterBase.cs#L10) might help).
+The client uses the abstract [`MediaTypeFormatter`](http://msdn.microsoft.com/en-us/library/system.net.http.formatting.mediatypeformatter.aspx) for serializing and deserializing models for HTTP messages. This is the same type used by the underlying `HttpClient` and the .NET Web API, so there are many implementations already available. You can also create your own implementation ([`MediaTypeFormatterBase`](https://github.com/Pathoschild/Pathoschild.FluentHttpClient/blob/master/Pathoschild.Http.Formatters.Core/MediaTypeFormatterBase.cs#L10) might help).
 
-For example, to replace the default `DataContractJsonSerializer` with the [JSON.NET serializer](https://github.com/Pathoschild/Pathoschild.FluentHttpClient/blob/master/Pathoschild.FluentHttpClient.Formatters.JsonNet/JsonNetFormatter.cs#L12):
+For example, to replace the default `DataContractJsonSerializer` with the [JSON.NET serializer](https://github.com/Pathoschild/Pathoschild.FluentHttpClient/blob/master/Pathoschild.Http.Formatters.JsonNet/JsonNetFormatter.cs#L11):
 
 ```c#
      IClient client = new Client("http://example.org/api/");
      client.Formatters.Remove(client.Formatters.JsonFormatter);
-     client.Formatters.Add(new JsonNetMediaTypeFormatter());
+     client.Formatters.Add(new JsonNetFormatter());
 ```

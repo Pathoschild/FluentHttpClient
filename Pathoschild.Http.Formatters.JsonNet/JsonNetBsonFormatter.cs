@@ -10,7 +10,7 @@ using Pathoschild.Http.Formatters.Core;
 namespace Pathoschild.Http.Formatters.JsonNet
 {
 	/// <summary>Serializes and deserializes data as BSON.</summary>
-	public class JsonNetBsonFormatter : SerializerMediaTypeFormatterBase
+	public class JsonNetBsonFormatter : MediaTypeFormatterBase
 	{
 		/*********
 		** Public methods

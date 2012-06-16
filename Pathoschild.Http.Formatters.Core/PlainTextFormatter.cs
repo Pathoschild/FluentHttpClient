@@ -8,7 +8,7 @@ namespace Pathoschild.Http.Formatters.Core
 {
 	/// <summary>Serializes and deserializes data as plaintext.</summary>
 	/// <remarks>This formatter is derived from <see cref="http://github.com/WebApiContrib"/>, which was not compatible with the release candidate at the time of creation.</remarks>
-	public class PlainTextFormatter : SerializerMediaTypeFormatterBase
+	public class PlainTextFormatter : MediaTypeFormatterBase
 	{
 		/*********
 		** Public methods

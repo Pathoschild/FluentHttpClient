@@ -9,7 +9,7 @@ namespace Pathoschild.Http.Formatters.Core
 {
 	/// <summary>Base implementation of an HTTP <see cref="MediaTypeFormatter"/> for serialization providers.</summary>
 	/// <remarks>This class handles the common code for implementing a media type formatter, so most subclasses only need to implement the <see cref="Serialize"/> and <see cref="Deserialize"/> methods.</remarks>
-	public abstract class SerializerMediaTypeFormatterBase : MediaTypeFormatter
+	public abstract class MediaTypeFormatterBase : MediaTypeFormatter
 	{
 		/*********
 		** Public methods
