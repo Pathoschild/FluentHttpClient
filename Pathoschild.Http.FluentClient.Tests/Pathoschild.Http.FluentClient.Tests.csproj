@@ -49,6 +49,11 @@
     <Compile Include="Default\ClientTests.cs" />
     <Compile Include="Default\ResponseTests.cs" />
     <Compile Include="Default\RequestBuilderTests.cs" />
+    <Compile Include="Formatters\JsonNetJsonpFormatter.cs" />
+    <Compile Include="Formatters\JsonNetBsonFormatter.cs" />
+    <Compile Include="Formatters\JsonNetFormatter.cs" />
+    <Compile Include="Formatters\FormatterTestsBase.cs" />
+    <Compile Include="Formatters\PlainTextFormatter.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -58,6 +63,14 @@
     <ProjectReference Include="..\Pathoschild.Http.FluentClient\Pathoschild.Http.FluentClient.csproj">
       <Project>{B1D02CCF-5DF5-4678-AD54-243DEFB92032}</Project>
       <Name>Pathoschild.Http.FluentClient</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Pathoschild.Http.Formatters.Core\Pathoschild.Http.Formatters.Core.csproj">
+      <Project>{ce9bd284-6128-48f5-bbaa-76b58b2f6a62}</Project>
+      <Name>Pathoschild.Http.Formatters.Core</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Pathoschild.Http.Formatters.JsonNet\Pathoschild.Http.Formatters.JsonNet.csproj">
+      <Project>{cd970965-13a8-4323-a8a4-d319d81d6dc0}</Project>
+      <Name>Pathoschild.Http.Formatters.JsonNet</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
