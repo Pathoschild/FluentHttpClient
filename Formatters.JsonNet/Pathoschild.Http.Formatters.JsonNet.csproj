@@ -50,7 +50,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Pathoschild.Http.Formatters.Core\Pathoschild.Http.Formatters.Core.csproj">
+    <ProjectReference Include="..\Formatters\Pathoschild.Http.Formatters.csproj">
       <Project>{CE9BD284-6128-48F5-BBAA-76B58B2F6A62}</Project>
       <Name>Pathoschild.Http.Formatters.Core</Name>
     </ProjectReference>
