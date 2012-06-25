@@ -46,6 +46,7 @@
   <ItemGroup>
     <Compile Include="JsonNetBsonFormatter.cs" />
     <Compile Include="JsonNetFormatter.cs" />
+    <Compile Include="JsonNetJsonpFormatter.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
