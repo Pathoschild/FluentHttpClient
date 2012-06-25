@@ -31,7 +31,7 @@ namespace Pathoschild.Http.Formatters.JsonNet
 		{
 			JsonSerializer serializer = new JsonSerializer();
 			BsonReader reader = new BsonReader(stream);
-			return serializer.Deserialize(reader);
+			return serializer.Deserialize(reader, type);
 		}
 
 		/// <summary>Serialize an object into the stream.</summary>
