@@ -18,7 +18,7 @@ namespace Pathoschild.Http.Formatters.JsonNet
 		/// <summary>Construct a new instance.</summary>
 		public JsonNetBsonFormatter()
 		{
-			this.SupportedMediaTypes.Add(new MediaTypeHeaderValue("application/bson"));
+			this.AddMediaType("application/bson");
 		}
 		
 		/// <summary>Deserialize an object from the stream.</summary>

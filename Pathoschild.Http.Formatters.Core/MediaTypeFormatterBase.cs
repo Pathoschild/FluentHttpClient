@@ -78,6 +78,17 @@ namespace Pathoschild.Http.Formatters.Core
 			return completionSource.Task;
 		}
 
+		/// <summary>Add a media type which can be read or written by this formatter.</summary>
+		/// <param name="mediaType">The media type string.</param>
+		/// <param name="quality">The relative quality factor.</param>
+		public MediaTypeFormatterBase AddMediaType(string mediaType, double? quality = null)
+		{
+			this.SupportedMediaTypes.Add(quality.HasValue
+				? new MediaTypeWithQualityHeaderValue(mediaType, quality.Value)
+				: new MediaTypeHeaderValue(mediaType)
+			);
+			return this;
+		}
 
 		/***
 		** Abstract

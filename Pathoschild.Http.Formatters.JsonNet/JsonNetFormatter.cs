@@ -37,8 +37,7 @@ namespace Pathoschild.Http.Formatters.JsonNet
 		/// <param name="settings">The JSON serialization settings.</param>
 		public JsonNetFormatter(JsonSerializerSettings settings)
 		{
-			this.SupportedMediaTypes.Add(new MediaTypeHeaderValue("application/json"));
-			this.SupportedMediaTypes.Add(new MediaTypeHeaderValue("text/json"));
+			this.AddMediaType("application/json").AddMediaType("text/json");
 			this.SerializerSettings = settings;
 		}
 

@@ -16,7 +16,7 @@ namespace Pathoschild.Http.Formatters.Core
 		/// <summary>Construct an instance.</summary>
 		public PlainTextFormatter()
 		{
-			this.SupportedMediaTypes.Add(new MediaTypeHeaderValue("text/plain"));
+			this.AddMediaType("text/plain");
 		}
 
 		/// <summary>Determines whether this <see cref="MediaTypeFormatter"/> can deserialize an object of the specified type.</summary>
