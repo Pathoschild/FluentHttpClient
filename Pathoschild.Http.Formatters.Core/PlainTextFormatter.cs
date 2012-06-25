@@ -11,6 +11,13 @@ namespace Pathoschild.Http.Formatters.Core
 	public class PlainTextFormatter : MediaTypeFormatterBase
 	{
 		/*********
+		** Accessors
+		*********/
+		/// <summary>Whether to allow formatting of types that cannot be deserialized using a <see cref="PlainTextFormatter"/>.</summary>
+		public bool AllowIrreversibleSerialization { get; set; }
+
+
+		/*********
 		** Public methods
 		*********/
 		/// <summary>Construct an instance.</summary>
@@ -32,7 +39,7 @@ namespace Pathoschild.Http.Formatters.Core
 		/// <returns>true if this <see cref="MediaTypeFormatter"/> can serialize an object of that type; otherwise false.</returns>
 		public override bool CanWriteType(Type type)
 		{
-			return type == typeof(string);
+			return type == typeof(string) || (this.AllowIrreversibleSerialization && typeof(IFormattable).IsAssignableFrom(type));
 		}
 
 		/// <summary>Deserialize an object from the stream.</summary>
@@ -56,7 +63,7 @@ namespace Pathoschild.Http.Formatters.Core
 		public override void Serialize(Type type, object value, Stream stream, HttpContentHeaders contentHeaders, TransportContext transportContext)
 		{
 			var writer = new StreamWriter(stream); // don't dispose (stream disposal is handled elsewhere)
-			writer.Write((string)value);
+			writer.Write(value != null ? value.ToString() : String.Empty);
 			writer.Flush();
 		}
 	}
