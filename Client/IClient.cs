@@ -1,7 +1,7 @@
 ﻿using System.Net.Http;
 using System.Net.Http.Formatting;
 
-namespace Pathoschild.Http.FluentClient
+namespace Pathoschild.Http.Client
 {
 	/// <summary>Sends HTTP requests and receives responses from a resource identified by a URI.</summary>
 	public interface IClient

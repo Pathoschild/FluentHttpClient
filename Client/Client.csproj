@@ -8,8 +8,8 @@
     <ProjectGuid>{B1D02CCF-5DF5-4678-AD54-243DEFB92032}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Pathoschild.Http.FluentClient</RootNamespace>
-    <AssemblyName>Pathoschild.Http.FluentClient</AssemblyName>
+    <RootNamespace>Pathoschild.Http.Client</RootNamespace>
+    <AssemblyName>Pathoschild.Http.Client</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\</SolutionDir>
@@ -23,7 +23,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <DocumentationFile>bin\Debug\Pathoschild.Http.FluentClient.xml</DocumentationFile>
+    <DocumentationFile>bin\Debug\Pathoschild.Http.Client.xml</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -32,7 +32,7 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <DocumentationFile>bin\Release\Pathoschild.Http.FluentClient.XML</DocumentationFile>
+    <DocumentationFile>bin\Release\Pathoschild.Http.Client.xml</DocumentationFile>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
@@ -42,7 +42,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ApiException.cs" />
-    <Compile Include="Default\Client.cs" />
+    <Compile Include="Default\FluentClient.cs" />
     <Compile Include="Default\RequestBuilder.cs" />
     <Compile Include="Default\Response.cs" />
     <Compile Include="IClient.cs" />

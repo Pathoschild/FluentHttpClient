@@ -5,7 +5,7 @@ using System.Net.Http.Formatting;
 using System.Net.Http.Headers;
 using System.Threading.Tasks;
 
-namespace Pathoschild.Http.Formatters.Core
+namespace Pathoschild.Http.Formatters
 {
 	/// <summary>Base implementation of an HTTP <see cref="MediaTypeFormatter"/> for serialization providers.</summary>
 	/// <remarks>This class handles the common code for implementing a media type formatter, so most subclasses only need to implement the <see cref="Serialize"/> and <see cref="Deserialize"/> methods.</remarks>

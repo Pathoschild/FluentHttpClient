@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Net.Http;
 using NUnit.Framework;
-using Pathoschild.Http.Formatters.Core;
+using Pathoschild.Http.Formatters;
 
-namespace Pathoschild.Http.FluentClient.Tests.Formatters
+namespace Pathoschild.Http.Tests.Formatters
 {
 	/// <summary>Unit tests verifying that the <see cref="PlainTextFormatter"/> correctly formats content.</summary>
 	[TestFixture]

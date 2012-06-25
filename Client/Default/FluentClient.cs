@@ -2,10 +2,10 @@
 using System.Net.Http;
 using System.Net.Http.Formatting;
 
-namespace Pathoschild.Http.FluentClient.Default
+namespace Pathoschild.Http.Client.Default
 {
 	/// <summary>Sends HTTP requests and receives responses from a resource identified by a URI.</summary>
-	public class Client : IClient
+	public class FluentClient : IClient
 	{
 		/*********
 		** Accessors
@@ -22,7 +22,7 @@ namespace Pathoschild.Http.FluentClient.Default
 		*********/
 		/// <summary>Construct an instance.</summary>
 		/// <param name="client">The underlying HTTP client.</param>
-		public Client(HttpClient client)
+		public FluentClient(HttpClient client)
 		{
 			this.BaseClient = client;
 			this.Formatters = new MediaTypeFormatterCollection();
@@ -30,7 +30,7 @@ namespace Pathoschild.Http.FluentClient.Default
 
 		/// <summary>Construct an instance.</summary>
 		/// <param name="baseUri">The base URI prepended to relative request URIs.</param>
-		public Client(string baseUri)
+		public FluentClient(string baseUri)
 			: this(new HttpClient { BaseAddress = new Uri(baseUri) })
 		{ }
 

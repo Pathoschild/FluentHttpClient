@@ -4,7 +4,6 @@ using System.Net;
 using System.Net.Http.Formatting;
 using System.Net.Http.Headers;
 using Newtonsoft.Json;
-using Pathoschild.Http.Formatters.Core;
 
 namespace Pathoschild.Http.Formatters.JsonNet
 {

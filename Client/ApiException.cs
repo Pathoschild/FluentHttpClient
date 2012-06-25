@@ -2,7 +2,7 @@ using System;
 using System.Net;
 using System.Net.Http;
 
-namespace Pathoschild.Http.FluentClient
+namespace Pathoschild.Http.Client
 {
 	/// <summary>Represents an error returned by the upstream server.</summary>
 	public class ApiException : Exception

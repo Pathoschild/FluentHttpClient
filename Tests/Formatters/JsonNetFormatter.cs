@@ -3,7 +3,7 @@ using System.Net.Http;
 using NUnit.Framework;
 using Pathoschild.Http.Formatters.JsonNet;
 
-namespace Pathoschild.Http.FluentClient.Tests.Formatters
+namespace Pathoschild.Http.Tests.Formatters
 {
 	/// <summary>Unit tests verifying that the <see cref="JsonNetFormatter"/> correctly formats content.</summary>
 	/// <remarks>The JSON.NET serializer itself is thoroughly unit tested; these unit tests ensure that the media type formatter correctly handles the various use cases.</remarks>

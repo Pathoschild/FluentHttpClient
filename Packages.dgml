@@ -1,16 +1,16 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <DirectedGraph GraphDirection="LeftToRight" xmlns="http://schemas.microsoft.com/vs/2009/dgml">
   <Nodes>
-    <Node Id="Pathoschild.Http.FluentClient.Tests" Label="Pathoschild.Http.FluentClient.Tests" Category="Project" />
+    <Node Id="Tests" Label="Tests" Category="Project" />
     <Node Id="Newtonsoft.Json 4.5.5" Label="Newtonsoft.Json 4.5.5" Category="Package" />
     <Node Id="NUnit 2.6.0.12054" Label="NUnit 2.6.0.12054" Category="Package" />
-    <Node Id="Pathoschild.Http.Formatters.JsonNet" Label="Pathoschild.Http.Formatters.JsonNet" Category="Project" />
+    <Node Id="Formatters.JsonNet" Label="Formatters.JsonNet" Category="Project" />
     <Node Id="Newtonsoft.Json 4.5.5" Label="Newtonsoft.Json 4.5.5" Category="Package" />
   </Nodes>
   <Links>
-    <Link Source="Pathoschild.Http.FluentClient.Tests" Target="Newtonsoft.Json 4.5.5" Category="Installed Package" />
-    <Link Source="Pathoschild.Http.FluentClient.Tests" Target="NUnit 2.6.0.12054" Category="Installed Package" />
-    <Link Source="Pathoschild.Http.Formatters.JsonNet" Target="Newtonsoft.Json 4.5.5" Category="Installed Package" />
+    <Link Source="Tests" Target="Newtonsoft.Json 4.5.5" Category="Installed Package" />
+    <Link Source="Tests" Target="NUnit 2.6.0.12054" Category="Installed Package" />
+    <Link Source="Formatters.JsonNet" Target="Newtonsoft.Json 4.5.5" Category="Installed Package" />
   </Links>
   <Categories>
     <Category Id="Project" />

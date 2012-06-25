@@ -4,7 +4,7 @@ using System.Net;
 using System.Net.Http.Formatting;
 using System.Net.Http.Headers;
 
-namespace Pathoschild.Http.Formatters.Core
+namespace Pathoschild.Http.Formatters
 {
 	/// <summary>Serializes and deserializes data as plaintext.</summary>
 	/// <remarks>This formatter is derived from <see cref="http://github.com/WebApiContrib"/>, which was not compatible with the release candidate at the time of creation.</remarks>

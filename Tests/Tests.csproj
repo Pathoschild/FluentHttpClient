@@ -8,8 +8,8 @@
     <ProjectGuid>{4531E61C-D06A-42AD-B631-EE9DFB532602}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Pathoschild.Http.FluentClient.Tests</RootNamespace>
-    <AssemblyName>Pathoschild.Http.FluentClient.Tests</AssemblyName>
+    <RootNamespace>Pathoschild.Http.Tests</RootNamespace>
+    <AssemblyName>Pathoschild.Http.Tests</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\</SolutionDir>

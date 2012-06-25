@@ -7,7 +7,7 @@ using System.Net.Http;
 using System.Net.Http.Formatting;
 using System.Threading.Tasks;
 
-namespace Pathoschild.Http.FluentClient.Default
+namespace Pathoschild.Http.Client.Default
 {
 	/// <summary>Retrieves the response from an asynchronous HTTP request.</summary>
 	public class Response : IResponse

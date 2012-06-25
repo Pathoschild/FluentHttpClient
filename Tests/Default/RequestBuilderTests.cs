@@ -5,9 +5,10 @@ using System.Net.Http;
 using System.Net.Http.Formatting;
 using System.Threading.Tasks;
 using NUnit.Framework;
-using Pathoschild.Http.FluentClient.Default;
+using Pathoschild.Http.Client;
+using Pathoschild.Http.Client.Default;
 
-namespace Pathoschild.Http.FluentClient.Tests.Default
+namespace Pathoschild.Http.Tests.Default
 {
 	/// <summary>Integration tests verifying that the default <see cref="RequestBuilder"/> correctly creates and alters the underlying objects.</summary>
 	[TestFixture]

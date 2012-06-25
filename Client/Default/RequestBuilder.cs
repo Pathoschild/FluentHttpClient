@@ -7,7 +7,7 @@ using System.Net.Http.Formatting;
 using System.Net.Http.Headers;
 using System.Threading.Tasks;
 
-namespace Pathoschild.Http.FluentClient.Default
+namespace Pathoschild.Http.Client.Default
 {
 	/// <summary>Builds an asynchronous HTTP request.</summary>
 	public class RequestBuilder : IRequestBuilder

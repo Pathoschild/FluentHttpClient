@@ -1,8 +1,8 @@
 ﻿using System.Net.Http;
 using NUnit.Framework;
-using Pathoschild.Http.FluentClient.Default;
+using Pathoschild.Http.Client;
 
-namespace Pathoschild.Http.FluentClient.Tests.Default
+namespace Pathoschild.Http.Tests.Default
 {
 	/// <summary>Integration tests verifying that the default <see cref="Client"/> correctly creates and alters the underlying objects.</summary>
 	[TestFixture]
@@ -149,7 +149,7 @@ namespace Pathoschild.Http.FluentClient.Tests.Default
 			try
 			{
 				// execute
-				IClient client = new Client(baseUri);
+				IClient client = new Client.Default.FluentClient(baseUri);
 
 				// verify
 				Assert.NotNull(client.BaseClient, "The base client is null.");

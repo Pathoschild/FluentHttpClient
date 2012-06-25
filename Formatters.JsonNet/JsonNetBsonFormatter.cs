@@ -5,7 +5,6 @@ using System.Net.Http.Formatting;
 using System.Net.Http.Headers;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Bson;
-using Pathoschild.Http.Formatters.Core;
 
 namespace Pathoschild.Http.Formatters.JsonNet
 {

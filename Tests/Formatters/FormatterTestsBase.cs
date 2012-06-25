@@ -2,9 +2,9 @@ using System;
 using System.IO;
 using System.Net.Http;
 using System.Net.Http.Formatting;
-using Pathoschild.Http.Formatters.Core;
+using Pathoschild.Http.Formatters;
 
-namespace Pathoschild.Http.FluentClient.Tests.Formatters
+namespace Pathoschild.Http.Tests.Formatters
 {
 	/// <summary>Provides generic helper methods for <see cref="MediaTypeFormatterBase" /> unit tests.</summary>
 	public abstract class FormatterTestsBase
