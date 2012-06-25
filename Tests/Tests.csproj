@@ -60,17 +60,17 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Client\Pathoschild.Http.Client.csproj">
+    <ProjectReference Include="..\Client\Client.csproj">
       <Project>{B1D02CCF-5DF5-4678-AD54-243DEFB92032}</Project>
-      <Name>Pathoschild.Http.FluentClient</Name>
+      <Name>Client</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Formatters\Pathoschild.Http.Formatters.csproj">
+    <ProjectReference Include="..\Formatters\Formatters.csproj">
       <Project>{ce9bd284-6128-48f5-bbaa-76b58b2f6a62}</Project>
-      <Name>Pathoschild.Http.Formatters.Core</Name>
+      <Name>Formatters</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Formatters.JsonNet\Pathoschild.Http.Formatters.JsonNet.csproj">
+    <ProjectReference Include="..\Formatters.JsonNet\Formatters.JsonNet.csproj">
       <Project>{cd970965-13a8-4323-a8a4-d319d81d6dc0}</Project>
-      <Name>Pathoschild.Http.Formatters.JsonNet</Name>
+      <Name>Formatters.JsonNet</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

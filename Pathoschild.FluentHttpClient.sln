@@ -1,11 +1,11 @@
 ﻿
-Microsoft Visual Studio Solution File, Format Version 11.00
-# Visual Studio 2010
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pathoschild.Http.Client", "Client\Pathoschild.Http.Client.csproj", "{B1D02CCF-5DF5-4678-AD54-243DEFB92032}"
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2012
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Client", "Client\Client.csproj", "{B1D02CCF-5DF5-4678-AD54-243DEFB92032}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pathoschild.Http.Formatters.JsonNet", "Formatters.JsonNet\Pathoschild.Http.Formatters.JsonNet.csproj", "{CD970965-13A8-4323-A8A4-D319D81D6DC0}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Formatters.JsonNet", "Formatters.JsonNet\Formatters.JsonNet.csproj", "{CD970965-13A8-4323-A8A4-D319D81D6DC0}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pathoschild.Http.Tests", "Tests\Pathoschild.Http.Tests.csproj", "{4531E61C-D06A-42AD-B631-EE9DFB532602}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tests", "Tests\Tests.csproj", "{4531E61C-D06A-42AD-B631-EE9DFB532602}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Scaffolding", "Scaffolding", "{E4A79030-4C0D-40D9-9A44-7321A74140FF}"
 	ProjectSection(SolutionItems) = preProject
@@ -21,7 +21,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{B49EF8
 		packages\repositories.config = packages\repositories.config
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pathoschild.Http.Formatters", "Formatters\Pathoschild.Http.Formatters.csproj", "{CE9BD284-6128-48F5-BBAA-76B58B2F6A62}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Formatters", "Formatters\Formatters.csproj", "{CE9BD284-6128-48F5-BBAA-76B58B2F6A62}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -33,6 +33,16 @@ Global
 		Release|x86 = Release|x86
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{4531E61C-D06A-42AD-B631-EE9DFB532602}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4531E61C-D06A-42AD-B631-EE9DFB532602}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4531E61C-D06A-42AD-B631-EE9DFB532602}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{4531E61C-D06A-42AD-B631-EE9DFB532602}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{4531E61C-D06A-42AD-B631-EE9DFB532602}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{4531E61C-D06A-42AD-B631-EE9DFB532602}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4531E61C-D06A-42AD-B631-EE9DFB532602}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4531E61C-D06A-42AD-B631-EE9DFB532602}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{4531E61C-D06A-42AD-B631-EE9DFB532602}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{4531E61C-D06A-42AD-B631-EE9DFB532602}.Release|x86.ActiveCfg = Release|Any CPU
 		{B1D02CCF-5DF5-4678-AD54-243DEFB92032}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{B1D02CCF-5DF5-4678-AD54-243DEFB92032}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B1D02CCF-5DF5-4678-AD54-243DEFB92032}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
@@ -53,16 +63,6 @@ Global
 		{CD970965-13A8-4323-A8A4-D319D81D6DC0}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
 		{CD970965-13A8-4323-A8A4-D319D81D6DC0}.Release|Mixed Platforms.Build.0 = Release|Any CPU
 		{CD970965-13A8-4323-A8A4-D319D81D6DC0}.Release|x86.ActiveCfg = Release|Any CPU
-		{4531E61C-D06A-42AD-B631-EE9DFB532602}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{4531E61C-D06A-42AD-B631-EE9DFB532602}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{4531E61C-D06A-42AD-B631-EE9DFB532602}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
-		{4531E61C-D06A-42AD-B631-EE9DFB532602}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
-		{4531E61C-D06A-42AD-B631-EE9DFB532602}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{4531E61C-D06A-42AD-B631-EE9DFB532602}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{4531E61C-D06A-42AD-B631-EE9DFB532602}.Release|Any CPU.Build.0 = Release|Any CPU
-		{4531E61C-D06A-42AD-B631-EE9DFB532602}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
-		{4531E61C-D06A-42AD-B631-EE9DFB532602}.Release|Mixed Platforms.Build.0 = Release|Any CPU
-		{4531E61C-D06A-42AD-B631-EE9DFB532602}.Release|x86.ActiveCfg = Release|Any CPU
 		{CE9BD284-6128-48F5-BBAA-76B58B2F6A62}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{CE9BD284-6128-48F5-BBAA-76B58B2F6A62}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{CE9BD284-6128-48F5-BBAA-76B58B2F6A62}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
