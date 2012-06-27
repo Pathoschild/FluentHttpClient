@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Net.Http;
+using System.Net.Http.Headers;
 using NUnit.Framework;
 using Pathoschild.Http.Formatters.JsonNet;
 
@@ -13,77 +14,98 @@ namespace Pathoschild.Http.Tests.Formatters
 		/*********
 		** Unit tests
 		*********/
-		[Test(Description = "Ensure that a string value can be read.")]
-		[TestCase(null, Result = null)]
-		[TestCase("''", Result = "")]
-		[TestCase("'   '", Result = "   ")]
-		[TestCase("'example'", Result = "example")]
-		[TestCase("'<example />'", Result = "<example />")]
-		[TestCase("'exam\r\nple'", Result = "exam\r\nple")]
-		public string Deserialize_String(string content)
-		{
-			// set up
-			JsonNetFormatter formatter = new JsonNetFormatter();
-			HttpRequestMessage request = this.GetRequest(content, formatter);
-
-			// verify
-			return (string)this.GetDeserialized(typeof(string), content, request, formatter);
-		}
-
-		[Test(Description = "Ensure that a scalar value can be read.")]
+		/***
+		** Json
+		***/
+		[Test(Description = "A JSON value can be deserialized.")]
 		[TestCase(typeof(bool), "true", Result = true)]
+		[TestCase(typeof(bool?), "true", Result = true)]
+		[TestCase(typeof(bool?), null, Result = null)]
 		[TestCase(typeof(int), "14", Result = 14)]
 		[TestCase(typeof(double), "4.2", Result = 4.2d)]
 		[TestCase(typeof(ConsoleColor), "'Black'", Result = ConsoleColor.Black)]
 		[TestCase(typeof(float), "4.2", Result = 4.2f)]
-		public object Deserialize_Scalar(Type type, string content)
+		[TestCase(typeof(string), null, Result = null)]
+		[TestCase(typeof(string), "''", Result = "")]
+		[TestCase(typeof(string), "'   '", Result = "   ")]
+		[TestCase(typeof(string), "'example'", Result = "example")]
+		[TestCase(typeof(string), "'<example />'", Result = "<example />")]
+		[TestCase(typeof(string), "'exam\r\nple'", Result = "exam\r\nple")]
+		public object Json_Deserialize(Type type, string content)
 		{
 			// set up
 			JsonNetFormatter formatter = new JsonNetFormatter();
-			HttpRequestMessage request = this.GetRequest(content, formatter);
+			HttpRequestMessage request = this.GetRequest(content, formatter, "application/json");
 
 			// verify
 			return this.GetDeserialized(type, content, request, formatter);
 		}
 
-		[Test(Description = "Ensure that a struct value can be read.")]
-		[TestCase(typeof(bool?), "true", Result = true)]
-		[TestCase(typeof(bool?), null, Result = null)]
-		public object Deserialize_Struct(Type type, string content)
+		[Test(Description = "A value can be serialized into JSON.")]
+		[TestCase(typeof(bool?), true, Result = "true")]
+		[TestCase(typeof(bool?), null, Result = "null")]
+		[TestCase(typeof(string), null, Result = "null")]
+		[TestCase(typeof(string), "", Result = "\"\"")]
+		[TestCase(typeof(string), "   ", Result = "\"   \"")]
+		[TestCase(typeof(string), "example", Result = "\"example\"")]
+		[TestCase(typeof(string), "<example />", Result = "\"<example />\"")]
+		[TestCase(typeof(string), "exam\r\nple", Result = "\"exam\\r\\nple\"")]
+		public string Json_Serialize(Type type, object content)
 		{
 			// set up
 			JsonNetFormatter formatter = new JsonNetFormatter();
-			HttpRequestMessage request = this.GetRequest(content, formatter);
-
-			// verify
-			return this.GetDeserialized(type, content, request, formatter);
-		}
-
-		[Test(Description = "Ensure that a string value can be written.")]
-		[TestCase(null, Result = "null")]
-		[TestCase("", Result = "\"\"")]
-		[TestCase("   ", Result = "\"   \"")]
-		[TestCase("example", Result = "\"example\"")]
-		[TestCase("<example />", Result = "\"<example />\"")]
-		[TestCase("exam\r\nple", Result = "\"exam\\r\\nple\"")]
-		public string Serialize_String(object content)
-		{
-			// set up
-			JsonNetFormatter formatter = new JsonNetFormatter();
-			HttpRequestMessage request = this.GetRequest(content, formatter);
+			HttpRequestMessage request = this.GetRequest(content, formatter, type, "application/json");
 
 			// verify
 			return this.GetSerialized(content, request, formatter);
 		}
 
-		[Test(Description = "Ensure that a struct value can be written.")]
-		[TestCase(typeof(bool?), true, Result = "true")]
-		[TestCase(typeof(bool?), null, Result = "null")]
-		public string Serialize_Struct(Type type, object content)
+		/***
+		** Jsonp
+		***/
+		[Test(Description = "The formatter throws an exception if attempting to deserialize JSONP, which is a write-only format.")]
+		[TestCase("value", ExpectedException = typeof(NotSupportedException))]
+		public void Jsonp_Deserialize_Fails(string content)
 		{
 			// set up
 			JsonNetFormatter formatter = new JsonNetFormatter();
-			HttpRequestMessage request = this.GetRequest(content, formatter, type);
+			HttpRequestMessage request = this.GetRequest(content, formatter, "application/javascript");
+
+			// verify
+			this.GetDeserialized(typeof(string), content, request, formatter);
+		}
+
+		[Test(Description = "A value can be serialized into JSONP.")]
+		[TestCase(typeof(bool?), true, Result = "callback(true)")]
+		[TestCase(typeof(bool?), null, Result = "callback(null)")]
+		[TestCase(typeof(string), null, Result = "callback(null)")]
+		[TestCase(typeof(string), "", Result = "callback(\"\")")]
+		[TestCase(typeof(string), "   ", Result = "callback(\"   \")")]
+		[TestCase(typeof(string), "example", Result = "callback(\"example\")")]
+		[TestCase(typeof(string), "<example />", Result = "callback(\"<example />\")")]
+		[TestCase(typeof(string), "exam\r\nple", Result = "callback(\"exam\\r\\nple\")")]
+		public string Jsonp_Serialize(Type type, object content)
+		{
+			// set up
+			JsonNetFormatter formatter = new JsonNetFormatter();
+			HttpRequestMessage request = this.GetRequest(content, formatter, type, "application/javascript");
+
+			// verify
+			return this.GetSerialized(content, request, formatter);
+		}
+
+		[Test(Description = "The JSONP serialization respects the 'callback' query parameter to define the JavaScript method name.")]
+		[TestCase("callback", 42, Result = "callback(42)")]
+		[TestCase("example", 42, Result = "example(42)")]
+		[TestCase("object.example", 42, Result = "object.example(42)")]
+		[TestCase("examples[14]", 42, Result = "examples[14](42)")]
+		public string Jsonp_Serialize_WithCustomCallbackMethod(string callbackMethod, int content)
+		{
+			// set up
+			JsonNetFormatter formatter = new JsonNetFormatter();
+			HttpRequestMessage request = this.GetRequest(content, formatter, typeof(int), "application/javascript");
+			request.RequestUri = new Uri("http://example.org?callback=" + callbackMethod);
+			formatter = (JsonNetFormatter)formatter.GetPerRequestFormatterInstance(typeof(int), request, new MediaTypeHeaderValue("application/javascript"));
 
 			// verify
 			return this.GetSerialized(content, request, formatter);

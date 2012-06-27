@@ -1,21 +1,32 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <DirectedGraph GraphDirection="LeftToRight" xmlns="http://schemas.microsoft.com/vs/2009/dgml">
   <Nodes>
-    <Node Id="Tests" Label="Tests" Category="Project" />
-    <Node Id="Newtonsoft.Json 4.5.5" Label="Newtonsoft.Json 4.5.5" Category="Package" />
-    <Node Id="NUnit 2.6.0.12054" Label="NUnit 2.6.0.12054" Category="Package" />
-    <Node Id="Formatters.JsonNet" Label="Formatters.JsonNet" Category="Project" />
-    <Node Id="Newtonsoft.Json 4.5.5" Label="Newtonsoft.Json 4.5.5" Category="Package" />
+    <Node Id="Formatters.JsonNet" Category="Project" Bounds="145.945,0,114.446666666667,23.2766666666667" Label="Formatters.JsonNet" />
+    <Node Id="NUnit 2.6.0.12054" Category="Package" Bounds="0,53.2766666666666,108.336666666667,23.2766666666667" Label="NUnit 2.6.0.12054" />
+    <Node Id="Newtonsoft.Json 4.5.7" Category="Package" Bounds="139.076666666667,53.2766666666666,128.183333333333,23.2766666666667" Label="Newtonsoft.Json 4.5.7" />
+    <Node Id="Tests" Category="Project" Bounds="65.1683333333334,0,50,23.2766666666667" Label="Tests" />
   </Nodes>
   <Links>
-    <Link Source="Tests" Target="Newtonsoft.Json 4.5.5" Category="Installed Package" />
-    <Link Source="Tests" Target="NUnit 2.6.0.12054" Category="Installed Package" />
-    <Link Source="Formatters.JsonNet" Target="Newtonsoft.Json 4.5.5" Category="Installed Package" />
+    <Link Source="Formatters.JsonNet" Target="Newtonsoft.Json 4.5.7" Category="Installed Package" Bounds="203.168334960938,23.2766666412354,0,21.0000019073486" />
+    <Link Source="Tests" Target="NUnit 2.6.0.12054" Category="Installed Package" Bounds="67.0714950561523,23.2766666412354,15.2326049804688,22.5428447723389" />
+    <Link Source="Tests" Target="Newtonsoft.Json 4.5.7" Category="Installed Package" Bounds="113.812522888184,22.7859764099121,56.5302810668945,26.6526069641113" />
   </Links>
   <Categories>
-    <Category Id="Project" />
+    <Category Id="Installed Package" />
     <Category Id="Package" />
+    <Category Id="Project" />
   </Categories>
+  <Properties>
+    <Property Id="Bounds" DataType="System.Windows.Rect" />
+    <Property Id="Expression" DataType="System.String" />
+    <Property Id="GraphDirection" DataType="Microsoft.VisualStudio.Diagrams.Layout.LayoutOrientation" />
+    <Property Id="GroupLabel" DataType="System.String" />
+    <Property Id="IsEnabled" DataType="System.Boolean" />
+    <Property Id="Label" Label="Label" Description="Displayable label of an Annotatable object" DataType="System.String" />
+    <Property Id="TargetType" DataType="System.Type" />
+    <Property Id="Value" DataType="System.String" />
+    <Property Id="ValueLabel" DataType="System.String" />
+  </Properties>
   <Styles>
     <Style TargetType="Node" GroupLabel="Project" ValueLabel="True">
       <Condition Expression="HasCategory('Project')" />

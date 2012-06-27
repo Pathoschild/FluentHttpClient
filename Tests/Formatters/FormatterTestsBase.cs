@@ -2,6 +2,7 @@ using System;
 using System.IO;
 using System.Net.Http;
 using System.Net.Http.Formatting;
+using System.Net.Http.Headers;
 using Pathoschild.Http.Formatters;
 
 namespace Pathoschild.Http.Tests.Formatters
@@ -16,21 +17,30 @@ namespace Pathoschild.Http.Tests.Formatters
 		/// <typeparam name="T">The request body type.</typeparam>
 		/// <param name="content">The request body content.</param>
 		/// <param name="formatter">The formatter with which the content can be serialized.</param>
-		protected HttpRequestMessage GetRequest<T>(T content, MediaTypeFormatter formatter)
+		/// <param name="contentType">The HTTP Accept and Content-Type header values.</param>
+		protected HttpRequestMessage GetRequest<T>(T content, MediaTypeFormatter formatter, string contentType = null)
 		{
-			return this.GetRequest(content, formatter, typeof(T));
+			return this.GetRequest(content, formatter, typeof(T), contentType);
 		}
 
 		/// <summary>Construct an HTTP request message.</summary>
 		/// <param name="content">The request body content.</param>
 		/// <param name="formatter">The formatter with which the content can be serialized.</param>
-		/// <param name="type"> </param>
-		protected HttpRequestMessage GetRequest(object content, MediaTypeFormatter formatter, Type type)
+		/// <param name="type">The object type of the <paramref name="content"/>.</param>
+		/// <param name="contentType">The HTTP Accept and Content-Type header values.</param>
+		protected HttpRequestMessage GetRequest(object content, MediaTypeFormatter formatter, Type type, string contentType = null)
 		{
-			return new HttpRequestMessage(HttpMethod.Get, "http://example.org")
+			HttpRequestMessage message = new HttpRequestMessage(HttpMethod.Get, "http://example.org")
 			{
 				Content = new ObjectContent(type, content, formatter)
 			};
+			if (contentType != null)
+			{
+				message.Headers.Accept.Clear();
+				message.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue(contentType));
+				message.Content.Headers.ContentType = new MediaTypeHeaderValue(contentType);
+			}
+			return message;
 		}
 
 		/// <summary>Get the serialized representation of the request body.</summary>

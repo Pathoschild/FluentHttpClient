@@ -1,27 +1,40 @@
 ﻿using System;
+using System.Collections.ObjectModel;
 using System.IO;
+using System.Linq;
 using System.Net;
+using System.Net.Http;
 using System.Net.Http.Formatting;
 using System.Net.Http.Headers;
 using Newtonsoft.Json;
 
 namespace Pathoschild.Http.Formatters.JsonNet
 {
-	/// <summary>Serializes and deserializes data as JSON.</summary>
+	/// <summary>Serializes and deserializes data as JSON or JSONP.</summary>
+	/// <remarks>This is derived from Christian Weyers' implementation: <see href="https://github.com/thinktecture/Thinktecture.Web.Http/blob/master/Thinktecture.Web.Http/Formatters/JsonpFormatter.cs"/>.</remarks>
 	public class JsonNetFormatter : MediaTypeFormatterBase
 	{
 		/*********
+		** Properties
+		*********/
+		/// <summary>The current HTTP request message.</summary>
+		protected HttpRequestMessage Request { get; set; }
+
+		/// <summary>The HTTP content types that represent JSON.</summary>
+		protected static readonly string[] ContentTypes = new[] { "application/json", "text/json" };
+
+		/// <summary>The HTTP content types that represent JSONP.</summary>
+		protected static readonly string[] PaddedContentTypes = new[] { "application/javascript", "application/ecmascript", "text/javascript", "text/ecmascript" };
+
+
+		/*********
 		** Accessors
 		*********/
-		/// <summary>Whether to format the serialized JSON for human-readability.</summary>
-		public bool Format
-		{
-			get { return this.SerializerSettings.Formatting == Formatting.Indented; }
-			set { this.SerializerSettings.Formatting = value ? Formatting.Indented : Formatting.None; }
-		}
-
 		/// <summary>The JSON serialization settings.</summary>
 		public JsonSerializerSettings SerializerSettings { get; set; }
+
+		/// <summary>The name of the parameter which defines the callback method name.</summary>
+		public string CallbackParameterName { get; set; }
 
 
 		/*********
@@ -29,15 +42,33 @@ namespace Pathoschild.Http.Formatters.JsonNet
 		*********/
 		/// <summary>Construct a new instance.</summary>
 		public JsonNetFormatter()
-			: this(new JsonSerializerSettings())
-		{ }
-
-		/// <summary>Construct a new instance.</summary>
-		/// <param name="settings">The JSON serialization settings.</param>
-		public JsonNetFormatter(JsonSerializerSettings settings)
 		{
-			this.AddMediaType("application/json").AddMediaType("text/json");
-			this.SerializerSettings = settings;
+			foreach (string contentType in ContentTypes.Union(PaddedContentTypes))
+				this.AddMediaType(contentType);
+			this.SerializerSettings = new JsonSerializerSettings();
+			this.CallbackParameterName = "callback";
+		}
+
+		/// <summary>Get a formatter to handle an individual request.</summary>
+		/// <param name="type">The type of object to read.</param>
+		/// <param name="request">The HTTP request message.</param>
+		/// <param name="mediaType">The requested content format.</param>
+		public override MediaTypeFormatter GetPerRequestFormatterInstance(Type type, HttpRequestMessage request, MediaTypeHeaderValue mediaType)
+		{
+			// construct a new formatter
+			JsonNetFormatter formatter = new JsonNetFormatter(request)
+			{
+				CallbackParameterName = this.CallbackParameterName,
+				RequiredMemberSelector = this.RequiredMemberSelector,
+				SerializerSettings = this.SerializerSettings
+			};
+
+			// copy configuration
+			this
+				.OverwriteList(this.MediaTypeMappings, formatter.MediaTypeMappings)
+				.OverwriteList(this.SupportedMediaTypes, formatter.SupportedMediaTypes)
+				.OverwriteList(this.SupportedEncodings, formatter.SupportedEncodings);
+			return formatter;
 		}
 
 		/// <summary>Deserialize an object from the stream.</summary>
@@ -48,10 +79,10 @@ namespace Pathoschild.Http.Formatters.JsonNet
 		/// <returns>Returns a deserialized object.</returns>
 		public override object Deserialize(Type type, Stream stream, HttpContentHeaders contentHeaders, IFormatterLogger formatterLogger)
 		{
-			JsonSerializer serializer = JsonSerializer.Create(this.SerializerSettings);
-			StreamReader streamReader = new StreamReader(stream); // don't dispose (stream disposal is handled elsewhere)
-			JsonTextReader reader = new JsonTextReader(streamReader);
-			return serializer.Deserialize(reader, type);
+			if (this.IsJsonp(contentHeaders.ContentType))
+				throw new NotSupportedException("The JSONP format is output-only.");
+			JsonTextReader reader = new JsonTextReader(new StreamReader(stream)); // don't dispose (stream disposal is handled elsewhere)
+			return this.GetSerializer().Deserialize(reader, type);
 		}
 
 		/// <summary>Serialize an object into the stream.</summary>
@@ -62,11 +93,66 @@ namespace Pathoschild.Http.Formatters.JsonNet
 		/// <param name="transportContext">The <see cref="TransportContext"/>.</param>
 		public override void Serialize(Type type, object value, Stream stream, HttpContentHeaders contentHeaders, TransportContext transportContext)
 		{
-			JsonSerializer serializer = JsonSerializer.Create(this.SerializerSettings);
-			StreamWriter streamWriter = new StreamWriter(stream); // don't dispose (stream disposal is handled elsewhere)
-			JsonTextWriter writer = new JsonTextWriter(streamWriter);
-			serializer.Serialize(writer, value);
+			JsonTextWriter writer = new JsonTextWriter(new StreamWriter(stream)); // don't dispose (stream disposal is handled elsewhere)
+
+			bool hasCallback = this.IsJsonp(contentHeaders.ContentType);
+			if (hasCallback)
+			{
+				string callbackName = this.GetCallback(this.Request);
+				writer.WriteRaw(callbackName + "(");
+			}
+			this.GetSerializer().Serialize(writer, value);
+			if (hasCallback)
+				writer.WriteRaw(")");
 			writer.Flush();
+		}
+
+
+		/*********
+		** Protected methods
+		*********/
+		/// <summary>Construct an instance.</summary>
+		/// <param name="request">The HTTP request message.</param>
+		protected JsonNetFormatter(HttpRequestMessage request)
+			: this()
+		{
+			this.Request = request;
+		}
+
+		/// <summary>Get whether the content type represents JSONP.</summary>
+		/// <param name="header">The content type header.</param>
+		protected bool IsJsonp(MediaTypeHeaderValue header)
+		{
+			return PaddedContentTypes.Contains(header.MediaType);
+		}
+
+		/// <summary>Get a JSON.NET serializer.</summary>
+		protected JsonSerializer GetSerializer()
+		{
+			return JsonSerializer.Create(this.SerializerSettings);
+		}
+
+		/// <summary>Get the name of the JavaScript method to invoke.</summary>
+		/// <param name="request">The HTTP request message.</param>
+		protected string GetCallback(HttpRequestMessage request)
+		{
+			const string defaultCallback = "callback";
+			if (request == null)
+				return defaultCallback;
+			var value = request.RequestUri.ParseQueryString()[this.CallbackParameterName];
+			return value ?? defaultCallback;
+		}
+
+		/// <summary>Replace all elements of the <paramref name="destination"/> list with elements of the <paramref name="source"/>.</summary>
+		/// <typeparam name="T">The element type.</typeparam>
+		/// <param name="source">The collection from which to take elements.</param>
+		/// <param name="destination">The collection whose elements to overwrite.</param>
+		protected JsonNetFormatter OverwriteList<T>(Collection<T> source, Collection<T> destination)
+		{
+			destination.Clear();
+			foreach (T item in source)
+				destination.Add(item);
+			return this;
 		}
 	}
 }
