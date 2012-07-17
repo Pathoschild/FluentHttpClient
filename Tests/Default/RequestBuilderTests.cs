@@ -53,6 +53,29 @@ namespace Pathoschild.Http.Tests.Default
 			Assert.That(arguments[keyB], Is.Not.Null.And.EqualTo(valueB), "The second key=>value pair is invalid.");
 		}
 
+		[Test(Description = "Ensure that WithBodyContent sets the request body and does not incorrectly alter request state.")]
+		[TestCase("DELETE", "body value")]
+		[TestCase("GET", "body value")]
+		[TestCase("HEAD", "body value")]
+		[TestCase("PUT", "body value")]
+		[TestCase("OPTIONS", "body value")]
+		[TestCase("POST", "body value")]
+		[TestCase("TRACE", "body value")]
+		public void WithBodyContent(string methodName, object body)
+		{
+			// set up
+			HttpContent content = new ObjectContent(typeof(string), body, new JsonMediaTypeFormatter());
+
+			// execute
+			IRequestBuilder request = this
+				.ConstructRequest(methodName)
+				.WithBodyContent(content);
+
+			// verify
+			this.AssertEqual(request.Message, methodName, ignoreArguments: true);
+			Assert.That(request.Message.Content.ReadAsStringAsync().Result, Is.EqualTo('"' + body.ToString() + '"'), "The message body is invalid.");
+		}
+
 		[Test(Description = "Ensure that WithBody sets the request body and does not incorrectly alter request state.")]
 		[TestCase("DELETE", "body value")]
 		[TestCase("GET", "body value")]

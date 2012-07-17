@@ -24,18 +24,23 @@ namespace Pathoschild.Http.Client
 		** Methods
 		*********/
 		/// <summary>Set the body content of the HTTP request.</summary>
-		/// <param name="body">The HTTP body content.</param>
+		/// <param name="body">The value to serialize into the HTTP body content.</param>
 		/// <param name="contentType">The request body format (or <c>null</c> to use the first supported Content-Type in the <see cref="Formatters"/>).</param>
 		/// <returns>Returns the request builder for chaining.</returns>
 		/// <exception cref="InvalidOperationException">No MediaTypeFormatters are available on the API client for this content type.</exception>
 		IRequestBuilder WithBody<T>(T body, MediaTypeHeaderValue contentType = null);
 
 		/// <summary>Set the body content of the HTTP request.</summary>
-		/// <param name="body">The HTTP body content.</param>
+		/// <param name="body">The value to serialize into the HTTP body content.</param>
 		/// <param name="formatter">The media type formatter with which to format the request body format.</param>
 		/// <param name="mediaType">The HTTP media type (or <c>null</c> for the <paramref name="formatter"/>'s default).</param>
 		/// <returns>Returns the request builder for chaining.</returns>
 		IRequestBuilder WithBody<T>(T body, MediaTypeFormatter formatter, string mediaType = null);
+
+		/// <summary>Set the body content of the HTTP request.</summary>
+		/// <param name="body">The formatted HTTP body content.</param>
+		/// <returns>Returns the request builder for chaining.</returns>
+		IRequestBuilder WithBodyContent(HttpContent body);
 
 		/// <summary>Set an HTTP header.</summary>
 		/// <param name="key">The key of the HTTP header.</param>
