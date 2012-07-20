@@ -10,10 +10,13 @@ namespace Pathoschild.Http.Client
 		** Accessors
 		*********/
 		/// <summary>The underlying HTTP client.</summary>
-		HttpClient BaseClient { get; set; }
+		HttpClient BaseClient { get; }
+
+		/// <summary>The underlying HTTP message handler.</summary>
+		HttpClientHandler MessageHandler { get; }
 
 		/// <summary>The formatters used for serializing and deserializing message bodies.</summary>
-		MediaTypeFormatterCollection Formatters { get; set; }
+		MediaTypeFormatterCollection Formatters { get; }
 
 
 		/*********

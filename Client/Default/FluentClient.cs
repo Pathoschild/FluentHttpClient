@@ -11,10 +11,13 @@ namespace Pathoschild.Http.Client.Default
 		** Accessors
 		*********/
 		/// <summary>The underlying HTTP client.</summary>
-		public HttpClient BaseClient { get; set; }
+		public HttpClient BaseClient { get; protected set; }
+
+		/// <summary>The underlying HTTP message handler.</summary>
+		public HttpClientHandler MessageHandler { get; protected set; }
 
 		/// <summary>The formatters used for serializing and deserializing message bodies.</summary>
-		public MediaTypeFormatterCollection Formatters { get; set; }
+		public MediaTypeFormatterCollection Formatters { get; protected set; }
 
 
 		/*********
@@ -22,8 +25,10 @@ namespace Pathoschild.Http.Client.Default
 		*********/
 		/// <summary>Construct an instance.</summary>
 		/// <param name="client">The underlying HTTP client.</param>
-		public FluentClient(HttpClient client)
+		/// <param name="handler">The underlying HTTP message handler. This should be the same handler used by the <paramref name="client"/>.</param>
+		public FluentClient(HttpClient client, HttpClientHandler handler)
 		{
+			this.MessageHandler = handler;
 			this.BaseClient = client;
 			this.Formatters = new MediaTypeFormatterCollection();
 		}
@@ -31,8 +36,11 @@ namespace Pathoschild.Http.Client.Default
 		/// <summary>Construct an instance.</summary>
 		/// <param name="baseUri">The base URI prepended to relative request URIs.</param>
 		public FluentClient(string baseUri)
-			: this(new HttpClient { BaseAddress = new Uri(baseUri) })
-		{ }
+		{
+			this.MessageHandler = new HttpClientHandler();
+			this.BaseClient = new HttpClient(this.MessageHandler, true) { BaseAddress = new Uri(baseUri) };
+			this.Formatters = new MediaTypeFormatterCollection();
+		}
 
 		/// <summary>Create an asynchronous HTTP DELETE request message (but don't dispatch it yet).</summary>
 		/// <param name="resource">The URI to send the request to.</param>

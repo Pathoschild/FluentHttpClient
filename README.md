@@ -1,4 +1,4 @@
-**Pathoschild.FluentHttpClient** is a fluent wrapper over the .NET 4.5 [HttpClient][] for creating strongly-typed easy-to-use API clients.
+**Pathoschild.FluentHttpClient** is a fluent wrapper over the .NET 4.5 [HttpClient][] for creating strongly-typed easy-to-use REST API clients.
 
 ## Installation
 The fluent client is available as a set of self-contained NuGet packages:
@@ -21,18 +21,14 @@ The most common usage is a synchronous HTTP GET, with the response deserialized 
         .RetrieveAs<Idea>();
 ```
 
-You can fluently customize the request and even directly alter the [HttpRequestMessage][]:
+You can fluently customize the request and directly alter the [HttpRequestMessage][]:
 
 ```c#
      Idea idea = client
         .Post("ideas", new Idea())
         .WithHeader("Content-Type", "application/json")
         .WithArgument("tenant", "company-name")
-        .WithCustom(message =>
-        {
-           message.Method = HttpMethod.Get;
-           message.RequestUri = new Uri("http://example.org/api2/", "ideas");
-        })
+        .WithCustom(message => { message.RequestUri = new Uri("http://example.org/api2/", "ideas"); })
         .RetrieveAs<Idea>();
 ```
 
@@ -45,13 +41,20 @@ The response can also be fluently configured:
         .AsString(); // or As<T>, AsList<T>, AsMessage, AsByteArray, AsStream
 ```
 
-You also can do everything asynchronously:
+And you can do everything asynchronously:
 
 ```c#
      Task<Idea> query = client
         .Get("ideas/14")
         .Retrieve()
         .AsAsync<Idea>();
+```
+
+And you can access the [underlying HTTP message handler][HttpClientHandler], or inject your own to do pretty much whatever you want. The default handler lets you configure a range of features like authentication, cookies, and proxying:
+```c#
+     client.MessageHandler.Credentials = new NetworkCredential("username", "password");
+     client.MessageHandler.CookieContainer.Add(new Cookie(...));
+     client.MessageHandler.Proxy = new WebProxy(...);
 ```
 
 The code documentation provides more details on usage: see [IClient][], [IRequestBuilder][], and [IResponse][].
@@ -74,8 +77,9 @@ The [Pathoschild.Http.Formatters.JsonNet][] package provides three formats using
 ```
 
 [HttpClient]: http://code.msdn.microsoft.com/Introduction-to-HttpClient-4a2d9cee
-[MediaTypeFormatter]: http://msdn.microsoft.com/en-us/library/system.net.http.formatting.mediatypeformatter.aspx
+[HttpClientHandler]: http://msdn.microsoft.com/en-us/library/system.net.http.httpclienthandler.aspx
 [HttpRequestMessage]: http://msdn.microsoft.com/en-us/library/system.net.http.httprequestmessage.aspx
+[MediaTypeFormatter]: http://msdn.microsoft.com/en-us/library/system.net.http.formatting.mediatypeformatter.aspx
 
 [Json.NET]: http://james.newtonking.com/projects/json-net.aspx
 [BSON]: https://en.wikipedia.org/wiki/BSON
