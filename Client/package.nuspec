@@ -2,12 +2,13 @@
 <package>
 	<metadata>
 		<id>Pathoschild.Http.FluentClient</id>
-		<version>0.3.1-alpha</version>
+		<version>0.3.2-alpha</version>
 		<authors>Jesse Plamondon-Willard</authors>
 		<description>A fluent, strongly-typed HTTP client built on top of Microsoft's .NET 4.5 HttpClient.</description>
 		<tags>api wcf web webapi</tags>
 		<licenseUrl>https://creativecommons.org/licenses/by/3.0/</licenseUrl>
 		<projectUrl>https://github.com/Pathoschild/Pathoschild.FluentHttpClient#readme</projectUrl>
 		<requireLicenseAcceptance>false</requireLicenseAcceptance>
+		<releaseNotes>Provide access to the message handler.</releaseNotes>
 	</metadata>
 </package>
