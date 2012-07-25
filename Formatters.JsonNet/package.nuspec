@@ -12,6 +12,10 @@
 		<dependencies>
 			<dependency id="Newtonsoft.Json" version="4.5" />
 		</dependencies>
+		<frameworkAssemblies>
+			<frameworkAssembly assemblyName="System.Net.Http" />
+			<frameworkAssembly assemblyName="System.Net.Http.Formatting" />
+		</frameworkAssemblies>
 	</metadata>
 	<files>
 		<file src="bin\Debug\Pathoschild.Http.Formatters.dll" target="lib\net40" />

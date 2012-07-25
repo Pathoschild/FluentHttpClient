@@ -10,5 +10,9 @@
 		<projectUrl>https://github.com/Pathoschild/Pathoschild.FluentHttpClient#readme</projectUrl>
 		<requireLicenseAcceptance>false</requireLicenseAcceptance>
 		<releaseNotes>Provide access to the message handler.</releaseNotes>
+		<frameworkAssemblies>
+			<frameworkAssembly assemblyName="System.Net.Http" />
+			<frameworkAssembly assemblyName="System.Net.Http.Formatting" />
+		</frameworkAssemblies>
 	</metadata>
 </package>

@@ -9,5 +9,9 @@
 		<licenseUrl>https://creativecommons.org/licenses/by/3.0/</licenseUrl>
 		<projectUrl>https://github.com/Pathoschild/Pathoschild.FluentHttpClient#readme</projectUrl>
 		<requireLicenseAcceptance>false</requireLicenseAcceptance>
+		<frameworkAssemblies>
+			<frameworkAssembly assemblyName="System.Net.Http" />
+			<frameworkAssembly assemblyName="System.Net.Http.Formatting" />
+		</frameworkAssemblies>
 	</metadata>
 </package>
