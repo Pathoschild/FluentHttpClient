@@ -44,7 +44,7 @@ namespace Pathoschild.Http.Client.Default
 		/// <param name="contentType">The request body format (or <c>null</c> to use the first supported Content-Type in the <see cref="IRequestBuilder.Formatters"/>).</param>
 		/// <returns>Returns the request builder for chaining.</returns>
 		/// <exception cref="InvalidOperationException">No MediaTypeFormatters are available on the API client for this content type.</exception>
-		public IRequestBuilder WithBody<T>(T body, MediaTypeHeaderValue contentType = null)
+		public virtual IRequestBuilder WithBody<T>(T body, MediaTypeHeaderValue contentType = null)
 		{
 			MediaTypeFormatter formatter = this.GetFormatter(contentType);
 			string mediaType = contentType != null ? contentType.MediaType : null;
@@ -56,7 +56,7 @@ namespace Pathoschild.Http.Client.Default
 		/// <param name="formatter">The media type formatter with which to format the request body format.</param>
 		/// <param name="mediaType">The HTTP media type (or <c>null</c> for the <paramref name="formatter"/>'s default).</param>
 		/// <returns>Returns the request builder for chaining.</returns>
-		public IRequestBuilder WithBody<T>(T body, MediaTypeFormatter formatter, string mediaType = null)
+		public virtual IRequestBuilder WithBody<T>(T body, MediaTypeFormatter formatter, string mediaType = null)
 		{
 			return this.WithBodyContent(new ObjectContent<T>(body, formatter, mediaType));
 		}
@@ -64,7 +64,7 @@ namespace Pathoschild.Http.Client.Default
 		/// <summary>Set the body content of the HTTP request.</summary>
 		/// <param name="body">The formatted HTTP body content.</param>
 		/// <returns>Returns the request builder for chaining.</returns>
-		public IRequestBuilder WithBodyContent(HttpContent body)
+		public virtual IRequestBuilder WithBodyContent(HttpContent body)
 		{
 			this.Message.Content = body;
 			return this;
@@ -74,7 +74,7 @@ namespace Pathoschild.Http.Client.Default
 		/// <param name="key">The key of the HTTP header.</param>
 		/// <param name="value">The value of the HTTP header.</param>
 		/// <returns>Returns the request builder for chaining.</returns>
-		public IRequestBuilder WithHeader(string key, string value)
+		public virtual IRequestBuilder WithHeader(string key, string value)
 		{
 			this.Message.Headers.Add(key, value);
 			return this;
@@ -84,7 +84,7 @@ namespace Pathoschild.Http.Client.Default
 		/// <param name="key">The key of the query argument.</param>
 		/// <param name="value">The value of the query argument.</param>
 		/// <returns>Returns the request builder for chaining.</returns>
-		public IRequestBuilder WithArgument(string key, object value)
+		public virtual IRequestBuilder WithArgument(string key, object value)
 		{
 			var query = this.Message.RequestUri.ParseQueryString();
 			query.Add(key, value.ToString());
@@ -96,7 +96,7 @@ namespace Pathoschild.Http.Client.Default
 		/// <summary>Customize the underlying HTTP request message.</summary>
 		/// <param name="request">The HTTP request message.</param>
 		/// <returns>Returns the request builder for chaining.</returns>
-		public IRequestBuilder WithCustom(Action<HttpRequestMessage> request)
+		public virtual IRequestBuilder WithCustom(Action<HttpRequestMessage> request)
 		{
 			request(this.Message);
 			return this;
@@ -137,7 +137,7 @@ namespace Pathoschild.Http.Client.Default
 		/// <summary>Get the formatter for an HTTP content type.</summary>
 		/// <param name="contentType">The HTTP content type (or <c>null</c> to automatically select one).</param>
 		/// <exception cref="InvalidOperationException">No MediaTypeFormatters are available on the API client for this content type.</exception>
-		protected MediaTypeFormatter GetFormatter(MediaTypeHeaderValue contentType = null)
+		protected virtual MediaTypeFormatter GetFormatter(MediaTypeHeaderValue contentType = null)
 		{
 			if (!this.Formatters.Any())
 				throw new InvalidOperationException("No MediaTypeFormatters are available on the API client.");

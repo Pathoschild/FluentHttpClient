@@ -53,7 +53,7 @@ namespace Pathoschild.Http.Client.Default
 		***/
 		/// <summary>Asynchronously retrieve the underlying response message.</summary>
 		/// <exception cref="ApiException">An error occurred processing the response.</exception>
-		public Task<HttpResponseMessage> AsMessageAsync()
+		public virtual Task<HttpResponseMessage> AsMessageAsync()
 		{
 			return this.Task;
 		}
@@ -61,7 +61,7 @@ namespace Pathoschild.Http.Client.Default
 		/// <summary>Asynchronously retrieve the response body as a deserialized model.</summary>
 		/// <typeparam name="T">The response model to deserialize into.</typeparam>
 		/// <exception cref="ApiException">An error occurred processing the response.</exception>
-		public Task<T> AsAsync<T>()
+		public virtual Task<T> AsAsync<T>()
 		{
 			return this.Task
 				.ContinueWith(task => task.Result.Content.ReadAsAsync<T>(this.Formatters), TaskContinuationOptions.OnlyOnRanToCompletion)
@@ -71,7 +71,7 @@ namespace Pathoschild.Http.Client.Default
 		/// <summary>Asynchronously retrieve the response body as a list of deserialized models.</summary>
 		/// <typeparam name="T">The response model to deserialize into.</typeparam>
 		/// <exception cref="ApiException">An error occurred processing the response.</exception>
-		public Task<List<T>> AsListAsync<T>()
+		public virtual Task<List<T>> AsListAsync<T>()
 		{
 			return this.AsAsync<List<T>>();
 		}
@@ -79,7 +79,7 @@ namespace Pathoschild.Http.Client.Default
 		/// <summary>Asynchronously retrieve the response body as an array of <see cref="byte"/>.</summary>
 		/// <returns>Returns the response body, or <c>null</c> if the response has no body.</returns>
 		/// <exception cref="ApiException">An error occurred processing the response.</exception>
-		public Task<byte[]> AsByteArrayAsync()
+		public virtual Task<byte[]> AsByteArrayAsync()
 		{
 			return this.Task
 				.ContinueWith(task => task.Result.Content.ReadAsByteArrayAsync(), TaskContinuationOptions.OnlyOnRanToCompletion)
@@ -89,7 +89,7 @@ namespace Pathoschild.Http.Client.Default
 		/// <summary>Asynchronously retrieve the response body as a <see cref="string"/>.</summary>
 		/// <returns>Returns the response body, or <c>null</c> if the response has no body.</returns>
 		/// <exception cref="ApiException">An error occurred processing the response.</exception>
-		public Task<string> AsStringAsync()
+		public virtual Task<string> AsStringAsync()
 		{
 			return this.Task
 				.ContinueWith(task => task.Result.Content.ReadAsStringAsync(), TaskContinuationOptions.OnlyOnRanToCompletion)
@@ -99,7 +99,7 @@ namespace Pathoschild.Http.Client.Default
 		/// <summary>Asynchronously retrieve the response body as a <see cref="Stream"/>.</summary>
 		/// <returns>Returns the response body, or <c>null</c> if the response has no body.</returns>
 		/// <exception cref="ApiException">An error occurred processing the response.</exception>
-		public Task<Stream> AsStreamAsync()
+		public virtual Task<Stream> AsStreamAsync()
 		{
 			return this.Task
 				.ContinueWith(task =>
@@ -117,7 +117,7 @@ namespace Pathoschild.Http.Client.Default
 		/// <summary>Block the current thread until the asynchronous request completes.</summary>
 		/// <returns>Returns this instance for chaining.</returns>
 		/// <exception cref="ApiException">The HTTP response returned a non-success <see cref="HttpStatusCode"/>, and <see cref="ThrowError"/> is <c>true</c>.</exception>
-		public IResponse Wait()
+		public virtual IResponse Wait()
 		{
 			this.AsMessage();
 			return this;
@@ -177,7 +177,7 @@ namespace Pathoschild.Http.Client.Default
 		*********/
 		/// <summary>Get the HTTP response task which includes any required preprocessing validation.</summary>
 		/// <param name="httpTask">The HTTP task to wrap.</param>
-		protected Task<HttpResponseMessage> GetTaskPreprocessor(Task<HttpResponseMessage> httpTask)
+		protected virtual Task<HttpResponseMessage> GetTaskPreprocessor(Task<HttpResponseMessage> httpTask)
 		{
 			return Task<HttpResponseMessage>.Factory.StartNew(task =>
 			{
@@ -200,7 +200,7 @@ namespace Pathoschild.Http.Client.Default
 		/// <typeparam name="T">The task result type.</typeparam>
 		/// <param name="task">The task to await.</param>
 		/// <exception cref="ApiException">The HTTP response returned a non-success <see cref="HttpStatusCode"/>, and <see cref="ThrowError"/> is <c>true</c>.</exception>
-		protected T Synchronize<T>(Task<T> task)
+		protected virtual T Synchronize<T>(Task<T> task)
 		{
 			try
 			{
