@@ -45,6 +45,9 @@
     <Compile Include="Default\FluentClient.cs" />
     <Compile Include="Default\RequestBuilder.cs" />
     <Compile Include="Default\Response.cs" />
+    <Compile Include="Delegating\DelegatingFluentClient.cs" />
+    <Compile Include="Delegating\DelegatingRequestBuilder.cs" />
+    <Compile Include="Delegating\DelegatingResponse.cs" />
     <Compile Include="IClient.cs" />
     <Compile Include="IRequestBuilder.cs" />
     <Compile Include="IResponse.cs" />

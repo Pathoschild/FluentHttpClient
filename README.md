@@ -1,8 +1,9 @@
 **Pathoschild.FluentHttpClient** is a fluent wrapper over the .NET 4.5 [HttpClient][] for creating strongly-typed easy-to-use REST API clients.
 
 ## Installation
-The fluent client is available as a set of self-contained NuGet packages:
-* [Pathoschild.Http.FluentClient][] includes `Pathoschild.Http.Client`;
+The fluent client is available as the [Pathoschild.Http.FluentClient][] NuGet package.
+
+Optional addons:
 * [Pathoschild.Http.Formatters.Core][] includes `Pathoschild.Http.Formatters`;
 * [Pathoschild.Http.Formatters.JsonNet][] includes `Pathoschild.Http.Formatters.JsonNet` and `Pathoschild.Http.Formatters`.
 
@@ -81,8 +82,41 @@ The [Pathoschild.Http.Formatters.JsonNet][] package provides three formats using
 You can inject your own [HTTP message handler][HttpClientHandler] to do pretty much anything you want. For example, you could easily create a custom handler for unit tests which talks directly to a mock without actual HTTP calls:
 ```c#
      UnitTestHandler handler = new UnitTestHandler() { WasCalled = false };
-     IClient<UnitTestHandler> client = new FluentClient(new HttpClient(handler), handler);
+     IClient<UnitTestHandler> client = new FluentClient<UnitTestHandler>(new HttpClient(handler), handler);
      bool wasCalled = client.MessageHandler.WasCalled; // strongly-typed access to the handler
+```
+
+### Custom implementations
+You can create your own implementations of the client interfaces (`IClient`, `IRequestBuilder`, and `IResponse`) — the default classes have virtual methods, so you can subclass them to override individual methods and properties.
+
+You can also use the [decorator pattern] with the delegating implementations (`DelegatingFluentClient`, `DelegatingRequestBuilder`, and `DelegatingResponse`) to easily inject specialized behaviour without reimplementing entire interfaces. These implementations let you override individual methods and properties while delegating everything else to another implementation.
+
+For example, this delegating response tracks time spent waiting for HTTP requests using [MiniProfiler]:
+```c#
+     public class ProfiledResponse : DelegatingResponse
+     {
+        public ProfiledResponse(IResponse response)
+           : base(response) { }
+
+        public override IResponse Wait()
+        {
+           using (MiniProfiler.Current.Step("Waiting for API"))
+              return base.Wait();
+        }
+     }
+```
+
+You can then combine decorators to inject the behaviour you want:
+```c#
+     // create decorated instance
+     IClient client = new FluentClient("http://example.org/api/");
+     client = new ProfiledClient(client);  // example implementation which constructs ProfiledResponse
+     client = new AuditedClient(client);
+
+     // use it the same way
+     Idea idea = client
+        .Get("ideas/14")
+        .RetrieveAs<Idea>();
 ```
 
 [HttpClient]: http://code.msdn.microsoft.com/Introduction-to-HttpClient-4a2d9cee
@@ -92,8 +126,10 @@ You can inject your own [HTTP message handler][HttpClientHandler] to do pretty m
 
 [Json.NET]: http://james.newtonking.com/projects/json-net.aspx
 [BSON]: https://en.wikipedia.org/wiki/BSON
+[decorator pattern]: http://en.wikipedia.org/wiki/Decorator_pattern
 [JSON]: https://en.wikipedia.org/wiki/JSON
 [JSONP]: https://en.wikipedia.org/wiki/JSONP
+[MiniProfiler]: http://miniprofiler.com/
 
 [IClient]: https://github.com/Pathoschild/Pathoschild.FluentHttpClient/blob/master/Client/IClient.cs#L6
 [IRequestBuilder]: https://github.com/Pathoschild/Pathoschild.FluentHttpClient/blob/master/Client/IRequestBuilder.cs#L10
