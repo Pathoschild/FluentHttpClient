@@ -1,6 +1,7 @@
 ﻿using System.Net.Http;
 using NUnit.Framework;
 using Pathoschild.Http.Client;
+using Pathoschild.Http.Client.Default;
 
 namespace Pathoschild.Http.Tests.Default
 {
@@ -149,7 +150,7 @@ namespace Pathoschild.Http.Tests.Default
 			try
 			{
 				// execute
-				IClient client = new Client.Default.FluentClient(baseUri);
+				IClient client = new FluentClient(baseUri);
 
 				// verify
 				Assert.NotNull(client.BaseClient, "The base client is null.");

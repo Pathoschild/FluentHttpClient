@@ -5,7 +5,9 @@ using System.Net.Http.Formatting;
 namespace Pathoschild.Http.Client.Default
 {
 	/// <summary>Sends HTTP requests and receives responses from a resource identified by a URI.</summary>
-	public class FluentClient : IClient
+	/// <typeparam name="TMessageHandler">The HTTP message handler type.</typeparam>
+	public class FluentClient<TMessageHandler> : IClient<TMessageHandler>
+		where TMessageHandler : HttpMessageHandler
 	{
 		/*********
 		** Accessors
@@ -14,7 +16,7 @@ namespace Pathoschild.Http.Client.Default
 		public HttpClient BaseClient { get; protected set; }
 
 		/// <summary>The underlying HTTP message handler.</summary>
-		public HttpClientHandler MessageHandler { get; protected set; }
+		public TMessageHandler MessageHandler { get; protected set; }
 
 		/// <summary>The formatters used for serializing and deserializing message bodies.</summary>
 		public MediaTypeFormatterCollection Formatters { get; protected set; }
@@ -26,20 +28,10 @@ namespace Pathoschild.Http.Client.Default
 		/// <summary>Construct an instance.</summary>
 		/// <param name="client">The underlying HTTP client.</param>
 		/// <param name="handler">The underlying HTTP message handler. This should be the same handler used by the <paramref name="client"/>.</param>
-		public FluentClient(HttpClient client, HttpClientHandler handler)
-		{
-			this.MessageHandler = handler;
-			this.BaseClient = client;
-			this.Formatters = new MediaTypeFormatterCollection();
-		}
-
-		/// <summary>Construct an instance.</summary>
 		/// <param name="baseUri">The base URI prepended to relative request URIs.</param>
-		public FluentClient(string baseUri)
+		public FluentClient(HttpClient client, TMessageHandler handler, string baseUri = null)
 		{
-			this.MessageHandler = new HttpClientHandler();
-			this.BaseClient = new HttpClient(this.MessageHandler, true) { BaseAddress = new Uri(baseUri) };
-			this.Formatters = new MediaTypeFormatterCollection();
+			this.Initialize(client, handler, baseUri);
 		}
 
 		/// <summary>Create an asynchronous HTTP DELETE request message (but don't dispatch it yet).</summary>
@@ -112,6 +104,45 @@ namespace Pathoschild.Http.Client.Default
 		public virtual IRequestBuilder Send(HttpRequestMessage message)
 		{
 			return new RequestBuilder(message, this.Formatters, request => this.BaseClient.SendAsync(request.Message));
+		}
+
+
+		/*********
+		** Protected methods
+		*********/
+		/// <summary>Construct an uninitialized instance.</summary>
+		protected FluentClient() {}
+
+		/// <summary>Initialize the client.</summary>
+		/// <param name="client">The underlying HTTP client.</param>
+		/// <param name="handler">The underlying HTTP message handler. This should be the same handler used by the <paramref name="client"/>.</param>
+		/// <param name="baseUri">The base URI prepended to relative request URIs.</param>
+		protected void Initialize(HttpClient client, TMessageHandler handler, string baseUri = null)
+		{
+			this.MessageHandler = handler;
+			this.BaseClient = client;
+			if (baseUri != null)
+				this.BaseClient.BaseAddress = new Uri(baseUri);
+			this.Formatters = new MediaTypeFormatterCollection();
+		}
+	}
+
+	/// <summary>Sends HTTP requests and receives responses from a resource identified by a URI.</summary>
+	public class FluentClient : FluentClient<HttpClientHandler>, IClient
+	{
+		/// <summary>Construct an instance.</summary>
+		/// <param name="client">The underlying HTTP client.</param>
+		/// <param name="handler">The underlying HTTP message handler. This should be the same handler used by the <paramref name="client"/>.</param>
+		/// <param name="baseUri">The base URI prepended to relative request URIs.</param>
+		public FluentClient(HttpClient client, HttpClientHandler handler, string baseUri = null)
+			: base(client, handler, baseUri) { }
+
+		/// <summary>Construct an instance.</summary>
+		/// <param name="baseUri">The base URI prepended to relative request URIs.</param>
+		public FluentClient(string baseUri)
+		{
+			var handler = new HttpClientHandler();
+			this.Initialize(new HttpClient(handler), handler, baseUri);
 		}
 	}
 }

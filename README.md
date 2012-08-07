@@ -50,7 +50,7 @@ And you can do everything asynchronously:
         .AsAsync<Idea>();
 ```
 
-And you can access the [underlying HTTP message handler][HttpClientHandler], or inject your own to do pretty much whatever you want. The default handler lets you configure a range of features like authentication, cookies, and proxying:
+And you can configure a range of features like credentials and cookies using the default [HTTP message handler][HttpClientHandler]:
 ```c#
      client.MessageHandler.Credentials = new NetworkCredential("username", "password");
      client.MessageHandler.CookieContainer.Add(new Cookie(...));
@@ -59,21 +59,30 @@ And you can access the [underlying HTTP message handler][HttpClientHandler], or 
 
 The code documentation provides more details on usage: see [IClient][], [IRequestBuilder][], and [IResponse][].
 
-## Configurable formatting
-The client uses .NET's [MediaTypeFormatter][]s for serializing and deserializing HTTP messages. This is the same type used by the underlying HttpClient and the .NET Web API, and the client uses Microsoft's default formatters out of the box. When creating a client for an ASP.NET Web API, this lets you seamlessly use the same formatters on both sides.
+## Extension
+### Custom formats
+The client uses .NET's [MediaTypeFormatter][]s for serializing and deserializing HTTP messages — the same ones used by the HttpClient itself and the ASP.NET Web API. The client uses Microsoft's default formatters by default. When creating a client for an ASP.NET Web API, this lets you seamlessly use the same formatters on both sides.
 
-You can use any of the many implementations already available, create your own ([MediaTypeFormatterBase][] might help), or use one of the formatters below. For example, to replace the default JSON formatter with the formatter below:
+You can use any of the many implementations already available (including the Json.NET formatters below), or create your own ([MediaTypeFormatterBase][] might help). For example, to replace the default JSON formatter with the formatter below:
 ```c#
      IClient client = new FluentClient("http://example.org/api/");
      client.Formatters.Remove(client.Formatters.JsonFormatter);
      client.Formatters.Add(new JsonNetFormatter());
 ```
 
-### Json.NET
+#### Json.NET
 The [Pathoschild.Http.Formatters.JsonNet][] package provides three formats using [Json.NET][]: [BSON][] (`application/bson`), [JSON][] (`application/json`, `text/json`), and [JSONP][] (`application/javascript`, `application/ecmascript`, `text/javascript`, `text/ecmascript`). JSONP requests can include an optional `callback` query parameter that specifies the JavaScript method name to invoke.
 ```c#
      client.Formatters.Add(new JsonNetBsonFormatter());
      client.Formatters.Add(new JsonNetFormatter());
+```
+
+### Custom message handler
+You can inject your own [HTTP message handler][HttpClientHandler] to do pretty much anything you want. For example, you could easily create a custom handler for unit tests which talks directly to a mock without actual HTTP calls:
+```c#
+     UnitTestHandler handler = new UnitTestHandler() { WasCalled = false };
+     IClient<UnitTestHandler> client = new FluentClient(new HttpClient(handler), handler);
+     bool wasCalled = client.MessageHandler.WasCalled; // strongly-typed access to the handler
 ```
 
 [HttpClient]: http://code.msdn.microsoft.com/Introduction-to-HttpClient-4a2d9cee

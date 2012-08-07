@@ -4,7 +4,9 @@ using System.Net.Http.Formatting;
 namespace Pathoschild.Http.Client
 {
 	/// <summary>Sends HTTP requests and receives responses from a resource identified by a URI.</summary>
-	public interface IClient
+	/// <typeparam name="TMessageHandler">The HTTP message handler type.</typeparam>
+	public interface IClient<out TMessageHandler>
+		where TMessageHandler : HttpMessageHandler
 	{
 		/*********
 		** Accessors
@@ -13,7 +15,7 @@ namespace Pathoschild.Http.Client
 		HttpClient BaseClient { get; }
 
 		/// <summary>The underlying HTTP message handler.</summary>
-		HttpClientHandler MessageHandler { get; }
+		TMessageHandler MessageHandler { get; }
 
 		/// <summary>The formatters used for serializing and deserializing message bodies.</summary>
 		MediaTypeFormatterCollection Formatters { get; }
@@ -67,4 +69,7 @@ namespace Pathoschild.Http.Client
 		/// <returns>Returns a request builder.</returns>
 		IRequestBuilder Send(HttpRequestMessage message);
 	}
+
+	/// <summary>Sends HTTP requests and receives responses from a resource identified by a URI.</summary>
+	public interface IClient : IClient<HttpClientHandler> { }
 }
