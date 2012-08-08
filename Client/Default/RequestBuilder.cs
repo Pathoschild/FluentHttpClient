@@ -21,7 +21,7 @@ namespace Pathoschild.Http.Client.Default
 		public MediaTypeFormatterCollection Formatters { get; set; }
 
 		/// <summary>Constructs implementations for the fluent client.</summary>
-		public IFactory Factory { get; set; }
+		public IFactory Factory { get; protected set; }
 
 		/// <summary>Executes an HTTP request.</summary>
 		public Func<IRequestBuilder, Task<HttpResponseMessage>> ResponseBuilder { get; set; }
@@ -34,12 +34,13 @@ namespace Pathoschild.Http.Client.Default
 		/// <param name="message">The underlying HTTP request message.</param>
 		/// <param name="formatters">The formatters used for serializing and deserializing message bodies.</param>
 		/// <param name="responseBuilder">Executes an HTTP request.</param>
-		public RequestBuilder(HttpRequestMessage message, MediaTypeFormatterCollection formatters, Func<IRequestBuilder, Task<HttpResponseMessage>> responseBuilder)
+		/// <param name="factory">Constructs implementations for the fluent client.</param>
+		public RequestBuilder(HttpRequestMessage message, MediaTypeFormatterCollection formatters, Func<IRequestBuilder, Task<HttpResponseMessage>> responseBuilder, IFactory factory = null)
 		{
 			this.Message = message;
 			this.Formatters = formatters;
 			this.ResponseBuilder = responseBuilder;
-			this.Factory = new Factory();
+			this.Factory = factory ?? new Factory();
 		}
 
 		/// <summary>Set the body content of the HTTP request.</summary>

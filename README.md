@@ -92,8 +92,7 @@ You can create your own implementations of the client interfaces (`IClient`, `IR
 #### Factory
 You can inject your own implementations of the interfaces using the `IFactory`, which is called whenever the client needs an implementation. You can subclass the default `Factory` and only override the methods you're interested in.
 ```c#
-     IClient client = new FluentClient("http://example.org/api/");
-     client.Factory = new MyCustomFactory();
+     IClient client = new FluentClient("http://example.org/api/", factory: new CustomFactory());
 ```
 
 #### Decorator pattern
@@ -130,7 +129,7 @@ You can then combine decorators to inject the behaviour you want:
      }
 	 
      // use the client without worry about what behaviour is injected
-     IClient client = new FluentClient("http://example.org/api/") { Factory = new CustomFactory() };
+     IClient client = new FluentClient("http://example.org/api/", factory: new CustomFactory() };
      Idea idea = client
         .Get("ideas/14")
         .RetrieveAs<Idea>();

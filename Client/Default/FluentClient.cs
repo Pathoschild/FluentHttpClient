@@ -22,7 +22,7 @@ namespace Pathoschild.Http.Client.Default
 		public MediaTypeFormatterCollection Formatters { get; protected set; }
 
 		/// <summary>Constructs implementations for the fluent client.</summary>
-		public IFactory Factory { get; set; }
+		public IFactory Factory { get; protected set; }
 
 
 
@@ -33,10 +33,11 @@ namespace Pathoschild.Http.Client.Default
 		/// <param name="client">The underlying HTTP client.</param>
 		/// <param name="handler">The underlying HTTP message handler. This should be the same handler used by the <paramref name="client"/>.</param>
 		/// <param name="baseUri">The base URI prepended to relative request URIs.</param>
-		public FluentClient(HttpClient client, TMessageHandler handler, string baseUri = null)
+		/// <param name="factory">Constructs implementations for the fluent client.</param>
+		public FluentClient(HttpClient client, TMessageHandler handler, string baseUri = null, IFactory factory = null)
 			: this()
 		{
-			this.Initialize(client, handler, baseUri);
+			this.Initialize(client, handler, baseUri, factory);
 		}
 
 		/// <summary>Create an asynchronous HTTP DELETE request message (but don't dispatch it yet).</summary>
@@ -125,10 +126,12 @@ namespace Pathoschild.Http.Client.Default
 		/// <param name="client">The underlying HTTP client.</param>
 		/// <param name="handler">The underlying HTTP message handler. This should be the same handler used by the <paramref name="client"/>.</param>
 		/// <param name="baseUri">The base URI prepended to relative request URIs.</param>
-		protected void Initialize(HttpClient client, TMessageHandler handler, string baseUri = null)
+		/// <param name="factory">Constructs implementations for the fluent client.</param>
+		protected void Initialize(HttpClient client, TMessageHandler handler, string baseUri = null, IFactory factory = null)
 		{
 			this.MessageHandler = handler;
 			this.BaseClient = client;
+			this.Factory = factory ?? new Factory();
 			if (baseUri != null)
 				this.BaseClient.BaseAddress = new Uri(baseUri);
 			this.Formatters = this.Factory.GetDefaultFormatters();
@@ -142,15 +145,17 @@ namespace Pathoschild.Http.Client.Default
 		/// <param name="client">The underlying HTTP client.</param>
 		/// <param name="handler">The underlying HTTP message handler. This should be the same handler used by the <paramref name="client"/>.</param>
 		/// <param name="baseUri">The base URI prepended to relative request URIs.</param>
-		public FluentClient(HttpClient client, HttpClientHandler handler, string baseUri = null)
-			: base(client, handler, baseUri) { }
+		/// <param name="factory">Constructs implementations for the fluent client.</param>
+		public FluentClient(HttpClient client, HttpClientHandler handler, string baseUri = null, IFactory factory = null)
+			: base(client, handler, baseUri, factory) { }
 
 		/// <summary>Construct an instance.</summary>
 		/// <param name="baseUri">The base URI prepended to relative request URIs.</param>
-		public FluentClient(string baseUri)
+		/// <param name="factory">Constructs implementations for the fluent client.</param>
+		public FluentClient(string baseUri, IFactory factory = null)
 		{
 			var handler = new HttpClientHandler();
-			this.Initialize(new HttpClient(handler), handler, baseUri);
+			this.Initialize(new HttpClient(handler), handler, baseUri, factory);
 		}
 	}
 }

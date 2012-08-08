@@ -22,7 +22,7 @@ namespace Pathoschild.Http.Client.Default
 		/// <param name="responseBuilder">Executes an HTTP request.</param>
 		public virtual IRequestBuilder GetRequestBuilder(HttpRequestMessage message, MediaTypeFormatterCollection formatters, Func<IRequestBuilder, Task<HttpResponseMessage>> responseBuilder)
 		{
-			return new RequestBuilder(message, formatters, responseBuilder) { Factory = this };
+			return new RequestBuilder(message, formatters, responseBuilder, this);
 		}
 
 		/// <summary>Construct an asynchronous HTTP response.</summary>
