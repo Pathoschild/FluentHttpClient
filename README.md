@@ -89,7 +89,15 @@ You can inject your own [HTTP message handler][HttpClientHandler] to do pretty m
 ### Custom implementations
 You can create your own implementations of the client interfaces (`IClient`, `IRequestBuilder`, and `IResponse`) — the default classes have virtual methods, so you can subclass them to override individual methods and properties.
 
-You can also use the [decorator pattern] with the delegating implementations (`DelegatingFluentClient`, `DelegatingRequestBuilder`, and `DelegatingResponse`) to easily inject specialized behaviour without reimplementing entire interfaces. These implementations let you override individual methods and properties while delegating everything else to another implementation.
+#### Factory
+You can inject your own implementations of the interfaces using the `IFactory`, which is called whenever the client needs an implementation. You can subclass the default `Factory` and only override the methods you're interested in.
+```c#
+     IClient client = new FluentClient("http://example.org/api/");
+     client.Factory = new MyCustomFactory();
+```
+
+#### Decorator pattern
+You can combine the factory with the [decorator pattern] using the delegating implementations (`DelegatingFluentClient`, `DelegatingRequestBuilder`, and `DelegatingResponse`) to inject specialized behaviour. These implementations let you override individual methods and properties while delegating everything else to another implementation.
 
 For example, this delegating response tracks time spent waiting for HTTP requests using [MiniProfiler]:
 ```c#
@@ -101,19 +109,28 @@ For example, this delegating response tracks time spent waiting for HTTP request
         public override IResponse Wait()
         {
            using (MiniProfiler.Current.Step("Waiting for API"))
-              return base.Wait();
+              base.Wait();
+           return this;
         }
      }
 ```
 
 You can then combine decorators to inject the behaviour you want:
 ```c#
-     // create decorated instance
-     IClient client = new FluentClient("http://example.org/api/");
-     client = new ProfiledClient(client);  // example implementation which constructs ProfiledResponse
-     client = new AuditedClient(client);
-
-     // use it the same way
+     // override factory
+     public class CustomFactory : Factory
+     {
+        public override IResponse GetResponse(HttpRequestMessage request, Task<HttpResponseMessage> task, MediaTypeFormatterCollection formatters, bool throwError = true)
+        {
+           IResponse response = base.GetResponse(request, task, formatters, throwError);
+           response = new ProfiledResponse(response);
+           response = new AuditedResponse(response);
+           return response;
+        }
+     }
+	 
+     // use the client without worry about what behaviour is injected
+     IClient client = new FluentClient("http://example.org/api/") { Factory = new CustomFactory() };
      Idea idea = client
         .Get("ideas/14")
         .RetrieveAs<Idea>();

@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Formatting;
@@ -21,6 +20,9 @@ namespace Pathoschild.Http.Client.Default
 		/// <summary>The formatters used for serializing and deserializing message bodies.</summary>
 		public MediaTypeFormatterCollection Formatters { get; set; }
 
+		/// <summary>Constructs implementations for the fluent client.</summary>
+		public IFactory Factory { get; set; }
+
 		/// <summary>Executes an HTTP request.</summary>
 		public Func<IRequestBuilder, Task<HttpResponseMessage>> ResponseBuilder { get; set; }
 
@@ -37,6 +39,7 @@ namespace Pathoschild.Http.Client.Default
 			this.Message = message;
 			this.Formatters = formatters;
 			this.ResponseBuilder = responseBuilder;
+			this.Factory = new Factory();
 		}
 
 		/// <summary>Set the body content of the HTTP request.</summary>
@@ -46,7 +49,7 @@ namespace Pathoschild.Http.Client.Default
 		/// <exception cref="InvalidOperationException">No MediaTypeFormatters are available on the API client for this content type.</exception>
 		public virtual IRequestBuilder WithBody<T>(T body, MediaTypeHeaderValue contentType = null)
 		{
-			MediaTypeFormatter formatter = this.GetFormatter(contentType);
+			MediaTypeFormatter formatter = this.Factory.GetFormatter(this.Formatters, contentType);
 			string mediaType = contentType != null ? contentType.MediaType : null;
 			return this.WithBody<T>(body, formatter, mediaType);
 		}
@@ -107,7 +110,7 @@ namespace Pathoschild.Http.Client.Default
 		/// <returns>Returns a response.</returns>
 		public virtual IResponse Retrieve(bool throwError = true)
 		{
-			return new Response(this.Message, this.ResponseBuilder(this), this.Formatters, throwError);
+			return this.Factory.GetResponse(this.Message, this.ResponseBuilder(this), this.Formatters, throwError);
 		}
 
 		/// <summary>Dispatch the request and retrieve the response as a deserialized model.</summary>
@@ -128,27 +131,6 @@ namespace Pathoschild.Http.Client.Default
 		public List<TResponse> RetrieveAsList<TResponse>(bool throwError = true)
 		{
 			return this.Retrieve(throwError).AsList<TResponse>();
-		}
-
-
-		/*********
-		** Protected methods
-		*********/
-		/// <summary>Get the formatter for an HTTP content type.</summary>
-		/// <param name="contentType">The HTTP content type (or <c>null</c> to automatically select one).</param>
-		/// <exception cref="InvalidOperationException">No MediaTypeFormatters are available on the API client for this content type.</exception>
-		protected virtual MediaTypeFormatter GetFormatter(MediaTypeHeaderValue contentType = null)
-		{
-			if (!this.Formatters.Any())
-				throw new InvalidOperationException("No MediaTypeFormatters are available on the API client.");
-
-			MediaTypeFormatter formatter = contentType != null
-				? this.Formatters.FirstOrDefault(f => f.MediaTypeMappings.Any(m => m.MediaType.MediaType == contentType.MediaType))
-				: this.Formatters.FirstOrDefault();
-			if (formatter == null)
-				throw new InvalidOperationException(String.Format("No MediaTypeFormatters are available on the API client for the '{0}' content-type.", contentType));
-
-			return formatter;
 		}
 	}
 }

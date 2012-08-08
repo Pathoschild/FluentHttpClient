@@ -21,6 +21,10 @@ namespace Pathoschild.Http.Client.Default
 		/// <summary>The formatters used for serializing and deserializing message bodies.</summary>
 		public MediaTypeFormatterCollection Formatters { get; protected set; }
 
+		/// <summary>Constructs implementations for the fluent client.</summary>
+		public IFactory Factory { get; set; }
+
+
 
 		/*********
 		** Public methods
@@ -30,6 +34,7 @@ namespace Pathoschild.Http.Client.Default
 		/// <param name="handler">The underlying HTTP message handler. This should be the same handler used by the <paramref name="client"/>.</param>
 		/// <param name="baseUri">The base URI prepended to relative request URIs.</param>
 		public FluentClient(HttpClient client, TMessageHandler handler, string baseUri = null)
+			: this()
 		{
 			this.Initialize(client, handler, baseUri);
 		}
@@ -93,7 +98,7 @@ namespace Pathoschild.Http.Client.Default
 		public virtual IRequestBuilder Send(HttpMethod method, string resource)
 		{
 			Uri uri = new Uri(this.BaseClient.BaseAddress, resource);
-			HttpRequestMessage message = new HttpRequestMessage(method, uri);
+			HttpRequestMessage message = this.Factory.GetRequestMessage(method, uri);
 			return this.Send(message);
 		}
 
@@ -103,7 +108,7 @@ namespace Pathoschild.Http.Client.Default
 		/// <remarks>This is the base method which executes every request.</remarks>
 		public virtual IRequestBuilder Send(HttpRequestMessage message)
 		{
-			return new RequestBuilder(message, this.Formatters, request => this.BaseClient.SendAsync(request.Message));
+			return this.Factory.GetRequestBuilder(message, this.Formatters, request => this.BaseClient.SendAsync(request.Message));
 		}
 
 
@@ -111,7 +116,10 @@ namespace Pathoschild.Http.Client.Default
 		** Protected methods
 		*********/
 		/// <summary>Construct an uninitialized instance.</summary>
-		protected FluentClient() {}
+		protected FluentClient()
+		{
+			this.Factory = new Factory();
+		}
 
 		/// <summary>Initialize the client.</summary>
 		/// <param name="client">The underlying HTTP client.</param>
@@ -123,7 +131,7 @@ namespace Pathoschild.Http.Client.Default
 			this.BaseClient = client;
 			if (baseUri != null)
 				this.BaseClient.BaseAddress = new Uri(baseUri);
-			this.Formatters = new MediaTypeFormatterCollection();
+			this.Formatters = this.Factory.GetDefaultFormatters();
 		}
 	}
 
