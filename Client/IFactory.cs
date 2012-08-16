@@ -40,6 +40,7 @@ namespace Pathoschild.Http.Client
 		/// <summary>Construct an HTTP request message.</summary>
 		/// <param name="method">The HTTP method.</param>
 		/// <param name="resource">The URI to send the request to.</param>
-		HttpRequestMessage GetRequestMessage(HttpMethod method, Uri resource);
+		/// <param name="formatters">The formatters used for serializing and deserializing message bodies.</param>
+		HttpRequestMessage GetRequestMessage(HttpMethod method, Uri resource, MediaTypeFormatterCollection formatters);
 	}
 }

@@ -99,7 +99,7 @@ namespace Pathoschild.Http.Client.Default
 		public virtual IRequestBuilder Send(HttpMethod method, string resource)
 		{
 			Uri uri = new Uri(this.BaseClient.BaseAddress, resource);
-			HttpRequestMessage message = this.Factory.GetRequestMessage(method, uri);
+			HttpRequestMessage message = this.Factory.GetRequestMessage(method, uri, this.Formatters);
 			return this.Send(message);
 		}
 

@@ -65,9 +65,16 @@ namespace Pathoschild.Http.Client.Default
 		/// <summary>Construct an HTTP request message.</summary>
 		/// <param name="method">The HTTP method.</param>
 		/// <param name="resource">The URI to send the request to.</param>
-		public virtual HttpRequestMessage GetRequestMessage(HttpMethod method, Uri resource)
+		/// <param name="formatters">The formatters used for serializing and deserializing message bodies.</param>
+		public virtual HttpRequestMessage GetRequestMessage(HttpMethod method, Uri resource, MediaTypeFormatterCollection formatters)
 		{
-			return new HttpRequestMessage(method, resource);
+			HttpRequestMessage request = new HttpRequestMessage(method, resource);
+
+			// add default headers
+			request.Headers.Add("user-agent", "FluentHttpClient/0.4 (+http://github.com/Pathoschild/Pathoschild.FluentHttpClient)");
+			request.Headers.Add("accept", formatters.SelectMany(p => p.SupportedMediaTypes).Select(p => p.MediaType));
+
+			return request;
 		}
 	}
 }
