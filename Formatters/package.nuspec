@@ -2,13 +2,14 @@
 <package>
 	<metadata>
 		<id>Pathoschild.Http.Formatters.Core</id>
-		<version>0.3.0-alpha</version>
+		<version>0.4.0-alpha</version>
 		<authors>Jesse Plamondon-Willard</authors>
-		<description>Provides a base implementation of the .NET 4.5 MediaTypeFormatter for serializers and an example PlainTextFormatter. This handles the common code involved, so you only need to implement the "Serialize" and "Deserialize" methods without worrying about the asynchronous logic.</description>
+		<description>A base implementation of the .NET 4.5 MediaTypeFormatter for serializers with an example PlainTextFormatter. This handles the common plumbing code so you only need to implement the "Serialize" and "Deserialize" methods.</description>
 		<tags>api wcf web webapi</tags>
 		<licenseUrl>https://creativecommons.org/licenses/by/3.0/</licenseUrl>
 		<projectUrl>https://github.com/Pathoschild/Pathoschild.FluentHttpClient#readme</projectUrl>
 		<requireLicenseAcceptance>false</requireLicenseAcceptance>
+		<releaseNotes>Migrated to .NET 4.5.</releaseNotes>
 		<frameworkAssemblies>
 			<frameworkAssembly assemblyName="System.Net.Http" />
 			<frameworkAssembly assemblyName="System.Net.Http.Formatting" />

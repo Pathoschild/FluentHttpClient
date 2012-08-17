@@ -39,52 +39,52 @@ namespace Pathoschild.Http.Tests.Delegating
 		/***
 		** Methods
 		***/
-		[Test(Description = "Ensure that the Delete method is delegated.")]
+		[Test(Description = "Ensure that the DeleteAsync method is delegated.")]
 		public void Delete()
 		{
-			this.VerifyMethod(p => p.Delete(It.IsAny<string>()));
+			this.VerifyMethod(p => p.DeleteAsync(It.IsAny<string>()));
 		}
 
-		[Test(Description = "Ensure that the Get method is delegated.")]
+		[Test(Description = "Ensure that the GetAsync method is delegated.")]
 		public void Get()
 		{
-			this.VerifyMethod(p => p.Get(It.IsAny<string>()));
+			this.VerifyMethod(p => p.GetAsync(It.IsAny<string>()));
 		}
 
-		[Test(Description = "Ensure that the Post method is delegated.")]
+		[Test(Description = "Ensure that the PostAsync method is delegated.")]
 		public void Post()
 		{
-			this.VerifyMethod(p => p.Post(It.IsAny<string>()));
+			this.VerifyMethod(p => p.PostAsync(It.IsAny<string>()));
 		}
 
-		[Test(Description = "Ensure that the Post method  (when passed an HTTP body content) is delegated.")]
+		[Test(Description = "Ensure that the PostAsync method  (when passed an HTTP body content) is delegated.")]
 		public void Post_WithBody()
 		{
-			this.VerifyMethod(p => p.Post(It.IsAny<string>(), It.IsAny<object>()));
+			this.VerifyMethod(p => p.PostAsync(It.IsAny<string>(), It.IsAny<object>()));
 		}
 
-		[Test(Description = "Ensure that the Put method is delegated.")]
+		[Test(Description = "Ensure that the PutAsync method is delegated.")]
 		public void Put()
 		{
-			this.VerifyMethod(p => p.Put(It.IsAny<string>()));
+			this.VerifyMethod(p => p.PutAsync(It.IsAny<string>()));
 		}
 
-		[Test(Description = "Ensure that the Put method (when passed an HTTP body content) is delegated.")]
+		[Test(Description = "Ensure that the PutAsync method (when passed an HTTP body content) is delegated.")]
 		public void Put_WithBody()
 		{
-			this.VerifyMethod(p => p.Put(It.IsAny<string>(), It.IsAny<object>()));
+			this.VerifyMethod(p => p.PutAsync(It.IsAny<string>(), It.IsAny<object>()));
 		}
 
-		[Test(Description = "Ensure that the Send method is delegated.")]
+		[Test(Description = "Ensure that the SendAsync method is delegated.")]
 		public void Send()
 		{
-			this.VerifyMethod(p => p.Send(It.IsAny<HttpMethod>(), It.IsAny<string>()));
+			this.VerifyMethod(p => p.SendAsync(It.IsAny<HttpMethod>(), It.IsAny<string>()));
 		}
 
-		[Test(Description = "Ensure that the Send method (when passed an HTTP request message) is delegated.")]
+		[Test(Description = "Ensure that the SendAsync method (when passed an HTTP request message) is delegated.")]
 		public void Send_WithMessage()
 		{
-			this.VerifyMethod(p => p.Send(It.IsAny<HttpRequestMessage>()));
+			this.VerifyMethod(p => p.SendAsync(It.IsAny<HttpRequestMessage>()));
 		}
 
 

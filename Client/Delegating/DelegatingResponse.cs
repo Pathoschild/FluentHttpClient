@@ -47,109 +47,57 @@ namespace Pathoschild.Http.Client.Delegating
 		***/
 		/// <summary>Asynchronously retrieve the underlying response message.</summary>
 		/// <exception cref="ApiException">An error occurred processing the response.</exception>
-		public virtual Task<HttpResponseMessage> AsMessageAsync()
+		public virtual Task<HttpResponseMessage> AsMessage()
 		{
-			return this.Implementation.AsMessageAsync();
+			return this.Implementation.AsMessage();
 		}
 
 		/// <summary>Asynchronously retrieve the response body as a deserialized model.</summary>
 		/// <typeparam name="T">The response model to deserialize into.</typeparam>
 		/// <exception cref="ApiException">An error occurred processing the response.</exception>
-		public virtual Task<T> AsAsync<T>()
+		public virtual Task<T> As<T>()
 		{
-			return this.Implementation.AsAsync<T>();
+			return this.Implementation.As<T>();
 		}
 
 		/// <summary>Asynchronously retrieve the response body as a list of deserialized models.</summary>
 		/// <typeparam name="T">The response model to deserialize into.</typeparam>
 		/// <exception cref="ApiException">An error occurred processing the response.</exception>
-		public virtual Task<List<T>> AsListAsync<T>()
+		public virtual Task<List<T>> AsList<T>()
 		{
-			return this.Implementation.AsListAsync<T>();
+			return this.Implementation.AsList<T>();
 		}
 
 		/// <summary>Asynchronously retrieve the response body as an array of <see cref="byte"/>.</summary>
 		/// <returns>Returns the response body, or <c>null</c> if the response has no body.</returns>
 		/// <exception cref="ApiException">An error occurred processing the response.</exception>
-		public virtual Task<byte[]> AsByteArrayAsync()
+		public virtual Task<byte[]> AsByteArray()
 		{
-			return this.Implementation.AsByteArrayAsync();
+			return this.Implementation.AsByteArray();
 		}
 
 		/// <summary>Asynchronously retrieve the response body as a <see cref="string"/>.</summary>
 		/// <returns>Returns the response body, or <c>null</c> if the response has no body.</returns>
 		/// <exception cref="ApiException">An error occurred processing the response.</exception>
-		public virtual Task<string> AsStringAsync()
+		public virtual Task<string> AsString()
 		{
-			return this.Implementation.AsStringAsync();
+			return this.Implementation.AsString();
 		}
 
 		/// <summary>Asynchronously retrieve the response body as a <see cref="Stream"/>.</summary>
 		/// <returns>Returns the response body, or <c>null</c> if the response has no body.</returns>
 		/// <exception cref="ApiException">An error occurred processing the response.</exception>
-		public virtual Task<Stream> AsStreamAsync()
-		{
-			return this.Implementation.AsStreamAsync();
-		}
-
-		/***
-		** Sync
-		***/
-		/// <summary>Block the current thread until the asynchronous request completes.</summary>
-		/// <returns>Returns this instance for chaining.</returns>
-		/// <exception cref="ApiException">The HTTP response returned a non-success <see cref="HttpStatusCode"/>, and <see cref="ThrowError"/> is <c>true</c>.</exception>
-		public virtual IResponse Wait()
-		{
-			this.Implementation.Wait();
-			return this;
-		}
-
-		/// <summary>Retrieve the underlying response message.</summary>
-		/// <exception cref="ApiException">An error occurred processing the response.</exception>
-		/// <exception cref="ApiException">The HTTP response returned a non-success <see cref="HttpStatusCode"/>, and <see cref="ThrowError"/> is <c>true</c>.</exception>
-		public virtual HttpResponseMessage AsMessage()
-		{
-			return this.Implementation.AsMessage();
-		}
-
-		/// <summary>Retrieve the response body as a deserialized model.</summary>
-		/// <typeparam name="T">The response model to deserialize into.</typeparam>
-		/// <exception cref="ApiException">The HTTP response returned a non-success <see cref="HttpStatusCode"/>, and <see cref="IResponse.ThrowError"/> is <c>true</c>.</exception>
-		public virtual T As<T>()
-		{
-			return this.Implementation.As<T>();
-		}
-
-		/// <summary>Retrieve the response body as a list of deserialized models.</summary>
-		/// <typeparam name="T">The response model to deserialize into.</typeparam>
-		/// <exception cref="ApiException">The HTTP response returned a non-success <see cref="HttpStatusCode"/>, and <see cref="IResponse.ThrowError"/> is <c>true</c>.</exception>
-		public virtual List<T> AsList<T>()
-		{
-			return this.Implementation.AsList<T>();
-		}
-
-		/// <summary>Retrieve the response body as an array of <see cref="byte"/>.</summary>
-		/// <returns>Returns the response body, or <c>null</c> if the response has no body.</returns>
-		/// <exception cref="ApiException">The HTTP response returned a non-success <see cref="HttpStatusCode"/>, and <see cref="IResponse.ThrowError"/> is <c>true</c>.</exception>
-		public virtual byte[] AsByteArray()
-		{
-			return this.Implementation.AsByteArray();
-		}
-
-		/// <summary>Retrieve the response body as a <see cref="string"/>.</summary>
-		/// <returns>Returns the response body, or <c>null</c> if the response has no body.</returns>
-		/// <exception cref="ApiException">The HTTP response returned a non-success <see cref="HttpStatusCode"/>, and <see cref="IResponse.ThrowError"/> is <c>true</c>.</exception>
-		public virtual string AsString()
-		{
-			return this.Implementation.AsString();
-		}
-
-		/// <summary>Retrieve the response body as a <see cref="Stream"/>.</summary>
-		/// <returns>Returns the response body, or <c>null</c> if the response has no body.</returns>
-		/// <exception cref="ApiException">The HTTP response returned a non-success <see cref="HttpStatusCode"/>, and <see cref="IResponse.ThrowError"/> is <c>true</c>.</exception>
-		public virtual Stream AsStream()
+		public virtual Task<Stream> AsStream()
 		{
 			return this.Implementation.AsStream();
+		}
+
+		/// <summary>Block the current thread until the asynchronous request completes.</summary>
+		/// <returns>Returns this instance for chaining.</returns>
+		/// <exception cref="ApiException">The HTTP response returned a non-success <see cref="HttpStatusCode"/>, and <see cref="IResponse.ThrowError"/> is <c>true</c>.</exception>
+		public IResponse Wait()
+		{
+			return this.Implementation.Wait();
 		}
 
 

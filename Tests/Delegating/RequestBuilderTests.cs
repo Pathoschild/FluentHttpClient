@@ -35,22 +35,10 @@ namespace Pathoschild.Http.Tests.Delegating
 		/***
 		** Methods
 		***/
-		[Test(Description = "Ensure that the Retrieve method is delegated.")]
-		public void Retrieve()
+		[Test(Description = "Ensure that the RetrieveAsync method is delegated.")]
+		public void RetrieveAsync()
 		{
-			this.VerifyMethod(p => p.Retrieve(It.IsAny<bool>()));
-		}
-
-		[Test(Description = "Ensure that the RetrieveAs method is delegated.")]
-		public void RetrieveAs()
-		{
-			this.VerifyMethod(p => p.RetrieveAs<object>(It.IsAny<bool>()));
-		}
-
-		[Test(Description = "Ensure that the RetrieveAsList method is delegated.")]
-		public void RetrieveAsList()
-		{
-			this.VerifyMethod(p => p.RetrieveAsList<object>(It.IsAny<bool>()));
+			this.VerifyMethod(p => p.RetrieveAsync(It.IsAny<bool>()));
 		}
 
 		[Test(Description = "Ensure that the WithArgument method is delegated.")]

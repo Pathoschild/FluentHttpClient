@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Formatting;
@@ -62,20 +61,11 @@ namespace Pathoschild.Http.Client
 		/// <summary>Asynchronously dispatch the request.</summary>
 		/// <param name="throwError">Whether to handle errors from the upstream server by throwing an exception.</param>
 		/// <returns>Returns a response.</returns>
-		IResponse Retrieve(bool throwError = true);
+		IResponse RetrieveAsync(bool throwError = true);
 
-		/// <summary>Dispatch the request and retrieve the response as a deserialized model.</summary>
-		/// <typeparam name="TResponse">The response body type.</typeparam>
-		/// <param name="throwError">Whether to handle errors from the upstream server by throwing an exception.</param>
-		/// <returns>Returns a deserialized model.</returns>
+		/// <summary>Block the current thread until the asynchronous request completes.</summary>
+		/// <returns>Returns this instance for chaining.</returns>
 		/// <exception cref="ApiException">The HTTP response returned a non-success <see cref="HttpStatusCode"/>, and <paramref name="throwError"/> is <c>true</c>.</exception>
-		TResponse RetrieveAs<TResponse>(bool throwError = true);
-
-		/// <summary>Dispatch the request and retrieve the response as a deserialized list of models.</summary>
-		/// <typeparam name="TResponse">The response body type.</typeparam>
-		/// <param name="throwError">Whether to handle errors from the upstream server by throwing an exception.</param>
-		/// <returns>Returns a deserialized list of models.</returns>
-		/// <exception cref="ApiException">The HTTP response returned a non-success <see cref="HttpStatusCode"/>, and <paramref name="throwError"/> is <c>true</c>.</exception>
-		List<TResponse> RetrieveAsList<TResponse>(bool throwError = true);
+		IResponse Wait(bool throwError = true);
 	}
 }

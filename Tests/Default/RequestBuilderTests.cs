@@ -172,7 +172,7 @@ namespace Pathoschild.Http.Tests.Default
 			// execute
 			IResponse response = this
 				.ConstructRequest(methodName)
-				.Retrieve();
+				.RetrieveAsync();
 
 			// verify
 			Assert.That(response, Is.Not.Null, "The response is invalid.");

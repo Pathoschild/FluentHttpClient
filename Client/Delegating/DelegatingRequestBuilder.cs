@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Formatting;
@@ -101,29 +100,17 @@ namespace Pathoschild.Http.Client.Delegating
 		/// <summary>Asynchronously dispatch the request.</summary>
 		/// <param name="throwError">Whether to handle errors from the upstream server by throwing an exception.</param>
 		/// <returns>Returns a response.</returns>
-		public virtual IResponse Retrieve(bool throwError = true)
+		public virtual IResponse RetrieveAsync(bool throwError = true)
 		{
-			return this.Implementation.Retrieve(throwError);
+			return this.Implementation.RetrieveAsync(throwError);
 		}
 
-		/// <summary>Dispatch the request and retrieve the response as a deserialized model.</summary>
-		/// <typeparam name="TResponse">The response body type.</typeparam>
-		/// <param name="throwError">Whether to handle errors from the upstream server by throwing an exception.</param>
-		/// <returns>Returns a deserialized model.</returns>
+		/// <summary>Block the current thread until the asynchronous request completes.</summary>
+		/// <returns>Returns this instance for chaining.</returns>
 		/// <exception cref="ApiException">The HTTP response returned a non-success <see cref="HttpStatusCode"/>, and <paramref name="throwError"/> is <c>true</c>.</exception>
-		public virtual TResponse RetrieveAs<TResponse>(bool throwError = true)
+		public IResponse Wait(bool throwError = true)
 		{
-			return this.Implementation.RetrieveAs<TResponse>(throwError);
-		}
-
-		/// <summary>Dispatch the request and retrieve the response as a deserialized list of models.</summary>
-		/// <typeparam name="TResponse">The response body type.</typeparam>
-		/// <param name="throwError">Whether to handle errors from the upstream server by throwing an exception.</param>
-		/// <returns>Returns a deserialized list of models.</returns>
-		/// <exception cref="ApiException">The HTTP response returned a non-success <see cref="HttpStatusCode"/>, and <paramref name="throwError"/> is <c>true</c>.</exception>
-		public virtual List<TResponse> RetrieveAsList<TResponse>(bool throwError = true)
-		{
-			return this.Implementation.RetrieveAsList<TResponse>(throwError);
+			return this.Implementation.Wait(throwError);
 		}
 
 
