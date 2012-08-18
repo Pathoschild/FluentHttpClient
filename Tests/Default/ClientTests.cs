@@ -24,7 +24,7 @@ namespace Pathoschild.Http.Tests.Default
 		public void Delete(string resource)
 		{
 			// execute
-			IRequestBuilder request = this.ConstructClient().DeleteAsync("resource");
+			IRequest request = this.ConstructClient().DeleteAsync("resource");
 
 			// verify
 			this.AssertEqual(request, HttpMethod.Delete, resource);
@@ -35,7 +35,7 @@ namespace Pathoschild.Http.Tests.Default
 		public void Get(string resource)
 		{
 			// execute
-			IRequestBuilder request = this.ConstructClient().GetAsync("resource");
+			IRequest request = this.ConstructClient().GetAsync("resource");
 
 			// verify
 			this.AssertEqual(request, HttpMethod.Get, resource);
@@ -46,7 +46,7 @@ namespace Pathoschild.Http.Tests.Default
 		public void Post(string resource)
 		{
 			// execute
-			IRequestBuilder request = this.ConstructClient().PostAsync("resource");
+			IRequest request = this.ConstructClient().PostAsync("resource");
 
 			// verify
 			this.AssertEqual(request, HttpMethod.Post, resource);
@@ -57,7 +57,7 @@ namespace Pathoschild.Http.Tests.Default
 		public void Post_WithBody(string resource, string value)
 		{
 			// execute
-			IRequestBuilder request = this.ConstructClient().PostAsync("resource", value);
+			IRequest request = this.ConstructClient().PostAsync("resource", value);
 
 			// verify
 			this.AssertEqual(request, HttpMethod.Post, resource);
@@ -69,7 +69,7 @@ namespace Pathoschild.Http.Tests.Default
 		public void Put(string resource)
 		{
 			// execute
-			IRequestBuilder request = this.ConstructClient().PutAsync("resource");
+			IRequest request = this.ConstructClient().PutAsync("resource");
 
 			// verify
 			this.AssertEqual(request, HttpMethod.Put, resource);
@@ -80,7 +80,7 @@ namespace Pathoschild.Http.Tests.Default
 		public void Put_WithBody(string resource, string value)
 		{
 			// execute
-			IRequestBuilder request = this.ConstructClient().PutAsync("resource", value);
+			IRequest request = this.ConstructClient().PutAsync("resource", value);
 
 			// verify
 			this.AssertEqual(request, HttpMethod.Put, resource);
@@ -101,7 +101,7 @@ namespace Pathoschild.Http.Tests.Default
 			HttpMethod method = this.ConstructMethod(methodName);
 
 			// execute
-			IRequestBuilder request = this.ConstructClient().SendAsync(method, "resource");
+			IRequest request = this.ConstructClient().SendAsync(method, "resource");
 
 			// verify
 			this.AssertEqual(request, method, resource);
@@ -122,7 +122,7 @@ namespace Pathoschild.Http.Tests.Default
 			HttpRequestMessage message = new HttpRequestMessage(method, resource);
 
 			// execute
-			IRequestBuilder request = this.ConstructClient().SendAsync(message);
+			IRequest request = this.ConstructClient().SendAsync(message);
 
 			// verify
 			this.AssertEqual(request, method, resource, baseUri: "");
@@ -171,7 +171,7 @@ namespace Pathoschild.Http.Tests.Default
 		/// <param name="method">The expected HTTP method.</param>
 		/// <param name="resource">The expected relative URI.</param>
 		/// <param name="baseUri">The expected base URI of the request.</param>
-		protected void AssertEqual(IRequestBuilder request, HttpMethod method, string resource, string baseUri = "http://example.com/")
+		protected void AssertEqual(IRequest request, HttpMethod method, string resource, string baseUri = "http://example.com/")
 		{
 			// not null
 			Assert.That(request, Is.Not.Null, "The request is null.");

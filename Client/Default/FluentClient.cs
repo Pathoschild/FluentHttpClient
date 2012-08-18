@@ -4,11 +4,18 @@ using System.Net.Http.Formatting;
 
 namespace Pathoschild.Http.Client.Default
 {
-	/// <summary>Sends HTTP requests and receives responses from a resource identified by a URI.</summary>
+	/// <summary>Sends HTTP requests and receives responses from REST URIs.</summary>
 	/// <typeparam name="TMessageHandler">The HTTP message handler type.</typeparam>
 	public class FluentClient<TMessageHandler> : IClient<TMessageHandler>
 		where TMessageHandler : HttpMessageHandler
 	{
+		/*********
+		** Properties
+		*********/
+		/// <summary>Constructs implementations for the fluent client.</summary>
+		public IFactory Factory { get; protected set; }
+
+
 		/*********
 		** Accessors
 		*********/
@@ -20,11 +27,7 @@ namespace Pathoschild.Http.Client.Default
 
 		/// <summary>The formatters used for serializing and deserializing message bodies.</summary>
 		public MediaTypeFormatterCollection Formatters { get; protected set; }
-
-		/// <summary>Constructs implementations for the fluent client.</summary>
-		public IFactory Factory { get; protected set; }
-
-
+		
 
 		/*********
 		** Public methods
@@ -43,7 +46,7 @@ namespace Pathoschild.Http.Client.Default
 		/// <summary>Create an asynchronous HTTP DELETE request message (but don't dispatch it yet).</summary>
 		/// <param name="resource">The URI to send the request to.</param>
 		/// <returns>Returns a request builder.</returns>
-		public IRequestBuilder DeleteAsync(string resource)
+		public IRequest DeleteAsync(string resource)
 		{
 			return this.SendAsync(HttpMethod.Delete, resource);
 		}
@@ -51,7 +54,7 @@ namespace Pathoschild.Http.Client.Default
 		/// <summary>Create an asynchronous HTTP GET request message (but don't dispatch it yet).</summary>
 		/// <param name="resource">The URI to send the request to.</param>
 		/// <returns>Returns a request builder.</returns>
-		public IRequestBuilder GetAsync(string resource)
+		public IRequest GetAsync(string resource)
 		{
 			return this.SendAsync(HttpMethod.Get, resource);
 		}
@@ -59,7 +62,7 @@ namespace Pathoschild.Http.Client.Default
 		/// <summary>Create an asynchronous HTTP POST request message (but don't dispatch it yet).</summary>
 		/// <param name="resource">The URI to send the request to.</param>
 		/// <returns>Returns a request builder.</returns>
-		public IRequestBuilder PostAsync(string resource)
+		public IRequest PostAsync(string resource)
 		{
 			return this.SendAsync(HttpMethod.Post, resource);
 		}
@@ -69,7 +72,7 @@ namespace Pathoschild.Http.Client.Default
 		/// <param name="resource">The URI to send the request to.</param>
 		/// <param name="body">The request body.</param>
 		/// <returns>Returns a request builder.</returns>
-		public IRequestBuilder PostAsync<TBody>(string resource, TBody body)
+		public IRequest PostAsync<TBody>(string resource, TBody body)
 		{
 			return this.PostAsync(resource).WithBody(body);
 		}
@@ -77,7 +80,7 @@ namespace Pathoschild.Http.Client.Default
 		/// <summary>Create an asynchronous HTTP PUT request message (but don't dispatch it yet).</summary>
 		/// <param name="resource">The URI to send the request to.</param>
 		/// <returns>Returns a request builder.</returns>
-		public IRequestBuilder PutAsync(string resource)
+		public IRequest PutAsync(string resource)
 		{
 			return this.SendAsync(HttpMethod.Put, resource);
 		}
@@ -87,29 +90,28 @@ namespace Pathoschild.Http.Client.Default
 		/// <param name="resource">The URI to send the request to.</param>
 		/// <param name="body">The request body.</param>
 		/// <returns>Returns a request builder.</returns>
-		public IRequestBuilder PutAsync<TBody>(string resource, TBody body)
+		public IRequest PutAsync<TBody>(string resource, TBody body)
 		{
 			return this.PutAsync(resource).WithBody(body);
 		}
 
-		/// <summary>Create an asynchronous request message (but don't dispatch it yet).</summary>
+		/// <summary>Create an asynchronous HTTP request message (but don't dispatch it yet).</summary>
 		/// <param name="method">The HTTP method.</param>
 		/// <param name="resource">The URI to send the request to.</param>
 		/// <returns>Returns a request builder.</returns>
-		public virtual IRequestBuilder SendAsync(HttpMethod method, string resource)
+		public virtual IRequest SendAsync(HttpMethod method, string resource)
 		{
 			Uri uri = new Uri(this.BaseClient.BaseAddress, resource);
 			HttpRequestMessage message = this.Factory.GetRequestMessage(method, uri, this.Formatters);
 			return this.SendAsync(message);
 		}
 
-		/// <summary>Create an asynchronous request message (but don't dispatch it yet).</summary>
+		/// <summary>Create an asynchronous HTTP request message (but don't dispatch it yet).</summary>
 		/// <param name="message">The HTTP request message to send.</param>
 		/// <returns>Returns a request builder.</returns>
-		/// <remarks>This is the base method which executes every request.</remarks>
-		public virtual IRequestBuilder SendAsync(HttpRequestMessage message)
+		public virtual IRequest SendAsync(HttpRequestMessage message)
 		{
-			return this.Factory.GetRequestBuilder(message, this.Formatters, request => this.BaseClient.SendAsync(request.Message));
+			return this.Factory.GetRequest(message, this.Formatters, request => this.BaseClient.SendAsync(request.Message));
 		}
 
 

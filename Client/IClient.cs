@@ -3,7 +3,7 @@ using System.Net.Http.Formatting;
 
 namespace Pathoschild.Http.Client
 {
-	/// <summary>Sends HTTP requests and receives responses from a resource identified by a URI.</summary>
+	/// <summary>Sends HTTP requests and receives responses from REST URIs.</summary>
 	/// <typeparam name="TMessageHandler">The HTTP message handler type.</typeparam>
 	public interface IClient<out TMessageHandler>
 		where TMessageHandler : HttpMessageHandler
@@ -27,49 +27,49 @@ namespace Pathoschild.Http.Client
 		/// <summary>Create an asynchronous HTTP DELETE request message (but don't dispatch it yet).</summary>
 		/// <param name="resource">The URI to send the request to.</param>
 		/// <returns>Returns a request builder.</returns>
-		IRequestBuilder DeleteAsync(string resource);
+		IRequest DeleteAsync(string resource);
 
 		/// <summary>Create an asynchronous HTTP GET request message (but don't dispatch it yet).</summary>
 		/// <param name="resource">The URI to send the request to.</param>
 		/// <returns>Returns a request builder.</returns>
-		IRequestBuilder GetAsync(string resource);
+		IRequest GetAsync(string resource);
 
 		/// <summary>Create an asynchronous HTTP POST request message (but don't dispatch it yet).</summary>
 		/// <param name="resource">The URI to send the request to.</param>
 		/// <returns>Returns a request builder.</returns>
-		IRequestBuilder PostAsync(string resource);
+		IRequest PostAsync(string resource);
 
 		/// <summary>Create an asynchronous HTTP POST request message (but don't dispatch it yet).</summary>
 		/// <typeparam name="TBody">The request body type.</typeparam>
 		/// <param name="resource">The URI to send the request to.</param>
 		/// <param name="body">The request body.</param>
 		/// <returns>Returns a request builder.</returns>
-		IRequestBuilder PostAsync<TBody>(string resource, TBody body);
+		IRequest PostAsync<TBody>(string resource, TBody body);
 
 		/// <summary>Create an asynchronous HTTP PUT request message (but don't dispatch it yet).</summary>
 		/// <param name="resource">The URI to send the request to.</param>
 		/// <returns>Returns a request builder.</returns>
-		IRequestBuilder PutAsync(string resource);
+		IRequest PutAsync(string resource);
 
 		/// <summary>Create an asynchronous HTTP PUT request message (but don't dispatch it yet).</summary>
 		/// <typeparam name="TBody">The request body type.</typeparam>
 		/// <param name="resource">The URI to send the request to.</param>
 		/// <param name="body">The request body.</param>
 		/// <returns>Returns a request builder.</returns>
-		IRequestBuilder PutAsync<TBody>(string resource, TBody body);
+		IRequest PutAsync<TBody>(string resource, TBody body);
 
-		/// <summary>Create an asynchronous request message (but don't dispatch it yet).</summary>
+		/// <summary>Create an asynchronous HTTP request message (but don't dispatch it yet).</summary>
 		/// <param name="method">The HTTP method.</param>
 		/// <param name="resource">The URI to send the request to.</param>
 		/// <returns>Returns a request builder.</returns>
-		IRequestBuilder SendAsync(HttpMethod method, string resource);
+		IRequest SendAsync(HttpMethod method, string resource);
 
-		/// <summary>Create an asynchronous request message (but don't dispatch it yet).</summary>
+		/// <summary>Create an asynchronous HTTP request message (but don't dispatch it yet).</summary>
 		/// <param name="message">The HTTP request message to send.</param>
 		/// <returns>Returns a request builder.</returns>
-		IRequestBuilder SendAsync(HttpRequestMessage message);
+		IRequest SendAsync(HttpRequestMessage message);
 	}
 
-	/// <summary>Sends HTTP requests and receives responses from a resource identified by a URI.</summary>
+	/// <summary>Sends HTTP requests and receives responses from REST URIs.</summary>
 	public interface IClient : IClient<HttpClientHandler> { }
 }

@@ -16,23 +16,13 @@ namespace Pathoschild.Http.Client.Default
 		/***
 		** Fluent objects
 		***/
-		/// <summary>Construct an asynchronous HTTP request builder.</summary>
+		/// <summary>Construct an asynchronous HTTP request.</summary>
 		/// <param name="message">The underlying HTTP request message.</param>
 		/// <param name="formatters">The formatters used for serializing and deserializing message bodies.</param>
-		/// <param name="responseBuilder">Executes an HTTP request.</param>
-		public virtual IRequestBuilder GetRequestBuilder(HttpRequestMessage message, MediaTypeFormatterCollection formatters, Func<IRequestBuilder, Task<HttpResponseMessage>> responseBuilder)
+		/// <param name="dispatcher">Executes an HTTP request.</param>
+		public virtual IRequest GetRequest(HttpRequestMessage message, MediaTypeFormatterCollection formatters, Func<IRequest, Task<HttpResponseMessage>> dispatcher)
 		{
-			return new RequestBuilder(message, formatters, responseBuilder, this);
-		}
-
-		/// <summary>Construct an asynchronous HTTP response.</summary>
-		/// <param name="request">The underlying HTTP request message.</param>
-		/// <param name="task">The request task.</param>
-		/// <param name="formatters">The formatters used for serializing and deserializing message bodies.</param>
-		/// <param name="throwError">Whether to handle errors from the upstream server by throwing an exception.</param>
-		public virtual IResponse GetResponse(HttpRequestMessage request, Task<HttpResponseMessage> task, MediaTypeFormatterCollection formatters, bool throwError = true)
-		{
-			return new Response(request, task, formatters, throwError);
+			return new Request(message, formatters, dispatcher, this);
 		}
 
 		/***

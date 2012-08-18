@@ -12,8 +12,9 @@
 		<releaseNotes>
 			* Migrated to .NET 4.5 and the new async/await paradigm:
 			   - made all asynchronous methods async;
-			   - made IRequest and IResponse awaitable;
-			   - eliminated the now-obsolete synchronous wrappers.
+			   - merged IRequestBuilder and IResponse into IRequest;
+			   - made IRequest awaitable;
+			   - eliminated the now-obsolete synchronous wrappers;
 			* Added default User-Agent header and auto-generated Accept headers.
 		</releaseNotes>
 		<frameworkAssemblies>

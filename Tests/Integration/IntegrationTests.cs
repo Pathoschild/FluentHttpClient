@@ -27,7 +27,6 @@ namespace Pathoschild.Http.Tests.Integration
 				.WithArgument("meta", "siteinfo")
 				.WithArgument("siprop", "general")
 				.WithArgument("format", "json")
-				.RetrieveAsync()
 				.As<WikipediaMetadata>();
 
 			// assert

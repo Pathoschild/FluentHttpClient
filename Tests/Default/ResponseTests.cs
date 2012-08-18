@@ -13,7 +13,7 @@ using Pathoschild.Http.Client.Default;
 
 namespace Pathoschild.Http.Tests.Default
 {
-	/// <summary>Integration tests verifying that the default <see cref="RequestBuilder"/> correctly creates and alters the underlying objects.</summary>
+	/// <summary>Integration tests verifying that the default <see cref="Request"/> correctly creates and alters the underlying objects.</summary>
 	[TestFixture]
 	public class ResponseTests
 	{
@@ -100,7 +100,7 @@ namespace Pathoschild.Http.Tests.Default
 		public void Task_Async_IsAsync()
 		{
 			// arrange
-			IResponse response = this.ConstructResponseFromTask(() =>
+			IRequest request = this.ConstructResponseFromTask(() =>
 			{
 				Thread.Sleep(5000);
 				Assert.Fail("The response was not invoked asynchronously.");
@@ -108,7 +108,7 @@ namespace Pathoschild.Http.Tests.Default
 			});
 
 			// act
-			Task<HttpResponseMessage> result = response.AsMessage();
+			Task<HttpResponseMessage> result = request.AsMessage();
 
 			// assert
 			Assert.AreNotEqual(result.Status, TaskStatus.Created);
@@ -119,10 +119,10 @@ namespace Pathoschild.Http.Tests.Default
 		public void Task_Async()
 		{
 			// arrange
-			IResponse response = this.ConstructResponseFromTask(() => new HttpResponseMessage(HttpStatusCode.OK));
+			IRequest request = this.ConstructResponseFromTask(() => new HttpResponseMessage(HttpStatusCode.OK));
 
 			// act
-			HttpResponseMessage result = response.AsMessage().Result;
+			HttpResponseMessage result = request.AsMessage().Result;
 
 			// assert
 			Assert.IsNotNull(result);
@@ -134,7 +134,7 @@ namespace Pathoschild.Http.Tests.Default
 		{
 			// arrange
 			bool wasWaited = false;
-			IResponse response = this.ConstructResponseFromTask(() =>
+			IRequest request = this.ConstructResponseFromTask(() =>
 			{
 				Thread.Sleep(1000);
 				wasWaited = true;
@@ -142,7 +142,7 @@ namespace Pathoschild.Http.Tests.Default
 			});
 
 			// act
-			response.Wait();
+			request.Wait();
 
 			// test
 			Assert.True(wasWaited, "The thread did not wait for the asynchronous task.");
@@ -157,10 +157,10 @@ namespace Pathoschild.Http.Tests.Default
 		{
 			// arrange
 			HttpResponseMessage message;
-			IResponse response = this.ConstructResponse(content, out message);
+			IRequest request = this.ConstructResponse(content, out message);
 
 			// act
-			HttpResponseMessage actual = response
+			HttpResponseMessage actual = request
 				.AsMessage()
 				.VerifyTaskResult();
 
@@ -175,7 +175,7 @@ namespace Pathoschild.Http.Tests.Default
 		{
 			// arrange
 			HttpResponseMessage message;
-			IResponse response = this.ConstructResponseForModel(content, out message);
+			IRequest response = this.ConstructResponseForModel(content, out message);
 
 			// act
 			HttpResponseMessage actual = response
@@ -192,7 +192,7 @@ namespace Pathoschild.Http.Tests.Default
 		public string As(string content)
 		{
 			// arrange
-			IResponse response = this.ConstructResponseForModel(content);
+			IRequest response = this.ConstructResponseForModel(content);
 
 			// act
 			Model<string> actual = response
@@ -209,7 +209,7 @@ namespace Pathoschild.Http.Tests.Default
 		public string AsByteArray(string content)
 		{
 			// arrange
-			IResponse response = this.ConstructResponse(content);
+			IRequest response = this.ConstructResponse(content);
 
 			// act
 			byte[] actual = response
@@ -226,7 +226,7 @@ namespace Pathoschild.Http.Tests.Default
 		public string AsByteArray_OfModel(string content)
 		{
 			// arrange
-			IResponse response = this.ConstructResponse(new Model<string>(content));
+			IRequest response = this.ConstructResponse(new Model<string>(content));
 
 			// act
 			byte[] actual = response
@@ -244,7 +244,7 @@ namespace Pathoschild.Http.Tests.Default
 		{
 			// arrange
 			List<Model<string>> expected = new List<Model<string>> { new Model<string>(contentA), new Model<string>(contentB) };
-			IResponse response = this.ConstructResponse(expected);
+			IRequest response = this.ConstructResponse(expected);
 
 			// act
 			List<Model<string>> actual = response
@@ -263,7 +263,7 @@ namespace Pathoschild.Http.Tests.Default
 		public void AsStream(string content)
 		{
 			// arrange
-			IResponse response = this.ConstructResponse(content);
+			IRequest response = this.ConstructResponse(content);
 			string actual;
 
 			// act
@@ -284,7 +284,7 @@ namespace Pathoschild.Http.Tests.Default
 		public void AsStream_OfModel(string content)
 		{
 			// arrange
-			IResponse response = this.ConstructResponse(new Model<string>(content));
+			IRequest response = this.ConstructResponse(new Model<string>(content));
 			string actual;
 
 			// act
@@ -303,7 +303,7 @@ namespace Pathoschild.Http.Tests.Default
 		public void AsString(string content)
 		{
 			// arrange
-			IResponse response = this.ConstructResponse(content);
+			IRequest response = this.ConstructResponse(content);
 
 			// act
 			string actual = response
@@ -319,7 +319,7 @@ namespace Pathoschild.Http.Tests.Default
 		public void AsString_OfModel(string content)
 		{
 			// arrange
-			IResponse response = this.ConstructResponse(new Model<string>(content));
+			IRequest response = this.ConstructResponse(new Model<string>(content));
 
 			// act
 			string actual = response
@@ -353,25 +353,25 @@ namespace Pathoschild.Http.Tests.Default
 			await response.AsString();
 			*/
 		}
-		
+
 
 		/*********
 		** Protected methods
 		*********/
 		/// <summary>Construct an <see cref="IResponse"/> instance around an asynchronous task.</summary>
 		/// <remarks>The asynchronous task to wrap.</remarks>
-		protected IResponse ConstructResponseFromTask(Task<HttpResponseMessage> task)
+		protected IRequest ConstructResponseFromTask(Task<HttpResponseMessage> task)
 		{
 			HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Get, "http://example.org/");
-			return new Response(request, task, new MediaTypeFormatterCollection());
+			return new Request(request, new MediaTypeFormatterCollection(), p => task);
 		}
 
 		/// <summary>Construct an <see cref="IResponse"/> instance around an asynchronous task.</summary>
 		/// <remarks>The work to start in a new asynchronous task.</remarks>
-		protected IResponse ConstructResponseFromTask(Func<HttpResponseMessage> task)
+		protected IRequest ConstructResponseFromTask(Func<HttpResponseMessage> task)
 		{
 			HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Get, "http://example.org/");
-			return new Response(request, Task<HttpResponseMessage>.Factory.StartNew(task), new MediaTypeFormatterCollection());
+			return new Request(request, new MediaTypeFormatterCollection(), p => Task<HttpResponseMessage>.Factory.StartNew(task));
 		}
 
 		/// <summary>Construct an <see cref="IResponse"/> instance and assert that its initial state is valid.</summary>
@@ -384,23 +384,23 @@ namespace Pathoschild.Http.Tests.Default
 		/// <param name="throwApiError">Whether the response should throw an API error if the HTTP response contains an error.</param>
 		/// <exception cref="InconclusiveException">The initial state of the constructed client is invalid, and <paramref name="inconclusiveOnFailure"/> is <c>true</c>.</exception>
 		/// <exception cref="AssertionException">The initial state of the constructed client is invalid, and <paramref name="inconclusiveOnFailure"/> is <c>false</c>.</exception>
-		protected IResponse ConstructResponse<T>(T content, out HttpResponseMessage responseMessage, string method = "GET", HttpStatusCode status = HttpStatusCode.OK, string uri = "http://example.org/", bool throwApiError = true, bool inconclusiveOnFailure = true)
+		protected IRequest ConstructResponse<T>(T content, out HttpResponseMessage responseMessage, string method = "GET", HttpStatusCode status = HttpStatusCode.OK, string uri = "http://example.org/", bool throwApiError = true, bool inconclusiveOnFailure = true)
 		{
 			try
 			{
-				// set up
+				// construct message
 				HttpRequestMessage requestMessage = new HttpRequestMessage(new HttpMethod(method), uri);
 				responseMessage = requestMessage.CreateResponse(status);
 				responseMessage.Content = new ObjectContent<T>(content, new JsonMediaTypeFormatter());
 
-				// execute
+				// construct request
 				var message = responseMessage;
 				Task<HttpResponseMessage> task = Task<HttpResponseMessage>.Factory.StartNew(() => message);
-				IResponse response = new Response(requestMessage, task, new MediaTypeFormatterCollection(), throwApiError);
+				IRequest request = new Request(requestMessage, new MediaTypeFormatterCollection(), p => task);
 
-				//// verify
-				this.AssertEqual(response.Request, method, uri);
-				return response;
+				// verify
+				this.AssertEqual(request.Message, method, uri);
+				return request;
 			}
 			catch (AssertionException exc)
 			{
@@ -419,7 +419,7 @@ namespace Pathoschild.Http.Tests.Default
 		/// <param name="throwApiError">Whether the response should throw an API error if the HTTP response contains an error.</param>
 		/// <exception cref="InconclusiveException">The initial state of the constructed client is invalid, and <paramref name="inconclusiveOnFailure"/> is <c>true</c>.</exception>
 		/// <exception cref="AssertionException">The initial state of the constructed client is invalid, and <paramref name="inconclusiveOnFailure"/> is <c>false</c>.</exception>
-		protected IResponse ConstructResponse<T>(T content, string method = "GET", HttpStatusCode status = HttpStatusCode.OK, string uri = "http://example.org/", bool throwApiError = true, bool inconclusiveOnFailure = true)
+		protected IRequest ConstructResponse<T>(T content, string method = "GET", HttpStatusCode status = HttpStatusCode.OK, string uri = "http://example.org/", bool throwApiError = true, bool inconclusiveOnFailure = true)
 		{
 			HttpResponseMessage message;
 			return this.ConstructResponse<T>(content, out message, method, status, uri, throwApiError, inconclusiveOnFailure);
@@ -434,7 +434,7 @@ namespace Pathoschild.Http.Tests.Default
 		/// <param name="inconclusiveOnFailure">Whether to throw an <see cref="InconclusiveException"/> if the initial state is invalid.</param>
 		/// <exception cref="InconclusiveException">The initial state of the constructed client is invalid, and <paramref name="inconclusiveOnFailure"/> is <c>true</c>.</exception>
 		/// <exception cref="AssertionException">The initial state of the constructed client is invalid, and <paramref name="inconclusiveOnFailure"/> is <c>false</c>.</exception>
-		protected IResponse ConstructResponseForModel<T>(T content, out HttpResponseMessage responseMessage, string method = "GET", HttpStatusCode status = HttpStatusCode.OK, string uri = "http://example.org/", bool inconclusiveOnFailure = true)
+		protected IRequest ConstructResponseForModel<T>(T content, out HttpResponseMessage responseMessage, string method = "GET", HttpStatusCode status = HttpStatusCode.OK, string uri = "http://example.org/", bool inconclusiveOnFailure = true)
 		{
 			Model<T> model = new Model<T>(content);
 			return this.ConstructResponse<Model<T>>(model, out responseMessage, method, status, uri, inconclusiveOnFailure);
@@ -448,7 +448,7 @@ namespace Pathoschild.Http.Tests.Default
 		/// <param name="inconclusiveOnFailure">Whether to throw an <see cref="InconclusiveException"/> if the initial state is invalid.</param>
 		/// <exception cref="InconclusiveException">The initial state of the constructed client is invalid, and <paramref name="inconclusiveOnFailure"/> is <c>true</c>.</exception>
 		/// <exception cref="AssertionException">The initial state of the constructed client is invalid, and <paramref name="inconclusiveOnFailure"/> is <c>false</c>.</exception>
-		protected IResponse ConstructResponseForModel<T>(T content, string method = "GET", HttpStatusCode status = HttpStatusCode.OK, string uri = "http://example.org/", bool inconclusiveOnFailure = true)
+		protected IRequest ConstructResponseForModel<T>(T content, string method = "GET", HttpStatusCode status = HttpStatusCode.OK, string uri = "http://example.org/", bool inconclusiveOnFailure = true)
 		{
 			HttpResponseMessage message;
 			return this.ConstructResponseForModel<T>(content, out message, method, status, uri, inconclusiveOnFailure);

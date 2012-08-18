@@ -47,16 +47,13 @@
     <Compile Include="ApiException.cs" />
     <Compile Include="Default\Factory.cs" />
     <Compile Include="Default\FluentClient.cs" />
-    <Compile Include="Default\RequestBuilder.cs" />
-    <Compile Include="Default\Response.cs" />
+    <Compile Include="Default\Request.cs" />
     <Compile Include="Delegating\DelegatingFluentClient.cs" />
-    <Compile Include="Delegating\DelegatingRequestBuilder.cs" />
-    <Compile Include="Delegating\DelegatingResponse.cs" />
+    <Compile Include="Delegating\DelegatingRequest.cs" />
     <Compile Include="FluentClientExtensions.cs" />
     <Compile Include="IClient.cs" />
     <Compile Include="IFactory.cs" />
-    <Compile Include="IRequestBuilder.cs" />
-    <Compile Include="IResponse.cs" />
+    <Compile Include="IRequest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup />

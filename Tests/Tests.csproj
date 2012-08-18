@@ -56,14 +56,12 @@
     <Compile Include="Default\ClientTests.cs" />
     <Compile Include="Integration\IntegrationTests.cs" />
     <Compile Include="Default\ResponseTests.cs" />
-    <Compile Include="Default\RequestBuilderTests.cs" />
+    <Compile Include="Default\RequestTests.cs" />
     <Compile Include="Delegating\ClientTests.cs" />
     <Compile Include="Delegating\Objects\DecoratorTestsBase.cs" />
     <Compile Include="Delegating\Objects\TestDelegatingClient.cs" />
-    <Compile Include="Delegating\Objects\TestDelegatingRequestBuilder.cs" />
-    <Compile Include="Delegating\Objects\TestDelegatingResponse.cs" />
-    <Compile Include="Delegating\RequestBuilderTests.cs" />
-    <Compile Include="Delegating\ResponseTests.cs" />
+    <Compile Include="Delegating\Objects\TestDelegatingRequest.cs" />
+    <Compile Include="Delegating\RequestTests.cs" />
     <Compile Include="Formatters\JsonNetBsonFormatter.cs" />
     <Compile Include="Formatters\JsonNetFormatter.cs" />
     <Compile Include="Formatters\FormatterTestsBase.cs" />

@@ -10,9 +10,9 @@ using Pathoschild.Http.Tests.Delegating.Objects;
 
 namespace Pathoschild.Http.Tests.Delegating
 {
-	/// <summary>Unit tests verifying that the <see cref="DelegatingRequestBuilder"/> correctly delegates calls.</summary>
+	/// <summary>Unit tests verifying that the <see cref="DelegatingRequest"/> correctly delegates calls.</summary>
 	[TestFixture]
-	class RequestBuilderTests : DecoratorTestsBase<IRequestBuilder, TestDelegatingRequestBuilder>
+	class RequestTests : DecoratorTestsBase<IRequest, TestDelegatingRequest>
 	{
 		/*********
 		** Unit tests
@@ -32,15 +32,15 @@ namespace Pathoschild.Http.Tests.Delegating
 			this.VerifyGet(p => p.Message);
 		}
 
-		/***
-		** Methods
-		***/
-		[Test(Description = "Ensure that the RetrieveAsync method is delegated.")]
-		public void RetrieveAsync()
+		[Test(Description = "Ensure that the ThrowError property is delegated.")]
+		public void ThrowError()
 		{
-			this.VerifyMethod(p => p.RetrieveAsync(It.IsAny<bool>()));
+			this.VerifyGet(p => p.ThrowError);
 		}
 
+		/***
+		** Request builder methods
+		***/
 		[Test(Description = "Ensure that the WithArgument method is delegated.")]
 		public void WithArgument()
 		{
@@ -77,11 +77,49 @@ namespace Pathoschild.Http.Tests.Delegating
 			this.VerifyMethod(p => p.WithHeader(It.IsAny<string>(), It.IsAny<string>()));
 		}
 
+		/***
+		** Response tests
+		***/
+		[Test(Description = "Ensure that the As method is delegated.")]
+		public void As()
+		{
+			this.VerifyMethod(p => p.As<object>());
+		}
+
+		[Test(Description = "Ensure that the AsByteArray method is delegated.")]
+		public void AsByteArray()
+		{
+			this.VerifyMethod(p => p.AsByteArray());
+		}
+
+		[Test(Description = "Ensure that the AsList method is delegated.")]
+		public void AsList()
+		{
+			this.VerifyMethod(p => p.AsList<object>());
+		}
+
+		[Test(Description = "Ensure that the AsMessage method is delegated.")]
+		public void AsMessage()
+		{
+			this.VerifyMethod(p => p.AsMessage());
+		}
+
+		[Test(Description = "Ensure that the AsStream method is delegated.")]
+		public void AsStream()
+		{
+			this.VerifyMethod(p => p.AsStream());
+		}
+
+		[Test(Description = "Ensure that the AsString method is delegated.")]
+		public void AsString()
+		{
+			this.VerifyMethod(p => p.AsString());
+		}
 
 		/*********
 		** Protected methods
 		*********/
-		public RequestBuilderTests()
-			: base(mock => new TestDelegatingRequestBuilder(mock)) { }
+		public RequestTests()
+			: base(mock => new TestDelegatingRequest(mock)) { }
 	}
 }
