@@ -10,9 +10,11 @@
 		<projectUrl>https://github.com/Pathoschild/Pathoschild.FluentHttpClient#readme</projectUrl>
 		<requireLicenseAcceptance>false</requireLicenseAcceptance>
 		<releaseNotes>
-			* Migrated to .NET 4.5 with its new async/await paradigm;
-			* eliminated now-obsolete synchronous wrappers;
-			* added default User-Agent header and auto-generated Accept headers.
+			* Migrated to .NET 4.5 and the new async/await paradigm:
+			   - made all asynchronous methods async;
+			   - made IRequest and IResponse awaitable;
+			   - eliminated the now-obsolete synchronous wrappers.
+			* Added default User-Agent header and auto-generated Accept headers.
 		</releaseNotes>
 		<frameworkAssemblies>
 			<frameworkAssembly assemblyName="System.Net.Http" />
