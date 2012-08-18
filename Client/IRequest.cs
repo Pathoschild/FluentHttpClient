@@ -56,12 +56,18 @@ namespace Pathoschild.Http.Client
 		/// <returns>Returns the request builder for chaining.</returns>
 		IRequest WithHeader(string key, string value);
 
-		/// <summary>Set an HTTP query string argument.</summary>
+		/// <summary>Add an HTTP query string argument.</summary>
 		/// <param name="key">The key of the query argument.</param>
 		/// <param name="value">The value of the query argument.</param>
 		/// <returns>Returns the request builder for chaining.</returns>
 		IRequest WithArgument(string key, object value);
 
+		/// <summary>Add HTTP query string arguments.</summary>
+		/// <param name="arguments">The key=>value pairs in the query string. If this is a dictionary, the keys and values are used. Otherwise, the property names and values are used.</param>
+		/// <returns>Returns the request builder for chaining.</returns>
+		/// <example><code>client.WithArguments(new { id = 14, name = "Joe" })</code></example>
+		IRequest WithArguments(object arguments);
+		
 		/// <summary>Customize the underlying HTTP request message.</summary>
 		/// <param name="request">The HTTP request message.</param>
 		/// <returns>Returns the request builder for chaining.</returns>

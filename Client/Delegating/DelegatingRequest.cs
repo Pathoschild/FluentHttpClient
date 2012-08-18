@@ -91,13 +91,23 @@ namespace Pathoschild.Http.Client.Delegating
 			return this;
 		}
 
-		/// <summary>Set an HTTP query string argument.</summary>
+		/// <summary>Add an HTTP query string argument.</summary>
 		/// <param name="key">The key of the query argument.</param>
 		/// <param name="value">The value of the query argument.</param>
 		/// <returns>Returns the request builder for chaining.</returns>
 		public virtual IRequest WithArgument(string key, object value)
 		{
 			this.Implementation.WithArgument(key, value);
+			return this;
+		}
+
+		/// <summary>Add HTTP query string arguments.</summary>
+		/// <param name="arguments">The key=>value pairs in the query string. If this is a dictionary, the keys and values are used. Otherwise, the property names and values are used.</param>
+		/// <returns>Returns the request builder for chaining.</returns>
+		/// <example><code>client.WithArguments(new { id = 14, name = "Joe" })</code></example>
+		public IRequest WithArguments(object arguments)
+		{
+			this.Implementation.WithArguments(arguments);
 			return this;
 		}
 

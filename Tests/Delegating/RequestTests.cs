@@ -47,6 +47,13 @@ namespace Pathoschild.Http.Tests.Delegating
 			this.VerifyMethod(p => p.WithArgument(It.IsAny<string>(), It.IsAny<object>()));
 		}
 
+		[Test(Description = "Ensure that the WithArguments method is delegated.")]
+		public void WithArguments()
+		{
+			this.VerifyMethod(p => p.WithArguments(It.IsAny<object>()));
+		}
+
+
 		[Test(Description = "Ensure that the WithBody method is delegated.")]
 		public void WithBody()
 		{

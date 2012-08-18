@@ -7,7 +7,7 @@ You start by creating a client, and chain methods to configure your request and 
      IClient client = new FluentClient("http://example.org/api/");
 ```
 
-### Build a request
+### Basic usage
 The most common use is an asynchronous HTTP GET, with the response deserialized into a class instance. Let's say we're fetching an `Idea` object from a REST API (it could be JSON, XML, or anything else):
 
 ```c#
@@ -16,22 +16,27 @@ The most common use is an asynchronous HTTP GET, with the response deserialized 
         .As<Idea>();
 ```
 
-You can fluently configure the request:
+You can retrieve the content as a deserialized model, list of models, byte array, string, or stream (or add your own formats):
 
+```c#
+     string idea = await client
+        .GetAsync("ideas", new Idea())
+        .AsString();
+```
+
+If you don't need the response, you can just wait for the request to complete. (This will still raise errors for you.)
+
+```c#
+     await client.PostAsync("ideas", new Idea());
+```
+
+### Complex requests
+You can fluently configure the request, from HTTP headers to query string arguments. The client will take care of the details (like sanitizing input and encoding the URL):
 ```c#
      Idea idea = await client
         .GetAsync("ideas")
         .WithHeader("Content-Type", "application/json")
-        .WithArgument("id", 14)
-        .WithArgument("tenant", "tenant-name")
-        .As<Idea>();
-```
-
-And use any HTTP verb:
-
-```c#
-     Idea idea = await client
-        .PostAsync("ideas", new Idea())
+        .WithArguments(new { id = 14, tenant = "tenant-name" }) // equivalent to .WithArgument("id", 14).WithArgument("tenant", "tenant-name")
         .As<Idea>();
 ```
 
@@ -42,22 +47,10 @@ You can even configure a range of features like credentials and cookies using th
      client.MessageHandler.Proxy = new WebProxy(...);
 ```
 
-_(For brevity some methods aren't shown, but every method is fully documented so it's easy to just use the client.)_
+Not every feature is shown in these examples, but every method is fully code-documented for IntelliSense so it's easy to just use the client.
 
-### Retrieve the response
-The response can be fluently configured in the same way. By default you can retrieve the response as a deserialized model, list of models, byte array, string, or stream:
-
-```c#
-     string jsonIdea = await client
-        .GetAsync("ideas/14")
-        .AsString();
-```
-
-If you don't need the response, you can just wait for the request to complete. (This will still handle errors, so you don't have to worry about hiding those.)
-
-```c#
-     await client.PostAsync("ideas", new Idea());
-```
+### Error handling
+By default HTTP errors will be raised as `ApiException`, and you can add your own validation by overriding `IRequest.ValidateResponse`. For example, you could raise an exception if the API returns a non-HTTP error. (You can disable this by setting `IRequest.ThrowErrors = false`.)
 
 ### Synchronous use
 The client is designed to take advantage of the `async` and `await` keywords in .NET 4.5, but you can use the client synchronously:
@@ -74,6 +67,8 @@ Or if you don't need the response:
 ```c#
      client.PostAsync("ideas", new Idea()).Wait();
 ```
+
+However, using the client like this complicates the asynchronous model. It will throw [`AggregateException`][] instead of `ApiException` if requests fail, and you should be careful about [potential deadlocks][] if you do this within asynchronous code.
 
 ## Installation
 The fluent client is available as the [Pathoschild.Http.FluentClient][] NuGet package.
@@ -156,10 +151,12 @@ You can then combine decorators to inject the behaviour you want:
         .As<Idea>();
 ```
 
+[`AggregateException`]: http://msdn.microsoft.com/en-us/library/system.aggregateexception.aspx
 [HttpClient]: http://code.msdn.microsoft.com/Introduction-to-HttpClient-4a2d9cee
 [HttpClientHandler]: http://msdn.microsoft.com/en-us/library/system.net.http.httpclienthandler.aspx
 [HttpRequestMessage]: http://msdn.microsoft.com/en-us/library/system.net.http.httprequestmessage.aspx
 [MediaTypeFormatter]: http://msdn.microsoft.com/en-us/library/system.net.http.formatting.mediatypeformatter.aspx
+[potential deadlocks]: http://blogs.msdn.com/b/pfxteam/archive/2011/01/13/10115163.aspx
 
 [Json.NET]: http://james.newtonking.com/projects/json-net.aspx
 [BSON]: https://en.wikipedia.org/wiki/BSON

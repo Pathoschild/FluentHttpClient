@@ -1,6 +1,9 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.IO;
+using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Formatting;
@@ -96,16 +99,29 @@ namespace Pathoschild.Http.Client.Default
 			return this;
 		}
 
-		/// <summary>Set an HTTP query string argument.</summary>
+		/// <summary>Add an HTTP query string argument.</summary>
 		/// <param name="key">The key of the query argument.</param>
 		/// <param name="value">The value of the query argument.</param>
 		/// <returns>Returns the request builder for chaining.</returns>
 		public virtual IRequest WithArgument(string key, object value)
 		{
+			return this.WithArguments(new Dictionary<string, object>(1) { {key, value} });
+		}
+
+		/// <summary>Add HTTP query string arguments.</summary>
+		/// <param name="arguments">The key=>value pairs in the query string. If this is a dictionary, the keys and values are used. Otherwise, the property names and values are used.</param>
+		/// <returns>Returns the request builder for chaining.</returns>
+		/// <example><code>client.WithArguments(new { id = 14, name = "Joe" })</code></example>
+		public virtual IRequest WithArguments(object arguments)
+		{
+			IDictionary<string, object> dictionary = this.GetArguments(arguments);
+
 			var query = this.Message.RequestUri.ParseQueryString();
-			query.Add(key, value.ToString());
+			foreach (var pair in dictionary)
+				query.Add(pair.Key, pair.Value.ToString());
 			string uri = this.Message.RequestUri.GetLeftPart(UriPartial.Path) + "?" + query;
 			this.Message.RequestUri = new Uri(uri);
+
 			return this;
 		}
 
@@ -205,6 +221,35 @@ namespace Pathoschild.Http.Client.Default
 		{
 			if (this.ThrowError && !message.IsSuccessStatusCode)
 				throw new ApiException(message, message.StatusCode, String.Format("The API query failed with status code {0}: {1}", message.StatusCode, message.ReasonPhrase));
+		}
+
+		/// <summary>Get the key=>value pairs represented by a dictionary or anonymous object.</summary>
+		/// <param name="arguments">The key=>value pairs in the query argument. If this is a dictionary, the keys and values are used. Otherwise, the property names and values are used.</param>
+		protected virtual IDictionary<string, object> GetArguments(object arguments)
+		{
+			// null
+			if (arguments == null)
+				return new Dictionary<string, object>();
+
+			// generic dictionary
+			if (arguments is IDictionary<string, object>)
+				return arguments as IDictionary<string, object>;
+
+			// dictionary
+			if (arguments is IDictionary)
+			{
+				IDictionary<string, object> dict = new Dictionary<string, object>();
+				IDictionary argDict = arguments as IDictionary;
+				foreach (var key in argDict.Keys)
+					dict.Add(key.ToString(), argDict[key]);
+				return dict;
+			}
+
+			// object
+			return TypeDescriptor
+				.GetProperties(arguments)
+				.Cast<PropertyDescriptor>()
+				.ToDictionary(p => p.Name, p => p.GetValue(arguments));
 		}
 	}
 }

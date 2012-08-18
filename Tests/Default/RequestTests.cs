@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Linq;
 using System.Net.Http;
@@ -51,6 +52,50 @@ namespace Pathoschild.Http.Tests.Default
 			NameValueCollection arguments = request.Message.RequestUri.ParseQueryString();
 			Assert.That(arguments[keyA], Is.Not.Null.And.EqualTo(valueA), "The first key=>value pair is invalid.");
 			Assert.That(arguments[keyB], Is.Not.Null.And.EqualTo(valueB), "The second key=>value pair is invalid.");
+		}
+
+		[Test(Description = "Ensure that WithArguments (with a dictionary) appends the query arguments to the request message and does not incorrectly alter request state.")]
+		[TestCase("DELETE", "keyA", "24", "keyB", "42")]
+		[TestCase("GET", "keyA", "24", "keyB", "42")]
+		[TestCase("HEAD", "keyA", "24", "keyB", "42")]
+		[TestCase("PUT", "keyA", "24", "keyB", "42")]
+		[TestCase("OPTIONS", "keyA", "24", "keyB", "42")]
+		[TestCase("POST", "keyA", "24", "keyB", "42")]
+		[TestCase("TRACE", "keyA", "24", "keyB", "42")]
+		public void WithArguments_Dictionary(string methodName, string keyA, string valueA, string keyB, string valueB)
+		{
+			// execute
+			IRequest request = this
+				.ConstructRequest(methodName)
+				.WithArguments(new Dictionary<string,object> { {keyA, valueA}, {keyB, valueB} });
+
+			// verify
+			this.AssertEqual(request.Message, methodName, ignoreArguments: true);
+			NameValueCollection arguments = request.Message.RequestUri.ParseQueryString();
+			Assert.That(arguments[keyA], Is.Not.Null.And.EqualTo(valueA), "The first key=>value pair is invalid.");
+			Assert.That(arguments[keyB], Is.Not.Null.And.EqualTo(valueB), "The second key=>value pair is invalid.");
+		}
+
+		[Test(Description = "Ensure that WithArguments (with an object) appends the query arguments to the request message and does not incorrectly alter request state.")]
+		[TestCase("DELETE", "24", "42")]
+		[TestCase("GET", "24", "42")]
+		[TestCase("HEAD", "24", "42")]
+		[TestCase("PUT", "24", "42")]
+		[TestCase("OPTIONS", "24", "42")]
+		[TestCase("POST", "24", "42")]
+		[TestCase("TRACE", "24", "42")]
+		public void WithArguments_Object(string methodName, string valueA, string valueB)
+		{
+			// execute
+			IRequest request = this
+				.ConstructRequest(methodName)
+				.WithArguments(new { keyA = valueA, keyB = valueB });
+
+			// verify
+			this.AssertEqual(request.Message, methodName, ignoreArguments: true);
+			NameValueCollection arguments = request.Message.RequestUri.ParseQueryString();
+			Assert.That(arguments["keyA"], Is.Not.Null.And.EqualTo(valueA), "The first key=>value pair is invalid.");
+			Assert.That(arguments["keyB"], Is.Not.Null.And.EqualTo(valueB), "The second key=>value pair is invalid.");
 		}
 
 		[Test(Description = "Ensure that WithBodyContent sets the request body and does not incorrectly alter request state.")]
