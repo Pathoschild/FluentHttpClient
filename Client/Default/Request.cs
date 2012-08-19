@@ -149,8 +149,8 @@ namespace Pathoschild.Http.Client.Default
 		/// <exception cref="ApiException">An error occurred processing the response.</exception>
 		public virtual async Task<T> As<T>()
 		{
-			HttpResponseMessage message = await this.AsMessage();
-			return await message.Content.ReadAsAsync<T>(this.Formatters);
+			HttpResponseMessage message = await this.AsMessage().ConfigureAwait(false);
+			return await message.Content.ReadAsAsync<T>(this.Formatters).ConfigureAwait(false);
 		}
 
 		/// <summary>Asynchronously retrieve the response body as a list of deserialized models.</summary>
@@ -166,8 +166,8 @@ namespace Pathoschild.Http.Client.Default
 		/// <exception cref="ApiException">An error occurred processing the response.</exception>
 		public virtual async Task<byte[]> AsByteArray()
 		{
-			HttpResponseMessage message = await this.AsMessage();
-			return await message.Content.ReadAsByteArrayAsync();
+			HttpResponseMessage message = await this.AsMessage().ConfigureAwait(false);
+			return await message.Content.ReadAsByteArrayAsync().ConfigureAwait(false);
 		}
 
 		/// <summary>Asynchronously retrieve the response body as a <see cref="string"/>.</summary>
@@ -175,8 +175,8 @@ namespace Pathoschild.Http.Client.Default
 		/// <exception cref="ApiException">An error occurred processing the response.</exception>
 		public virtual async Task<string> AsString()
 		{
-			HttpResponseMessage message = await this.AsMessage();
-			return await message.Content.ReadAsStringAsync();
+			HttpResponseMessage message = await this.AsMessage().ConfigureAwait(false);
+			return await message.Content.ReadAsStringAsync().ConfigureAwait(false);
 		}
 
 		/// <summary>Asynchronously retrieve the response body as a <see cref="Stream"/>.</summary>
@@ -184,8 +184,8 @@ namespace Pathoschild.Http.Client.Default
 		/// <exception cref="ApiException">An error occurred processing the response.</exception>
 		public virtual async Task<Stream> AsStream()
 		{
-			HttpResponseMessage message = await this.AsMessage();
-			Stream stream = await message.Content.ReadAsStreamAsync();
+			HttpResponseMessage message = await this.AsMessage().ConfigureAwait(false);
+			Stream stream = await message.Content.ReadAsStreamAsync().ConfigureAwait(false);
 			stream.Position = 0;
 			return stream;
 		}
@@ -193,8 +193,8 @@ namespace Pathoschild.Http.Client.Default
 		/***
 		** Synchronize
 		***/
-		/// <summary>Block the current thread until the asynchronous request completes.</summary>
-		/// <exception cref="ApiException">The HTTP response returned a non-success <see cref="HttpStatusCode"/> and <see cref="ThrowError"/> is <c>true</c>.</exception>
+		/// <summary>Block the current thread until the asynchronous request completes. This method should only be called if you can't <c>await</c> instead, and may cause thread deadlocks in some circumstances (see https://github.com/Pathoschild/Pathoschild.FluentHttpClient#synchronous-use ).</summary>
+		/// <exception cref="AggregateException">The HTTP response returned a non-success <see cref="HttpStatusCode"/> and <see cref="ThrowError"/> is <c>true</c>.</exception>
 		public void Wait()
 		{
 			this.AsMessage().Wait();
@@ -209,7 +209,7 @@ namespace Pathoschild.Http.Client.Default
 		protected async Task<HttpResponseMessage> ValidateResponse(Task<HttpResponseMessage> request)
 		{
 			// fetch request
-			HttpResponseMessage response = await request;
+			HttpResponseMessage response = await request.ConfigureAwait(false);
 			this.ValidateResponse(response);
 			return response;
 		}

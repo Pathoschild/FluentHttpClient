@@ -50,7 +50,7 @@ You can even configure a range of features like credentials and cookies using th
 Not every feature is shown in these examples, but every method is fully code-documented for IntelliSense so it's easy to just use the client.
 
 ### Error handling
-By default HTTP errors will be raised as `ApiException`, and you can add your own validation by overriding `IRequest.ValidateResponse`. For example, you could raise an exception if the API returns a non-HTTP error. (You can disable this by setting `IRequest.ThrowErrors = false`.)
+By default HTTP errors will be raised as `ApiException` (or `AggregateException` if you explicitly call `.Result` or `.Wait()`), and you can add your own validation by overriding `IRequest.ValidateResponse`. For example, you could raise an exception if the API returns a non-HTTP error. (You can disable this by setting `IRequest.ThrowErrors = false`.)
 
 ### Synchronous use
 The client is designed to take advantage of the `async` and `await` keywords in .NET 4.5, but you can use the client synchronously:
@@ -68,7 +68,7 @@ Or if you don't need the response:
      client.PostAsync("ideas", new Idea()).Wait();
 ```
 
-However, using the client like this complicates the asynchronous model. It will throw [`AggregateException`][] instead of `ApiException` if requests fail, and you should be careful about [potential deadlocks][] if you do this within asynchronous code.
+**Beware:** mixing blocking and asynchronous code within UI applications (like a web project) can lead to deadlocks. (If the only asynchronous code is the client itself, you should be fine doing this.) For further information, see _[Parallel Programming with .NET: Await, and UI, and deadlocks! Oh my!](http://blogs.msdn.com/b/pfxteam/archive/2011/01/13/10115163.aspx)_ (Stephen Toub, MSDN) and _[Don't Block on Async Code](http://nitoprograms.blogspot.ca/2012/07/dont-block-on-async-code.html)_ (Stephen Cleary).
 
 ## Installation
 The fluent client is available as the [Pathoschild.Http.FluentClient][] NuGet package.
@@ -156,7 +156,6 @@ You can then combine decorators to inject the behaviour you want:
 [HttpClientHandler]: http://msdn.microsoft.com/en-us/library/system.net.http.httpclienthandler.aspx
 [HttpRequestMessage]: http://msdn.microsoft.com/en-us/library/system.net.http.httprequestmessage.aspx
 [MediaTypeFormatter]: http://msdn.microsoft.com/en-us/library/system.net.http.formatting.mediatypeformatter.aspx
-[potential deadlocks]: http://blogs.msdn.com/b/pfxteam/archive/2011/01/13/10115163.aspx
 
 [Json.NET]: http://james.newtonking.com/projects/json-net.aspx
 [BSON]: https://en.wikipedia.org/wiki/BSON
