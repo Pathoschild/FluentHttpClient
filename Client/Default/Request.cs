@@ -12,7 +12,7 @@ using System.Threading.Tasks;
 
 namespace Pathoschild.Http.Client.Default
 {
-	/// <summary>Builds and dispatches an asynchronous HTTP request.</summary>
+	/// <summary>Builds and dispatches an asynchronous HTTP request, and asynchronously parses the response.</summary>
 	public class Request : IRequest
 	{
 		/*********
@@ -35,7 +35,7 @@ namespace Pathoschild.Http.Client.Default
 		public MediaTypeFormatterCollection Formatters { get; set; }
 
 		/// <summary>Whether to handle errors from the upstream server by throwing an exception.</summary>
-		public bool ThrowError { get; set; }
+		public bool RaiseErrors { get; set; }
 
 
 		/*********
@@ -52,7 +52,7 @@ namespace Pathoschild.Http.Client.Default
 			this.Formatters = formatters;
 			this.ResponseBuilder = dispatcher;
 			this.Factory = factory ?? new Factory();
-			this.ThrowError = true;
+			this.RaiseErrors = true;
 		}
 
 		/***
@@ -105,7 +105,7 @@ namespace Pathoschild.Http.Client.Default
 		/// <returns>Returns the request builder for chaining.</returns>
 		public virtual IRequest WithArgument(string key, object value)
 		{
-			return this.WithArguments(new Dictionary<string, object>(1) { {key, value} });
+			return this.WithArguments(new Dictionary<string, object>(1) { { key, value } });
 		}
 
 		/// <summary>Add HTTP query string arguments.</summary>
@@ -139,9 +139,9 @@ namespace Pathoschild.Http.Client.Default
 		***/
 		/// <summary>Asynchronously retrieve the HTTP response.</summary>
 		/// <exception cref="ApiException">An error occurred processing the response.</exception>
-		public virtual Task<HttpResponseMessage> AsMessage()
+		public virtual async Task<HttpResponseMessage> AsMessage()
 		{
-			return this.ValidateResponse(this.ResponseBuilder(this));
+			return await this.ValidateResponse(this.ResponseBuilder(this)).ConfigureAwait(false);
 		}
 
 		/// <summary>Asynchronously retrieve the response body as a deserialized model.</summary>
@@ -194,7 +194,7 @@ namespace Pathoschild.Http.Client.Default
 		** Synchronize
 		***/
 		/// <summary>Block the current thread until the asynchronous request completes. This method should only be called if you can't <c>await</c> instead, and may cause thread deadlocks in some circumstances (see https://github.com/Pathoschild/Pathoschild.FluentHttpClient#synchronous-use ).</summary>
-		/// <exception cref="AggregateException">The HTTP response returned a non-success <see cref="HttpStatusCode"/> and <see cref="ThrowError"/> is <c>true</c>.</exception>
+		/// <exception cref="AggregateException">The HTTP response returned a non-success <see cref="HttpStatusCode"/> and <see cref="RaiseErrors"/> is <c>true</c>.</exception>
 		public void Wait()
 		{
 			this.AsMessage().Wait();
@@ -205,7 +205,7 @@ namespace Pathoschild.Http.Client.Default
 		*********/
 		/// <summary>Validate the HTTP response and raise any errors in the response as exceptions.</summary>
 		/// <param name="request">The response message to validate.</param>
-		/// <exception cref="ApiException">The HTTP response returned a non-success <see cref="HttpStatusCode"/> and <see cref="ThrowError"/> is <c>true</c>.</exception>
+		/// <exception cref="ApiException">The HTTP response returned a non-success <see cref="HttpStatusCode"/> and <see cref="RaiseErrors"/> is <c>true</c>.</exception>
 		protected async Task<HttpResponseMessage> ValidateResponse(Task<HttpResponseMessage> request)
 		{
 			// fetch request
@@ -216,11 +216,11 @@ namespace Pathoschild.Http.Client.Default
 
 		/// <summary>Validate the HTTP response and raise any errors in the response as exceptions.</summary>
 		/// <param name="message">The response message to validate.</param>
-		/// <exception cref="ApiException">The HTTP response returned a non-success <see cref="HttpStatusCode"/> and <see cref="ThrowError"/> is <c>true</c>.</exception>
+		/// <exception cref="ApiException">The HTTP response returned a non-success <see cref="HttpStatusCode"/> and <see cref="RaiseErrors"/> is <c>true</c>.</exception>
 		protected virtual void ValidateResponse(HttpResponseMessage message)
 		{
-			if (this.ThrowError && !message.IsSuccessStatusCode)
-				throw new ApiException(message, message.StatusCode, String.Format("The API query failed with status code {0}: {1}", message.StatusCode, message.ReasonPhrase));
+			if (this.RaiseErrors && !message.IsSuccessStatusCode)
+				throw new ApiException(this, message, String.Format("The API query failed with status code {0}: {1}", message.StatusCode, message.ReasonPhrase));
 		}
 
 		/// <summary>Get the key=>value pairs represented by a dictionary or anonymous object.</summary>

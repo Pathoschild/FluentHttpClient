@@ -269,11 +269,7 @@ namespace Pathoschild.Http.Tests.Default
 			// act
 			using (Stream stream = response.AsStream().VerifyTaskResult())
 			using (StreamReader reader = new StreamReader(stream))
-			{
 				actual = reader.ReadToEnd();
-				reader.Close();
-				reader.Dispose();
-			}
 
 			// assert
 			Assert.That(actual, Is.EqualTo(String.Format("\"{0}\"", content)));
@@ -290,9 +286,7 @@ namespace Pathoschild.Http.Tests.Default
 			// act
 			using (Stream stream = response.AsStream().VerifyTaskResult())
 			using (StreamReader reader = new StreamReader(stream))
-			{
 				actual = reader.ReadToEnd();
-			}
 
 			// assert
 			Assert.That(actual, Is.EqualTo(String.Format("{{\"Value\":\"{0}\"}}", content)));
@@ -314,6 +308,26 @@ namespace Pathoschild.Http.Tests.Default
 			Assert.That(actual, Is.EqualTo('"' + content + '"'));
 		}
 
+		[Test(Description = "The response can be asynchronously read as a string multiple times.")]
+		[TestCase("stream content")]
+		public void AsString_MultipleReads(string content)
+		{
+			// arrange
+			IRequest response = this.ConstructResponse(content);
+
+			// act
+			string actualA = response
+				.AsString()
+				.VerifyTaskResult();
+			string actualB = response
+				.AsString()
+				.VerifyTaskResult();
+
+			// assert
+			Assert.That(actualA, Is.EqualTo('"' + content + '"'), "The content is not equal to the input.");
+			Assert.That(actualA, Is.EqualTo(actualB), "The second read returned a different result.");
+		}
+
 		[Test(Description = "The response can be asynchronously read as a string when the content is a model.")]
 		[TestCase("stream content")]
 		public void AsString_OfModel(string content)
@@ -331,7 +345,7 @@ namespace Pathoschild.Http.Tests.Default
 		}
 
 		/***
-		** ThrowError
+		** RaiseErrors
 		***/
 		[Test(Description = "An error is thrown when the response contains an error.")]
 		[TestCase(false, HttpStatusCode.OK)]

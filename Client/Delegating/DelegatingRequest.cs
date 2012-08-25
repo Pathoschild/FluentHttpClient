@@ -37,10 +37,10 @@ namespace Pathoschild.Http.Client.Delegating
 		}
 
 		/// <summary>Whether to handle errors from the upstream server by throwing an exception.</summary>
-		public bool ThrowError
+		public bool RaiseErrors
 		{
-			get { return this.Implementation.ThrowError; }
-			set { this.Implementation.ThrowError = value; }
+			get { return this.Implementation.RaiseErrors; }
+			set { this.Implementation.RaiseErrors = value; }
 		}
 
 
@@ -174,7 +174,7 @@ namespace Pathoschild.Http.Client.Delegating
 		** Synchronize
 		***/
 		/// <summary>Block the current thread until the asynchronous request completes.</summary>
-		/// <exception cref="ApiException">The HTTP response returned a non-success <see cref="HttpStatusCode"/>, and <see cref="IRequest.ThrowError"/> is <c>true</c>.</exception>
+		/// <exception cref="ApiException">The HTTP response returned a non-success <see cref="HttpStatusCode"/>, and <see cref="IResponse.RaiseErrors"/> is <c>true</c>.</exception>
 		public void Wait()
 		{
 			this.Implementation.Wait();

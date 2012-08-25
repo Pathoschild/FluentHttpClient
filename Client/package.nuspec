@@ -14,9 +14,10 @@
 			   - made all asynchronous methods async;
 			   - merged IRequestBuilder and IResponse into IRequest;
 			   - made IRequest awaitable;
-			   - eliminated the now-obsolete synchronous wrappers;
+			   - eliminated the now-obsolete synchronous wrappers.
 			* Added default User-Agent header and auto-generated Accept headers.
 			* Added support for anonymous object arguments: .WithArguments(new { id = 14, tenant = "example" }).
+			* Simplified error-handling with new exception properties.
 		</releaseNotes>
 		<frameworkAssemblies>
 			<frameworkAssembly assemblyName="System.Net.Http" />

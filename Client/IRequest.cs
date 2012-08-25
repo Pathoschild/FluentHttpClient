@@ -1,28 +1,19 @@
 using System;
-using System.Collections.Generic;
-using System.IO;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Formatting;
 using System.Net.Http.Headers;
-using System.Threading.Tasks;
 
 namespace Pathoschild.Http.Client
 {
-	/// <summary>Builds and dispatches an asynchronous HTTP request.</summary>
-	public interface IRequest
+	/// <summary>Builds and dispatches an asynchronous HTTP request, and asynchronously parses the response.</summary>
+	public interface IRequest : IResponse
 	{
 		/*********
 		** Accessors
 		*********/
 		/// <summary>The underlying HTTP request message.</summary>
 		HttpRequestMessage Message { get; set; }
-
-		/// <summary>The formatters used for serializing and deserializing message bodies.</summary>
-		MediaTypeFormatterCollection Formatters { get; set; }
-
-		/// <summary>Whether to handle errors from the upstream server by throwing an exception.</summary>
-		bool ThrowError { get; set; }
 
 
 		/*********
@@ -72,38 +63,6 @@ namespace Pathoschild.Http.Client
 		/// <param name="request">The HTTP request message.</param>
 		/// <returns>Returns the request builder for chaining.</returns>
 		IRequest WithCustom(Action<HttpRequestMessage> request);
-
-		/***
-		** Retrieve response
-		***/
-		/// <summary>Asynchronously retrieve the HTTP response.</summary>
-		/// <exception cref="ApiException">An error occurred processing the response.</exception>
-		Task<HttpResponseMessage> AsMessage();
-
-		/// <summary>Asynchronously retrieve the response body as a deserialized model.</summary>
-		/// <typeparam name="T">The response model to deserialize into.</typeparam>
-		/// <exception cref="ApiException">An error occurred processing the response.</exception>
-		Task<T> As<T>();
-
-		/// <summary>Asynchronously retrieve the response body as a list of deserialized models.</summary>
-		/// <typeparam name="T">The response model to deserialize into.</typeparam>
-		/// <exception cref="ApiException">An error occurred processing the response.</exception>
-		Task<List<T>> AsList<T>();
-
-		/// <summary>Asynchronously retrieve the response body as an array of <see cref="byte"/>.</summary>
-		/// <returns>Returns the response body, or <c>null</c> if the response has no body.</returns>
-		/// <exception cref="ApiException">An error occurred processing the response.</exception>
-		Task<byte[]> AsByteArray();
-
-		/// <summary>Asynchronously retrieve the response body as a <see cref="string"/>.</summary>
-		/// <returns>Returns the response body, or <c>null</c> if the response has no body.</returns>
-		/// <exception cref="ApiException">An error occurred processing the response.</exception>
-		Task<string> AsString();
-
-		/// <summary>Asynchronously retrieve the response body as a <see cref="Stream"/>.</summary>
-		/// <returns>Returns the response body, or <c>null</c> if the response has no body.</returns>
-		/// <exception cref="ApiException">An error occurred processing the response.</exception>
-		Task<Stream> AsStream();
 
 		/***
 		** Synchronize

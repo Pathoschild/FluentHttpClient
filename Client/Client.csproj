@@ -54,6 +54,7 @@
     <Compile Include="IClient.cs" />
     <Compile Include="IFactory.cs" />
     <Compile Include="IRequest.cs" />
+    <Compile Include="IResponse.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup />

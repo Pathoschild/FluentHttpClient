@@ -1,4 +1,4 @@
-**Pathoschild.FluentHttpClient** is a strongly-typed easy-to-use asynchronous REST API client, built on top of the .NET 4.5 [HttpClient][]. The client provides a single fluent interface that lets you create an HTTP request, dispatch and wait for it, and process the response. (The client will automatically inject any required HTTP configuration, like `User-Agent` and `Accept` headers.)
+**Pathoschild.FluentHttpClient** is a strongly-typed easy-to-use asynchronous REST API client, built on top of the .NET 4.5 [HttpClient][]. The client provides a single fluent interface that lets you create an HTTP request, dispatch and wait for it, and process the response. The client will automatically inject any required HTTP configuration (like `User-Agent` and `Accept` headers) and handle the plumbing code.
 
 ## Usage
 You start by creating a client, and chain methods to configure your request and response:
@@ -50,7 +50,43 @@ You can even configure a range of features like credentials and cookies using th
 Not every feature is shown in these examples, but every method is fully code-documented for IntelliSense so it's easy to just use the client.
 
 ### Error handling
-By default HTTP errors will be raised as `ApiException` (or `AggregateException` if you explicitly call `.Result` or `.Wait()`), and you can add your own validation by overriding `IRequest.ValidateResponse`. For example, you could raise an exception if the API returns a non-HTTP error. (You can disable this by setting `IRequest.ThrowErrors = false`.)
+HTTP errors (such as HTTP Not Found) will be raised as `ApiException`, and you can add your own validation by overriding `Request.ValidateResponse`. For example, you could raise application errors from the API as client exceptions. (You can disable these exceptions by setting `IRequest.RaiseErrors = false`.)
+
+When an HTTP request fails, you can find out why by checking the exception object. This contains the `HttpResponseMessage` (which includes the HTTP details like the request message, HTTP status code, headers, and response body) and `IResponse` (which provides a convenient way to read the response body).
+
+For example:
+```c#
+     /// <summary>Get a value from the API.</summary>
+	 /// <param name="key">The value key.</param>
+	 /// <exception cref="KeyNotFoundException">The key could not be found.</exception>
+	 /// <exception cref="CustomApiExeption">The remote application returned an error message.</exception>
+     public async Task<string> GetValue(string key)
+     {
+        try
+        {
+           return await client
+              .Get("api/dictionary")
+              .WithArgument("key", key)
+              .AsString();
+        }
+        catch(ApiException exception)
+        {
+           // key not found
+           if(exception.ResponseMessage.StatusCode == HttpStatusCode.NotFound)
+              throw new KeyNotFoundException("The key could not be found.")
+           
+           // remote application error
+           if(exception.ResponseMessage.Content != null)
+           {
+              exception.Response.RaiseErrors = false; // disable validation so we can read response content
+              throw new CustomApiException(await exception.Response.AsString(), exception);
+           }
+           
+           // unhandled exception
+           throw;
+        }
+     }
+```
 
 ### Synchronous use
 The client is designed to take advantage of the `async` and `await` keywords in .NET 4.5, but you can use the client synchronously:
@@ -67,6 +103,8 @@ Or if you don't need the response:
 ```c#
      client.PostAsync("ideas", new Idea()).Wait();
 ```
+
+Note: `Result` and `Await()` will wrap any exceptions thrown by the client into an `AggregateException`.
 
 **Beware:** mixing blocking and asynchronous code within UI applications (like a web project) can lead to deadlocks. (If the only asynchronous code is the client itself, you should be fine doing this.) For further information, see _[Parallel Programming with .NET: Await, and UI, and deadlocks! Oh my!](http://blogs.msdn.com/b/pfxteam/archive/2011/01/13/10115163.aspx)_ (Stephen Toub, MSDN) and _[Don't Block on Async Code](http://nitoprograms.blogspot.ca/2012/07/dont-block-on-async-code.html)_ (Stephen Cleary).
 

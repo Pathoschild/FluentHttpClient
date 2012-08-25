@@ -32,10 +32,10 @@ namespace Pathoschild.Http.Tests.Delegating
 			this.VerifyGet(p => p.Message);
 		}
 
-		[Test(Description = "Ensure that the ThrowError property is delegated.")]
+		[Test(Description = "Ensure that the RaiseErrors property is delegated.")]
 		public void ThrowError()
 		{
-			this.VerifyGet(p => p.ThrowError);
+			this.VerifyGet(p => p.RaiseErrors);
 		}
 
 		/***
