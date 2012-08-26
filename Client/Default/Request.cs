@@ -8,6 +8,7 @@ using System.Net;
 using System.Net.Http;
 using System.Net.Http.Formatting;
 using System.Net.Http.Headers;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 
 namespace Pathoschild.Http.Client.Default
@@ -132,6 +133,21 @@ namespace Pathoschild.Http.Client.Default
 		{
 			request(this.Message);
 			return this;
+		}
+
+		/// <summary>Get an object that waits for the completion of the request. This enables support for the <c>await</c> keyword.</summary>
+		/// <example>
+		/// <code>await client.PostAsync("api/ideas", idea);</code>
+		/// <code>await client.GetAsync("api/ideas").AsString();</code>
+		/// </example>
+		public TaskAwaiter<IResponse> GetAwaiter()
+		{
+			Func<Task<IResponse>> waiter = (async () =>
+			{
+				await this.AsMessage();
+				return this;
+			});
+			return waiter().GetAwaiter();
 		}
 
 		/***

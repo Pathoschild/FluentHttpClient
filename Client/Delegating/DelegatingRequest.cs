@@ -5,6 +5,7 @@ using System.Net;
 using System.Net.Http;
 using System.Net.Http.Formatting;
 using System.Net.Http.Headers;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 
 namespace Pathoschild.Http.Client.Delegating
@@ -118,6 +119,16 @@ namespace Pathoschild.Http.Client.Delegating
 		{
 			this.Implementation.WithCustom(request);
 			return this;
+		}
+
+		/// <summary>Get an object that waits for the completion of the request. This enables support for the <c>await</c> keyword.</summary>
+		/// <example>
+		/// <code>await client.GetAsync("api/ideas").AsString();</code>
+		/// <code>await client.PostAsync("api/ideas", idea);</code>
+		/// </example>
+		public TaskAwaiter<IResponse> GetAwaiter()
+		{
+			return this.Implementation.GetAwaiter();
 		}
 
 		/***

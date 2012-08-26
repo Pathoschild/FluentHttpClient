@@ -3,6 +3,7 @@ using System.Net;
 using System.Net.Http;
 using System.Net.Http.Formatting;
 using System.Net.Http.Headers;
+using System.Runtime.CompilerServices;
 
 namespace Pathoschild.Http.Client
 {
@@ -63,6 +64,13 @@ namespace Pathoschild.Http.Client
 		/// <param name="request">The HTTP request message.</param>
 		/// <returns>Returns the request builder for chaining.</returns>
 		IRequest WithCustom(Action<HttpRequestMessage> request);
+
+		/// <summary>Get an object that waits for the completion of the request. This enables support for the <c>await</c> keyword.</summary>
+		/// <example>
+		/// <code>await client.GetAsync("api/ideas").AsString();</code>
+		/// <code>await client.PostAsync("api/ideas", idea);</code>
+		/// </example>
+		TaskAwaiter<IResponse> GetAwaiter();
 
 		/***
 		** Synchronize

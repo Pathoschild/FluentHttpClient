@@ -50,7 +50,6 @@
     <Compile Include="Default\Request.cs" />
     <Compile Include="Delegating\DelegatingFluentClient.cs" />
     <Compile Include="Delegating\DelegatingRequest.cs" />
-    <Compile Include="FluentClientExtensions.cs" />
     <Compile Include="IClient.cs" />
     <Compile Include="IFactory.cs" />
     <Compile Include="IRequest.cs" />

@@ -84,6 +84,12 @@ namespace Pathoschild.Http.Tests.Delegating
 			this.VerifyMethod(p => p.WithHeader(It.IsAny<string>(), It.IsAny<string>()));
 		}
 
+		[Test(Description = "Ensure that the GetAwaiter method is delegated.")]
+		public void GetAwaiter()
+		{
+			this.VerifyMethod(p => p.GetAwaiter());
+		}
+
 		/***
 		** Response tests
 		***/

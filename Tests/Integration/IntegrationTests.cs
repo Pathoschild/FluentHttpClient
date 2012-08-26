@@ -23,10 +23,7 @@ namespace Pathoschild.Http.Tests.Integration
 			// act
 			WikipediaMetadata response = await client
 				.GetAsync("w/api.php")
-				.WithArgument("action", "query")
-				.WithArgument("meta", "siteinfo")
-				.WithArgument("siprop", "general")
-				.WithArgument("format", "json")
+				.WithArguments(new { action = "query", meta = "siteinfo", siprop = "general", format = "json" })
 				.As<WikipediaMetadata>();
 
 			// assert
@@ -48,6 +45,24 @@ namespace Pathoschild.Http.Tests.Integration
 				.AssertValue(p => p.WikiID, "enwiki");
 		}
 
+		[Test(Description = "The client can fetch a resource from Wikipedia's API and read the response multiple times.")]
+		public async void Wikipedia_MultipleReads()
+		{
+			// arrange
+			IClient client = this.ConstructClient("http://en.wikipedia.org/");
+
+			// act
+			IRequest request = client
+				.GetAsync("w/api.php")
+				.WithArguments(new { action = "query", meta = "siteinfo", siprop = "general", format = "json" });
+
+			string valueA = await request.AsString();
+			string valueB = await request.AsString();
+
+			// assert
+			Assert.IsNotNullOrEmpty(valueA, "response is null or empty");
+			Assert.AreEqual(valueA, valueB, "second read got a different result");
+		}
 
 		/*********
 		** Protected methods
