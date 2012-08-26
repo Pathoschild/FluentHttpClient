@@ -22,7 +22,7 @@ namespace Pathoschild.Http.Client.Default
 		protected IFactory Factory { get; set; }
 
 		/// <summary>Executes an HTTP request.</summary>
-		protected Func<IRequest, Task<HttpResponseMessage>> ResponseBuilder { get; set; }
+		protected Func<IRequest, Task<HttpResponseMessage>> Dispatcher { get; set; }
 
 
 		/*********
@@ -50,7 +50,7 @@ namespace Pathoschild.Http.Client.Default
 		{
 			this.Message = message;
 			this.Formatters = formatters;
-			this.ResponseBuilder = dispatcher;
+			this.Dispatcher = dispatcher;
 			this.Factory = factory ?? new Factory();
 			this.RaiseErrors = true;
 		}
@@ -141,7 +141,7 @@ namespace Pathoschild.Http.Client.Default
 		/// <exception cref="ApiException">An error occurred processing the response.</exception>
 		public virtual async Task<HttpResponseMessage> AsMessage()
 		{
-			return await this.ValidateResponse(this.ResponseBuilder(this)).ConfigureAwait(false);
+			return await this.ValidateResponse(this.Dispatcher(this)).ConfigureAwait(false);
 		}
 
 		/// <summary>Asynchronously retrieve the response body as a deserialized model.</summary>
@@ -208,16 +208,15 @@ namespace Pathoschild.Http.Client.Default
 		/// <exception cref="ApiException">The HTTP response returned a non-success <see cref="HttpStatusCode"/> and <see cref="RaiseErrors"/> is <c>true</c>.</exception>
 		protected async Task<HttpResponseMessage> ValidateResponse(Task<HttpResponseMessage> request)
 		{
-			// fetch request
 			HttpResponseMessage response = await request.ConfigureAwait(false);
-			this.ValidateResponse(response);
+			await this.ValidateResponse(response).ConfigureAwait(false);
 			return response;
 		}
 
 		/// <summary>Validate the HTTP response and raise any errors in the response as exceptions.</summary>
 		/// <param name="message">The response message to validate.</param>
 		/// <exception cref="ApiException">The HTTP response returned a non-success <see cref="HttpStatusCode"/> and <see cref="RaiseErrors"/> is <c>true</c>.</exception>
-		protected virtual void ValidateResponse(HttpResponseMessage message)
+		protected virtual async Task ValidateResponse(HttpResponseMessage message)
 		{
 			if (this.RaiseErrors && !message.IsSuccessStatusCode)
 				throw new ApiException(this, message, String.Format("The API query failed with status code {0}: {1}", message.StatusCode, message.ReasonPhrase));
