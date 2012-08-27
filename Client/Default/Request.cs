@@ -23,7 +23,7 @@ namespace Pathoschild.Http.Client.Default
 		protected IFactory Factory { get; set; }
 
 		/// <summary>Executes an HTTP request.</summary>
-		protected Func<IRequest, Task<HttpResponseMessage>> Dispatcher { get; set; }
+		protected Lazy<Task<HttpResponseMessage>> Dispatcher { get; set; }
 
 
 		/*********
@@ -51,7 +51,7 @@ namespace Pathoschild.Http.Client.Default
 		{
 			this.Message = message;
 			this.Formatters = formatters;
-			this.Dispatcher = dispatcher;
+			this.Dispatcher = new Lazy<Task<HttpResponseMessage>>(() => dispatcher(this));
 			this.Factory = factory ?? new Factory();
 			this.RaiseErrors = true;
 		}
@@ -157,7 +157,7 @@ namespace Pathoschild.Http.Client.Default
 		/// <exception cref="ApiException">An error occurred processing the response.</exception>
 		public virtual async Task<HttpResponseMessage> AsMessage()
 		{
-			return await this.ValidateResponse(this.Dispatcher(this)).ConfigureAwait(false);
+			return await this.ValidateResponse(this.Dispatcher.Value).ConfigureAwait(false);
 		}
 
 		/// <summary>Asynchronously retrieve the response body as a deserialized model.</summary>
