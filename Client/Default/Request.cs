@@ -119,7 +119,7 @@ namespace Pathoschild.Http.Client.Default
 
 			var query = this.Message.RequestUri.ParseQueryString();
 			foreach (var pair in dictionary)
-				query.Add(pair.Key, pair.Value.ToString());
+				query.Add(pair.Key, (pair.Value ?? "").ToString());
 			string uri = this.Message.RequestUri.GetLeftPart(UriPartial.Path) + "?" + query;
 			this.Message.RequestUri = new Uri(uri);
 
