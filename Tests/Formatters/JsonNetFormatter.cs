@@ -63,16 +63,17 @@ namespace Pathoschild.Http.Tests.Formatters
 		/***
 		** Jsonp
 		***/
-		[Test(Description = "The formatter throws an exception if attempting to deserialize JSONP, which is a write-only format.")]
-		[TestCase("value", ExpectedException = typeof(NotSupportedException))]
-		public void Jsonp_Deserialize_Fails(string content)
+		[Test(Description = "The formatter correctly deserializes JSONP without a callback, or throws an exception if the JSONP content contains a callback.")]
+		[TestCase("\"value\"", Result = "value")]
+		[TestCase("callback(\"value\")", ExpectedException = typeof(NotSupportedException))]
+		public string Jsonp_Deserialize(string content)
 		{
 			// set up
 			JsonNetFormatter formatter = new JsonNetFormatter();
 			HttpRequestMessage request = this.GetRequest(content, formatter, "application/javascript");
 
 			// verify
-			this.GetDeserialized(typeof(string), content, request, formatter);
+			return (string)this.GetDeserialized(typeof(string), content, request, formatter);
 		}
 
 		[Test(Description = "A value can be serialized into JSONP.")]

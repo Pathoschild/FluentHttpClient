@@ -2,14 +2,14 @@
 <package>
 	<metadata>
 		<id>Pathoschild.Http.Formatters.JsonNet</id>
-		<version>0.4.1-alpha</version>
+		<version>0.4.2-alpha</version>
 		<authors>Jesse Plamondon-Willard</authors>
 		<description>Provides JSON, JSONP, and BSON implementations of the .NET 4.5 MediaTypeFormatter using Json.NET. These can be used by the .NET 4.5 HttpClient and the Web API for serializing content.</description>
 		<tags>http wcf webapi</tags>
 		<licenseUrl>https://creativecommons.org/licenses/by/3.0/</licenseUrl>
 		<projectUrl>https://github.com/Pathoschild/Pathoschild.FluentHttpClient#readme</projectUrl>
 		<requireLicenseAcceptance>false</requireLicenseAcceptance>
-		<releaseNotes>Migrated to .NET 4.5.</releaseNotes>
+		<releaseNotes>Added support for reading JSONP (if it contains no JavaScript callback).</releaseNotes>
 		<dependencies>
 			<dependency id="Newtonsoft.Json" version="4.5" />
 		</dependencies>

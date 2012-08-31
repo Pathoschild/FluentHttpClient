@@ -79,10 +79,17 @@ namespace Pathoschild.Http.Formatters.JsonNet
 		/// <returns>Returns a deserialized object.</returns>
 		public override object Deserialize(Type type, Stream stream, HttpContentHeaders contentHeaders, IFormatterLogger formatterLogger)
 		{
-			if (this.IsJsonp(contentHeaders.ContentType))
-				throw new NotSupportedException("The JSONP format is output-only.");
 			JsonTextReader reader = new JsonTextReader(new StreamReader(stream)); // don't dispose (stream disposal is handled elsewhere)
-			return this.GetSerializer().Deserialize(reader, type);
+			try
+			{
+				return this.GetSerializer().Deserialize(reader, type);
+			}
+			catch(JsonReaderException exception)
+			{
+				if (this.IsJsonp(contentHeaders.ContentType))
+					throw new NotSupportedException("The JSONP response could not be deserialized. (Possible cause: deserializing JSONP with a JavaScript callback is not supported.)", exception);
+				throw;
+			}
 		}
 
 		/// <summary>Serialize an object into the stream.</summary>
