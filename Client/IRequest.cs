@@ -59,7 +59,7 @@ namespace Pathoschild.Http.Client
 		/// <returns>Returns the request builder for chaining.</returns>
 		/// <example><code>client.WithArguments(new { id = 14, name = "Joe" })</code></example>
 		IRequest WithArguments(object arguments);
-		
+
 		/// <summary>Customize the underlying HTTP request message.</summary>
 		/// <param name="request">The HTTP request message.</param>
 		/// <returns>Returns the request builder for chaining.</returns>

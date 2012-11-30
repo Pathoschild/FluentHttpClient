@@ -1,8 +1,8 @@
 ﻿using System;
 using System.IO;
 using System.Net;
+using System.Net.Http;
 using System.Net.Http.Formatting;
-using System.Net.Http.Headers;
 
 namespace Pathoschild.Http.Formatters
 {
@@ -45,10 +45,10 @@ namespace Pathoschild.Http.Formatters
 		/// <summary>Deserialize an object from the stream.</summary>
 		/// <param name="type">The type of object to read.</param>
 		/// <param name="stream">The stream from which to read.</param>
-		/// <param name="contentHeaders">The HTTP content headers for the content being read.</param>
+		/// <param name="content">The HTTP content being read.</param>
 		/// <param name="formatterLogger">The trace message logger.</param>
 		/// <returns>Returns a deserialized object.</returns>
-		public override object Deserialize(Type type, Stream stream, HttpContentHeaders contentHeaders, IFormatterLogger formatterLogger)
+		public override object Deserialize(Type type, Stream stream, HttpContent content, IFormatterLogger formatterLogger)
 		{
 			var reader = new StreamReader(stream); // don't dispose (stream disposal is handled elsewhere)
 			return reader.ReadToEnd();
@@ -58,9 +58,9 @@ namespace Pathoschild.Http.Formatters
 		/// <param name="type">The type of object to write.</param>
 		/// <param name="value">The object instance to write.</param>
 		/// <param name="stream">The stream to which to write.</param>
-		/// <param name="contentHeaders">The HTTP content headers for the content being written.</param>
+		/// <param name="content">The HTTP content being written.</param>
 		/// <param name="transportContext">The <see cref="TransportContext"/>.</param>
-		public override void Serialize(Type type, object value, Stream stream, HttpContentHeaders contentHeaders, TransportContext transportContext)
+		public override void Serialize(Type type, object value, Stream stream, HttpContent content, TransportContext transportContext)
 		{
 			var writer = new StreamWriter(stream); // don't dispose (stream disposal is handled elsewhere)
 			writer.Write(value != null ? value.ToString() : String.Empty);

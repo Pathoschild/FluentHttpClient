@@ -74,19 +74,19 @@ namespace Pathoschild.Http.Formatters.JsonNet
 		/// <summary>Deserialize an object from the stream.</summary>
 		/// <param name="type">The type of object to read.</param>
 		/// <param name="stream">The stream from which to read.</param>
-		/// <param name="contentHeaders">The HTTP content headers for the content being read.</param>
+		/// <param name="content">The HTTP content being read.</param>
 		/// <param name="formatterLogger">The trace message logger.</param>
 		/// <returns>Returns a deserialized object.</returns>
-		public override object Deserialize(Type type, Stream stream, HttpContentHeaders contentHeaders, IFormatterLogger formatterLogger)
+		public override object Deserialize(Type type, Stream stream, HttpContent content, IFormatterLogger formatterLogger)
 		{
 			JsonTextReader reader = new JsonTextReader(new StreamReader(stream)); // don't dispose (stream disposal is handled elsewhere)
 			try
 			{
 				return this.GetSerializer().Deserialize(reader, type);
 			}
-			catch(JsonReaderException exception)
+			catch (JsonReaderException exception)
 			{
-				if (this.IsJsonp(contentHeaders.ContentType))
+				if (this.IsJsonp(content.Headers.ContentType))
 					throw new NotSupportedException("The JSONP response could not be deserialized. (Possible cause: deserializing JSONP with a JavaScript callback is not supported.)", exception);
 				throw;
 			}
@@ -96,13 +96,13 @@ namespace Pathoschild.Http.Formatters.JsonNet
 		/// <param name="type">The type of object to write.</param>
 		/// <param name="value">The object instance to write.</param>
 		/// <param name="stream">The stream to which to write.</param>
-		/// <param name="contentHeaders">The HTTP content headers for the content being written.</param>
+		/// <param name="content">The HTTP content being written.</param>
 		/// <param name="transportContext">The <see cref="TransportContext"/>.</param>
-		public override void Serialize(Type type, object value, Stream stream, HttpContentHeaders contentHeaders, TransportContext transportContext)
+		public override void Serialize(Type type, object value, Stream stream, HttpContent content, TransportContext transportContext)
 		{
 			JsonTextWriter writer = new JsonTextWriter(new StreamWriter(stream)); // don't dispose (stream disposal is handled elsewhere)
 
-			bool hasCallback = this.IsJsonp(contentHeaders.ContentType);
+			bool hasCallback = this.IsJsonp(content.Headers.ContentType);
 			if (hasCallback)
 			{
 				string callbackName = this.GetCallback(this.Request);

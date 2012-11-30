@@ -53,7 +53,7 @@ namespace Pathoschild.Http.Tests.Formatters
 			using (MemoryStream stream = new MemoryStream())
 			using (StreamReader reader = new StreamReader(stream))
 			{
-				formatter.Serialize(typeof(string), content, stream, request.Content.Headers, null);
+				formatter.Serialize(typeof(string), content, stream, request.Content, null);
 				stream.Position = 0;
 				return reader.ReadToEnd();
 			}
@@ -75,7 +75,7 @@ namespace Pathoschild.Http.Tests.Formatters
 				stream.Position = 0;
 
 				// deserialize
-				return formatter.Deserialize(type, stream, request.Content.Headers, null);
+				return formatter.Deserialize(type, stream, request.Content, null);
 			}
 		}
 	}

@@ -36,7 +36,7 @@ namespace Pathoschild.Http.Tests.Formatters
 		[TestCase("example", Result = "example")]
 		[TestCase("<example />", Result = "<example />")]
 		[TestCase("exam\r\nple", Result = "exam\r\nple")]
-		public string Serialize_String(object content)
+		public string Serialize_String(string content)
 		{
 			// set up
 			PlainTextFormatter formatter = new PlainTextFormatter();
