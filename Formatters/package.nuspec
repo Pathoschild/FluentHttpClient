@@ -2,7 +2,7 @@
 <package>
 	<metadata>
 		<id>Pathoschild.Http.Formatters.Core</id>
-		<version>1.0.0</version>
+		<version>1.0.1</version>
 		<authors>Jesse Plamondon-Willard</authors>
 		<description>A base implementation of the .NET 4.5 MediaTypeFormatter for serializers with an example PlainTextFormatter. This handles the common plumbing code so you only need to implement the "Serialize" and "Deserialize" methods.</description>
 		<licenseUrl>https://creativecommons.org/licenses/by/3.0/</licenseUrl>
@@ -14,6 +14,6 @@
 			<dependency id="Microsoft.Net.Http" version="2.0" />
 			<dependency id="Microsoft.AspNet.WebApi.Client" version="4.0" />
 		</dependencies>
-		<releaseNotes>Migrated to Microsoft's HTTP NuGet packages.</releaseNotes>
+		<releaseNotes>Added a default UTF-8 encoding to fix missing charsets in Web API response headers.</releaseNotes>
 	</metadata>
 </package>
