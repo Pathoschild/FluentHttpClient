@@ -4,6 +4,7 @@ using System.Net;
 using System.Net.Http;
 using System.Net.Http.Formatting;
 using System.Net.Http.Headers;
+using System.Text;
 using System.Threading.Tasks;
 
 namespace Pathoschild.Http.Formatters
@@ -109,5 +110,15 @@ namespace Pathoschild.Http.Formatters
 		/// <param name="content">The HTTP content being written.</param>
 		/// <param name="transportContext">The <see cref="TransportContext"/>.</param>
 		public abstract void Serialize(Type type, object value, Stream stream, HttpContent content, TransportContext transportContext);
+
+
+		/*********
+		** Protected methods
+		*********/
+		/// <summary>Construct an instance.</summary>
+		protected MediaTypeFormatterBase()
+		{
+			this.SupportedEncodings.Add(new UTF8Encoding());
+		}
 	}
 }
