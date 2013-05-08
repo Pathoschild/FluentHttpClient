@@ -2,7 +2,7 @@
 <package>
 	<metadata>
 		<id>Pathoschild.Http.FluentClient</id>
-		<version>1.0.0</version>
+		<version>1.1.0</version>
 		<authors>Jesse Plamondon-Willard</authors>
 		<description>A fluent, strongly-typed HTTP client built on top of Microsoft's .NET 4.5 HttpClient.</description>
 		<licenseUrl>https://creativecommons.org/licenses/by/3.0/</licenseUrl>

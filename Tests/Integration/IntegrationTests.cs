@@ -26,23 +26,39 @@ namespace Pathoschild.Http.Tests.Integration
 				.WithArguments(new { action = "query", meta = "siteinfo", siprop = "general", format = "json" })
 				.As<WikipediaMetadata>();
 
-			// assert
-			Assert.IsNotNull(response, "metadata is null");
-			Assert.IsNotNull(response.Query, "metadata.Query is null.");
-			Assert.IsNotNull(response.Query.General, "metadata.Query.General is null.");
+			this.AssertResponse(response, "First request");
+		}
 
-			response.Query.General
-				.AssertValue(p => p.ArticlePath, "/wiki/$1")
-				.AssertValue(p => p.Base, "http://en.wikipedia.org/wiki/Main_Page")
-				.AssertValue(p => p.Language, "en")
-				.AssertValue(p => p.MainPage, "Main Page")
-				.AssertValue(p => p.MaxUploadSize, 524288000)
-				.AssertValue(p => p.ScriptPath, "/w")
-				.AssertValue(p => p.Server, "//en.wikipedia.org")
-				.AssertValue(p => p.SiteName, "Wikipedia")
-				.AssertValue(p => p.Time.Date, DateTime.UtcNow.Date)
-				.AssertValue(p => p.VariantArticlePath, false)
-				.AssertValue(p => p.WikiID, "enwiki");
+		[Test(Description = "The client response is null if it performs the same request twice. This matches the behaviour of the underlying HTTP client.")]
+		public async void Wikipedia_ResendingRequestSetsResponseToNull()
+		{
+			// arrange
+			IClient client = this.ConstructClient("http://en.wikipedia.org/");
+			IRequest request = client
+				.GetAsync("w/api.php")
+				.WithArguments(new { action = "query", meta = "siteinfo", siprop = "general", format = "json" });
+
+			// act
+			this.AssertResponse(await request.As<WikipediaMetadata>(), "First request");
+
+			// assert
+			Assert.IsNull(await request.WithArgument("limit", "max").As<WikipediaMetadata>(), null);
+		}
+
+		[Test(Description = "The client can resubmit the same request multiple times by cloning it. Normally the HTTP client does not allow a request to be resubmitted.")]
+		public async void Wikipedia_MultipleRequests_Clone()
+		{
+			// arrange
+			IClient client = this.ConstructClient("http://en.wikipedia.org/");
+			var request = client
+				.GetAsync("w/api.php")
+				.WithArguments(new { action = "query", meta = "siteinfo", siprop = "general", format = "json" });
+
+			// act
+			this.AssertResponse(await request.As<WikipediaMetadata>(), "First request");
+
+			// assert
+			this.AssertResponse(await request.Clone().WithArgument("limit", "max").As<WikipediaMetadata>(), "Second request");
 		}
 
 		[Test(Description = "The client can fetch a resource from Wikipedia's API and read the response multiple times.")]
@@ -72,11 +88,34 @@ namespace Pathoschild.Http.Tests.Integration
 		protected IClient ConstructClient(string url)
 		{
 			IClient client = new FluentClient(url);
-			client.Formatters.Clear();
+			client.Formatters.Remove(client.Formatters.JsonFormatter);
 			client.Formatters.Add(new JsonNetFormatter());
 			return client;
 		}
 
+		/// <summary>Performs assertions on the specified Wikimedia metadata.</summary>
+		/// <param name="response">The metadata to assert.</param>
+		/// <param name="prefix">The property name prefix to use within assertion exceptions.</param>
+		protected void AssertResponse(WikipediaMetadata response, string prefix)
+		{
+			// assert
+			Assert.IsNotNull(response, prefix + " metadata is null");
+			Assert.IsNotNull(response.Query, prefix + " metadata.Query is null.");
+			Assert.IsNotNull(response.Query.General, prefix + " metadata.Query.General is null.");
+
+			response.Query.General
+					.AssertValue(p => p.ArticlePath, "/wiki/$1")
+					.AssertValue(p => p.Base, "http://en.wikipedia.org/wiki/Main_Page")
+					.AssertValue(p => p.Language, "en")
+					.AssertValue(p => p.MainPage, "Main Page")
+					.AssertValue(p => p.MaxUploadSize, 524288000)
+					.AssertValue(p => p.ScriptPath, "/w")
+					.AssertValue(p => p.Server, "//en.wikipedia.org")
+					.AssertValue(p => p.SiteName, "Wikipedia")
+					.AssertValue(p => p.Time.Date, DateTime.UtcNow.Date)
+					.AssertValue(p => p.VariantArticlePath, false)
+					.AssertValue(p => p.WikiID, "enwiki");
+		}
 	}
 
 	/// <summary>Object extensions for the <see cref="IntegrationTests"/>.</summary>

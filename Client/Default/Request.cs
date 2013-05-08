@@ -22,8 +22,11 @@ namespace Pathoschild.Http.Client.Default
 		/// <summary>Constructs implementations for the fluent client.</summary>
 		protected IFactory Factory { get; set; }
 
-		/// <summary>Executes an HTTP request.</summary>
-		protected Lazy<Task<HttpResponseMessage>> Dispatcher { get; set; }
+		/// <summary>Executes a new HTTP request.</summary>
+		protected Func<IRequest, Task<HttpResponseMessage>> DispatchNewRequest { get; set; }
+
+		/// <summary>Executes the current HTTP request.</summary>
+		protected Lazy<Task<HttpResponseMessage>> Dispatch { get; set; }
 
 
 		/*********
@@ -51,7 +54,8 @@ namespace Pathoschild.Http.Client.Default
 		{
 			this.Message = message;
 			this.Formatters = formatters;
-			this.Dispatcher = new Lazy<Task<HttpResponseMessage>>(() => dispatcher(this));
+			this.DispatchNewRequest = dispatcher;
+			this.Dispatch = new Lazy<Task<HttpResponseMessage>>(() => dispatcher(this));
 			this.Factory = factory ?? new Factory();
 			this.RaiseErrors = true;
 		}
@@ -157,7 +161,7 @@ namespace Pathoschild.Http.Client.Default
 		/// <exception cref="ApiException">An error occurred processing the response.</exception>
 		public virtual async Task<HttpResponseMessage> AsMessage()
 		{
-			return await this.ValidateResponse(this.Dispatcher.Value).ConfigureAwait(false);
+			return await this.ValidateResponse(this.Dispatch.Value).ConfigureAwait(false);
 		}
 
 		/// <summary>Asynchronously retrieve the response body as a deserialized model.</summary>
@@ -204,6 +208,26 @@ namespace Pathoschild.Http.Client.Default
 			Stream stream = await message.Content.ReadAsStreamAsync().ConfigureAwait(false);
 			stream.Position = 0;
 			return stream;
+		}
+
+		/// <summary>Create a copy of the current request message.</summary>
+		/// <remarks>This lets you create a new request with different parameters in edge cases such as batch queries. Normally the underlying client will not allow you to dispatch the same request message.</remarks>
+		public virtual IRequest Clone()
+		{
+			// create new request
+			HttpRequestMessage message = this.Factory.GetRequestMessage(this.Message.Method, this.Message.RequestUri, this.Formatters);
+			IRequest request = this.Factory.GetRequest(message, this.Formatters, this.DispatchNewRequest);
+
+			// copy values
+			request.Message.Content = this.Message.Content;
+			request.Message.Version = this.Message.Version;
+			request.RaiseErrors = this.RaiseErrors;
+			foreach (var header in this.Message.Headers)
+				request.Message.Headers.Add(header.Key, header.Value);
+			foreach (var property in this.Message.Properties)
+				request.Message.Properties.Add(property.Key, property.Value);
+
+			return request;
 		}
 
 		/***
