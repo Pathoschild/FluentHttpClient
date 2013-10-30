@@ -2,7 +2,7 @@
 <package>
 	<metadata>
 		<id>Pathoschild.Http.FluentClient</id>
-		<version>1.1.0</version>
+		<version>1.2.0</version>
 		<authors>Jesse Plamondon-Willard</authors>
 		<description>A fluent, strongly-typed HTTP client built on top of Microsoft's .NET 4.5 HttpClient.</description>
 		<licenseUrl>https://creativecommons.org/licenses/by/3.0/</licenseUrl>
@@ -11,9 +11,8 @@
 		<requireLicenseAcceptance>false</requireLicenseAcceptance>
 		<tags>api wcf web webapi</tags>
 		<dependencies>
-			<dependency id="Microsoft.Net.Http" version="2.0" />
-			<dependency id="Microsoft.AspNet.WebApi.Client" version="4.0" />
+			<dependency id="Microsoft.AspNet.WebApi.Client" version="5.0" />
 		</dependencies>
-		<releaseNotes>Migrated to Microsoft's HTTP NuGet packages.</releaseNotes>
+		<releaseNotes>Migrated to latest Microsoft packages.</releaseNotes>
 	</metadata>
 </package>
