@@ -108,7 +108,7 @@ namespace Pathoschild.Http.Tests.Integration
 					.AssertValue(p => p.Base, "http://en.wikipedia.org/wiki/Main_Page")
 					.AssertValue(p => p.Language, "en")
 					.AssertValue(p => p.MainPage, "Main Page")
-                    .AssertValue(p => p.MaxUploadSize, 1048576000)
+					.AssertValue(p => p.MaxUploadSize, 1048576000)
 					.AssertValue(p => p.ScriptPath, "/w")
 					.AssertValue(p => p.Server, "//en.wikipedia.org")
 					.AssertValue(p => p.SiteName, "Wikipedia")

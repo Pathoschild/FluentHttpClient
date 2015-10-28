@@ -1,11 +1,12 @@
-﻿using System.Net.Http;
+﻿using System;
+using System.Net.Http;
 using System.Net.Http.Formatting;
 
 namespace Pathoschild.Http.Client
 {
 	/// <summary>Sends HTTP requests and receives responses from REST URIs.</summary>
 	/// <typeparam name="TMessageHandler">The HTTP message handler type.</typeparam>
-	public interface IClient<out TMessageHandler>
+	public interface IClient<out TMessageHandler> : IDisposable
 		where TMessageHandler : HttpMessageHandler
 	{
 		/*********
