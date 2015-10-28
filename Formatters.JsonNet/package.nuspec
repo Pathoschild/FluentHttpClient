@@ -6,7 +6,7 @@
     <authors>Jesse Plamondon-Willard</authors>
     <description>Provides JSON, JSONP, and BSON implementations of the .NET 4.5 MediaTypeFormatter using Json.NET. These can be used by the .NET 4.5 HttpClient and the Web API for serializing content.</description>
     <licenseUrl>https://creativecommons.org/licenses/by/3.0/</licenseUrl>
-    <projectUrl>https://github.com/Pathoschild/Pathoschild.FluentHttpClient#readme</projectUrl>
+    <projectUrl>https://github.com/Pathoschild/FluentHttpClient#readme</projectUrl>
     <iconUrl>https://upload.wikimedia.org/wikipedia/commons/thumb/d/d0/Noun_project_3067.svg/128px-Noun_project_3067.svg.png</iconUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <tags>http wcf webapi</tags>
