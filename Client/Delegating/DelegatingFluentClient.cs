@@ -1,4 +1,5 @@
-﻿using System.Net.Http;
+﻿using System;
+using System.Net.Http;
 using System.Net.Http.Formatting;
 
 namespace Pathoschild.Http.Client.Delegating
@@ -45,6 +46,8 @@ namespace Pathoschild.Http.Client.Delegating
 		/// <returns>Returns a request builder.</returns>
 		public virtual IRequest DeleteAsync(string resource)
 		{
+			this.AssertNotDisposed();
+
 			return this.Implementation.DeleteAsync(resource);
 		}
 
@@ -53,6 +56,8 @@ namespace Pathoschild.Http.Client.Delegating
 		/// <returns>Returns a request builder.</returns>
 		public virtual IRequest GetAsync(string resource)
 		{
+			this.AssertNotDisposed();
+
 			return this.Implementation.GetAsync(resource);
 		}
 
@@ -61,6 +66,8 @@ namespace Pathoschild.Http.Client.Delegating
 		/// <returns>Returns a request builder.</returns>
 		public virtual IRequest PostAsync(string resource)
 		{
+			this.AssertNotDisposed();
+
 			return this.Implementation.PostAsync(resource);
 		}
 
@@ -71,6 +78,8 @@ namespace Pathoschild.Http.Client.Delegating
 		/// <returns>Returns a request builder.</returns>
 		public virtual IRequest PostAsync<TBody>(string resource, TBody body)
 		{
+			this.AssertNotDisposed();
+
 			return this.Implementation.PostAsync<TBody>(resource, body);
 		}
 
@@ -79,6 +88,8 @@ namespace Pathoschild.Http.Client.Delegating
 		/// <returns>Returns a request builder.</returns>
 		public virtual IRequest PutAsync(string resource)
 		{
+			this.AssertNotDisposed();
+
 			return this.Implementation.PutAsync(resource);
 		}
 
@@ -89,6 +100,8 @@ namespace Pathoschild.Http.Client.Delegating
 		/// <returns>Returns a request builder.</returns>
 		public virtual IRequest PutAsync<TBody>(string resource, TBody body)
 		{
+			this.AssertNotDisposed();
+
 			return this.Implementation.PutAsync<TBody>(resource, body);
 		}
 
@@ -98,6 +111,8 @@ namespace Pathoschild.Http.Client.Delegating
 		/// <returns>Returns a request builder.</returns>
 		public virtual IRequest SendAsync(HttpMethod method, string resource)
 		{
+			this.AssertNotDisposed();
+
 			return this.Implementation.SendAsync(method, resource);
 		}
 
@@ -107,6 +122,8 @@ namespace Pathoschild.Http.Client.Delegating
 		/// <remarks>This is the base method which executes every request.</remarks>
 		public virtual IRequest SendAsync(HttpRequestMessage message)
 		{
+			this.AssertNotDisposed();
+
 			return this.Implementation.SendAsync(message);
 		}
 
@@ -119,6 +136,48 @@ namespace Pathoschild.Http.Client.Delegating
 		protected DelegatingFluentClient(IClient<TMessageHandler> client)
 		{
 			this.Implementation = client;
+		}
+
+
+		/*********
+		** Dispose methods
+		*********/
+		/// <summary>Whether the client has been disposed.</summary>
+		private bool _disposed = false;
+
+		// Public implementation of Dispose pattern callable by consumers.
+		void IDisposable.Dispose()
+		{
+			this.Dispose(true);
+			GC.SuppressFinalize(this);
+		}
+
+		/// <summary>Protected implementation of Dispose pattern.</summary>
+		/// <param name="isDisposing">Set if the dispose method was explicitly called.</param>
+		protected virtual void Dispose(bool isDisposing)
+		{
+			if (_disposed)
+				return;
+
+			if (isDisposing)
+			{
+				this.Implementation.Dispose();
+			}
+
+			_disposed = true;
+		}
+
+		/// <summary>Destruct the instance.</summary>
+		~DelegatingFluentClient()
+		{
+			Dispose(false);
+		}
+
+		/// <summary>Assert that the instance is not disposed.</summary>
+		private void AssertNotDisposed()
+		{
+			if (_disposed)
+				throw new ObjectDisposedException(nameof(DelegatingFluentClient<TMessageHandler>));
 		}
 	}
 
