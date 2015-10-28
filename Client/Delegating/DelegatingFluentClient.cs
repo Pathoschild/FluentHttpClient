@@ -1,4 +1,5 @@
-﻿using System.Net.Http;
+﻿using System;
+using System.Net.Http;
 using System.Net.Http.Formatting;
 
 namespace Pathoschild.Http.Client.Delegating
@@ -43,6 +44,7 @@ namespace Pathoschild.Http.Client.Delegating
 		/// <summary>Create an asynchronous HTTP DELETE request message (but don't dispatch it yet).</summary>
 		/// <param name="resource">The URI to send the request to.</param>
 		/// <returns>Returns a request builder.</returns>
+		/// <exception cref="ObjectDisposedException">The instance has been disposed.</exception>
 		public virtual IRequest DeleteAsync(string resource)
 		{
 			return this.Implementation.DeleteAsync(resource);
@@ -51,6 +53,7 @@ namespace Pathoschild.Http.Client.Delegating
 		/// <summary>Create an asynchronous HTTP GET request message (but don't dispatch it yet).</summary>
 		/// <param name="resource">The URI to send the request to.</param>
 		/// <returns>Returns a request builder.</returns>
+		/// <exception cref="ObjectDisposedException">The instance has been disposed.</exception>
 		public virtual IRequest GetAsync(string resource)
 		{
 			return this.Implementation.GetAsync(resource);
@@ -59,6 +62,7 @@ namespace Pathoschild.Http.Client.Delegating
 		/// <summary>Create an asynchronous HTTP POST request message (but don't dispatch it yet).</summary>
 		/// <param name="resource">The URI to send the request to.</param>
 		/// <returns>Returns a request builder.</returns>
+		/// <exception cref="ObjectDisposedException">The instance has been disposed.</exception>
 		public virtual IRequest PostAsync(string resource)
 		{
 			return this.Implementation.PostAsync(resource);
@@ -69,6 +73,7 @@ namespace Pathoschild.Http.Client.Delegating
 		/// <param name="resource">The URI to send the request to.</param>
 		/// <param name="body">The request body.</param>
 		/// <returns>Returns a request builder.</returns>
+		/// <exception cref="ObjectDisposedException">The instance has been disposed.</exception>
 		public virtual IRequest PostAsync<TBody>(string resource, TBody body)
 		{
 			return this.Implementation.PostAsync<TBody>(resource, body);
@@ -77,6 +82,7 @@ namespace Pathoschild.Http.Client.Delegating
 		/// <summary>Create an asynchronous HTTP PUT request message (but don't dispatch it yet).</summary>
 		/// <param name="resource">The URI to send the request to.</param>
 		/// <returns>Returns a request builder.</returns>
+		/// <exception cref="ObjectDisposedException">The instance has been disposed.</exception>
 		public virtual IRequest PutAsync(string resource)
 		{
 			return this.Implementation.PutAsync(resource);
@@ -87,6 +93,7 @@ namespace Pathoschild.Http.Client.Delegating
 		/// <param name="resource">The URI to send the request to.</param>
 		/// <param name="body">The request body.</param>
 		/// <returns>Returns a request builder.</returns>
+		/// <exception cref="ObjectDisposedException">The instance has been disposed.</exception>
 		public virtual IRequest PutAsync<TBody>(string resource, TBody body)
 		{
 			return this.Implementation.PutAsync<TBody>(resource, body);
@@ -96,6 +103,7 @@ namespace Pathoschild.Http.Client.Delegating
 		/// <param name="method">The HTTP method.</param>
 		/// <param name="resource">The URI to send the request to.</param>
 		/// <returns>Returns a request builder.</returns>
+		/// <exception cref="ObjectDisposedException">The instance has been disposed.</exception>
 		public virtual IRequest SendAsync(HttpMethod method, string resource)
 		{
 			return this.Implementation.SendAsync(method, resource);
@@ -105,9 +113,17 @@ namespace Pathoschild.Http.Client.Delegating
 		/// <param name="message">The HTTP request message to send.</param>
 		/// <returns>Returns a request builder.</returns>
 		/// <remarks>This is the base method which executes every request.</remarks>
+		/// <exception cref="ObjectDisposedException">The instance has been disposed.</exception>
 		public virtual IRequest SendAsync(HttpRequestMessage message)
 		{
 			return this.Implementation.SendAsync(message);
+		}
+
+		/// <summary>Free resources used by the client.</summary>
+		public virtual void Dispose()
+		{
+			this.Implementation.Dispose();
+			GC.SuppressFinalize(this);
 		}
 
 
