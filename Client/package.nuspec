@@ -13,6 +13,6 @@
 		<dependencies>
 			<dependency id="Microsoft.AspNet.WebApi.Client" version="5.0" />
 		</dependencies>
-		<releaseNotes>Made DelegateFluentClient and FluentClient implement IDisposable.</releaseNotes>
+		<releaseNotes>The client interfaces are now IDisposable.</releaseNotes>
 	</metadata>
 </package>
