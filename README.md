@@ -57,9 +57,9 @@ When an HTTP request fails, you can find out why by checking the exception objec
 For example:
 ```c#
      /// <summary>Get a value from the API.</summary>
-	 /// <param name="key">The value key.</param>
-	 /// <exception cref="KeyNotFoundException">The key could not be found.</exception>
-	 /// <exception cref="CustomApiExeption">The remote application returned an error message.</exception>
+     /// <param name="key">The value key.</param>
+     /// <exception cref="KeyNotFoundException">The key could not be found.</exception>
+     /// <exception cref="CustomApiExeption">The remote application returned an error message.</exception>
      public async Task<string> GetValue(string key)
      {
         try
@@ -181,7 +181,7 @@ You can then combine decorators to inject the behaviour you want:
            return request;
         }
      }
-	 
+     
      // use the client without worrying about what behaviour is injected
      IClient client = new FluentClient("http://example.org/api/", new CustomFactory());
      Idea idea = await client

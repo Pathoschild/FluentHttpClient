@@ -1,18 +1,18 @@
 ﻿<?xml version="1.0"?>
 <package>
-	<metadata>
-		<id>Pathoschild.Http.FluentClient</id>
-		<version>1.2.1</version>
-		<authors>Jesse Plamondon-Willard</authors>
-		<description>A fluent, strongly-typed HTTP client built on top of Microsoft's .NET 4.5 HttpClient.</description>
-		<licenseUrl>https://creativecommons.org/licenses/by/3.0/</licenseUrl>
-		<projectUrl>https://github.com/Pathoschild/Pathoschild.FluentHttpClient#readme</projectUrl>
-		<iconUrl>https://upload.wikimedia.org/wikipedia/commons/thumb/d/d0/Noun_project_3067.svg/128px-Noun_project_3067.svg.png</iconUrl>
-		<requireLicenseAcceptance>false</requireLicenseAcceptance>
-		<tags>api wcf web webapi</tags>
-		<dependencies>
-			<dependency id="Microsoft.AspNet.WebApi.Client" version="5.0" />
-		</dependencies>
-		<releaseNotes>The client interfaces are now IDisposable.</releaseNotes>
-	</metadata>
+  <metadata>
+    <id>Pathoschild.Http.FluentClient</id>
+    <version>1.2.1</version>
+    <authors>Jesse Plamondon-Willard</authors>
+    <description>A fluent, strongly-typed HTTP client built on top of Microsoft's .NET 4.5 HttpClient.</description>
+    <licenseUrl>https://creativecommons.org/licenses/by/3.0/</licenseUrl>
+    <projectUrl>https://github.com/Pathoschild/Pathoschild.FluentHttpClient#readme</projectUrl>
+    <iconUrl>https://upload.wikimedia.org/wikipedia/commons/thumb/d/d0/Noun_project_3067.svg/128px-Noun_project_3067.svg.png</iconUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <tags>api wcf web webapi</tags>
+    <dependencies>
+      <dependency id="Microsoft.AspNet.WebApi.Client" version="5.0" />
+    </dependencies>
+    <releaseNotes>The client interfaces are now IDisposable.</releaseNotes>
+  </metadata>
 </package>

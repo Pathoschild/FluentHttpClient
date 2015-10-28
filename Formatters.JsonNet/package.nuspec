@@ -1,23 +1,23 @@
 ﻿<?xml version="1.0"?>
 <package>
-	<metadata>
-		<id>Pathoschild.Http.Formatters.JsonNet</id>
-		<version>1.2.0</version>
-		<authors>Jesse Plamondon-Willard</authors>
-		<description>Provides JSON, JSONP, and BSON implementations of the .NET 4.5 MediaTypeFormatter using Json.NET. These can be used by the .NET 4.5 HttpClient and the Web API for serializing content.</description>
-		<licenseUrl>https://creativecommons.org/licenses/by/3.0/</licenseUrl>
-		<projectUrl>https://github.com/Pathoschild/Pathoschild.FluentHttpClient#readme</projectUrl>
-		<iconUrl>https://upload.wikimedia.org/wikipedia/commons/thumb/d/d0/Noun_project_3067.svg/128px-Noun_project_3067.svg.png</iconUrl>
-		<requireLicenseAcceptance>false</requireLicenseAcceptance>
-		<tags>http wcf webapi</tags>
-		<dependencies>
-			<dependency id="Microsoft.AspNet.WebApi.Client" version="5.0" />
-			<dependency id="Newtonsoft.Json" version="4.5" />
-		</dependencies>
-		<releaseNotes>Migrated to latest Microsoft and JSON.NET packages.</releaseNotes>
-	</metadata>
-	<files>
-		<file src="bin\Debug\Pathoschild.Http.Formatters.dll" target="lib\net45" />
-		<file src="bin\Debug\Pathoschild.Http.Formatters.xml" target="lib\net45" />
-	</files>
+  <metadata>
+    <id>Pathoschild.Http.Formatters.JsonNet</id>
+    <version>1.2.0</version>
+    <authors>Jesse Plamondon-Willard</authors>
+    <description>Provides JSON, JSONP, and BSON implementations of the .NET 4.5 MediaTypeFormatter using Json.NET. These can be used by the .NET 4.5 HttpClient and the Web API for serializing content.</description>
+    <licenseUrl>https://creativecommons.org/licenses/by/3.0/</licenseUrl>
+    <projectUrl>https://github.com/Pathoschild/Pathoschild.FluentHttpClient#readme</projectUrl>
+    <iconUrl>https://upload.wikimedia.org/wikipedia/commons/thumb/d/d0/Noun_project_3067.svg/128px-Noun_project_3067.svg.png</iconUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <tags>http wcf webapi</tags>
+    <dependencies>
+      <dependency id="Microsoft.AspNet.WebApi.Client" version="5.0" />
+      <dependency id="Newtonsoft.Json" version="4.5" />
+    </dependencies>
+    <releaseNotes>Migrated to latest Microsoft and JSON.NET packages.</releaseNotes>
+  </metadata>
+  <files>
+    <file src="bin\Debug\Pathoschild.Http.Formatters.dll" target="lib\net45" />
+    <file src="bin\Debug\Pathoschild.Http.Formatters.xml" target="lib\net45" />
+  </files>
 </package>
