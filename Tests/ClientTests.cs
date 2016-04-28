@@ -1,7 +1,6 @@
 ﻿using System.Net.Http;
 using NUnit.Framework;
 using Pathoschild.Http.Client;
-using Pathoschild.Http.Client.Default;
 
 namespace Pathoschild.Http.Tests
 {

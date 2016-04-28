@@ -61,9 +61,6 @@
     <Compile Include="Integration\IntegrationTests.cs" />
     <Compile Include="ResponseTests.cs" />
     <Compile Include="RequestTests.cs" />
-    <Compile Include="Delegating\ClientTests.cs" />
-    <Compile Include="Delegating\Objects\DecoratorTestsBase.cs" />
-    <Compile Include="Delegating\Objects\TestDelegatingClient.cs" />
     <Compile Include="Formatters\JsonNetBsonFormatter.cs" />
     <Compile Include="Formatters\JsonNetFormatter.cs" />
     <Compile Include="Formatters\FormatterTestsBase.cs" />

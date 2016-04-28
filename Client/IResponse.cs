@@ -13,7 +13,7 @@ namespace Pathoschild.Http.Client
         ** Accessors
         *********/
         /// <summary>The formatters used for serializing and deserializing message bodies.</summary>
-        MediaTypeFormatterCollection Formatters { get; set; }
+        MediaTypeFormatterCollection Formatters { get; }
 
 
         /*********

@@ -55,16 +55,15 @@
       <Link>Properties\GlobalAssemblyInfo.cs</Link>
     </Compile>
     <Compile Include="ApiException.cs" />
-    <Compile Include="Default\FluentClientExtensions.cs" />
     <Compile Include="Internal\Factory.cs" />
-    <Compile Include="Default\FluentClient.cs" />
-    <Compile Include="Default\Request.cs" />
-    <Compile Include="Delegating\DelegatingFluentClient.cs" />
+    <Compile Include="Internal\Request.cs" />
     <Compile Include="Extensibility\DefaultErrorFilter.cs" />
     <Compile Include="Extensibility\IHttpFilter.cs" />
     <Compile Include="IClient.cs" />
     <Compile Include="IRequest.cs" />
     <Compile Include="IResponse.cs" />
+    <Compile Include="FluentClientExtensions.cs" />
+    <Compile Include="FluentClient.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup />

@@ -3,7 +3,6 @@ using System.Linq.Expressions;
 using System.Threading.Tasks;
 using NUnit.Framework;
 using Pathoschild.Http.Client;
-using Pathoschild.Http.Client.Default;
 using Pathoschild.Http.Formatters.JsonNet;
 
 namespace Pathoschild.Http.Tests.Integration

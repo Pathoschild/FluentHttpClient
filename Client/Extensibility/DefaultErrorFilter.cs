@@ -1,5 +1,4 @@
-﻿using System;
-using System.Net.Http;
+﻿using System.Net.Http;
 
 namespace Pathoschild.Http.Client.Extensibility
 {
@@ -22,7 +21,7 @@ namespace Pathoschild.Http.Client.Extensibility
             if (responseMessage.IsSuccessStatusCode)
                 return;
 
-            throw new ApiException(response, responseMessage, String.Format("The API query failed with status code {0}: {1}", responseMessage.StatusCode, responseMessage.ReasonPhrase));
+            throw new ApiException(response, responseMessage, $"The API query failed with status code {responseMessage.StatusCode}: {responseMessage.ReasonPhrase}");
         }
     }
 }

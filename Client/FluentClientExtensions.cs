@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Pathoschild.Http.Client.Extensibility;
 
-namespace Pathoschild.Http.Client.Default
+namespace Pathoschild.Http.Client
 {
     /// <summary>Provides convenience methods for configuring the HTTP client.</summary>
     public static class FluentClientExtensions

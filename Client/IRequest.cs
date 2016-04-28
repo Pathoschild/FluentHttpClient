@@ -13,7 +13,7 @@ namespace Pathoschild.Http.Client
         ** Accessors
         *********/
         /// <summary>The underlying HTTP request message.</summary>
-        HttpRequestMessage Message { get; set; }
+        HttpRequestMessage Message { get; }
 
 
         /*********
@@ -70,11 +70,5 @@ namespace Pathoschild.Http.Client
         /// <code>await client.PostAsync("api/ideas", idea);</code>
         /// </example>
         TaskAwaiter<IResponse> GetAwaiter();
-
-        /***
-        ** Synchronize
-        ***/
-        /// <summary>Block the current thread until the asynchronous request completes. This method should only be called if you can't <c>await</c> instead, and may cause thread deadlocks in some circumstances (see https://github.com/Pathoschild/Pathoschild.FluentHttpClient#synchronous-use ).</summary>
-        void Wait();
     }
 }

@@ -9,8 +9,8 @@ using System.Threading;
 using System.Threading.Tasks;
 using NUnit.Framework;
 using Pathoschild.Http.Client;
-using Pathoschild.Http.Client.Default;
 using Pathoschild.Http.Client.Extensibility;
+using Pathoschild.Http.Client.Internal;
 
 namespace Pathoschild.Http.Tests
 {
@@ -127,24 +127,6 @@ namespace Pathoschild.Http.Tests
             Assert.IsTrue(result.IsSuccessStatusCode);
         }
 
-        [Test(Description = "The response can block the current thread without altering the underlying HttpResponseMessage.")]
-        public void Wait()
-        {
-            // arrange
-            bool wasWaited = false;
-            IRequest request = this.ConstructResponseFromTask(() =>
-            {
-                Thread.Sleep(1000);
-                wasWaited = true;
-                return new HttpResponseMessage(HttpStatusCode.OK);
-            });
-
-            // act
-            request.Wait();
-
-            // test
-            Assert.True(wasWaited, "The thread did not wait for the asynchronous task.");
-        }
 
         /*********
         ** Retrieval

@@ -7,8 +7,8 @@ using System.Net.Http.Formatting;
 using System.Threading.Tasks;
 using NUnit.Framework;
 using Pathoschild.Http.Client;
-using Pathoschild.Http.Client.Default;
 using Pathoschild.Http.Client.Extensibility;
+using Pathoschild.Http.Client.Internal;
 
 namespace Pathoschild.Http.Tests
 {
