@@ -45,7 +45,7 @@ namespace Pathoschild.Http.Tests.Formatters
         }
 
         [Test(Description = "Ensure that an object value can be written.")]
-        [TestCase(Result = "&\0\0\0Number\0*\0\0\0Text\0\v\0\0\0fourty-two\0\0")]
+        [TestCase(ExpectedResult = "&\0\0\0Number\0*\0\0\0Text\0\v\0\0\0fourty-two\0\0")]
         public string Serialize_Object()
         {
             // set up

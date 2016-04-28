@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq.Expressions;
+using System.Threading.Tasks;
 using NUnit.Framework;
 using Pathoschild.Http.Client;
 using Pathoschild.Http.Client.Default;
@@ -15,7 +16,7 @@ namespace Pathoschild.Http.Tests.Integration
         ** Unit tests
         *********/
         [Test(Description = "The client can fetch a resource from Wikipedia's API.")]
-        public async void Wikipedia()
+        public async Task Wikipedia()
         {
             // arrange
             IClient client = this.ConstructClient("https://en.wikipedia.org/");
@@ -30,7 +31,7 @@ namespace Pathoschild.Http.Tests.Integration
         }
 
         [Test(Description = "The client response is null if it performs the same request twice. This matches the behaviour of the underlying HTTP client.")]
-        public async void Wikipedia_ResendingRequestSetsResponseToNull()
+        public async Task Wikipedia_ResendingRequestSetsResponseToNull()
         {
             // arrange
             IClient client = this.ConstructClient("http://en.wikipedia.org/");
@@ -46,7 +47,7 @@ namespace Pathoschild.Http.Tests.Integration
         }
 
         [Test(Description = "The client can fetch a resource from Wikipedia's API and read the response multiple times.")]
-        public async void Wikipedia_MultipleReads()
+        public async Task Wikipedia_MultipleReads()
         {
             // arrange
             IClient client = this.ConstructClient("http://en.wikipedia.org/");
@@ -60,7 +61,8 @@ namespace Pathoschild.Http.Tests.Integration
             string valueB = await request.AsString();
 
             // assert
-            Assert.IsNotNullOrEmpty(valueA, "response is null or empty");
+            Assert.IsNotNull(valueA, "response is null");
+            Assert.IsNotEmpty(valueA, "response is empty");
             Assert.AreEqual(valueA, valueB, "second read got a different result");
         }
 

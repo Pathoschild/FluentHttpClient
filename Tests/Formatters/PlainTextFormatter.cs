@@ -13,12 +13,12 @@ namespace Pathoschild.Http.Tests.Formatters
         ** Unit tests
         *********/
         [Test(Description = "Ensure that a string value can be read.")]
-        [TestCase(null, Result = "")]
-        [TestCase("", Result = "")]
-        [TestCase("   ", Result = "   ")]
-        [TestCase("example", Result = "example")]
-        [TestCase("<example />", Result = "<example />")]
-        [TestCase("exam\r\nple", Result = "exam\r\nple")]
+        [TestCase(null, ExpectedResult = "")]
+        [TestCase("", ExpectedResult = "")]
+        [TestCase("   ", ExpectedResult = "   ")]
+        [TestCase("example", ExpectedResult = "example")]
+        [TestCase("<example />", ExpectedResult = "<example />")]
+        [TestCase("exam\r\nple", ExpectedResult = "exam\r\nple")]
         public object Deserialize_String(string content)
         {
             // set up
@@ -30,12 +30,12 @@ namespace Pathoschild.Http.Tests.Formatters
         }
 
         [Test(Description = "Ensure that a string value can be written.")]
-        [TestCase(null, Result = "")]
-        [TestCase("", Result = "")]
-        [TestCase("   ", Result = "   ")]
-        [TestCase("example", Result = "example")]
-        [TestCase("<example />", Result = "<example />")]
-        [TestCase("exam\r\nple", Result = "exam\r\nple")]
+        [TestCase(null, ExpectedResult = "")]
+        [TestCase("", ExpectedResult = "")]
+        [TestCase("   ", ExpectedResult = "   ")]
+        [TestCase("example", ExpectedResult = "example")]
+        [TestCase("<example />", ExpectedResult = "<example />")]
+        [TestCase("exam\r\nple", ExpectedResult = "exam\r\nple")]
         public string Serialize_String(string content)
         {
             // set up
@@ -47,10 +47,10 @@ namespace Pathoschild.Http.Tests.Formatters
         }
 
         [Test(Description = "Ensure that an IFormattable value can be written if AllowIrreversibleSerialization is true.")]
-        [TestCase(typeof(double), 4.2d, Result = "4.2")]
-        [TestCase(typeof(Enum), ConsoleColor.Black, Result = "Black")]
-        [TestCase(typeof(float), 4.2F, Result = "4.2")]
-        [TestCase(typeof(int), 42, Result = "42")]
+        [TestCase(typeof(double), 4.2d, ExpectedResult = "4.2")]
+        [TestCase(typeof(Enum), ConsoleColor.Black, ExpectedResult = "Black")]
+        [TestCase(typeof(float), 4.2F, ExpectedResult = "4.2")]
+        [TestCase(typeof(int), 42, ExpectedResult = "42")]
         public string Serialize_IFormattable(Type type, object content)
         {
             // set up
@@ -62,18 +62,17 @@ namespace Pathoschild.Http.Tests.Formatters
         }
 
         [Test(Description = "Ensure that an IFormattable value cannot be written if AllowIrreversibleSerialization is false.")]
-        [TestCase(typeof(double), 4.2d, ExpectedException = typeof(InvalidOperationException))]
-        [TestCase(typeof(Enum), ConsoleColor.Black, ExpectedException = typeof(InvalidOperationException))]
-        [TestCase(typeof(float), 4.2F, ExpectedException = typeof(InvalidOperationException))]
-        [TestCase(typeof(int), 42, ExpectedException = typeof(InvalidOperationException))]
+        [TestCase(typeof(double), 4.2d)]
+        [TestCase(typeof(Enum), ConsoleColor.Black)]
+        [TestCase(typeof(float), 4.2F)]
+        [TestCase(typeof(int), 42)]
         public void Serialize_IFormattable_WithoutIrreversibleSerialization(Type type, object content)
         {
             // set up
             PlainTextFormatter formatter = new PlainTextFormatter();
-            HttpRequestMessage request = this.GetRequest(content, formatter, type);
 
             // verify
-            this.GetSerialized(content, request, formatter);
+            Assert.Throws<InvalidOperationException>(() => this.GetRequest(content, formatter, type));
         }
     }
 }

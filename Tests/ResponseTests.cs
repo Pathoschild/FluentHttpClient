@@ -83,18 +83,15 @@ namespace Pathoschild.Http.Tests
         ** Infrastructure
         ***/
         [Test(Description = "An appropriate exception is thrown when the task faults or aborts. This is regardless of configuration.")]
-        [TestCase(true, typeof(NotSupportedException), ExpectedException = typeof(NotSupportedException))]
-        [TestCase(false, typeof(NotSupportedException), ExpectedException = typeof(NotSupportedException))]
-        public /*async*/ void Task_Async_FaultHandled(bool throwError, Type exceptionType)
+        [TestCase(true, typeof(NotSupportedException))]
+        [TestCase(false, typeof(NotSupportedException))]
+        public void Task_Async_FaultHandled(bool throwError, Type exceptionType)
         {
-            Assert.Inconclusive("NUnit can't handle async yet.");
-            /*
             // arrange
             IResponse response = this.ConstructResponseFromTask(() => { throw (Exception)Activator.CreateInstance(exceptionType); });
 
             // act
-            string result = await response.AsString();
-            */
+            Assert.ThrowsAsync<NotSupportedException>(async () => await response.AsString());
         }
 
         [Test(Description = "The asynchronous methods really are asynchronous.")]
@@ -189,7 +186,7 @@ namespace Pathoschild.Http.Tests
         }
 
         [Test(Description = "The response can be asynchronously read as a deserialized model.")]
-        [TestCase("model value", Result = "model value")]
+        [TestCase("model value", ExpectedResult = "model value")]
         public string As(string content)
         {
             // arrange
@@ -206,7 +203,7 @@ namespace Pathoschild.Http.Tests
         }
 
         [Test(Description = "The response can be asynchronously read as a byte array.")]
-        [TestCase("model value", Result = "\"model value\"")]
+        [TestCase("model value", ExpectedResult = "\"model value\"")]
         public string AsByteArray(string content)
         {
             // arrange
@@ -223,7 +220,7 @@ namespace Pathoschild.Http.Tests
         }
 
         [Test(Description = "The response can be asynchronously read as a byte array when the content is a model.")]
-        [TestCase("model value", Result = "{\"Value\":\"model value\"}")]
+        [TestCase("model value", ExpectedResult = "{\"Value\":\"model value\"}")]
         public string AsByteArray_OfModel(string content)
         {
             // arrange
@@ -348,7 +345,7 @@ namespace Pathoschild.Http.Tests
         /***
         ** RaiseErrors
         ***/
-        [Test(Description = "An error is thrown when the response contains an error.")]
+        [Test(Description = "No error is thrown when the response is successful.")]
         [TestCase(false, HttpStatusCode.OK)]
         [TestCase(false, HttpStatusCode.Accepted)]
         [TestCase(false, HttpStatusCode.NoContent)]
@@ -356,17 +353,24 @@ namespace Pathoschild.Http.Tests
         [TestCase(true, HttpStatusCode.OK)]
         [TestCase(true, HttpStatusCode.Accepted)]
         [TestCase(true, HttpStatusCode.NoContent)]
-        [TestCase(true, HttpStatusCode.NotFound, ExpectedException = typeof(ApiException))]
-        public /*async*/ void ThrowError(bool throwError, HttpStatusCode status)
+        public void OnSuccess_NoErrorThrown(bool throwError, HttpStatusCode status)
         {
-            Assert.Inconclusive("NUnit can't handle async yet.");
-            /*
             // arrange
             IResponse response = this.ConstructResponse("", throwApiError: throwError, status: status);
 
             // act
-            await response.AsString();
-            */
+            response.AsString().Wait();
+        }
+
+        [Test(Description = "An error is thrown when the response contains an error.")]
+        [TestCase(true, HttpStatusCode.NotFound)]
+        public void OnError_ErrorThrown(bool throwError, HttpStatusCode status)
+        {
+            // arrange
+            IResponse response = this.ConstructResponse("", throwApiError: throwError, status: status);
+
+            // act
+            Assert.ThrowsAsync<ApiException>(async () => await response.AsString());
         }
 
 
@@ -411,7 +415,10 @@ namespace Pathoschild.Http.Tests
                 // construct request
                 var message = responseMessage;
                 Task<HttpResponseMessage> task = Task<HttpResponseMessage>.Factory.StartNew(() => message);
-                IRequest request = new Request(requestMessage, new MediaTypeFormatterCollection(), p => task, new IHttpFilter[0]);
+                IHttpFilter[] filters = throwApiError
+                    ? new IHttpFilter[] { new DefaultErrorFilter() }
+                    : new IHttpFilter[0];
+                IRequest request = new Request(requestMessage, new MediaTypeFormatterCollection(), p => task, filters);
 
                 // verify
                 this.AssertEqual(request.Message, method, uri);
@@ -437,7 +444,7 @@ namespace Pathoschild.Http.Tests
         protected IRequest ConstructResponse<T>(T content, string method = "GET", HttpStatusCode status = HttpStatusCode.OK, string uri = "http://example.org/", bool throwApiError = true, bool inconclusiveOnFailure = true)
         {
             HttpResponseMessage message;
-            return this.ConstructResponse<T>(content, out message, method, status, uri, throwApiError, inconclusiveOnFailure);
+            return this.ConstructResponse(content, out message, method, status, uri, throwApiError, inconclusiveOnFailure);
         }
 
         /// <summary>Construct an <see cref="IResponse"/> instance and assert that its initial state is valid.</summary>
@@ -452,7 +459,7 @@ namespace Pathoschild.Http.Tests
         protected IRequest ConstructResponseForModel<T>(T content, out HttpResponseMessage responseMessage, string method = "GET", HttpStatusCode status = HttpStatusCode.OK, string uri = "http://example.org/", bool inconclusiveOnFailure = true)
         {
             Model<T> model = new Model<T>(content);
-            return this.ConstructResponse<Model<T>>(model, out responseMessage, method, status, uri, inconclusiveOnFailure);
+            return this.ConstructResponse(model, out responseMessage, method, status, uri, inconclusiveOnFailure);
         }
 
         /// <summary>Construct an <see cref="IResponse"/> instance and assert that its initial state is valid.</summary>
@@ -466,7 +473,7 @@ namespace Pathoschild.Http.Tests
         protected IRequest ConstructResponseForModel<T>(T content, string method = "GET", HttpStatusCode status = HttpStatusCode.OK, string uri = "http://example.org/", bool inconclusiveOnFailure = true)
         {
             HttpResponseMessage message;
-            return this.ConstructResponseForModel<T>(content, out message, method, status, uri, inconclusiveOnFailure);
+            return this.ConstructResponseForModel(content, out message, method, status, uri, inconclusiveOnFailure);
         }
 
         /// <summary>Assert that an HTTP request's state matches the expected values.</summary>
