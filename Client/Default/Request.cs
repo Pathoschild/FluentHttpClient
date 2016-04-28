@@ -210,26 +210,6 @@ namespace Pathoschild.Http.Client.Default
             return stream;
         }
 
-        /// <summary>Create a copy of the current request message.</summary>
-        /// <remarks>This lets you create a new request with different parameters in edge cases such as batch queries. Normally the underlying client will not allow you to dispatch the same request message.</remarks>
-        public virtual IRequest Clone()
-        {
-            // create new request
-            HttpRequestMessage message = this.Factory.GetRequestMessage(this.Message.Method, this.Message.RequestUri, this.Formatters);
-            IRequest request = this.Factory.GetRequest(message, this.Formatters, this.DispatchNewRequest);
-
-            // copy values
-            request.Message.Content = this.Message.Content;
-            request.Message.Version = this.Message.Version;
-            request.RaiseErrors = this.RaiseErrors;
-            foreach (var header in this.Message.Headers)
-                request.Message.Headers.Add(header.Key, header.Value);
-            foreach (var property in this.Message.Properties)
-                request.Message.Properties.Add(property.Key, property.Value);
-
-            return request;
-        }
-
         /***
         ** Synchronize
         ***/

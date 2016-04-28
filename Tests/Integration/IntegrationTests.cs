@@ -45,22 +45,6 @@ namespace Pathoschild.Http.Tests.Integration
             Assert.IsNull(await request.WithArgument("limit", "max").As<WikipediaMetadata>(), null);
         }
 
-        [Test(Description = "The client can resubmit the same request multiple times by cloning it. Normally the HTTP client does not allow a request to be resubmitted.")]
-        public async void Wikipedia_MultipleRequests_Clone()
-        {
-            // arrange
-            IClient client = this.ConstructClient("http://en.wikipedia.org/");
-            var request = client
-                .GetAsync("w/api.php")
-                .WithArguments(new { action = "query", meta = "siteinfo", siprop = "general", format = "json" });
-
-            // act
-            this.AssertResponse(await request.As<WikipediaMetadata>(), "First request");
-
-            // assert
-            this.AssertResponse(await request.Clone().WithArgument("limit", "max").As<WikipediaMetadata>(), "Second request");
-        }
-
         [Test(Description = "The client can fetch a resource from Wikipedia's API and read the response multiple times.")]
         public async void Wikipedia_MultipleReads()
         {

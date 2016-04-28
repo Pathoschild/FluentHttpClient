@@ -181,13 +181,6 @@ namespace Pathoschild.Http.Client.Delegating
             return this.Implementation.AsStream();
         }
 
-        /// <summary>Create a copy of the current request message.</summary>
-        /// <remarks>This lets you create a new request with different parameters in edge cases such as batch queries. Normally the underlying client will not allow you to dispatch the same request message.</remarks>
-        public virtual IRequest Clone()
-        {
-            return this.Implementation.Clone();
-        }
-
         /***
         ** Synchronize
         ***/
