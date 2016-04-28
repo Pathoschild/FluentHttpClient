@@ -4,12 +4,13 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
 using System.Linq;
-using System.Net;
 using System.Net.Http;
 using System.Net.Http.Formatting;
 using System.Net.Http.Headers;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
+using Pathoschild.Http.Client.Extensibility;
+using Pathoschild.Http.Client.Internal;
 
 namespace Pathoschild.Http.Client.Default
 {
@@ -19,8 +20,8 @@ namespace Pathoschild.Http.Client.Default
         /*********
         ** Properties
         *********/
-        /// <summary>Constructs implementations for the fluent client.</summary>
-        protected IFactory Factory { get; set; }
+        /// <summary>Middleware classes which can intercept and modify HTTP requests and responses.</summary>
+        protected IHttpFilter[] Filters { get; set; }
 
         /// <summary>Executes a new HTTP request.</summary>
         protected Func<IRequest, Task<HttpResponseMessage>> DispatchNewRequest { get; set; }
@@ -38,9 +39,6 @@ namespace Pathoschild.Http.Client.Default
         /// <summary>The formatters used for serializing and deserializing message bodies.</summary>
         public MediaTypeFormatterCollection Formatters { get; set; }
 
-        /// <summary>Whether to handle errors from the upstream server by throwing an exception.</summary>
-        public bool RaiseErrors { get; set; }
-
 
         /*********
         ** Public methods
@@ -49,15 +47,14 @@ namespace Pathoschild.Http.Client.Default
         /// <param name="message">The underlying HTTP request message.</param>
         /// <param name="formatters">The formatters used for serializing and deserializing message bodies.</param>
         /// <param name="dispatcher">Executes an HTTP request.</param>
-        /// <param name="factory">Constructs implementations for the fluent client.</param>
-        public Request(HttpRequestMessage message, MediaTypeFormatterCollection formatters, Func<IRequest, Task<HttpResponseMessage>> dispatcher, IFactory factory = null)
+        /// <param name="filters">Middleware classes which can intercept and modify HTTP requests and responses.</param>
+        public Request(HttpRequestMessage message, MediaTypeFormatterCollection formatters, Func<IRequest, Task<HttpResponseMessage>> dispatcher, IHttpFilter[] filters)
         {
             this.Message = message;
             this.Formatters = formatters;
             this.DispatchNewRequest = dispatcher;
             this.Dispatch = new Lazy<Task<HttpResponseMessage>>(() => dispatcher(this));
-            this.Factory = factory ?? new Factory();
-            this.RaiseErrors = true;
+            this.Filters = filters;
         }
 
         /***
@@ -70,9 +67,9 @@ namespace Pathoschild.Http.Client.Default
         /// <exception cref="InvalidOperationException">No MediaTypeFormatters are available on the API client for this content type.</exception>
         public virtual IRequest WithBody<T>(T body, MediaTypeHeaderValue contentType = null)
         {
-            MediaTypeFormatter formatter = this.Factory.GetFormatter(this.Formatters, contentType);
+            MediaTypeFormatter formatter = Factory.GetFormatter(this.Formatters, contentType);
             string mediaType = contentType != null ? contentType.MediaType : null;
-            return this.WithBody<T>(body, formatter, mediaType);
+            return this.WithBody(body, formatter, mediaType);
         }
 
         /// <summary>Set the body content of the HTTP request.</summary>
@@ -161,7 +158,7 @@ namespace Pathoschild.Http.Client.Default
         /// <exception cref="ApiException">An error occurred processing the response.</exception>
         public virtual async Task<HttpResponseMessage> AsMessage()
         {
-            return await this.ValidateResponse(this.Dispatch.Value).ConfigureAwait(false);
+            return await this.GetResponse(this.Dispatch.Value).ConfigureAwait(false);
         }
 
         /// <summary>Asynchronously retrieve the response body as a deserialized model.</summary>
@@ -214,7 +211,6 @@ namespace Pathoschild.Http.Client.Default
         ** Synchronize
         ***/
         /// <summary>Block the current thread until the asynchronous request completes. This method should only be called if you can't <c>await</c> instead, and may cause thread deadlocks in some circumstances (see https://github.com/Pathoschild/Pathoschild.FluentHttpClient#synchronous-use ).</summary>
-        /// <exception cref="AggregateException">The HTTP response returned a non-success <see cref="HttpStatusCode"/> and <see cref="RaiseErrors"/> is <c>true</c>.</exception>
         public void Wait()
         {
             this.AsMessage().Wait();
@@ -225,21 +221,14 @@ namespace Pathoschild.Http.Client.Default
         *********/
         /// <summary>Validate the HTTP response and raise any errors in the response as exceptions.</summary>
         /// <param name="request">The response message to validate.</param>
-        /// <exception cref="ApiException">The HTTP response returned a non-success <see cref="HttpStatusCode"/> and <see cref="RaiseErrors"/> is <c>true</c>.</exception>
-        protected async Task<HttpResponseMessage> ValidateResponse(Task<HttpResponseMessage> request)
+        protected async Task<HttpResponseMessage> GetResponse(Task<HttpResponseMessage> request)
         {
+            foreach (IHttpFilter filter in this.Filters)
+                filter.OnRequest(this, this.Message);
             HttpResponseMessage response = await request.ConfigureAwait(false);
-            await this.ValidateResponse(response).ConfigureAwait(false);
+            foreach (IHttpFilter filter in this.Filters)
+                filter.OnResponse(this, response);
             return response;
-        }
-
-        /// <summary>Validate the HTTP response and raise any errors in the response as exceptions.</summary>
-        /// <param name="message">The response message to validate.</param>
-        /// <exception cref="ApiException">The HTTP response returned a non-success <see cref="HttpStatusCode"/> and <see cref="RaiseErrors"/> is <c>true</c>.</exception>
-        protected virtual async Task ValidateResponse(HttpResponseMessage message)
-        {
-            if (this.RaiseErrors && !message.IsSuccessStatusCode)
-                throw new ApiException(this, message, String.Format("The API query failed with status code {0}: {1}", message.StatusCode, message.ReasonPhrase));
         }
 
         /// <summary>Get the key=>value pairs represented by a dictionary or anonymous object.</summary>

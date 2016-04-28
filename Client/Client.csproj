@@ -56,13 +56,13 @@
       <Link>Properties\GlobalAssemblyInfo.cs</Link>
     </Compile>
     <Compile Include="ApiException.cs" />
-    <Compile Include="Default\Factory.cs" />
+    <Compile Include="Internal\Factory.cs" />
     <Compile Include="Default\FluentClient.cs" />
     <Compile Include="Default\Request.cs" />
     <Compile Include="Delegating\DelegatingFluentClient.cs" />
-    <Compile Include="Delegating\DelegatingRequest.cs" />
+    <Compile Include="Extensibility\DefaultErrorFilter.cs" />
+    <Compile Include="Extensibility\IHttpFilter.cs" />
     <Compile Include="IClient.cs" />
-    <Compile Include="IFactory.cs" />
     <Compile Include="IRequest.cs" />
     <Compile Include="IResponse.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

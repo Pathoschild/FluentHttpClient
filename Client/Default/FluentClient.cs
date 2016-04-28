@@ -1,6 +1,9 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Net.Http;
 using System.Net.Http.Formatting;
+using Pathoschild.Http.Client.Extensibility;
+using Pathoschild.Http.Client.Internal;
 
 namespace Pathoschild.Http.Client.Default
 {
@@ -12,16 +15,16 @@ namespace Pathoschild.Http.Client.Default
         /*********
         ** Properties
         *********/
-        /// <summary>Constructs implementations for the fluent client.</summary>
-        public IFactory Factory { get; protected set; }
-
         /// <summary>Whether the instance has been disposed.</summary>
-        private bool _disposed;
+        private bool IsDisposed;
 
 
         /*********
         ** Accessors
         *********/
+        /// <summary>Interceptors which can read and modify HTTP requests and responses.</summary>
+        protected List<IHttpFilter> Filters { get; private set; }
+
         /// <summary>The underlying HTTP client.</summary>
         public HttpClient BaseClient { get; protected set; }
 
@@ -39,11 +42,9 @@ namespace Pathoschild.Http.Client.Default
         /// <param name="client">The underlying HTTP client.</param>
         /// <param name="handler">The underlying HTTP message handler. This should be the same handler used by the <paramref name="client"/>.</param>
         /// <param name="baseUri">The base URI prepended to relative request URIs.</param>
-        /// <param name="factory">Constructs implementations for the fluent client.</param>
-        public FluentClient(HttpClient client, TMessageHandler handler, string baseUri = null, IFactory factory = null)
-            : this()
+        public FluentClient(HttpClient client, TMessageHandler handler, string baseUri = null)
         {
-            this.Initialize(client, handler, baseUri, factory);
+            this.Initialize(client, handler, baseUri);
         }
 
         /// <summary>Create an asynchronous HTTP DELETE request message (but don't dispatch it yet).</summary>
@@ -114,7 +115,7 @@ namespace Pathoschild.Http.Client.Default
             this.AssertNotDisposed();
 
             Uri uri = new Uri(this.BaseClient.BaseAddress, resource);
-            HttpRequestMessage message = this.Factory.GetRequestMessage(method, uri, this.Formatters);
+            HttpRequestMessage message = Factory.GetRequestMessage(method, uri, this.Formatters);
             return this.SendAsync(message);
         }
 
@@ -125,7 +126,7 @@ namespace Pathoschild.Http.Client.Default
         public virtual IRequest SendAsync(HttpRequestMessage message)
         {
             this.AssertNotDisposed();
-            return this.Factory.GetRequest(message, this.Formatters, request => this.BaseClient.SendAsync(request.Message));
+            return new Request(message, this.Formatters, request => this.BaseClient.SendAsync(request.Message), this.Filters.ToArray());
         }
 
         /// <summary>Free resources used by the client.</summary>
@@ -139,35 +140,31 @@ namespace Pathoschild.Http.Client.Default
         /*********
         ** Protected methods
         *********/
-        /// <summary>Construct an uninitialized instance.</summary>
-        protected FluentClient()
-        {
-            this.Factory = new Factory();
-        }
+        /// <summary>Construct an uninitialized instance. This constructor should only be called internally.</summary>
+        protected internal FluentClient() { }
 
         /// <summary>Initialize the client.</summary>
         /// <param name="client">The underlying HTTP client.</param>
         /// <param name="handler">The underlying HTTP message handler. This should be the same handler used by the <paramref name="client"/>.</param>
         /// <param name="baseUri">The base URI prepended to relative request URIs.</param>
-        /// <param name="factory">Constructs implementations for the fluent client.</param>
         /// <exception cref="ObjectDisposedException">The instance has been disposed.</exception>
-        protected void Initialize(HttpClient client, TMessageHandler handler, string baseUri = null, IFactory factory = null)
+        protected void Initialize(HttpClient client, TMessageHandler handler, string baseUri = null)
         {
             this.AssertNotDisposed();
 
             this.MessageHandler = handler;
             this.BaseClient = client;
-            this.Factory = factory ?? new Factory();
+            this.Filters = new List<IHttpFilter> { new DefaultErrorFilter() };
             if (baseUri != null)
                 this.BaseClient.BaseAddress = new Uri(baseUri);
-            this.Formatters = this.Factory.GetDefaultFormatters();
+            this.Formatters = new MediaTypeFormatterCollection();
         }
 
         /// <summary>Assert that the instance has not been disposed.</summary>
         /// <exception cref="ObjectDisposedException">The instance has been disposed.</exception>
         protected void AssertNotDisposed()
         {
-            if (this._disposed)
+            if (this.IsDisposed)
                 throw new ObjectDisposedException(nameof(FluentClient<TMessageHandler>));
         }
 
@@ -175,7 +172,7 @@ namespace Pathoschild.Http.Client.Default
         /// <param name="isDisposing">Whether the dispose method was explicitly called.</param>
         protected virtual void Dispose(bool isDisposing)
         {
-            if (this._disposed)
+            if (this.IsDisposed)
                 return;
 
             if (isDisposing)
@@ -184,7 +181,7 @@ namespace Pathoschild.Http.Client.Default
                 this.BaseClient.Dispose();
             }
 
-            this._disposed = true;
+            this.IsDisposed = true;
         }
 
         /// <summary>Destruct the instance.</summary>
@@ -201,17 +198,15 @@ namespace Pathoschild.Http.Client.Default
         /// <param name="client">The underlying HTTP client.</param>
         /// <param name="handler">The underlying HTTP message handler. This should be the same handler used by the <paramref name="client"/>.</param>
         /// <param name="baseUri">The base URI prepended to relative request URIs.</param>
-        /// <param name="factory">Constructs implementations for the fluent client.</param>
-        public FluentClient(HttpClient client, HttpClientHandler handler, string baseUri = null, IFactory factory = null)
-            : base(client, handler, baseUri, factory) { }
+        public FluentClient(HttpClient client, HttpClientHandler handler, string baseUri = null)
+            : base(client, handler, baseUri) { }
 
         /// <summary>Construct an instance.</summary>
         /// <param name="baseUri">The base URI prepended to relative request URIs.</param>
-        /// <param name="factory">Constructs implementations for the fluent client.</param>
-        public FluentClient(string baseUri, IFactory factory = null)
+        public FluentClient(string baseUri)
         {
             var handler = new HttpClientHandler();
-            this.Initialize(new HttpClient(handler), handler, baseUri, factory);
+            this.Initialize(new HttpClient(handler), handler, baseUri);
         }
     }
 }

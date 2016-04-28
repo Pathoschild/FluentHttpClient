@@ -8,8 +8,9 @@ using System.Threading.Tasks;
 using NUnit.Framework;
 using Pathoschild.Http.Client;
 using Pathoschild.Http.Client.Default;
+using Pathoschild.Http.Client.Extensibility;
 
-namespace Pathoschild.Http.Tests.Default
+namespace Pathoschild.Http.Tests
 {
     /// <summary>Integration tests verifying that the default <see cref="Request"/> correctly creates and alters the underlying objects.</summary>
     [TestFixture]
@@ -223,7 +224,7 @@ namespace Pathoschild.Http.Tests.Default
                 HttpRequestMessage message = new HttpRequestMessage(method, uri);
 
                 // execute
-                IRequest request = new Request(message, new MediaTypeFormatterCollection(), r => new Task<HttpResponseMessage>(() => null));
+                IRequest request = new Request(message, new MediaTypeFormatterCollection(), r => new Task<HttpResponseMessage>(() => null), new IHttpFilter[0]);
 
                 // verify
                 this.AssertEqual(request.Message, method, uri);

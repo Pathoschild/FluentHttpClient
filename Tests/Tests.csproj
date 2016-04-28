@@ -58,15 +58,13 @@
     <Reference Include="System.Net.Http.WebRequest" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Default\ClientTests.cs" />
+    <Compile Include="ClientTests.cs" />
     <Compile Include="Integration\IntegrationTests.cs" />
-    <Compile Include="Default\ResponseTests.cs" />
-    <Compile Include="Default\RequestTests.cs" />
+    <Compile Include="ResponseTests.cs" />
+    <Compile Include="RequestTests.cs" />
     <Compile Include="Delegating\ClientTests.cs" />
     <Compile Include="Delegating\Objects\DecoratorTestsBase.cs" />
     <Compile Include="Delegating\Objects\TestDelegatingClient.cs" />
-    <Compile Include="Delegating\Objects\TestDelegatingRequest.cs" />
-    <Compile Include="Delegating\RequestTests.cs" />
     <Compile Include="Formatters\JsonNetBsonFormatter.cs" />
     <Compile Include="Formatters\JsonNetFormatter.cs" />
     <Compile Include="Formatters\FormatterTestsBase.cs" />
