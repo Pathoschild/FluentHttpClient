@@ -18,19 +18,19 @@ namespace Pathoschild.Http.Tests.Formatters
         ** Json
         ***/
         [Test(Description = "A JSON value can be deserialized.")]
-        [TestCase(typeof(bool), "true", Result = true)]
-        [TestCase(typeof(bool?), "true", Result = true)]
-        [TestCase(typeof(bool?), null, Result = null)]
-        [TestCase(typeof(int), "14", Result = 14)]
-        [TestCase(typeof(double), "4.2", Result = 4.2d)]
-        [TestCase(typeof(ConsoleColor), "'Black'", Result = ConsoleColor.Black)]
-        [TestCase(typeof(float), "4.2", Result = 4.2f)]
-        [TestCase(typeof(string), null, Result = null)]
-        [TestCase(typeof(string), "''", Result = "")]
-        [TestCase(typeof(string), "'   '", Result = "   ")]
-        [TestCase(typeof(string), "'example'", Result = "example")]
-        [TestCase(typeof(string), "'<example />'", Result = "<example />")]
-        [TestCase(typeof(string), "'exam\r\nple'", Result = "exam\r\nple")]
+        [TestCase(typeof(bool), "true", ExpectedResult = true)]
+        [TestCase(typeof(bool?), "true", ExpectedResult = true)]
+        [TestCase(typeof(bool?), null, ExpectedResult = null)]
+        [TestCase(typeof(int), "14", ExpectedResult = 14)]
+        [TestCase(typeof(double), "4.2", ExpectedResult = 4.2d)]
+        [TestCase(typeof(ConsoleColor), "'Black'", ExpectedResult = ConsoleColor.Black)]
+        [TestCase(typeof(float), "4.2", ExpectedResult = 4.2f)]
+        [TestCase(typeof(string), null, ExpectedResult = null)]
+        [TestCase(typeof(string), "''", ExpectedResult = "")]
+        [TestCase(typeof(string), "'   '", ExpectedResult = "   ")]
+        [TestCase(typeof(string), "'example'", ExpectedResult = "example")]
+        [TestCase(typeof(string), "'<example />'", ExpectedResult = "<example />")]
+        [TestCase(typeof(string), "'exam\r\nple'", ExpectedResult = "exam\r\nple")]
         public object Json_Deserialize(Type type, string content)
         {
             // set up
@@ -42,14 +42,14 @@ namespace Pathoschild.Http.Tests.Formatters
         }
 
         [Test(Description = "A value can be serialized into JSON.")]
-        [TestCase(typeof(bool?), true, Result = "true")]
-        [TestCase(typeof(bool?), null, Result = "null")]
-        [TestCase(typeof(string), null, Result = "null")]
-        [TestCase(typeof(string), "", Result = "\"\"")]
-        [TestCase(typeof(string), "   ", Result = "\"   \"")]
-        [TestCase(typeof(string), "example", Result = "\"example\"")]
-        [TestCase(typeof(string), "<example />", Result = "\"<example />\"")]
-        [TestCase(typeof(string), "exam\r\nple", Result = "\"exam\\r\\nple\"")]
+        [TestCase(typeof(bool?), true, ExpectedResult = "true")]
+        [TestCase(typeof(bool?), null, ExpectedResult = "null")]
+        [TestCase(typeof(string), null, ExpectedResult = "null")]
+        [TestCase(typeof(string), "", ExpectedResult = "\"\"")]
+        [TestCase(typeof(string), "   ", ExpectedResult = "\"   \"")]
+        [TestCase(typeof(string), "example", ExpectedResult = "\"example\"")]
+        [TestCase(typeof(string), "<example />", ExpectedResult = "\"<example />\"")]
+        [TestCase(typeof(string), "exam\r\nple", ExpectedResult = "\"exam\\r\\nple\"")]
         public string Json_Serialize(Type type, object content)
         {
             // set up
@@ -63,10 +63,9 @@ namespace Pathoschild.Http.Tests.Formatters
         /***
         ** Jsonp
         ***/
-        [Test(Description = "The formatter correctly deserializes JSONP without a callback, or throws an exception if the JSONP content contains a callback.")]
-        [TestCase("\"value\"", Result = "value")]
-        [TestCase("callback(\"value\")", ExpectedException = typeof(NotSupportedException))]
-        public string Jsonp_Deserialize(string content)
+        [Test(Description = "The formatter correctly deserializes JSONP without a callback.")]
+        [TestCase("\"value\"", ExpectedResult = "value")]
+        public string Jsonp_Deserialize_WithoutCallback(string content)
         {
             // set up
             JsonNetFormatter formatter = new JsonNetFormatter();
@@ -76,15 +75,27 @@ namespace Pathoschild.Http.Tests.Formatters
             return (string)this.GetDeserialized(typeof(string), content, request, formatter);
         }
 
+        [Test(Description = "The formatter correctly throws an exception if the JSONP content contains a callback.")]
+        [TestCase("callback(\"value\")")]
+        public void Jsonp_Deserialize_FailsWithCallback(string content)
+        {
+            // set up
+            JsonNetFormatter formatter = new JsonNetFormatter();
+            HttpRequestMessage request = this.GetRequest(content, formatter, "application/javascript");
+
+            // verify
+            Assert.Throws<NotSupportedException>(() => this.GetDeserialized(typeof(string), content, request, formatter));
+        }
+
         [Test(Description = "A value can be serialized into JSONP.")]
-        [TestCase(typeof(bool?), true, Result = "callback(true)")]
-        [TestCase(typeof(bool?), null, Result = "callback(null)")]
-        [TestCase(typeof(string), null, Result = "callback(null)")]
-        [TestCase(typeof(string), "", Result = "callback(\"\")")]
-        [TestCase(typeof(string), "   ", Result = "callback(\"   \")")]
-        [TestCase(typeof(string), "example", Result = "callback(\"example\")")]
-        [TestCase(typeof(string), "<example />", Result = "callback(\"<example />\")")]
-        [TestCase(typeof(string), "exam\r\nple", Result = "callback(\"exam\\r\\nple\")")]
+        [TestCase(typeof(bool?), true, ExpectedResult = "callback(true)")]
+        [TestCase(typeof(bool?), null, ExpectedResult = "callback(null)")]
+        [TestCase(typeof(string), null, ExpectedResult = "callback(null)")]
+        [TestCase(typeof(string), "", ExpectedResult = "callback(\"\")")]
+        [TestCase(typeof(string), "   ", ExpectedResult = "callback(\"   \")")]
+        [TestCase(typeof(string), "example", ExpectedResult = "callback(\"example\")")]
+        [TestCase(typeof(string), "<example />", ExpectedResult = "callback(\"<example />\")")]
+        [TestCase(typeof(string), "exam\r\nple", ExpectedResult = "callback(\"exam\\r\\nple\")")]
         public string Jsonp_Serialize(Type type, object content)
         {
             // set up
@@ -96,10 +107,10 @@ namespace Pathoschild.Http.Tests.Formatters
         }
 
         [Test(Description = "The JSONP serialization respects the 'callback' query parameter to define the JavaScript method name.")]
-        [TestCase("callback", 42, Result = "callback(42)")]
-        [TestCase("example", 42, Result = "example(42)")]
-        [TestCase("object.example", 42, Result = "object.example(42)")]
-        [TestCase("examples[14]", 42, Result = "examples[14](42)")]
+        [TestCase("callback", 42, ExpectedResult = "callback(42)")]
+        [TestCase("example", 42, ExpectedResult = "example(42)")]
+        [TestCase("object.example", 42, ExpectedResult = "object.example(42)")]
+        [TestCase("examples[14]", 42, ExpectedResult = "examples[14](42)")]
         public string Jsonp_Serialize_WithCustomCallbackMethod(string callbackMethod, int content)
         {
             // set up

@@ -3,28 +3,15 @@ using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Formatting;
 using System.Net.Http.Headers;
-using System.Threading.Tasks;
 
-namespace Pathoschild.Http.Client.Default
+namespace Pathoschild.Http.Client.Internal
 {
-    /// <summary>Constructs implementations for the fluent client.</summary>
-    public class Factory : IFactory
+    /// <summary>Internal helper for constructing instances.</summary>
+    internal static class Factory
     {
         /*********
         ** Public methods
         *********/
-        /***
-        ** Fluent objects
-        ***/
-        /// <summary>Construct an asynchronous HTTP request.</summary>
-        /// <param name="message">The underlying HTTP request message.</param>
-        /// <param name="formatters">The formatters used for serializing and deserializing message bodies.</param>
-        /// <param name="dispatcher">Executes an HTTP request.</param>
-        public virtual IRequest GetRequest(HttpRequestMessage message, MediaTypeFormatterCollection formatters, Func<IRequest, Task<HttpResponseMessage>> dispatcher)
-        {
-            return new Request(message, formatters, dispatcher, this);
-        }
-
         /***
         ** HttpClient
         ***/
@@ -32,7 +19,7 @@ namespace Pathoschild.Http.Client.Default
         /// <param name="formatters">The formatters used for serializing and deserializing message bodies.</param>
         /// <param name="contentType">The HTTP content type (or <c>null</c> to automatically select one).</param>
         /// <exception cref="InvalidOperationException">No MediaTypeFormatters are available on the API client for this content type.</exception>
-        public virtual MediaTypeFormatter GetFormatter(MediaTypeFormatterCollection formatters, MediaTypeHeaderValue contentType = null)
+        public static MediaTypeFormatter GetFormatter(MediaTypeFormatterCollection formatters, MediaTypeHeaderValue contentType = null)
         {
             if (!formatters.Any())
                 throw new InvalidOperationException("No MediaTypeFormatters are available on the fluent client.");
@@ -46,17 +33,11 @@ namespace Pathoschild.Http.Client.Default
             return formatter;
         }
 
-        /// <summary>Get the default media type formatters used by the client.</summary>
-        public virtual MediaTypeFormatterCollection GetDefaultFormatters()
-        {
-            return new MediaTypeFormatterCollection();
-        }
-
         /// <summary>Construct an HTTP request message.</summary>
         /// <param name="method">The HTTP method.</param>
         /// <param name="resource">The URI to send the request to.</param>
         /// <param name="formatters">The formatters used for serializing and deserializing message bodies.</param>
-        public virtual HttpRequestMessage GetRequestMessage(HttpMethod method, Uri resource, MediaTypeFormatterCollection formatters)
+        public static HttpRequestMessage GetRequestMessage(HttpMethod method, Uri resource, MediaTypeFormatterCollection formatters)
         {
             HttpRequestMessage request = new HttpRequestMessage(method, resource);
 

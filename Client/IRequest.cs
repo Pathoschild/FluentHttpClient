@@ -1,5 +1,4 @@
 using System;
-using System.Net;
 using System.Net.Http;
 using System.Net.Http.Formatting;
 using System.Net.Http.Headers;
@@ -14,7 +13,7 @@ namespace Pathoschild.Http.Client
         ** Accessors
         *********/
         /// <summary>The underlying HTTP request message.</summary>
-        HttpRequestMessage Message { get; set; }
+        HttpRequestMessage Message { get; }
 
 
         /*********
@@ -71,16 +70,5 @@ namespace Pathoschild.Http.Client
         /// <code>await client.PostAsync("api/ideas", idea);</code>
         /// </example>
         TaskAwaiter<IResponse> GetAwaiter();
-
-        /// <summary>Create a copy of the current request message.</summary>
-        /// <remarks>This lets you create a new request with different parameters in edge cases such as batch queries. Normally the underlying client will not allow you to dispatch the same request message.</remarks>
-        IRequest Clone();
-
-        /***
-        ** Synchronize
-        ***/
-        /// <summary>Block the current thread until the asynchronous request completes. This method should only be called if you can't <c>await</c> instead, and may cause thread deadlocks in some circumstances (see https://github.com/Pathoschild/Pathoschild.FluentHttpClient#synchronous-use ).</summary>
-        /// <exception cref="AggregateException">The HTTP response returned a non-success <see cref="HttpStatusCode"/> and <see cref="ThrowError"/> is <c>true</c>.</exception>
-        void Wait();
     }
 }

@@ -7,9 +7,10 @@ using System.Net.Http.Formatting;
 using System.Threading.Tasks;
 using NUnit.Framework;
 using Pathoschild.Http.Client;
-using Pathoschild.Http.Client.Default;
+using Pathoschild.Http.Client.Extensibility;
+using Pathoschild.Http.Client.Internal;
 
-namespace Pathoschild.Http.Tests.Default
+namespace Pathoschild.Http.Tests
 {
     /// <summary>Integration tests verifying that the default <see cref="Request"/> correctly creates and alters the underlying objects.</summary>
     [TestFixture]
@@ -204,61 +205,6 @@ namespace Pathoschild.Http.Tests.Default
             Assert.That(header.Value.First(), Is.EqualTo(value), "The header value is invalid.");
         }
 
-        [Test(Description = "Ensure that Clone correctly copies the original request.")]
-        [TestCase("DELETE", "http://example.org/", "VIA", "header value")]
-        [TestCase("GET", "http://example.org/", "VIA", "header value")]
-        [TestCase("HEAD", "http://example.org/", "VIA", "header value")]
-        [TestCase("PUT", "http://example.org/", "VIA", "header value")]
-        [TestCase("OPTIONS", "http://example.org/", "VIA", "header value")]
-        [TestCase("POST", "http://example.org/", "VIA", "header value")]
-        [TestCase("TRACE", "http://example.org/", "VIA", "header value")]
-        public void Clone(string methodName, string uri, string headerKey, string headerValue)
-        {
-            // set up
-            const string host = "example.org";
-            const int maxForwards = 3;
-            Version version = new Version(1, 2, 3, 4);
-
-            // execute
-            IRequest request = this
-                .ConstructRequest(methodName, uri)
-                .WithHeader(headerKey, headerValue);
-
-            request.Message.Headers.Host = host;
-            request.Message.Headers.MaxForwards = maxForwards;
-            request.Message.Version = version;
-            request.Message.Properties.Add(Guid.NewGuid().ToString(), Guid.NewGuid().ToString());
-
-            var clonedRequest = request.Clone();
-
-            var header = clonedRequest.Message.Headers.FirstOrDefault(p => p.Key == headerKey);
-
-            // verify request
-            this.AssertEqual(clonedRequest.Message, methodName, ignoreArguments: true);
-            Assert.That(header, Is.Not.Null, "The header is invalid.");
-            Assert.That(header.Value, Is.Not.Null.Or.Empty, "The header value is invalid.");
-            Assert.That(header.Value.First(), Is.EqualTo(headerValue), "The header value is invalid.");
-            Assert.That(request.Formatters, Is.EqualTo(clonedRequest.Formatters), "The formatters are invalid.");
-
-            // verify message
-            Assert.That(request.Message, Is.Not.Null, "The request Message is invalid.");
-            Assert.That(request.Message.Content, Is.EqualTo(clonedRequest.Message.Content), "The request Content is invalid.");
-            Assert.That(request.Message.Method, Is.EqualTo(clonedRequest.Message.Method), "The request Method is invalid.");
-            Assert.That(request.Message.RequestUri, Is.EqualTo(clonedRequest.Message.RequestUri), "The request RequestUri is invalid.");
-            Assert.That(request.Message.Version, Is.EqualTo(clonedRequest.Message.Version), "The request Version is invalid.");
-            Assert.That(request.RaiseErrors, Is.EqualTo(clonedRequest.RaiseErrors), "The formatters are invalid.");
-
-            // verify collections
-            foreach (var reqHeader in request.Message.Headers)
-                CollectionAssert.AreEquivalent(reqHeader.Value, clonedRequest.Message.Headers.GetValues(reqHeader.Key));
-            foreach (var property in request.Message.Properties)
-                Assert.AreEqual(property.Value, clonedRequest.Message.Properties[property.Key]);
-
-            Assert.That(clonedRequest.Message.Headers.MaxForwards, Is.EqualTo(3));
-            Assert.That(clonedRequest.Message.Headers.Host, Is.EqualTo(host));
-            Assert.That(clonedRequest.Message.Version, Is.EqualTo(new Version(1, 2, 3, 4)));
-        }
-
 
         /*********
         ** Protected methods
@@ -278,7 +224,7 @@ namespace Pathoschild.Http.Tests.Default
                 HttpRequestMessage message = new HttpRequestMessage(method, uri);
 
                 // execute
-                IRequest request = new Request(message, new MediaTypeFormatterCollection(), r => new Task<HttpResponseMessage>(() => null));
+                IRequest request = new Request(message, new MediaTypeFormatterCollection(), r => new Task<HttpResponseMessage>(() => null), new IHttpFilter[0]);
 
                 // verify
                 this.AssertEqual(request.Message, method, uri);

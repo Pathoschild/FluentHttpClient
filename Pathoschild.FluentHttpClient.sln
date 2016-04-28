@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2013
-VisualStudioVersion = 12.0.30110.0
+# Visual Studio 14
+VisualStudioVersion = 14.0.25123.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Client", "Client\Client.csproj", "{B1D02CCF-5DF5-4678-AD54-243DEFB92032}"
 EndProject
@@ -9,23 +9,15 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Formatters.JsonNet", "Forma
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tests", "Tests\Tests.csproj", "{4531E61C-D06A-42AD-B631-EE9DFB532602}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Scaffolding", "Scaffolding", "{E4A79030-4C0D-40D9-9A44-7321A74140FF}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "~metadata", "~metadata", "{E4A79030-4C0D-40D9-9A44-7321A74140FF}"
 	ProjectSection(SolutionItems) = preProject
 		.gitignore = .gitignore
 		GlobalAssemblyInfo.cs = GlobalAssemblyInfo.cs
 		README.md = README.md
+		packages\repositories.config = packages\repositories.config
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Formatters", "Formatters\Formatters.csproj", "{CE9BD284-6128-48F5-BBAA-76B58B2F6A62}"
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{1A832B8D-1B0A-47DB-964A-2168C8AA3CF4}"
-	ProjectSection(SolutionItems) = preProject
-		.nuget\NuGet.Config = .nuget\NuGet.Config
-		.nuget\NuGet.exe = .nuget\NuGet.exe
-		.nuget\NuGet.targets = .nuget\NuGet.targets
-		Packages.dgml = Packages.dgml
-		packages\repositories.config = packages\repositories.config
-	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

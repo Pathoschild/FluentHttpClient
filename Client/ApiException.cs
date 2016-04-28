@@ -13,7 +13,7 @@ namespace Pathoschild.Http.Client
         /// <summary>The HTTP status of the response.</summary>
         public HttpStatusCode Status { get; protected set; }
 
-        /// <summary>The HTTP response which caused the exception. (This provides response body deserialization for further handling, but you should probably make sure <see cref="IResponse.RaiseErrors"/> is <c>false</c> before using it.)</summary>
+        /// <summary>The HTTP response which caused the exception.</summary>
         public IResponse Response { get; protected set; }
 
         /// <summary>The HTTP response message which caused the exception.</summary>
