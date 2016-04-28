@@ -18,7 +18,7 @@ namespace Pathoschild.Http.Tests.Integration
         public async void Wikipedia()
         {
             // arrange
-            IClient client = this.ConstructClient("http://en.wikipedia.org/");
+            IClient client = this.ConstructClient("https://en.wikipedia.org/");
 
             // act
             WikipediaMetadata response = await client
@@ -105,10 +105,10 @@ namespace Pathoschild.Http.Tests.Integration
 
             response.Query.General
                 .AssertValue(p => p.ArticlePath, "/wiki/$1")
-                .AssertValue(p => p.Base, "http://en.wikipedia.org/wiki/Main_Page")
+                .AssertValue(p => p.Base, "https://en.wikipedia.org/wiki/Main_Page")
                 .AssertValue(p => p.Language, "en")
                 .AssertValue(p => p.MainPage, "Main Page")
-                .AssertValue(p => p.MaxUploadSize, 1048576000)
+                .AssertValue(p => p.MaxUploadSize, 4294967296)
                 .AssertValue(p => p.ScriptPath, "/w")
                 .AssertValue(p => p.Server, "//en.wikipedia.org")
                 .AssertValue(p => p.SiteName, "Wikipedia")
