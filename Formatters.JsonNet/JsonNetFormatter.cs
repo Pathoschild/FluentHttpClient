@@ -59,13 +59,11 @@ namespace Pathoschild.Http.Formatters.JsonNet
             JsonNetFormatter formatter = new JsonNetFormatter(request)
             {
                 CallbackParameterName = this.CallbackParameterName,
-                RequiredMemberSelector = this.RequiredMemberSelector,
                 SerializerSettings = this.SerializerSettings
             };
 
             // copy configuration
             this
-                .OverwriteList(this.MediaTypeMappings, formatter.MediaTypeMappings)
                 .OverwriteList(this.SupportedMediaTypes, formatter.SupportedMediaTypes)
                 .OverwriteList(this.SupportedEncodings, formatter.SupportedEncodings);
             return formatter;

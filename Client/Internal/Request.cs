@@ -1,12 +1,12 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Formatting;
 using System.Net.Http.Headers;
+using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using Pathoschild.Http.Client.Extensibility;
@@ -116,7 +116,7 @@ namespace Pathoschild.Http.Client.Internal
             var query = this.Message.RequestUri.ParseQueryString();
             foreach (var pair in dictionary)
                 query.Add(pair.Key, (pair.Value ?? "").ToString());
-            string uri = this.Message.RequestUri.GetLeftPart(UriPartial.Path) + "?" + query;
+            string uri = this.Message.RequestUri.GetComponents(UriComponents.SchemeAndServer | UriComponents.UserInfo | UriComponents.Path, UriFormat.Unescaped) + "?" + query;
             this.Message.RequestUri = new Uri(uri);
 
             return this;
@@ -241,9 +241,9 @@ namespace Pathoschild.Http.Client.Internal
             }
 
             // object
-            return TypeDescriptor
-                .GetProperties(arguments)
-                .Cast<PropertyDescriptor>()
+            return arguments.GetType()
+                .GetRuntimeProperties()
+                .Where(p => p.CanRead)
                 .ToDictionary(p => p.Name, p => p.GetValue(arguments));
         }
     }

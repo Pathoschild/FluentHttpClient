@@ -2,9 +2,9 @@
 <package>
   <metadata>
     <id>Pathoschild.Http.FluentClient</id>
-    <version>2.0.0</version>
+    <version>2.1.0</version>
     <authors>Jesse Plamondon-Willard</authors>
-    <description>An easy fluent strongly-typed HTTP REST client built on top of the .NET 4.5 HttpClient.</description>
+    <description>An easy asynchronous HTTP client for REST APIs. It provides a fluent interface that lets you create an HTTP request, dispatch and wait for it, and parse the response.</description>
     <licenseUrl>https://creativecommons.org/licenses/by/3.0/</licenseUrl>
     <projectUrl>https://github.com/Pathoschild/FluentHttpClient#readme</projectUrl>
     <iconUrl>https://upload.wikimedia.org/wikipedia/commons/thumb/d/d0/Noun_project_3067.svg/128px-Noun_project_3067.svg.png</iconUrl>
@@ -13,6 +13,6 @@
     <dependencies>
       <dependency id="Microsoft.AspNet.WebApi.Client" version="5.0" />
     </dependencies>
-    <releaseNotes>Revamped extensibility; see the updated readme if you currently customise the client.</releaseNotes>
+    <releaseNotes>Migrated to PCL for cross-platform support.</releaseNotes>
   </metadata>
 </package>

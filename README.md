@@ -1,6 +1,10 @@
-**Pathoschild.FluentHttpClient** is an easy strongly-typed asynchronous REST API client, built on top of the .NET 4.5 [HttpClient][]. The client provides a single fluent interface that lets you create an HTTP request, dispatch and wait for it, and process the response. The client will automatically inject any required HTTP configuration (like `User-Agent` and `Accept` headers) and handle the plumbing code.
+**Pathoschild.FluentHttpClient** is an easy asynchronous HTTP client for REST APIs. It provides a fluent interface that lets you create an HTTP request, dispatch and wait for it, and parse the response. The client takes care of the gritty details for you (like deserialisation, [content negotiation][], and URL encoding), and is easy to extend and customise.
 
-The fluent client is available as the [Pathoschild.Http.FluentClient][] NuGet package.
+## Installing
+The fluent client is [available on NuGet][Pathoschild.Http.FluentClient]:
+> Install-Package Pathoschild.Http.FluentClient
+
+This is a portable library compatible with multiple platforms (.NET 4.5+, Windows 8+ apps, Universal Windows Platform, and ASP.NET Core 1.0).
 
 ## Using the client
 ### Basic usage
@@ -137,24 +141,18 @@ var client = new FluentClient("http://example.org/api/", new HttpClient(handler)
 ```
 
 [AggregateException]: http://msdn.microsoft.com/en-us/library/system.aggregateexception.aspx
-[HttpClient]: http://code.msdn.microsoft.com/Introduction-to-HttpClient-4a2d9cee
+[HttpClient]: https://msdn.microsoft.com/en-us/library/system.net.http.httpclient.aspx
 [HttpClientHandler]: http://msdn.microsoft.com/en-us/library/system.net.http.httpclienthandler.aspx
-[HttpRequestMessage]: http://msdn.microsoft.com/en-us/library/system.net.http.httprequestmessage.aspx
 [MediaTypeFormatter]: http://msdn.microsoft.com/en-us/library/system.net.http.formatting.mediatypeformatter.aspx
 
 [Json.NET]: http://james.newtonking.com/projects/json-net.aspx
 [BSON]: https://en.wikipedia.org/wiki/BSON
 [content negotiation]: http://en.wikipedia.org/wiki/Content_negotiation
-[decorator pattern]: http://en.wikipedia.org/wiki/Decorator_pattern
 [JSON]: https://en.wikipedia.org/wiki/JSON
 [JSONP]: https://en.wikipedia.org/wiki/JSONP
-[MiniProfiler]: http://miniprofiler.com/
 
 [IClient]: https://github.com/Pathoschild/Pathoschild.FluentHttpClient/blob/master/Client/IClient.cs#L6
 [IRequest]: https://github.com/Pathoschild/Pathoschild.FluentHttpClient/blob/master/Client/IRequest.cs#L12
-[MediaTypeFormatterBase]: https://github.com/Pathoschild/Pathoschild.FluentHttpClient/blob/master/Formatters/MediaTypeFormatterBase.cs#L10
-[JsonNetBsonFormatter]: https://github.com/Pathoschild/Pathoschild.FluentHttpClient/blob/master/Formatters.JsonNet/JsonNetBsonFormatter.cs#L11
-[JsonNetFormatter]: https://github.com/Pathoschild/Pathoschild.FluentHttpClient/blob/master/Formatters.JsonNet/JsonNetFormatter.cs#L10
 
 [Pathoschild.Http.FluentClient]: https://nuget.org/packages/Pathoschild.Http.FluentClient
 [Pathoschild.Http.Formatters.Core]: https://nuget.org/packages/Pathoschild.Http.Formatters.Core

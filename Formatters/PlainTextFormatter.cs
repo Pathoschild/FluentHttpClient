@@ -3,6 +3,7 @@ using System.IO;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Formatting;
+using System.Reflection;
 
 namespace Pathoschild.Http.Formatters
 {
@@ -39,7 +40,7 @@ namespace Pathoschild.Http.Formatters
         /// <returns>true if this <see cref="MediaTypeFormatter"/> can serialize an object of that type; otherwise false.</returns>
         public override bool CanWriteType(Type type)
         {
-            return type == typeof(string) || (this.AllowIrreversibleSerialization && typeof(IFormattable).IsAssignableFrom(type));
+            return type == typeof(string) || (this.AllowIrreversibleSerialization && typeof(IFormattable).GetTypeInfo().IsAssignableFrom(type.GetTypeInfo()));
         }
 
         /// <summary>Deserialize an object from the stream.</summary>

@@ -74,16 +74,16 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Client\Client.csproj">
-      <Project>{B1D02CCF-5DF5-4678-AD54-243DEFB92032}</Project>
+      <Project>{bdf3c6e5-f4cd-4478-95aa-01d6f39928df}</Project>
       <Name>Client</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Formatters\Formatters.csproj">
-      <Project>{ce9bd284-6128-48f5-bbaa-76b58b2f6a62}</Project>
-      <Name>Formatters</Name>
-    </ProjectReference>
     <ProjectReference Include="..\Formatters.JsonNet\Formatters.JsonNet.csproj">
-      <Project>{cd970965-13a8-4323-a8a4-d319d81d6dc0}</Project>
+      <Project>{b1c44b41-b260-4e43-9323-ae74ce5861e9}</Project>
       <Name>Formatters.JsonNet</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Formatters\Formatters.csproj">
+      <Project>{1aac0412-8caf-49fe-aef8-dc30786c90ab}</Project>
+      <Name>Formatters</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
