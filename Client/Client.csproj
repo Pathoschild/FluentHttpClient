@@ -52,6 +52,7 @@
     <Compile Include="IClient.cs" />
     <Compile Include="Internal\Factory.cs" />
     <Compile Include="Internal\Request.cs" />
+    <Compile Include="Internal\UriExtensions.cs" />
     <Compile Include="IRequest.cs" />
     <Compile Include="IResponse.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

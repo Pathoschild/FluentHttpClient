@@ -102,7 +102,8 @@ namespace Pathoschild.Http.Client.Internal
         /// <returns>Returns the request builder for chaining.</returns>
         public IRequest WithArgument(string key, object value)
         {
-            return this.WithArguments(new Dictionary<string, object>(1) { { key, value } });
+            this.Message.RequestUri = this.Message.RequestUri.WithArguments(new KeyValuePair<string, object>(key, value));
+            return this;
         }
 
         /// <summary>Add HTTP query string arguments.</summary>
@@ -111,14 +112,7 @@ namespace Pathoschild.Http.Client.Internal
         /// <example><code>client.WithArguments(new { id = 14, name = "Joe" })</code></example>
         public IRequest WithArguments(object arguments)
         {
-            IDictionary<string, object> dictionary = this.GetArguments(arguments);
-
-            var query = this.Message.RequestUri.ParseQueryString();
-            foreach (var pair in dictionary)
-                query.Add(pair.Key, (pair.Value ?? "").ToString());
-            string uri = this.Message.RequestUri.GetComponents(UriComponents.SchemeAndServer | UriComponents.UserInfo | UriComponents.Path, UriFormat.Unescaped) + "?" + query;
-            this.Message.RequestUri = new Uri(uri);
-
+            this.Message.RequestUri = this.Message.RequestUri.WithArguments(this.GetArguments(arguments).ToArray());
             return this;
         }
 
