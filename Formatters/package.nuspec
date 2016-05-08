@@ -11,7 +11,7 @@
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <tags>http wcf webapi rest</tags>
     <dependencies>
-      <dependency id="Microsoft.AspNet.WebApi.Client" version="5.0" />
+      <dependency id="Microsoft.AspNet.WebApi.Client" version="5.2" />
     </dependencies>
     <releaseNotes>Migrated to PCL for cross-platform support.</releaseNotes>
   </metadata>

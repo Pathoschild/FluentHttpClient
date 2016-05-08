@@ -9,9 +9,9 @@
     <projectUrl>https://github.com/Pathoschild/FluentHttpClient#readme</projectUrl>
     <iconUrl>https://upload.wikimedia.org/wikipedia/commons/thumb/d/d0/Noun_project_3067.svg/128px-Noun_project_3067.svg.png</iconUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
-    <tags>api wcf web webapi</tags>
+    <tags>wcf web webapi httpclient</tags>
     <dependencies>
-      <dependency id="Microsoft.AspNet.WebApi.Client" version="5.0" />
+      <dependency id="Microsoft.AspNet.WebApi.Client" version="5.2" />
     </dependencies>
     <releaseNotes>Migrated to PCL for cross-platform support.</releaseNotes>
   </metadata>
