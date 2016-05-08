@@ -117,7 +117,7 @@ You can even rewrite HTTP responses from the server before they're parsed if you
 ### Custom formats
 By default the client uses `HttpClient`'s default formatters, which includes basic JSON and XML support.
 
-The optional [Pathoschild.Http.Formatters.JsonNet][] NuGet package adds support for three formats using the popular [Json.NET][] library: [BSON][] (`application/bson`), [JSON][] (`application/json`, `text/json`), and [JSONP][] (`application/javascript`, `application/ecmascript`, `text/javascript`, `text/ecmascript`). After installing the package, just register it with the client:
+The optional [Pathoschild.Http.Formatters.JsonNet][] NuGet package uses the popular [Json.NET][] library to provide [BSON][] (`application/bson`) and [JSON][] (`application/json`, `text/json`) support. After installing the package, just register it with the client:
 ```c#
 client.Formatters.Remove(client.Formatters.JsonFormatter); // or client.Formatters.Clear();
 client.Formatters.Add(new JsonNetFormatter());
