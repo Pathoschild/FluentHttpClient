@@ -33,13 +33,13 @@ namespace Pathoschild.Http.Tests
         }
 
         [Test(Description = "Ensure that WithArgument appends the query arguments to the request message and does not incorrectly alter request state.")]
-        [TestCase("DELETE", "keyA", "24", "keyB", "42")]
-        [TestCase("GET", "keyA", "24", "keyB", "42")]
-        [TestCase("HEAD", "keyA", "24", "keyB", "42")]
-        [TestCase("PUT", "keyA", "24", "keyB", "42")]
-        [TestCase("OPTIONS", "keyA", "24", "keyB", "42")]
-        [TestCase("POST", "keyA", "24", "keyB", "42")]
-        [TestCase("TRACE", "keyA", "24", "keyB", "42")]
+        [TestCase("DELETE", "keyA", "24", "key:!@#$%^&*()_+-=?'\"", "value:!@#$%^&*()_+-=?'\"")]
+        [TestCase("GET", "keyA", "24", "key:!@#$%^&*()_+-=?'\"", "value:!@#$%^&*()_+-=?'\"")]
+        [TestCase("HEAD", "keyA", "24", "key:!@#$%^&*()_+-=?'\"", "value:!@#$%^&*()_+-=?'\"")]
+        [TestCase("PUT", "keyA", "24", "key:!@#$%^&*()_+-=?'\"", "value:!@#$%^&*()_+-=?'\"")]
+        [TestCase("OPTIONS", "keyA", "24", "key:!@#$%^&*()_+-=?'\"", "value:!@#$%^&*()_+-=?'\"")]
+        [TestCase("POST", "keyA", "24", "key:!@#$%^&*()_+-=?'\"", "value:!@#$%^&*()_+-=?'\"")]
+        [TestCase("TRACE", "keyA", "24", "key:!@#$%^&*()_+-=?'\"", "value:!@#$%^&*()_+-=?'\"")]
         public void WithArgument(string methodName, string keyA, string valueA, string keyB, string valueB)
         {
             // execute
@@ -55,14 +55,36 @@ namespace Pathoschild.Http.Tests
             Assert.That(arguments[keyB], Is.Not.Null.And.EqualTo(valueB), "The second key=>value pair is invalid.");
         }
 
+        [Test(Description = "Ensure that WithArgument correctly allows duplicate keys.")]
+        [TestCase("DELETE", "keyA", "value A", "value B")]
+        [TestCase("GET", "keyA", "value A", "value B")]
+        [TestCase("HEAD", "keyA", "value A", "value B")]
+        [TestCase("PUT", "keyA", "value A", "value B")]
+        [TestCase("OPTIONS", "keyA", "value A", "value B")]
+        [TestCase("POST", "keyA", "value A", "value B")]
+        [TestCase("TRACE", "keyA", "value A", "value B")]
+        public void WithArgument_AllowsDuplicateKeys(string methodName, string keyA, string valueA, string valueB)
+        {
+            // execute
+            IRequest request = this
+                .ConstructRequest(methodName)
+                .WithArgument(keyA, valueA)
+                .WithArgument(keyA, valueB);
+
+            // verify
+            this.AssertEqual(request.Message, methodName, ignoreArguments: true);
+            NameValueCollection arguments = request.Message.RequestUri.ParseQueryString();
+            Assert.That(arguments.GetValues(keyA), Is.Not.Null.And.EqualTo(new[] { valueA, valueB }), "The values don't match.");
+        }
+
         [Test(Description = "Ensure that WithArguments (with a dictionary) appends the query arguments to the request message and does not incorrectly alter request state.")]
-        [TestCase("DELETE", "keyA", "24", "keyB", "42")]
-        [TestCase("GET", "keyA", "24", "keyB", "42")]
-        [TestCase("HEAD", "keyA", "24", "keyB", "42")]
-        [TestCase("PUT", "keyA", "24", "keyB", "42")]
-        [TestCase("OPTIONS", "keyA", "24", "keyB", "42")]
-        [TestCase("POST", "keyA", "24", "keyB", "42")]
-        [TestCase("TRACE", "keyA", "24", "keyB", "42")]
+        [TestCase("DELETE", "keyA", "24", "key:!@#$%^&*()_+-=?'\"", "value:!@#$%^&*()_+-=?'\"")]
+        [TestCase("GET", "keyA", "24", "key:!@#$%^&*()_+-=?'\"", "value:!@#$%^&*()_+-=?'\"")]
+        [TestCase("HEAD", "keyA", "24", "key:!@#$%^&*()_+-=?'\"", "value:!@#$%^&*()_+-=?'\"")]
+        [TestCase("PUT", "keyA", "24", "key:!@#$%^&*()_+-=?'\"", "value:!@#$%^&*()_+-=?'\"")]
+        [TestCase("OPTIONS", "keyA", "24", "key:!@#$%^&*()_+-=?'\"", "value:!@#$%^&*()_+-=?'\"")]
+        [TestCase("POST", "keyA", "24", "key:!@#$%^&*()_+-=?'\"", "value:!@#$%^&*()_+-=?'\"")]
+        [TestCase("TRACE", "keyA", "24", "key:!@#$%^&*()_+-=?'\"", "value:!@#$%^&*()_+-=?'\"")]
         public void WithArguments_Dictionary(string methodName, string keyA, string valueA, string keyB, string valueB)
         {
             // execute
@@ -78,13 +100,13 @@ namespace Pathoschild.Http.Tests
         }
 
         [Test(Description = "Ensure that WithArguments (with an object) appends the query arguments to the request message and does not incorrectly alter request state.")]
-        [TestCase("DELETE", "24", "42")]
-        [TestCase("GET", "24", "42")]
-        [TestCase("HEAD", "24", "42")]
-        [TestCase("PUT", "24", "42")]
-        [TestCase("OPTIONS", "24", "42")]
-        [TestCase("POST", "24", "42")]
-        [TestCase("TRACE", "24", "42")]
+        [TestCase("DELETE", "24", "!@#$%^&*()_+-=?'\"")]
+        [TestCase("GET", "24", "!@#$%^&*()_+-=?'\"")]
+        [TestCase("HEAD", "24", "!@#$%^&*()_+-=?'\"")]
+        [TestCase("PUT", "24", "!@#$%^&*()_+-=?'\"")]
+        [TestCase("OPTIONS", "24", "!@#$%^&*()_+-=?'\"")]
+        [TestCase("POST", "24", "!@#$%^&*()_+-=?'\"")]
+        [TestCase("TRACE", "24", "!@#$%^&*()_+-=?'\"")]
         public void WithArguments_Object(string methodName, string valueA, string valueB)
         {
             // execute
