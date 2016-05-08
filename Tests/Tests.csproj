@@ -61,7 +61,7 @@
     <Compile Include="Integration\IntegrationTests.cs" />
     <Compile Include="ResponseTests.cs" />
     <Compile Include="RequestTests.cs" />
-    <Compile Include="Formatters\JsonNetBsonFormatter.cs" />
+    <Compile Include="Formatters\BsonFormatter.cs" />
     <Compile Include="Formatters\JsonNetFormatter.cs" />
     <Compile Include="Formatters\FormatterTestsBase.cs" />
     <Compile Include="Formatters\PlainTextFormatter.cs" />

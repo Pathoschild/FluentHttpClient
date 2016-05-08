@@ -10,6 +10,7 @@ using Newtonsoft.Json;
 namespace Pathoschild.Http.Formatters.JsonNet
 {
     /// <summary>Serializes and deserializes data as JSON.</summary>
+    [Obsolete("This formatter is no longer needed — HttpClient and Web API now use Json.NET by default.")]
     public class JsonNetFormatter : MediaTypeFormatterBase
     {
         /*********

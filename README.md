@@ -80,6 +80,14 @@ client.PostAsync("items", new Item()).AsMessage().Wait();
 ```
 
 ## Customising the client
+### Custom formats
+By default the client supports JSON and XML. The client recognises the [`MediaTypeFormatter` interface][MediaTypeFormatter], so you can easily add different formats:
+```c#
+client.Formatters.Add(new BsonFormatter());
+```
+
+You can use [one of the many `MediaTypeFormatter` implementations](https://www.nuget.org/packages?q=MediaTypeFormatter), use the BSON formatter from the [Pathoschild.Http.Formatters.JsonNet][] package, or create your own (optionally using the [Pathoschild.Http.Formatters.Core][] package to simplify your implementation).
+
 ### Custom behaviour
 You can customise the client by injecting your own `IHttpFilter` classes, which intercept outgoing requests and incoming responses. Each filter can read and change the underlying HTTP requests (e.g. for authentication) and responses (e.g. for error handling). For example, you can easily replace the default error handling (see _Error handling_ above):
 ```c#
@@ -113,17 +121,6 @@ public void OnRequest(IRequest request, HttpRequestMessage requestMessage)
 ```
 
 You can even rewrite HTTP responses from the server before they're parsed if you want to.
-
-### Custom formats
-By default the client uses `HttpClient`'s default formatters, which includes basic JSON and XML support.
-
-The optional [Pathoschild.Http.Formatters.JsonNet][] NuGet package uses the popular [Json.NET][] library to provide [BSON][] (`application/bson`) and [JSON][] (`application/json`, `text/json`) support. After installing the package, just register it with the client:
-```c#
-client.Formatters.Remove(client.Formatters.JsonFormatter); // or client.Formatters.Clear();
-client.Formatters.Add(new JsonNetFormatter());
-```
-
-You can also use any other [MediaTypeFormatter][], or create your own (optionally using the [Pathoschild.Http.Formatters.Core][] package to simplify your implementation).
 
 ### Custom HTTP client
 For really advanced scenarios, you can customise the underlying [HttpClient][] and [HttpClientHandler][]:
