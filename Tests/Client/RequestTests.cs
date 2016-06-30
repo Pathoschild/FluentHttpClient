@@ -1,10 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Collections.Specialized;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Formatting;
 using System.Threading.Tasks;
+using Microsoft.AspNet.WebUtilities;
 using NUnit.Framework;
 using Pathoschild.Http.Client;
 using Pathoschild.Http.Client.Extensibility;
@@ -50,7 +49,7 @@ namespace Pathoschild.Http.Tests.Client
 
             // verify
             this.AssertEqual(request.Message, methodName, ignoreArguments: true);
-            NameValueCollection arguments = request.Message.RequestUri.ParseQueryString();
+            var arguments = QueryHelpers.ParseQuery(request.Message.RequestUri.Query);
             Assert.That(arguments[keyA], Is.Not.Null.And.EqualTo(valueA), "The first key=>value pair is invalid.");
             Assert.That(arguments[keyB], Is.Not.Null.And.EqualTo(valueB), "The second key=>value pair is invalid.");
         }
@@ -73,8 +72,8 @@ namespace Pathoschild.Http.Tests.Client
 
             // verify
             this.AssertEqual(request.Message, methodName, ignoreArguments: true);
-            NameValueCollection arguments = request.Message.RequestUri.ParseQueryString();
-            Assert.That(arguments.GetValues(keyA), Is.Not.Null.And.EqualTo(new[] { valueA, valueB }), "The values don't match.");
+            var arguments = QueryHelpers.ParseQuery(request.Message.RequestUri.Query);
+            Assert.That(arguments[keyA], Is.Not.Null.And.EqualTo(new[] { valueA, valueB }), "The values don't match.");
         }
 
         [Test(Description = "Ensure that WithArguments (with a dictionary) appends the query arguments to the request message and does not incorrectly alter request state.")]
@@ -94,7 +93,7 @@ namespace Pathoschild.Http.Tests.Client
 
             // verify
             this.AssertEqual(request.Message, methodName, ignoreArguments: true);
-            NameValueCollection arguments = request.Message.RequestUri.ParseQueryString();
+            var arguments = QueryHelpers.ParseQuery(request.Message.RequestUri.Query);
             Assert.That(arguments[keyA], Is.Not.Null.And.EqualTo(valueA), "The first key=>value pair is invalid.");
             Assert.That(arguments[keyB], Is.Not.Null.And.EqualTo(valueB), "The second key=>value pair is invalid.");
         }
@@ -116,7 +115,7 @@ namespace Pathoschild.Http.Tests.Client
 
             // verify
             this.AssertEqual(request.Message, methodName, ignoreArguments: true);
-            NameValueCollection arguments = request.Message.RequestUri.ParseQueryString();
+            var arguments = QueryHelpers.ParseQuery(request.Message.RequestUri.Query);
             Assert.That(arguments["keyA"], Is.Not.Null.And.EqualTo(valueA), "The first key=>value pair is invalid.");
             Assert.That(arguments["keyB"], Is.Not.Null.And.EqualTo(valueB), "The second key=>value pair is invalid.");
         }
@@ -270,7 +269,7 @@ namespace Pathoschild.Http.Tests.Client
         {
             Assert.That(request, Is.Not.Null, "The request message is null.");
             Assert.That(request.Method, Is.EqualTo(method), "The request method is invalid.");
-            Assert.That(ignoreArguments ? request.RequestUri.GetLeftPart(UriPartial.Path) : request.RequestUri.ToString(), Is.EqualTo(uri), "The request URI is invalid.");
+            Assert.That(ignoreArguments ? $"{request.RequestUri.Scheme}://{request.RequestUri.Authority}{request.RequestUri.AbsolutePath}" : request.RequestUri.ToString(), Is.EqualTo(uri), "The request URI is invalid.");
         }
 
         /// <summary>Assert that an HTTP request's state matches the expected values.</summary>

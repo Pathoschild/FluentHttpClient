@@ -1,11 +1,19 @@
-﻿{
+{
   "supports": {},
   "dependencies": {
     "Microsoft.AspNet.WebApi.Client": "5.2.3",
     "Newtonsoft.Json": "9.0.1",
-    "System.Net.Http": "4.1.0"
+    "System.Net.Http": "4.1.0",
+    "NETStandard.Library": "1.6.0",
+    "Microsoft.NETCore.Portable.Compatibility": "1.0.1"
   },
   "frameworks": {
-    ".NETPortable,Version=v4.5,Profile=Profile111": {}
+    "netstandard1.1": {
+      "imports": "portable-net45+win8" // needed for Microsoft.AspNet.WebApi.Client
+    }
+  },
+  "buildOptions": {
+    "outputName": "Pathoschild.Http.Client",
+    "xmlDoc": true
   }
 }

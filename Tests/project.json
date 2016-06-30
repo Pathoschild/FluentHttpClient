@@ -1,14 +1,20 @@
-﻿{
+{
   "dependencies": {
+    "Client": "*",
     "Microsoft.AspNet.WebApi.Client": "5.2.3",
+    "Microsoft.AspNet.WebUtilities": "1.0.0-rc1-final",
     "Moq": "4.5.10",
+    "NETStandard.Library": "1.6.0",
     "Newtonsoft.Json": "9.0.1",
     "NUnit": "3.4.0"
   },
   "frameworks": {
-    ".NETFramework,Version=v4.5": {}
-  },
-  "runtimes": {
-    "win": {}
+    "netstandard1.6": {
+      "imports": [
+        "dnxcore50",          // needed for Microsoft.AspNet.WebUtilities
+        "net45",              // needed for Moq
+        "portable-net45+win8" // needed for Microsoft.AspNet.WebApi.Client
+      ]
+    }
   }
 }
