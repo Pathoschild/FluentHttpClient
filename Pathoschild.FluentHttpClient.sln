@@ -1,13 +1,9 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
-VisualStudioVersion = 14.0.25123.0
+VisualStudioVersion = 14.0.25420.1
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Client", "Client\Client.csproj", "{BDF3C6E5-F4CD-4478-95AA-01D6F39928DF}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Formatters", "Formatters\Formatters.csproj", "{1AAC0412-8CAF-49FE-AEF8-DC30786C90AB}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Formatters.JsonNet", "Formatters.JsonNet\Formatters.JsonNet.csproj", "{B1C44B41-B260-4E43-9323-AE74CE5861E9}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tests", "Tests\Tests.csproj", "{4531E61C-D06A-42AD-B631-EE9DFB532602}"
 EndProject
@@ -41,18 +37,6 @@ Global
 		{BDF3C6E5-F4CD-4478-95AA-01D6F39928DF}.Release|Mixed Platforms.Build.0 = Release|Any CPU
 		{BDF3C6E5-F4CD-4478-95AA-01D6F39928DF}.Release|x86.ActiveCfg = Release|Any CPU
 		{BDF3C6E5-F4CD-4478-95AA-01D6F39928DF}.Release|x86.Build.0 = Release|Any CPU
-		{B1C44B41-B260-4E43-9323-AE74CE5861E9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{B1C44B41-B260-4E43-9323-AE74CE5861E9}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{B1C44B41-B260-4E43-9323-AE74CE5861E9}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
-		{B1C44B41-B260-4E43-9323-AE74CE5861E9}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
-		{B1C44B41-B260-4E43-9323-AE74CE5861E9}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{B1C44B41-B260-4E43-9323-AE74CE5861E9}.Debug|x86.Build.0 = Debug|Any CPU
-		{B1C44B41-B260-4E43-9323-AE74CE5861E9}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{B1C44B41-B260-4E43-9323-AE74CE5861E9}.Release|Any CPU.Build.0 = Release|Any CPU
-		{B1C44B41-B260-4E43-9323-AE74CE5861E9}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
-		{B1C44B41-B260-4E43-9323-AE74CE5861E9}.Release|Mixed Platforms.Build.0 = Release|Any CPU
-		{B1C44B41-B260-4E43-9323-AE74CE5861E9}.Release|x86.ActiveCfg = Release|Any CPU
-		{B1C44B41-B260-4E43-9323-AE74CE5861E9}.Release|x86.Build.0 = Release|Any CPU
 		{4531E61C-D06A-42AD-B631-EE9DFB532602}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{4531E61C-D06A-42AD-B631-EE9DFB532602}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4531E61C-D06A-42AD-B631-EE9DFB532602}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
@@ -63,18 +47,6 @@ Global
 		{4531E61C-D06A-42AD-B631-EE9DFB532602}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
 		{4531E61C-D06A-42AD-B631-EE9DFB532602}.Release|Mixed Platforms.Build.0 = Release|Any CPU
 		{4531E61C-D06A-42AD-B631-EE9DFB532602}.Release|x86.ActiveCfg = Release|Any CPU
-		{1AAC0412-8CAF-49FE-AEF8-DC30786C90AB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{1AAC0412-8CAF-49FE-AEF8-DC30786C90AB}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{1AAC0412-8CAF-49FE-AEF8-DC30786C90AB}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
-		{1AAC0412-8CAF-49FE-AEF8-DC30786C90AB}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
-		{1AAC0412-8CAF-49FE-AEF8-DC30786C90AB}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{1AAC0412-8CAF-49FE-AEF8-DC30786C90AB}.Debug|x86.Build.0 = Debug|Any CPU
-		{1AAC0412-8CAF-49FE-AEF8-DC30786C90AB}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{1AAC0412-8CAF-49FE-AEF8-DC30786C90AB}.Release|Any CPU.Build.0 = Release|Any CPU
-		{1AAC0412-8CAF-49FE-AEF8-DC30786C90AB}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
-		{1AAC0412-8CAF-49FE-AEF8-DC30786C90AB}.Release|Mixed Platforms.Build.0 = Release|Any CPU
-		{1AAC0412-8CAF-49FE-AEF8-DC30786C90AB}.Release|x86.ActiveCfg = Release|Any CPU
-		{1AAC0412-8CAF-49FE-AEF8-DC30786C90AB}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

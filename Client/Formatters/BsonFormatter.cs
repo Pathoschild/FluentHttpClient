@@ -6,7 +6,7 @@ using System.Net.Http.Formatting;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Bson;
 
-namespace Pathoschild.Http.Formatters.JsonNet
+namespace Pathoschild.Http.Client.Formatters
 {
     /// <summary>Serializes and deserializes data as BSON.</summary>
     public class BsonFormatter : MediaTypeFormatterBase

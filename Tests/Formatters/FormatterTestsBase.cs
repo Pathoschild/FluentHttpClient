@@ -3,7 +3,7 @@ using System.IO;
 using System.Net.Http;
 using System.Net.Http.Formatting;
 using System.Net.Http.Headers;
-using Pathoschild.Http.Formatters;
+using Pathoschild.Http.Client.Formatters;
 
 namespace Pathoschild.Http.Tests.Formatters
 {

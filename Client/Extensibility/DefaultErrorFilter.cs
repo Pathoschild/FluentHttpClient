@@ -18,10 +18,8 @@ namespace Pathoschild.Http.Client.Extensibility
         /// <param name="responseMessage">The underlying HTTP response message.</param>
         public void OnResponse(IResponse response, HttpResponseMessage responseMessage)
         {
-            if (responseMessage.IsSuccessStatusCode)
-                return;
-
-            throw new ApiException(response, responseMessage, $"The API query failed with status code {responseMessage.StatusCode}: {responseMessage.ReasonPhrase}");
+            if (!responseMessage.IsSuccessStatusCode)
+                throw new ApiException(response, responseMessage, $"The API query failed with status code {responseMessage.StatusCode}: {responseMessage.ReasonPhrase}");
         }
     }
 }

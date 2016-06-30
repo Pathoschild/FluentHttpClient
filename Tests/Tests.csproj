@@ -35,32 +35,15 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Moq, Version=4.2.1510.2205, Culture=neutral, PublicKeyToken=69f491c39445e920, processorArchitecture=MSIL">
-      <HintPath>..\packages\Moq.4.2.1510.2205\lib\net40\Moq.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="Newtonsoft.Json, Version=8.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
-      <HintPath>..\packages\Newtonsoft.Json.8.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="nunit.framework, Version=3.2.1.0, Culture=neutral, PublicKeyToken=2638cd05610744eb, processorArchitecture=MSIL">
-      <HintPath>..\packages\NUnit.3.2.1\lib\net45\nunit.framework.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Net.Http" />
-    <Reference Include="System.Net.Http.Formatting, Version=5.2.3.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
-      <HintPath>..\packages\Microsoft.AspNet.WebApi.Client.5.2.3\lib\net45\System.Net.Http.Formatting.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="System.Net.Http.WebRequest" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ClientTests.cs" />
+    <Compile Include="Client\ClientTests.cs" />
     <Compile Include="Integration\IntegrationTests.cs" />
-    <Compile Include="ResponseTests.cs" />
-    <Compile Include="RequestTests.cs" />
+    <Compile Include="Client\ResponseTests.cs" />
+    <Compile Include="Client\RequestTests.cs" />
     <Compile Include="Formatters\BsonFormatter.cs" />
     <Compile Include="Formatters\JsonNetFormatter.cs" />
     <Compile Include="Formatters\FormatterTestsBase.cs" />
@@ -70,20 +53,12 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
-    <None Include="packages.config" />
+    <None Include="project.json" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Client\Client.csproj">
       <Project>{bdf3c6e5-f4cd-4478-95aa-01d6f39928df}</Project>
       <Name>Client</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Formatters.JsonNet\Formatters.JsonNet.csproj">
-      <Project>{b1c44b41-b260-4e43-9323-ae74ce5861e9}</Project>
-      <Name>Formatters.JsonNet</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Formatters\Formatters.csproj">
-      <Project>{1aac0412-8caf-49fe-aef8-dc30786c90ab}</Project>
-      <Name>Formatters</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

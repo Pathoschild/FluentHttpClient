@@ -2,9 +2,9 @@
 using NUnit.Framework;
 using Pathoschild.Http.Client;
 
-namespace Pathoschild.Http.Tests
+namespace Pathoschild.Http.Tests.Client
 {
-    /// <summary>Integration tests verifying that the default <see cref="Client"/> correctly creates and alters the underlying objects.</summary>
+    /// <summary>Integration tests verifying that the default <see cref="Pathoschild.Http.Client"/> correctly creates and alters the underlying objects.</summary>
     [TestFixture]
     public class ClientTests
     {
