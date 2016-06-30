@@ -12,7 +12,7 @@ using Pathoschild.Http.Client;
 using Pathoschild.Http.Client.Extensibility;
 using Pathoschild.Http.Client.Internal;
 
-namespace Pathoschild.Http.Tests
+namespace Pathoschild.Http.Tests.Client
 {
     /// <summary>Integration tests verifying that the default <see cref="Request"/> correctly creates and alters the underlying objects.</summary>
     [TestFixture]

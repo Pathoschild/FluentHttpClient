@@ -49,6 +49,10 @@
     <Compile Include="Extensibility\IHttpFilter.cs" />
     <Compile Include="FluentClient.cs" />
     <Compile Include="FluentClientExtensions.cs" />
+    <Compile Include="Formatters\BsonFormatter.cs" />
+    <Compile Include="Formatters\JsonNetFormatter.cs" />
+    <Compile Include="Formatters\MediaTypeFormatterBase.cs" />
+    <Compile Include="Formatters\PlainTextFormatter.cs" />
     <Compile Include="IClient.cs" />
     <Compile Include="Internal\Factory.cs" />
     <Compile Include="Internal\Request.cs" />

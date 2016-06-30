@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Net.Http;
 using NUnit.Framework;
-using Pathoschild.Http.Formatters;
+using Pathoschild.Http.Client.Formatters;
 
 namespace Pathoschild.Http.Tests.Formatters
 {

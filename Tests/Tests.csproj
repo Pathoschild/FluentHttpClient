@@ -61,10 +61,10 @@
     <Reference Include="System.Net.Http.WebRequest" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ClientTests.cs" />
+    <Compile Include="Client\ClientTests.cs" />
     <Compile Include="Integration\IntegrationTests.cs" />
-    <Compile Include="ResponseTests.cs" />
-    <Compile Include="RequestTests.cs" />
+    <Compile Include="Client\ResponseTests.cs" />
+    <Compile Include="Client\RequestTests.cs" />
     <Compile Include="Formatters\BsonFormatter.cs" />
     <Compile Include="Formatters\JsonNetFormatter.cs" />
     <Compile Include="Formatters\FormatterTestsBase.cs" />
@@ -80,14 +80,6 @@
     <ProjectReference Include="..\Client\Client.csproj">
       <Project>{bdf3c6e5-f4cd-4478-95aa-01d6f39928df}</Project>
       <Name>Client</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Formatters.JsonNet\Formatters.JsonNet.csproj">
-      <Project>{b1c44b41-b260-4e43-9323-ae74ce5861e9}</Project>
-      <Name>Formatters.JsonNet</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Formatters\Formatters.csproj">
-      <Project>{1aac0412-8caf-49fe-aef8-dc30786c90ab}</Project>
-      <Name>Formatters</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

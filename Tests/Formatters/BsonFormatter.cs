@@ -1,6 +1,6 @@
 ﻿using System.Net.Http;
 using NUnit.Framework;
-using Pathoschild.Http.Formatters.JsonNet;
+using Pathoschild.Http.Client.Formatters;
 
 namespace Pathoschild.Http.Tests.Formatters
 {
