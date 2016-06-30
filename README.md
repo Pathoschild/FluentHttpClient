@@ -45,7 +45,7 @@ Item item = await client
 A lot of features aren't shown in these examples, but it should be fairly discoverable since every method is fully code-documented for IntelliSense.
 
 ### Error handling
-If the server returns a non-success HTTP code, the client will raise an `ApiException` by default (see _customising behaviour_ below if you want to change that). The `ApiException` includes all the information needed to troubleshoot the error, including the underlying HTTP request and response.
+If the server returns a non-success HTTP code, the client will raise an `ApiException` by default. The exception includes all the information needed to troubleshoot the error, including the underlying HTTP request and response.
 
 For example, here's how you'd throw a new exception containing the actual text of the server response:
 ```c#
@@ -61,6 +61,14 @@ catch(ApiException ex)
     throw new Exception($"The API responded with HTTP {ex.ResponseMessage.StatusCode}: {responseText}");
 }
 ```
+
+If you don't want the client to throw an exception, you can simply remove the default error handler:
+```c#
+client.Filters.Remove<DefaultErrorFilter>();
+```
+
+You can also add your own error handling; see _customising the client_ below.
+
 
 ### Synchronous use
 The client is designed to take advantage of the `async` and `await` keywords in .NET 4.5, but you can use the client synchronously. This is *not* recommended — it complicates error-handling (e.g. errors get wrapped into [AggregateException][]), and it's very easy to cause thread deadlocks when you do this (see _[Parallel Programming with .NET: Await, and UI, and deadlocks! Oh my!](http://blogs.msdn.com/b/pfxteam/archive/2011/01/13/10115163.aspx)_ and _[Don't Block on Async Code](http://blog.stephencleary.com/2012/07/dont-block-on-async-code.html))._
@@ -81,18 +89,18 @@ client.PostAsync("items", new Item()).AsMessage().Wait();
 
 ## Customising the client
 ### Custom formats
-By default the client supports JSON and XML. The client recognises the [`MediaTypeFormatter` interface][MediaTypeFormatter], so you can easily add different formats:
+By default the client supports JSON and XML. The client recognises [`MediaTypeFormatter` implementations][MediaTypeFormatter], so you can easily add different formats:
 ```c#
 client.Formatters.Add(new BsonFormatter());
 ```
 
-You can use [one of the many `MediaTypeFormatter` implementations](https://www.nuget.org/packages?q=MediaTypeFormatter), use the BSON formatter from the [Pathoschild.Http.Formatters.JsonNet][] package, or create your own (optionally using the [Pathoschild.Http.Formatters.Core][] package to simplify your implementation).
+You can use [one of the many `MediaTypeFormatter` implementations](https://www.nuget.org/packages?q=MediaTypeFormatter), use the included BSON formatter, or create your own (optionally using the included `MediaTypeFormatterBase` base class).
 
 ### Custom behaviour
-You can customise the client by injecting your own `IHttpFilter` classes, which intercept outgoing requests and incoming responses. Each filter can read and change the underlying HTTP requests (e.g. for authentication) and responses (e.g. for error handling). For example, you can easily replace the default error handling (see _Error handling_ above):
+You can customise the client by adding your own implementations of `IHttpFilter`. Each filter can read and change the underlying HTTP requests (e.g. for authentication) and responses (e.g. for error handling). For example, you can easily replace the default error handling (see _Error handling_ above):
 ```c#
 client.Filters.Remove<DefaultErrorFilter>();
-client.Filters.Add(YourErrorFilter());
+client.Filters.Add(new YourErrorFilter());
 ```
 
 For reference, the default error filter is essentially this one method:
@@ -102,10 +110,8 @@ For reference, the default error filter is essentially this one method:
 /// <param name="responseMessage">The underlying HTTP response message.</param>
 public void OnResponse(IResponse response, HttpResponseMessage responseMessage)
 {
-    if (responseMessage.IsSuccessStatusCode)
-        return;
-
-    throw new ApiException(response, responseMessage, $"The API query failed with status code {responseMessage.StatusCode}: {responseMessage.ReasonPhrase}");
+    if (!responseMessage.IsSuccessStatusCode)
+        throw new ApiException(response, responseMessage, $"The API query failed with status code {responseMessage.StatusCode}: {responseMessage.ReasonPhrase}");
 }
 ```
 
@@ -152,5 +158,3 @@ var client = new FluentClient("http://example.org/api/", new HttpClient(handler)
 [IRequest]: https://github.com/Pathoschild/Pathoschild.FluentHttpClient/blob/master/Client/IRequest.cs#L12
 
 [Pathoschild.Http.FluentClient]: https://nuget.org/packages/Pathoschild.Http.FluentClient
-[Pathoschild.Http.Formatters.Core]: https://nuget.org/packages/Pathoschild.Http.Formatters.Core
-[Pathoschild.Http.Formatters.JsonNet]: https://nuget.org/packages/Pathoschild.Http.Formatters.JsonNet
