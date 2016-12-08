@@ -1,15 +1,32 @@
 {
   "supports": {},
   "dependencies": {
-    "Microsoft.AspNet.WebApi.Client": "5.2.3",
-    "Newtonsoft.Json": "9.0.1",
-    "System.Net.Http": "4.1.0",
-    "NETStandard.Library": "1.6.0",
-    "Microsoft.NETCore.Portable.Compatibility": "1.0.1"
+    "Newtonsoft.Json": "9.0.1"
   },
   "frameworks": {
-    "netstandard1.1": {
-      "imports": "portable-net45+win8" // needed for Microsoft.AspNet.WebApi.Client
+    "netstandard1.3": {
+      "imports": [
+        "dnxcore50"
+      ],
+      "dependencies": {
+        "NETStandard.Library": "1.6.1",
+        "System.Net.Http": "4.3.0",
+        "WinInsider.System.Net.Http.Formatting": "1.0.1"
+      }
+    },
+    "net452": {
+      "buildOptions": {
+        "define": [ "NET452" ]
+      },
+      "dependencies": {
+        "Microsoft.AspNet.WebApi.Client": "5.2.3",
+        "System.Net.Http": "4.0.0"
+      },
+      "frameworkAssemblies": {
+        "System.Runtime": {
+          "type": "build"
+        }
+      }
     }
   },
   "buildOptions": {
