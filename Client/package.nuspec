@@ -28,7 +28,7 @@
   <files>
     <file src="bin\Release\net452\Pathoschild.Http.Client.dll" target="lib\net452\" />
     <file src="bin\Release\net452\Pathoschild.Http.Client.xml" target="lib\net452\" />
-    <file src="bin\Release\netstandard1.3\Pathoschild.Http.Client.dll" target="lib\netstandard1.1\" />
-    <file src="bin\Release\netstandard1.3\Pathoschild.Http.Client.xml" target="lib\netstandard1.1\" />
+    <file src="bin\Release\netstandard1.3\Pathoschild.Http.Client.dll" target="lib\netstandard1.3\" />
+    <file src="bin\Release\netstandard1.3\Pathoschild.Http.Client.xml" target="lib\netstandard1.3\" />
   </files>
 </package>
