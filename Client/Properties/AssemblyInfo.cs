@@ -1,4 +1,6 @@
 ﻿using System.Reflection;
 
-[assembly: AssemblyTitle("Pathoschild.Http.Client")]
-[assembly: AssemblyDescription("A fluent, strongly-typed HTTP client for .NET 4.5 built on top of the new .NET HttpClient.")]
+[assembly: AssemblyProduct("Pathoschild.Http.Client")]
+[assembly: AssemblyCopyright("Copyright 2012–2017")]
+[assembly: AssemblyVersion("2.4.0.0")]
+[assembly: AssemblyFileVersion("2.4.0.0")]
