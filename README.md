@@ -1,4 +1,4 @@
-**Pathoschild.FluentHttpClient** is an easy asynchronous HTTP client for REST APIs. It provides a fluent interface that lets you create an HTTP request, dispatch and wait for it, and parse the response. The client takes care of the gritty details for you (like deserialisation, [content negotiation][], and URL encoding), and is easy to extend and customise.
+**FluentHttpClient** is an easy asynchronous HTTP client for REST APIs. It provides a fluent interface that lets you create an HTTP request, dispatch and wait for it, and parse the response. The client takes care of the gritty details for you (like deserialisation, [content negotiation][], and URL encoding), and is easy to extend and customise.
 
 ## Installing
 The fluent client is [available on NuGet][Pathoschild.Http.FluentClient]:
@@ -79,7 +79,7 @@ You can also add your own error handling; see _customising the client_ below.
 
 
 ### Synchronous use
-The client is designed to take advantage of the `async` and `await` keywords in .NET 4.5, but you can use the client synchronously. This is *not* recommended — it complicates error-handling (e.g. errors get wrapped into [AggregateException][]), and it's very easy to cause thread deadlocks when you do this (see _[Parallel Programming with .NET: Await, and UI, and deadlocks! Oh my!](http://blogs.msdn.com/b/pfxteam/archive/2011/01/13/10115163.aspx)_ and _[Don't Block on Async Code](http://blog.stephencleary.com/2012/07/dont-block-on-async-code.html))._
+The client is designed to take advantage of the `async` and `await` keywords in .NET 4.5, but you can use the client synchronously. This is *not* recommended â€” it complicates error-handling (e.g. errors get wrapped into [AggregateException][]), and it's very easy to cause thread deadlocks when you do this (see _[Parallel Programming with .NET: Await, and UI, and deadlocks! Oh my!](http://blogs.msdn.com/b/pfxteam/archive/2011/01/13/10115163.aspx)_ and _[Don't Block on Async Code](http://blog.stephencleary.com/2012/07/dont-block-on-async-code.html))._
 
 If you really need to use it synchronously, you can just call the `Result` property:
 ```c#
