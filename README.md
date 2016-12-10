@@ -4,15 +4,13 @@
 The fluent client is [available on NuGet][Pathoschild.Http.FluentClient]:
 > Install-Package Pathoschild.Http.FluentClient
 
-You can use the client on any [.NET Standard 1.1](https://github.com/dotnet/corefx/blob/master/Documentation/architecture/net-platform-standard.md) platform, including:
+You can use the client with .NET Framework 4.5.2+ or [.NET Standard 1.3+](https://docs.microsoft.com/en-us/dotnet/articles/standard/library). That includes:
 
-| platform                                | min version |
-| :-------------------------------------- | :---------- |
-| .NET Framework<br />(Windows)           | 4.5         |
-| .NET Core<br />(Mac, Linux, or Windows) | 1.0         |
-| Universal Windows Platform              | 10          |
-| Windows apps                            | Windows 8.0 |
-| Windows Phone apps                      | Windows Phone 8.1<br />(except Silverlight) |
+| platform                    | min version |
+| :-------------------------- | :---------- |
+| .NET Framework              | 4.5.2       |
+| .NET Core                   | 1.0         |
+| Universal Windows Platform  | 10          |
 
 ## Using the client
 ### Basic usage
