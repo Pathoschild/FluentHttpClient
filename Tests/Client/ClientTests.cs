@@ -18,6 +18,18 @@ namespace Pathoschild.Http.Tests.Client
             this.ConstructClient(uri, false);
         }
 
+        [Test(Description = "Ensure that the client is constructed with the expected initial state.")]
+        [TestCase("http://base-url/")]
+        public void Destructor(string uri)
+        {
+            var httpClient = new HttpClient();
+            using (var fluentClient = this.ConstructClient(uri, false, httpClient))
+            {
+                fluentClient.Dispose();
+            }
+            Assert.IsNotNull(httpClient);
+        }
+
         [Test(Description = "Ensure that the HTTP DELETE method constructs a request message with the expected initial state.")]
         [TestCase("resource")]
         public void Delete(string resource)
@@ -144,12 +156,12 @@ namespace Pathoschild.Http.Tests.Client
         /// <param name="inconclusiveOnFailure">Whether to throw an <see cref="InconclusiveException"/> if the initial state is invalid.</param>
         /// <exception cref="InconclusiveException">The initial state of the constructed client is invalid, and <paramref name="inconclusiveOnFailure"/> is <c>true</c>.</exception>
         /// <exception cref="AssertionException">The initial state of the constructed client is invalid, and <paramref name="inconclusiveOnFailure"/> is <c>false</c>.</exception>
-        protected IClient ConstructClient(string baseUri = "http://example.com/", bool inconclusiveOnFailure = true)
+        protected IClient ConstructClient(string baseUri = "http://example.com/", bool inconclusiveOnFailure = true, HttpClient httpClient = null)
         {
             try
             {
                 // execute
-                IClient client = new FluentClient(baseUri);
+                IClient client = new FluentClient(baseUri, httpClient);
 
                 // verify
                 Assert.NotNull(client.BaseClient, "The base client is null.");
