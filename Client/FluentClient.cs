@@ -16,6 +16,8 @@ namespace Pathoschild.Http.Client
         /// <summary>Whether the instance has been disposed.</summary>
         private bool IsDisposed;
 
+        private readonly bool _mustDisposeHttpClient = false;
+
 
         /*********
         ** Accessors
@@ -36,14 +38,15 @@ namespace Pathoschild.Http.Client
         /// <summary>Construct an instance.</summary>
         /// <param name="baseUri">The base URI prepended to relative request URIs.</param>
         public FluentClient(string baseUri)
-            : this(baseUri, new HttpClient()) { }
+            : this(baseUri, null) { }
 
         /// <summary>Construct an instance.</summary>
         /// <param name="baseUri">The base URI prepended to relative request URIs.</param>
         /// <param name="client">The underlying HTTP client.</param>
-        public FluentClient(string baseUri, HttpClient client)
+        public FluentClient(string baseUri, HttpClient client = null)
         {
-            this.BaseClient = client;
+            _mustDisposeHttpClient = client == null;
+            this.BaseClient = client ?? new HttpClient();
             this.Filters = new List<IHttpFilter> { new DefaultErrorFilter() };
             if (baseUri != null)
                 this.BaseClient.BaseAddress = new Uri(baseUri);
@@ -158,7 +161,7 @@ namespace Pathoschild.Http.Client
             if (this.IsDisposed)
                 return;
 
-            if (isDisposing)
+            if (isDisposing && _mustDisposeHttpClient)
                 this.BaseClient.Dispose();
 
             this.IsDisposed = true;
