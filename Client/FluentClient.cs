@@ -4,6 +4,7 @@ using System.Net.Http;
 using System.Net.Http.Formatting;
 using Pathoschild.Http.Client.Extensibility;
 using Pathoschild.Http.Client.Internal;
+using System.Net;
 
 namespace Pathoschild.Http.Client
 {
@@ -35,10 +36,22 @@ namespace Pathoschild.Http.Client
         *********/
         /// <summary>Construct an instance.</summary>
         /// <param name="baseUri">The base URI prepended to relative request URIs.</param>
+        /// <param name="proxy">The web proxy.</param>
+        public FluentClient(string baseUri, IWebProxy proxy)
+            : this(new Uri(baseUri), new HttpClient(new HttpClientHandler { Proxy = proxy, UseProxy = proxy != null })) { }
+
+        /// <summary>Construct an instance.</summary>
+        /// <param name="baseUri">The base URI prepended to relative request URIs.</param>
         /// <param name="client">The underlying HTTP client.</param>
         public FluentClient(string baseUri, HttpClient client = null)
             : this(new Uri(baseUri), client) { }
- 
+
+        /// <summary>Construct an instance.</summary>
+        /// <param name="baseUri">The base URI prepended to relative request URIs.</param>
+        /// <param name="proxy">The web proxy.</param>
+        public FluentClient(Uri baseUri, IWebProxy proxy)
+            : this(baseUri, new HttpClient(new HttpClientHandler { Proxy = proxy, UseProxy = proxy != null })) { }
+
         /// <summary>Construct an instance.</summary>
         /// <param name="baseUri">The base URI prepended to relative request URIs.</param>
         /// <param name="client">The underlying HTTP client.</param>
