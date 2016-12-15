@@ -35,18 +35,19 @@ namespace Pathoschild.Http.Client
         *********/
         /// <summary>Construct an instance.</summary>
         /// <param name="baseUri">The base URI prepended to relative request URIs.</param>
-        public FluentClient(string baseUri)
-            : this(baseUri, new HttpClient()) { }
-
+        /// <param name="client">The underlying HTTP client.</param>
+        public FluentClient(string baseUri, HttpClient client = null)
+            : this(new Uri(baseUri), client) { }
+ 
         /// <summary>Construct an instance.</summary>
         /// <param name="baseUri">The base URI prepended to relative request URIs.</param>
         /// <param name="client">The underlying HTTP client.</param>
-        public FluentClient(string baseUri, HttpClient client)
+        public FluentClient(Uri baseUri, HttpClient client = null)
         {
             this.BaseClient = client;
             this.Filters = new List<IHttpFilter> { new DefaultErrorFilter() };
             if (baseUri != null)
-                this.BaseClient.BaseAddress = new Uri(baseUri);
+                this.BaseClient.BaseAddress = baseUri;
             this.Formatters = new MediaTypeFormatterCollection();
         }
 
