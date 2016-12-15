@@ -18,7 +18,7 @@ namespace Pathoschild.Http.Tests.Client
             this.ConstructClient(uri, false);
         }
 
-        [Test(Description = "Ensure that the client is constructed with the expected initial state.")]
+        [Test(Description = "Ensure that the HttpClient is not disposed with FluentClient.")]
         [TestCase("http://base-url/")]
         public void Destructor(string uri)
         {
