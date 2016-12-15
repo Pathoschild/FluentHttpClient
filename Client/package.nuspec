@@ -2,7 +2,7 @@
 <package>
   <metadata>
     <id>Pathoschild.Http.FluentClient</id>
-    <version>2.2.0</version>
+    <version>2.3.0</version>
     <authors>Jesse Plamondon-Willard</authors>
     <description>An easy asynchronous HTTP client for REST APIs. It provides a fluent interface that lets you create an HTTP request, dispatch and wait for it, and parse the response.</description>
     <licenseUrl>https://creativecommons.org/licenses/by/3.0/</licenseUrl>
@@ -11,8 +11,24 @@
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <tags>wcf web webapi httpclient</tags>
     <dependencies>
-      <dependency id="Microsoft.AspNet.WebApi.Client" version="5.2" />
+      <group targetFramework="net452">
+        <dependency id="Microsoft.AspNet.WebApi.Client" version="5.2.3" />
+        <dependency id="Newtonsoft.Json" version="9.0.1" />
+        <dependency id="System.Net.Http" version="4.0.0" />
+      </group>
+      <group targetFramework=".NETStandard1.3">
+        <dependency id="WinInsider.System.Net.Http.Formatting" version="1.0.1" />
+        <dependency id="NETStandard.Library" version="1.6.1" />
+        <dependency id="Newtonsoft.Json" version="9.0.1" />
+        <dependency id="System.Net.Http" version="4.3.0" />
+      </group>
     </dependencies>
-    <releaseNotes>Unified libraries, updated dependencies, migrated to project.json.</releaseNotes>
+    <releaseNotes>Migrated to .NET Standard.</releaseNotes>
   </metadata>
+  <files>
+    <file src="bin\Release\net452\Pathoschild.Http.Client.dll" target="lib\net452\" />
+    <file src="bin\Release\net452\Pathoschild.Http.Client.xml" target="lib\net452\" />
+    <file src="bin\Release\netstandard1.3\Pathoschild.Http.Client.dll" target="lib\netstandard1.3\" />
+    <file src="bin\Release\netstandard1.3\Pathoschild.Http.Client.xml" target="lib\netstandard1.3\" />
+  </files>
 </package>

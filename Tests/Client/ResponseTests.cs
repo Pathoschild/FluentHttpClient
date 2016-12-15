@@ -98,12 +98,14 @@ namespace Pathoschild.Http.Tests.Client
         public void Task_Async_IsAsync()
         {
             // arrange
-            IRequest request = this.ConstructResponseFromTask(() =>
-            {
-                Thread.Sleep(5000);
-                Assert.Fail("The response was not invoked asynchronously.");
-                return null;
-            });
+            IRequest request = this.ConstructResponseFromTask(Task
+                .Delay(5000)
+                .ContinueWith<HttpResponseMessage>(task =>
+                {
+                    Assert.Fail("The response was not invoked asynchronously.");
+                    return null;
+                })
+            );
 
             // act
             Task<HttpResponseMessage> result = request.AsMessage();
@@ -467,7 +469,7 @@ namespace Pathoschild.Http.Tests.Client
         {
             Assert.That(request, Is.Not.Null, "The request message is null.");
             Assert.That(request.Method, Is.EqualTo(method), "The request method is invalid.");
-            Assert.That(ignoreArguments ? request.RequestUri.GetLeftPart(UriPartial.Path) : request.RequestUri.ToString(), Is.EqualTo(uri), "The request URI is invalid.");
+            Assert.That(ignoreArguments ? $"{request.RequestUri.Scheme}://{request.RequestUri.Authority}{request.RequestUri.AbsolutePath}" : request.RequestUri.ToString(), Is.EqualTo(uri), "The request URI is invalid.");
         }
 
         /// <summary>Assert that an HTTP request's state matches the expected values.</summary>
