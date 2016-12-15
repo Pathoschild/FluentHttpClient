@@ -104,17 +104,17 @@ namespace Pathoschild.Http.Client
         /// <param name="client">The client.</param>
         /// <param name="username">The username.</param>
         /// <param name="password">The password.</param>
-        public static void AddBasicAuthentication(this IClient client, string username, string password)
+        public static void SetBasicAuthentication(this IClient client, string username, string password)
         {
-            client.AddAuthentication("Basic", Convert.ToBase64String(Encoding.ASCII.GetBytes(string.Concat(username, ":", password))));
+            client.SetAuthentication("Basic", Convert.ToBase64String(Encoding.ASCII.GetBytes(string.Concat(username, ":", password))));
         }
 
         /// <summary>Use 'Bearer' authentication with every request.</summary>
         /// <param name="client">The client.</param>
         /// <param name="key">The bearer key (typically, this is an API key).</param>
-        public static void AddBearerAuthentication(this IClient client, string key)
+        public static void SetBearerAuthentication(this IClient client, string key)
         {
-            client.AddAuthentication("Bearer", key);
+            client.SetAuthentication("Bearer", key);
         }
 
         /// <summary>Use basic authentication with this request.</summary>

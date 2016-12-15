@@ -32,6 +32,6 @@ namespace Pathoschild.Http.Client
         /// <summary>Specify the authentication that will be used with every request.</summary>
         /// <param name="scheme">The scheme to use for authorization. e.g.: "Basic", "Bearer".</param>
         /// <param name="parameter">The credentials containing the authentication information.</param>
-        void AddAuthentication(string scheme, string parameter);
+        void SetAuthentication(string scheme, string parameter);
     }
 }
