@@ -4,6 +4,7 @@ using System.Net.Http;
 using System.Net.Http.Formatting;
 using Pathoschild.Http.Client.Extensibility;
 using Pathoschild.Http.Client.Internal;
+using System.Reflection;
 
 namespace Pathoschild.Http.Client
 {
@@ -29,6 +30,9 @@ namespace Pathoschild.Http.Client
         /// <summary>The formatters used for serializing and deserializing message bodies.</summary>
         public MediaTypeFormatterCollection Formatters { get; protected set; }
 
+        /// <summary>The version of the FluentClient</summary>
+        public string Version { get; } = typeof(FluentClient).GetTypeInfo().Assembly.GetName().Version.ToString();
+
 
         /*********
         ** Public methods
@@ -48,6 +52,9 @@ namespace Pathoschild.Http.Client
             if (baseUri != null)
                 this.BaseClient.BaseAddress = new Uri(baseUri);
             this.Formatters = new MediaTypeFormatterCollection();
+
+            var userAgent = $"FluentHttpClient/{this.Version} (+http://github.com/Pathoschild/Pathoschild.FluentHttpClient)";
+            this.BaseClient.DefaultRequestHeaders.TryAddWithoutValidation("User-Agent", userAgent);
         }
 
         /// <summary>Create an asynchronous HTTP DELETE request message (but don't dispatch it yet).</summary>
@@ -130,6 +137,12 @@ namespace Pathoschild.Http.Client
         {
             this.AssertNotDisposed();
             return new Request(message, this.Formatters, request => this.BaseClient.SendAsync(request.Message), this.Filters.ToArray());
+        }
+
+        public void SetUserAgent(string useragent)
+        {
+            this.BaseClient.DefaultRequestHeaders.Remove("User-Agent");
+            this.BaseClient.DefaultRequestHeaders.TryAddWithoutValidation("User-Agent", useragent);
         }
 
         /// <summary>Free resources used by the client.</summary>

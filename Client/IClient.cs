@@ -64,5 +64,9 @@ namespace Pathoschild.Http.Client
         /// <param name="message">The HTTP request message to send.</param>
         /// <returns>Returns a request builder.</returns>
         IRequest SendAsync(HttpRequestMessage message);
+
+        /// <summary>Set the useragent string that will be used with every request.</summary>
+        /// <param name="useragent">The useragent string.</param>
+        void SetUserAgent(string useragent);
     }
 }
