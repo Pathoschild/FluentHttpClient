@@ -16,17 +16,18 @@ namespace Pathoschild.Http.Client
         /// <summary>Whether the instance has been disposed.</summary>
         private bool IsDisposed;
 
-        private readonly bool _mustDisposeHttpClient = false;
+        /// <summary>Whether to dispose the <see cref="BaseClient"/> when disposing.</summary>
+        private readonly bool MustDisposeBaseClient;
 
 
         /*********
         ** Accessors
         *********/
         /// <summary>Interceptors which can read and modify HTTP requests and responses.</summary>
-        public List<IHttpFilter> Filters { get; private set; }
+        public List<IHttpFilter> Filters { get; }
 
         /// <summary>The underlying HTTP client.</summary>
-        public HttpClient BaseClient { get; private set; }
+        public HttpClient BaseClient { get; }
 
         /// <summary>The formatters used for serializing and deserializing message bodies.</summary>
         public MediaTypeFormatterCollection Formatters { get; protected set; }
@@ -45,7 +46,7 @@ namespace Pathoschild.Http.Client
         /// <param name="client">The underlying HTTP client.</param>
         public FluentClient(string baseUri, HttpClient client = null)
         {
-            _mustDisposeHttpClient = client == null;
+            this.MustDisposeBaseClient = client == null;
             this.BaseClient = client ?? new HttpClient();
             this.Filters = new List<IHttpFilter> { new DefaultErrorFilter() };
             if (baseUri != null)
@@ -161,7 +162,7 @@ namespace Pathoschild.Http.Client
             if (this.IsDisposed)
                 return;
 
-            if (isDisposing && _mustDisposeHttpClient)
+            if (isDisposing && this.MustDisposeBaseClient)
                 this.BaseClient.Dispose();
 
             this.IsDisposed = true;
