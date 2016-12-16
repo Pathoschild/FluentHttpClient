@@ -53,6 +53,13 @@ namespace Pathoschild.Http.Tests.Client
             }
         }
 
+        [Test(Description = "Ensure the version property is populated")]
+        public void Version()
+        {
+            var client = (FluentClient)this.ConstructClient();
+            Assert.IsNotNull(client.Version);
+        }
+
         [Test(Description = "Ensure that the HTTP DELETE method constructs a request message with the expected initial state.")]
         [TestCase("resource")]
         public void Delete(string resource)
@@ -161,7 +168,6 @@ namespace Pathoschild.Http.Tests.Client
             // verify
             this.AssertEqual(request, method, resource, baseUri: "");
         }
-
 
         /*********
         ** Protected methods

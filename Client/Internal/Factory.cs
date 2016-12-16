@@ -42,7 +42,6 @@ namespace Pathoschild.Http.Client.Internal
             HttpRequestMessage request = new HttpRequestMessage(method, resource);
 
             // add default headers
-            request.Headers.Add("user-agent", "FluentHttpClient/0.4 (+http://github.com/Pathoschild/Pathoschild.FluentHttpClient)");
             request.Headers.Add("accept", formatters.SelectMany(p => p.SupportedMediaTypes).Select(p => p.MediaType));
 
             return request;
