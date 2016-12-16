@@ -1,4 +1,5 @@
-﻿using System.Net.Http;
+﻿using System;
+using System.Net.Http;
 using NUnit.Framework;
 using Pathoschild.Http.Client;
 
@@ -16,6 +17,40 @@ namespace Pathoschild.Http.Tests.Client
         public void Construct(string uri)
         {
             this.ConstructClient(uri, false);
+        }
+
+        [Test(Description = "Ensure that the fluent client disposes its own HTTP client.")]
+        [TestCase("http://base-url/")]
+        public void Dipose_DisposesOwnClient(string uri)
+        {
+            // execute
+            IClient client = this.ConstructClient(uri);
+            client.Dispose();
+
+            // verify
+            Assert.Throws<ObjectDisposedException>(() => client.BaseClient.GetAsync(""));
+        }
+
+        [Test(Description = "Ensure that the fluent client does not dispose the HTTP client if it was passed in.")]
+        [TestCase("http://base-url/")]
+        public void Dipose_DoesNotDisposeInjectedClient(string uri)
+        {
+            using (HttpClient httpClient = new HttpClient())
+            {
+                // execute
+                IClient fluentClient = this.ConstructClient(uri, httpClient: httpClient);
+                fluentClient.Dispose();
+
+                // verify
+                try
+                {
+                    httpClient.GetAsync("");
+                }
+                catch (ObjectDisposedException)
+                {
+                    Assert.Fail("The HTTP client was incorrectly disposed by the client.");
+                }
+            }
         }
 
         [Test(Description = "Ensure the version property is populated")]
@@ -150,12 +185,12 @@ namespace Pathoschild.Http.Tests.Client
         /// <param name="inconclusiveOnFailure">Whether to throw an <see cref="InconclusiveException"/> if the initial state is invalid.</param>
         /// <exception cref="InconclusiveException">The initial state of the constructed client is invalid, and <paramref name="inconclusiveOnFailure"/> is <c>true</c>.</exception>
         /// <exception cref="AssertionException">The initial state of the constructed client is invalid, and <paramref name="inconclusiveOnFailure"/> is <c>false</c>.</exception>
-        protected IClient ConstructClient(string baseUri = "http://example.com/", bool inconclusiveOnFailure = true)
+        protected IClient ConstructClient(string baseUri = "http://example.com/", bool inconclusiveOnFailure = true, HttpClient httpClient = null)
         {
             try
             {
                 // execute
-                IClient client = new FluentClient(baseUri);
+                IClient client = new FluentClient(baseUri, httpClient);
 
                 // verify
                 Assert.NotNull(client.BaseClient, "The base client is null.");
