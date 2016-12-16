@@ -182,7 +182,7 @@ namespace Pathoschild.Http.Client.Internal
         public async Task<string> AsString()
         {
             HttpResponseMessage message = await this.AsMessage().ConfigureAwait(false);
-            return await message.Content.ReadAsStringAsync().ConfigureAwait(false);
+            return await message.Content.ReadAsStringAsync(null).ConfigureAwait(false);
         }
 
         /// <summary>Asynchronously retrieve the response body as a <see cref="Stream"/>.</summary>
