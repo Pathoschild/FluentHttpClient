@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Formatting;
+using System.Reflection;
 using Pathoschild.Http.Client.Extensibility;
 using Pathoschild.Http.Client.Internal;
-using System.Reflection;
 
 namespace Pathoschild.Http.Client
 {
@@ -34,9 +34,6 @@ namespace Pathoschild.Http.Client
         /// <summary>The formatters used for serializing and deserializing message bodies.</summary>
         public MediaTypeFormatterCollection Formatters { get; protected set; }
 
-        /// <summary>The version of the FluentClient</summary>
-        public string Version { get; } = typeof(FluentClient).GetTypeInfo().Assembly.GetName().Version.ToString();
-
 
         /*********
         ** Public methods
@@ -64,6 +61,7 @@ namespace Pathoschild.Http.Client
         /// <param name="client">The underlying HTTP client.</param>
         public FluentClient(Uri baseUri, HttpClient client = null)
         {
+            // initialise
             this.MustDisposeBaseClient = client == null;
             this.BaseClient = client ?? new HttpClient();
             this.Filters = new List<IHttpFilter> { new DefaultErrorFilter() };
@@ -71,8 +69,9 @@ namespace Pathoschild.Http.Client
                 this.BaseClient.BaseAddress = baseUri;
             this.Formatters = new MediaTypeFormatterCollection();
 
-            var userAgent = $"FluentHttpClient/{this.Version} (+http://github.com/Pathoschild/Pathoschild.FluentHttpClient)";
-            this.BaseClient.DefaultRequestHeaders.TryAddWithoutValidation("User-Agent", userAgent);
+            // set default user agent
+            Version version = typeof(FluentClient).GetTypeInfo().Assembly.GetName().Version;
+            this.SetUserAgent($"FluentHttpClient/{version} (+http://github.com/Pathoschild/FluentHttpClient)");
         }
 
         /// <summary>Create an asynchronous HTTP DELETE request message (but don't dispatch it yet).</summary>
@@ -157,10 +156,12 @@ namespace Pathoschild.Http.Client
             return new Request(message, this.Formatters, request => this.BaseClient.SendAsync(request.Message), this.Filters.ToArray());
         }
 
-        public void SetUserAgent(string useragent)
+        /// <summary>Set the default user agent header.</summary>
+        /// <param name="userAgent">The user agent header value.</param>
+        public void SetUserAgent(string userAgent)
         {
             this.BaseClient.DefaultRequestHeaders.Remove("User-Agent");
-            this.BaseClient.DefaultRequestHeaders.TryAddWithoutValidation("User-Agent", useragent);
+            this.BaseClient.DefaultRequestHeaders.Add("User-Agent", userAgent);
         }
 
         /// <summary>Free resources used by the client.</summary>

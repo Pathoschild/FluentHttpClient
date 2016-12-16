@@ -53,11 +53,31 @@ namespace Pathoschild.Http.Tests.Client
             }
         }
 
-        [Test(Description = "Ensure the version property is populated")]
-        public void Version()
+        [Test(Description = "Ensure the user agent header is populated by default.")]
+        public void SetUserAgent_HasDefaultValue()
         {
-            var client = (FluentClient)this.ConstructClient();
-            Assert.IsNotNull(client.Version);
+            // execute
+            IClient client = this.ConstructClient();
+
+            // verify
+            string userAgent = client.BaseClient.DefaultRequestHeaders.UserAgent.ToString();
+            Console.WriteLine("user agent: " + userAgent);
+            if (string.IsNullOrWhiteSpace(userAgent))
+                Assert.Fail("The client has no default user agent.");
+        }
+
+        [Test(Description = "Ensure the user agent header is populated with the given value.")]
+        public void SetUserAgent_UsesValue()
+        {
+            const string sampleValue = "example user agent";
+
+            // execute
+            IClient client = this.ConstructClient();
+            client.SetUserAgent(sampleValue);
+
+            // verify
+            string userAgent = client.BaseClient.DefaultRequestHeaders.UserAgent.ToString();
+            Assert.AreEqual(sampleValue, userAgent);
         }
 
         [Test(Description = "Ensure that the HTTP DELETE method constructs a request message with the expected initial state.")]

@@ -24,7 +24,7 @@
         <dependency id="System.Net.Http" version="4.3.0" />
       </group>
     </dependencies>
-    <releaseNotes>Added convenience constructors; the fluent client no longer disposes HTTP clients that are passed in.</releaseNotes>
+    <releaseNotes>Added convenience constructors; added method to set user agent; the fluent client no longer disposes HTTP clients that are passed in.</releaseNotes>
   </metadata>
   <files>
     <file src="bin\Release\net452\Pathoschild.Http.Client.dll" target="lib\net452\" />

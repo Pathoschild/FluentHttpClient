@@ -65,8 +65,8 @@ namespace Pathoschild.Http.Client
         /// <returns>Returns a request builder.</returns>
         IRequest SendAsync(HttpRequestMessage message);
 
-        /// <summary>Set the useragent string that will be used with every request.</summary>
-        /// <param name="useragent">The useragent string.</param>
-        void SetUserAgent(string useragent);
+        /// <summary>Set the default user agent header.</summary>
+        /// <param name="userAgent">The user agent header value.</param>
+        void SetUserAgent(string userAgent);
     }
 }
