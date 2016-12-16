@@ -1,4 +1,5 @@
-﻿using System.Net.Http;
+﻿using System;
+using System.Net.Http;
 using NUnit.Framework;
 using Pathoschild.Http.Client;
 
@@ -18,16 +19,38 @@ namespace Pathoschild.Http.Tests.Client
             this.ConstructClient(uri, false);
         }
 
-        [Test(Description = "Ensure that the HttpClient is not disposed with FluentClient.")]
+        [Test(Description = "Ensure that the fluent client disposes its own HTTP client.")]
         [TestCase("http://base-url/")]
-        public void Destructor(string uri)
+        public void Dipose_DisposesOwnClient(string uri)
         {
-            var httpClient = new HttpClient();
-            using (var fluentClient = this.ConstructClient(uri, false, httpClient))
+            // execute
+            IClient client = this.ConstructClient(uri);
+            client.Dispose();
+
+            // verify
+            Assert.Throws<ObjectDisposedException>(() => client.BaseClient.GetAsync(""));
+        }
+
+        [Test(Description = "Ensure that the fluent client does not dispose the HTTP client if it was passed in.")]
+        [TestCase("http://base-url/")]
+        public void Dipose_DoesNotDisposeInjectedClient(string uri)
+        {
+            using (HttpClient httpClient = new HttpClient())
             {
+                // execute
+                IClient fluentClient = this.ConstructClient(uri, httpClient: httpClient);
                 fluentClient.Dispose();
+
+                // verify
+                try
+                {
+                    httpClient.GetAsync("");
+                }
+                catch (ObjectDisposedException)
+                {
+                    Assert.Fail("The HTTP client was incorrectly disposed by the client.");
+                }
             }
-            Assert.IsNotNull(httpClient);
         }
 
         [Test(Description = "Ensure that the HTTP DELETE method constructs a request message with the expected initial state.")]
