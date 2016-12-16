@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Net;
 using System.Net.Http;
 using System.Net.Http.Formatting;
 using Pathoschild.Http.Client.Extensibility;
 using Pathoschild.Http.Client.Internal;
-using System.Net;
 
 namespace Pathoschild.Http.Client
 {
@@ -41,7 +41,7 @@ namespace Pathoschild.Http.Client
         /// <param name="baseUri">The base URI prepended to relative request URIs.</param>
         /// <param name="proxy">The web proxy.</param>
         public FluentClient(string baseUri, IWebProxy proxy)
-            : this(new Uri(baseUri), new HttpClient(new HttpClientHandler { Proxy = proxy, UseProxy = proxy != null })) { }
+            : this(new Uri(baseUri), proxy) { }
 
         /// <summary>Construct an instance.</summary>
         /// <param name="baseUri">The base URI prepended to relative request URIs.</param>
