@@ -24,7 +24,7 @@ namespace Pathoschild.Http.Client
         ***/
         /// <summary>Set the body content of the HTTP request.</summary>
         /// <param name="body">The value to serialize into the HTTP body content.</param>
-        /// <param name="contentType">The request body format (or <c>null</c> to use the first supported Content-Type in the <see cref="Client.IRequest.Formatters"/>).</param>
+        /// <param name="contentType">The request body format (or <c>null</c> to use the first supported Content-Type in the <see cref="Formatters"/>).</param>
         /// <returns>Returns the request builder for chaining.</returns>
         /// <exception cref="InvalidOperationException">No MediaTypeFormatters are available on the API client for this content type.</exception>
         IRequest WithBody<T>(T body, MediaTypeHeaderValue contentType = null);
