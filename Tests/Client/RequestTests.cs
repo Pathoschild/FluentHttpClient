@@ -243,9 +243,10 @@ namespace Pathoschild.Http.Tests.Client
                 // set up
                 HttpMethod method = new HttpMethod(methodName);
                 HttpRequestMessage message = new HttpRequestMessage(method, uri);
+                IRetryStrategy retryStrategy = new NoRetryStrategy();
 
                 // execute
-                IRequest request = new Request(message, new MediaTypeFormatterCollection(), r => new Task<HttpResponseMessage>(() => null), new IHttpFilter[0]);
+                IRequest request = new Request(message, new MediaTypeFormatterCollection(), r => new Task<HttpResponseMessage>(() => null), new IHttpFilter[0], retryStrategy);
 
                 // verify
                 this.AssertEqual(request.Message, method, uri);
