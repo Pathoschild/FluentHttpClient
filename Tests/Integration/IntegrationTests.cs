@@ -11,10 +11,30 @@ namespace Pathoschild.Http.Tests.Integration
     public class IntegrationTests
     {
         /*********
+        ** Properties
+        *********/
+        /// <summary>The metadata expected from the English Wikipedia.</summary>
+        private readonly WikipediaMetadata.WikipediaGeneral EnwikiMetadata = new WikipediaMetadata.WikipediaGeneral
+        {
+            ArticlePath = "/wiki/$1",
+            Base = "https://en.wikipedia.org/wiki/Main_Page",
+            Language = "en",
+            MainPage = "Main Page",
+            MaxUploadSize = 4294967296,
+            ScriptPath = "/w",
+            Server = "//en.wikipedia.org",
+            SiteName = "Wikipedia",
+            Time = DateTime.UtcNow,
+            VariantArticlePath = "false",
+            WikiID = "enwiki"
+        };
+
+
+        /*********
         ** Unit tests
         *********/
-        [Test(Description = "The client can fetch a resource from Wikipedia's API.")]
-        public async Task Wikipedia()
+        [Test(Description = "The client can fetch a resource from the English Wikipedia's API.")]
+        public async Task EnglishWikipedia()
         {
             // arrange
             IClient client = this.ConstructClient("https://en.wikipedia.org/");
@@ -25,7 +45,8 @@ namespace Pathoschild.Http.Tests.Integration
                 .WithArguments(new { action = "query", meta = "siteinfo", siprop = "general", format = "json" })
                 .As<WikipediaMetadata>();
 
-            this.AssertResponse(response, "First request");
+            // assert
+            this.AssertResponse(response, this.EnwikiMetadata, "First request");
         }
 
         [Test(Description = "The client response is null if it performs the same request twice. This matches the behaviour of the underlying HTTP client.")]
@@ -33,14 +54,14 @@ namespace Pathoschild.Http.Tests.Integration
         {
             // arrange
             IClient client = this.ConstructClient("http://en.wikipedia.org/");
+
+            // act
             IRequest request = client
                 .GetAsync("w/api.php")
                 .WithArguments(new { action = "query", meta = "siteinfo", siprop = "general", format = "json" });
 
-            // act
-            this.AssertResponse(await request.As<WikipediaMetadata>(), "First request");
-
             // assert
+            this.AssertResponse(await request.As<WikipediaMetadata>(), this.EnwikiMetadata, "First request");
             Assert.IsNull(await request.WithArgument("limit", "max").As<WikipediaMetadata>(), null);
         }
 
@@ -54,7 +75,6 @@ namespace Pathoschild.Http.Tests.Integration
             IRequest request = client
                 .GetAsync("w/api.php")
                 .WithArguments(new { action = "query", meta = "siteinfo", siprop = "general", format = "json" });
-
             string valueA = await request.AsString();
             string valueB = await request.AsString();
 
@@ -76,8 +96,9 @@ namespace Pathoschild.Http.Tests.Integration
 
         /// <summary>Performs assertions on the specified Wikimedia metadata.</summary>
         /// <param name="response">The metadata to assert.</param>
+        /// <param name="expected">The expected metadata.</param>
         /// <param name="prefix">The property name prefix to use within assertion exceptions.</param>
-        protected void AssertResponse(WikipediaMetadata response, string prefix)
+        protected void AssertResponse(WikipediaMetadata response, WikipediaMetadata.WikipediaGeneral expected, string prefix)
         {
             // assert
             Assert.IsNotNull(response, prefix + " metadata is null");
@@ -85,17 +106,17 @@ namespace Pathoschild.Http.Tests.Integration
             Assert.IsNotNull(response.Query.General, prefix + " metadata.Query.General is null.");
 
             response.Query.General
-                .AssertValue(p => p.ArticlePath, "/wiki/$1")
-                .AssertValue(p => p.Base, "https://en.wikipedia.org/wiki/Main_Page")
-                .AssertValue(p => p.Language, "en")
-                .AssertValue(p => p.MainPage, "Main Page")
-                .AssertValue(p => p.MaxUploadSize, 4294967296)
-                .AssertValue(p => p.ScriptPath, "/w")
-                .AssertValue(p => p.Server, "//en.wikipedia.org")
-                .AssertValue(p => p.SiteName, "Wikipedia")
-                .AssertValue(p => p.Time.Date, DateTime.UtcNow.Date)
-                .AssertValue(p => p.VariantArticlePath, false)
-                .AssertValue(p => p.WikiID, "enwiki");
+                .AssertValue(p => p.ArticlePath, expected.ArticlePath)
+                .AssertValue(p => p.Base, expected.Base)
+                .AssertValue(p => p.Language, expected.Language)
+                .AssertValue(p => p.MainPage, expected.MainPage)
+                .AssertValue(p => p.MaxUploadSize, expected.MaxUploadSize)
+                .AssertValue(p => p.ScriptPath, expected.ScriptPath)
+                .AssertValue(p => p.Server, expected.Server)
+                .AssertValue(p => p.SiteName, expected.SiteName)
+                .AssertValue(p => p.Time.Date, expected.Time.Date)
+                .AssertValue(p => p.VariantArticlePath, expected.VariantArticlePath)
+                .AssertValue(p => p.WikiID, expected.WikiID);
         }
     }
 

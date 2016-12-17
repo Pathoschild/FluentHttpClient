@@ -47,8 +47,8 @@ namespace Pathoschild.Http.Tests.Integration
             /// <summary>The internal identifier for this wiki which is unique within the wiki farm.</summary>
             public string WikiID { get; set; }
 
-            /// <summary>Whether article paths depend on language variants.</summary>
-            public bool VariantArticlePath { get; set; }
+            /// <summary>The article path for language variants.</summary>
+            public string VariantArticlePath { get; set; }
 
             /// <summary>The current time when the API response was generated.</summary>
             public DateTime Time { get; set; }
