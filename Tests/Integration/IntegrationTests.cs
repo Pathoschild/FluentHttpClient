@@ -29,6 +29,22 @@ namespace Pathoschild.Http.Tests.Integration
             WikiID = "enwiki"
         };
 
+        /// <summary>The metadata expected from the Chinese Wikipedia.</summary>
+        private readonly WikipediaMetadata.WikipediaGeneral ZhwikiMetadata = new WikipediaMetadata.WikipediaGeneral
+        {
+            ArticlePath = "/wiki/$1",
+            Base = "https://zh.wikipedia.org/wiki/Wikipedia:%E9%A6%96%E9%A1%B5",
+            Language = "zh",
+            MainPage = "Wikipedia:\u9996\u9875",
+            MaxUploadSize = 4294967296,
+            ScriptPath = "/w",
+            Server = "//zh.wikipedia.org",
+            SiteName = "Wikipedia",
+            Time = DateTime.UtcNow,
+            VariantArticlePath = "/$2/$1",
+            WikiID = "zhwiki"
+        };
+
 
         /*********
         ** Unit tests
@@ -47,6 +63,22 @@ namespace Pathoschild.Http.Tests.Integration
 
             // assert
             this.AssertResponse(response, this.EnwikiMetadata, "First request");
+        }
+
+        [Test(Description = "The client can fetch a resource from the Chinese Wikipedia's API, including proper Unicode handling.")]
+        public async Task ChineseWikipedia()
+        {
+            // arrange
+            IClient client = this.ConstructClient("https://zh.wikipedia.org/");
+
+            // act
+            WikipediaMetadata response = await client
+                .GetAsync("w/api.php")
+                .WithArguments(new { action = "query", meta = "siteinfo", siprop = "general", format = "json" })
+                .As<WikipediaMetadata>();
+
+            // assert
+            this.AssertResponse(response, this.ZhwikiMetadata, "First request");
         }
 
         [Test(Description = "The client response is null if it performs the same request twice. This matches the behaviour of the underlying HTTP client.")]
