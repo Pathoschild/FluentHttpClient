@@ -215,9 +215,23 @@ namespace Pathoschild.Http.Client.Internal
         {
             foreach (IHttpFilter filter in this.Filters)
                 filter.OnRequest(this, this.Message);
-            HttpResponseMessage response = await request.ConfigureAwait(false);
+
+            var response = await request.ConfigureAwait(false);
+            if (this.RetryStrategy != null)
+            {
+                var attempt = 1;
+                while (this.RetryStrategy.ShouldRetry(attempt, response))
+                {
+                    var delay = this.RetryStrategy.GetNextDelay(attempt, response);
+                    if (delay.TotalMilliseconds > 0) await Task.Delay(delay).ConfigureAwait(false);
+                    response = await request.ConfigureAwait(false);
+                    attempt++;
+                }
+            }
+
             foreach (IHttpFilter filter in this.Filters)
                 filter.OnResponse(this, response);
+
             return response;
         }
 
