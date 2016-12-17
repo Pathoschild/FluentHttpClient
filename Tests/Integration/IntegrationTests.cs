@@ -3,7 +3,6 @@ using System.Linq.Expressions;
 using System.Threading.Tasks;
 using NUnit.Framework;
 using Pathoschild.Http.Client;
-using Pathoschild.Http.Client.Formatters;
 
 namespace Pathoschild.Http.Tests.Integration
 {
@@ -72,10 +71,7 @@ namespace Pathoschild.Http.Tests.Integration
         /// <param name="url">The base URI prepended to relative request URIs.</param>
         protected IClient ConstructClient(string url)
         {
-            IClient client = new FluentClient(url);
-            client.Formatters.Remove(client.Formatters.JsonFormatter);
-            client.Formatters.Add(new JsonNetFormatter());
-            return client;
+            return new FluentClient(url);
         }
 
         /// <summary>Performs assertions on the specified Wikimedia metadata.</summary>
