@@ -366,7 +366,7 @@ namespace Pathoschild.Http.Tests.Client
         protected IRequest ConstructResponseFromTask(Task<HttpResponseMessage> task)
         {
             HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Get, "http://example.org/");
-            return new Request(request, new MediaTypeFormatterCollection(), p => task, new IHttpFilter[0]);
+            return new Request(request, new MediaTypeFormatterCollection(), p => task, new IHttpFilter[0], null);
         }
 
         /// <summary>Construct an <see cref="IResponse"/> instance around an asynchronous task.</summary>
@@ -374,7 +374,7 @@ namespace Pathoschild.Http.Tests.Client
         protected IRequest ConstructResponseFromTask(Func<HttpResponseMessage> task)
         {
             HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Get, "http://example.org/");
-            return new Request(request, new MediaTypeFormatterCollection(), p => Task<HttpResponseMessage>.Factory.StartNew(task), new IHttpFilter[0]);
+            return new Request(request, new MediaTypeFormatterCollection(), p => Task<HttpResponseMessage>.Factory.StartNew(task), new IHttpFilter[0], null);
         }
 
         /// <summary>Construct an <see cref="IResponse"/> instance and assert that its initial state is valid.</summary>
@@ -402,7 +402,7 @@ namespace Pathoschild.Http.Tests.Client
                 IHttpFilter[] filters = throwApiError
                     ? new IHttpFilter[] { new DefaultErrorFilter() }
                     : new IHttpFilter[0];
-                IRequest request = new Request(requestMessage, new MediaTypeFormatterCollection(), p => task, filters);
+                IRequest request = new Request(requestMessage, new MediaTypeFormatterCollection(), p => task, filters, null);
 
                 // verify
                 this.AssertEqual(request.Message, method, uri);
