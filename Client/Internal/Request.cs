@@ -222,6 +222,7 @@ namespace Pathoschild.Http.Client.Internal
                 var attempt = 1;
                 while (this.RetryStrategy.ShouldRetry(attempt, response))
                 {
+                    if (attempt >= 25) throw new ApiException(this, response, "Too many attempts");
                     var delay = this.RetryStrategy.GetNextDelay(attempt, response);
                     if (delay.TotalMilliseconds > 0) await Task.Delay(delay).ConfigureAwait(false);
                     response = await request.ConfigureAwait(false);
