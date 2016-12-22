@@ -1,6 +1,9 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Http;
 using Pathoschild.Http.Client.Extensibility;
+using Pathoschild.Http.Client.Internal;
 
 namespace Pathoschild.Http.Client
 {
@@ -17,6 +20,83 @@ namespace Pathoschild.Http.Client
             TFilter filter = filters.OfType<TFilter>().FirstOrDefault();
             return filter != null && filters.Remove(filter);
 
+        }
+
+        /// <summary>Create an asynchronous HTTP DELETE request message (but don't dispatch it yet).</summary>
+        /// <param name="client">The client.</param>
+        /// <param name="resource">The URI to send the request to.</param>
+        /// <returns>Returns a request builder.</returns>
+        /// <exception cref="ObjectDisposedException">The instance has been disposed.</exception>
+        public static IRequest DeleteAsync(this IClient client, string resource)
+        {
+            return client.SendAsync(HttpMethod.Delete, resource);
+        }
+
+        /// <summary>Create an asynchronous HTTP GET request message (but don't dispatch it yet).</summary>
+        /// <param name="client">The client.</param>
+        /// <param name="resource">The URI to send the request to.</param>
+        /// <returns>Returns a request builder.</returns>
+        /// <exception cref="ObjectDisposedException">The instance has been disposed.</exception>
+        public static IRequest GetAsync(this IClient client, string resource)
+        {
+            return client.SendAsync(HttpMethod.Get, resource);
+        }
+
+        /// <summary>Create an asynchronous HTTP POST request message (but don't dispatch it yet).</summary>
+        /// <param name="client">The client.</param>
+        /// <param name="resource">The URI to send the request to.</param>
+        /// <returns>Returns a request builder.</returns>
+        /// <exception cref="ObjectDisposedException">The instance has been disposed.</exception>
+        public static IRequest PostAsync(this IClient client, string resource)
+        {
+            return client.SendAsync(HttpMethod.Post, resource);
+        }
+
+        /// <summary>Create an asynchronous HTTP POST request message (but don't dispatch it yet).</summary>
+        /// <param name="client">The client.</param>
+        /// <typeparam name="TBody">The request body type.</typeparam>
+        /// <param name="resource">The URI to send the request to.</param>
+        /// <param name="body">The request body.</param>
+        /// <returns>Returns a request builder.</returns>
+        /// <exception cref="ObjectDisposedException">The instance has been disposed.</exception>
+        public static IRequest PostAsync<TBody>(this IClient client, string resource, TBody body)
+        {
+            return client.PostAsync(resource).WithBody(body);
+        }
+
+        /// <summary>Create an asynchronous HTTP PUT request message (but don't dispatch it yet).</summary>
+        /// <param name="client">The client.</param>
+        /// <param name="resource">The URI to send the request to.</param>
+        /// <returns>Returns a request builder.</returns>
+        /// <exception cref="ObjectDisposedException">The instance has been disposed.</exception>
+        public static IRequest PutAsync(this IClient client, string resource)
+        {
+            return client.SendAsync(HttpMethod.Put, resource);
+        }
+
+        /// <summary>Create an asynchronous HTTP PUT request message (but don't dispatch it yet).</summary>
+        /// <param name="client">The client.</param>
+        /// <typeparam name="TBody">The request body type.</typeparam>
+        /// <param name="resource">The URI to send the request to.</param>
+        /// <param name="body">The request body.</param>
+        /// <returns>Returns a request builder.</returns>
+        /// <exception cref="ObjectDisposedException">The instance has been disposed.</exception>
+        public static IRequest PutAsync<TBody>(this IClient client, string resource, TBody body)
+        {
+            return client.PutAsync(resource).WithBody(body);
+        }
+
+        /// <summary>Create an asynchronous HTTP request message (but don't dispatch it yet).</summary>
+        /// <param name="client">The client.</param>
+        /// <param name="method">The HTTP method.</param>
+        /// <param name="resource">The URI to send the request to.</param>
+        /// <returns>Returns a request builder.</returns>
+        /// <exception cref="ObjectDisposedException">The instance has been disposed.</exception>
+        public static IRequest SendAsync(this IClient client, HttpMethod method, string resource)
+        {
+            var uri = new Uri(client.BaseClient.BaseAddress, resource);
+            var message = Factory.GetRequestMessage(method, uri, client.Formatters);
+            return client.SendAsync(message);
         }
     }
 }
