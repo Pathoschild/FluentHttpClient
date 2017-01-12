@@ -38,5 +38,9 @@ namespace Pathoschild.Http.Client
         /// <summary>Set the default user agent header.</summary>
         /// <param name="userAgent">The user agent header value.</param>
         IClient SetUserAgent(string userAgent);
+
+        /// <summary>Set the default retry strategy</summary>
+        /// <param name="retryStrategy">The retry strategy.</param>
+        IClient SetRetryStrategy(IRetryStrategy retryStrategy);
     }
 }

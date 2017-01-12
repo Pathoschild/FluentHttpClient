@@ -25,6 +25,9 @@ namespace Pathoschild.Http.Client.Internal
         /// <summary>Executes the current HTTP request.</summary>
         private readonly Lazy<Task<HttpResponseMessage>> Dispatch;
 
+        /// <summary>The retry strategy.</summary>
+        private readonly IRetryStrategy RetryStrategy;
+
 
         /*********
         ** Accessors
@@ -44,12 +47,14 @@ namespace Pathoschild.Http.Client.Internal
         /// <param name="formatters">The formatters used for serializing and deserializing message bodies.</param>
         /// <param name="dispatcher">Executes an HTTP request.</param>
         /// <param name="filters">Middleware classes which can intercept and modify HTTP requests and responses.</param>
-        public Request(HttpRequestMessage message, MediaTypeFormatterCollection formatters, Func<IRequest, Task<HttpResponseMessage>> dispatcher, IHttpFilter[] filters)
+        public Request(HttpRequestMessage message, MediaTypeFormatterCollection formatters, Func<IRequest, Task<HttpResponseMessage>> dispatcher, IHttpFilter[] filters, IRetryStrategy retryStrategy)
         {
             this.Message = message;
             this.Formatters = formatters;
             this.Dispatch = new Lazy<Task<HttpResponseMessage>>(() => dispatcher(this));
             this.Filters = filters;
+            this.RetryStrategy = retryStrategy ?? new NoRetryStrategy();
+
         }
 
         /***
@@ -215,9 +220,24 @@ namespace Pathoschild.Http.Client.Internal
         {
             foreach (IHttpFilter filter in this.Filters)
                 filter.OnRequest(this, this.Message);
-            HttpResponseMessage response = await request.ConfigureAwait(false);
+
+            var response = await request.ConfigureAwait(false);
+            if (this.RetryStrategy != null)
+            {
+                var attempt = 1;
+                while (this.RetryStrategy.ShouldRetry(attempt, response))
+                {
+                    if (attempt >= 25) throw new ApiException(this, response, "Too many attempts");
+                    var delay = this.RetryStrategy.GetNextDelay(attempt, response);
+                    if (delay.TotalMilliseconds > 0) await Task.Delay(delay).ConfigureAwait(false);
+                    response = await request.ConfigureAwait(false);
+                    attempt++;
+                }
+            }
+
             foreach (IHttpFilter filter in this.Filters)
                 filter.OnResponse(this, response);
+
             return response;
         }
 
