@@ -25,6 +25,9 @@ namespace Pathoschild.Http.Client.Internal
         /// <summary>Executes the current HTTP request.</summary>
         private readonly Lazy<Task<HttpResponseMessage>> Dispatch;
 
+        /// <summary>The retry strategy.</summary>
+        private readonly IRetryStrategy RetryStrategy;
+
 
         /*********
         ** Accessors
@@ -44,12 +47,14 @@ namespace Pathoschild.Http.Client.Internal
         /// <param name="formatters">The formatters used for serializing and deserializing message bodies.</param>
         /// <param name="dispatcher">Executes an HTTP request.</param>
         /// <param name="filters">Middleware classes which can intercept and modify HTTP requests and responses.</param>
-        public Request(HttpRequestMessage message, MediaTypeFormatterCollection formatters, Func<IRequest, Task<HttpResponseMessage>> dispatcher, IHttpFilter[] filters)
+        public Request(HttpRequestMessage message, MediaTypeFormatterCollection formatters, Func<IRequest, Task<HttpResponseMessage>> dispatcher, IHttpFilter[] filters, IRetryStrategy retryStrategy)
         {
             this.Message = message;
             this.Formatters = formatters;
             this.Dispatch = new Lazy<Task<HttpResponseMessage>>(() => dispatcher(this));
             this.Filters = filters;
+            this.RetryStrategy = retryStrategy ?? new NoRetryStrategy();
+
         }
 
         /***
