@@ -8,6 +8,7 @@ using Pathoschild.Http.Client.Extensibility;
 using Pathoschild.Http.Client.Internal;
 using System.Net.Http.Headers;
 using System.Linq;
+using System.Threading;
 
 namespace Pathoschild.Http.Client
 {
@@ -86,7 +87,7 @@ namespace Pathoschild.Http.Client
         public virtual IRequest SendAsync(HttpRequestMessage message)
         {
             this.AssertNotDisposed();
-            return new Request(message, this.Formatters, request => this.BaseClient.SendAsync(request.Message), this.Filters.ToArray());
+            return new Request(message, this.Formatters, request => this.BaseClient.SendAsync(request.Message, request.CancellationToken), this.Filters.ToArray());
         }
 
         /// <summary>Specify the authentication that will be used with every request.</summary>

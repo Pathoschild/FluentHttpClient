@@ -8,6 +8,7 @@ using System.Net.Http.Formatting;
 using System.Net.Http.Headers;
 using System.Reflection;
 using System.Runtime.CompilerServices;
+using System.Threading;
 using System.Threading.Tasks;
 using Pathoschild.Http.Client.Extensibility;
 
@@ -35,6 +36,9 @@ namespace Pathoschild.Http.Client.Internal
         /// <summary>The formatters used for serializing and deserializing message bodies.</summary>
         public MediaTypeFormatterCollection Formatters { get; }
 
+        /// <summary>The optional token used to cancel async operations.</summary>
+        public CancellationToken CancellationToken { get; private set; }
+
 
         /*********
         ** Public methods
@@ -50,6 +54,7 @@ namespace Pathoschild.Http.Client.Internal
             this.Formatters = formatters;
             this.Dispatch = new Lazy<Task<HttpResponseMessage>>(() => dispatcher(this));
             this.Filters = filters;
+            this.CancellationToken = CancellationToken.None;
         }
 
         /***
@@ -122,6 +127,15 @@ namespace Pathoschild.Http.Client.Internal
         public IRequest WithCustom(Action<HttpRequestMessage> request)
         {
             request(this.Message);
+            return this;
+        }
+
+        /// <summary>Specify the token that can be used to cancel the async operation.</summary>
+        /// <param name="cancellationToken">The cancellationtoken.</param>
+        /// <returns>Returns the request builder for chaining.</returns>
+        public IRequest WithCancellationToken(CancellationToken cancellationToken)
+        {
+            this.CancellationToken = cancellationToken;
             return this;
         }
 
