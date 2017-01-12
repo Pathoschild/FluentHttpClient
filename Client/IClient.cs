@@ -28,9 +28,8 @@ namespace Pathoschild.Http.Client
         *********/
         /// <summary>Create an asynchronous HTTP request message (but don't dispatch it yet).</summary>
         /// <param name="message">The HTTP request message to send.</param>
-        /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>Returns a request builder.</returns>
-        IRequest SendAsync(HttpRequestMessage message, CancellationToken cancellationToken = default(CancellationToken));
+        IRequest SendAsync(HttpRequestMessage message);
 
         /// <summary>Specify the authentication that will be used with every request.</summary>
         /// <param name="scheme">The scheme to use for authorization. e.g.: "Basic", "Bearer".</param>

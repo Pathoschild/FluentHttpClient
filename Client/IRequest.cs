@@ -3,6 +3,7 @@ using System.Net.Http;
 using System.Net.Http.Formatting;
 using System.Net.Http.Headers;
 using System.Runtime.CompilerServices;
+using System.Threading;
 
 namespace Pathoschild.Http.Client
 {
@@ -14,6 +15,9 @@ namespace Pathoschild.Http.Client
         *********/
         /// <summary>The underlying HTTP request message.</summary>
         HttpRequestMessage Message { get; }
+
+        /// <summary>The optional token used to cancel async operations.</summary>
+        CancellationToken CancellationToken { get; }
 
 
         /*********
@@ -63,6 +67,11 @@ namespace Pathoschild.Http.Client
         /// <param name="request">The HTTP request message.</param>
         /// <returns>Returns the request builder for chaining.</returns>
         IRequest WithCustom(Action<HttpRequestMessage> request);
+
+        /// <summary>Specify the token that can be used to cancel the async operation.</summary>
+        /// <param name="cancellationToken">The cancellationtoken.</param>
+        /// <returns>Returns the request builder for chaining.</returns>
+        IRequest WithCancellationToken(CancellationToken cancellationToken);
 
         /// <summary>Get an object that waits for the completion of the request. This enables support for the <c>await</c> keyword.</summary>
         /// <example>

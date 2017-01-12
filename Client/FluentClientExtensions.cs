@@ -27,56 +27,51 @@ namespace Pathoschild.Http.Client
         /// <summary>Create an asynchronous HTTP DELETE request message (but don't dispatch it yet).</summary>
         /// <param name="client">The client.</param>
         /// <param name="resource">The URI to send the request to.</param>
-        /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>Returns a request builder.</returns>
         /// <exception cref="ObjectDisposedException">The instance has been disposed.</exception>
-        public static IRequest DeleteAsync(this IClient client, string resource, CancellationToken cancellationToken = default(CancellationToken))
+        public static IRequest DeleteAsync(this IClient client, string resource)
         {
-            return client.SendAsync(HttpMethod.Delete, resource, cancellationToken);
+            return client.SendAsync(HttpMethod.Delete, resource);
         }
 
         /// <summary>Create an asynchronous HTTP GET request message (but don't dispatch it yet).</summary>
         /// <param name="client">The client.</param>
         /// <param name="resource">The URI to send the request to.</param>
-        /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>Returns a request builder.</returns>
         /// <exception cref="ObjectDisposedException">The instance has been disposed.</exception>
-        public static IRequest GetAsync(this IClient client, string resource, CancellationToken cancellationToken = default(CancellationToken))
+        public static IRequest GetAsync(this IClient client, string resource)
         {
-            return client.SendAsync(HttpMethod.Get, resource, cancellationToken);
+            return client.SendAsync(HttpMethod.Get, resource);
         }
 
         /// <summary>Create an asynchronous HTTP POST request message (but don't dispatch it yet).</summary>
         /// <param name="client">The client.</param>
         /// <param name="resource">The URI to send the request to.</param>
-        /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>Returns a request builder.</returns>
         /// <exception cref="ObjectDisposedException">The instance has been disposed.</exception>
-        public static IRequest PostAsync(this IClient client, string resource, CancellationToken cancellationToken = default(CancellationToken))
+        public static IRequest PostAsync(this IClient client, string resource)
         {
-            return client.SendAsync(HttpMethod.Post, resource, cancellationToken);
+            return client.SendAsync(HttpMethod.Post, resource);
         }
 
         /// <summary>Create an asynchronous HTTP POST request message (but don't dispatch it yet).</summary>
         /// <param name="client">The client.</param>
         /// <typeparam name="TBody">The request body type.</typeparam>
         /// <param name="resource">The URI to send the request to.</param>
-        /// <param name="cancellationToken">The cancellation token.</param>
         /// <param name="body">The request body.</param>
         /// <returns>Returns a request builder.</returns>
         /// <exception cref="ObjectDisposedException">The instance has been disposed.</exception>
-        public static IRequest PostAsync<TBody>(this IClient client, string resource, TBody body, CancellationToken cancellationToken = default(CancellationToken))
+        public static IRequest PostAsync<TBody>(this IClient client, string resource, TBody body)
         {
-            return client.PostAsync(resource, cancellationToken).WithBody(body);
+            return client.PostAsync(resource).WithBody(body);
         }
 
         /// <summary>Create an asynchronous HTTP PUT request message (but don't dispatch it yet).</summary>
         /// <param name="client">The client.</param>
         /// <param name="resource">The URI to send the request to.</param>
-        /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>Returns a request builder.</returns>
         /// <exception cref="ObjectDisposedException">The instance has been disposed.</exception>
-        public static IRequest PutAsync(this IClient client, string resource, CancellationToken cancellationToken = default(CancellationToken))
+        public static IRequest PutAsync(this IClient client, string resource)
         {
             return client.SendAsync(HttpMethod.Put, resource);
         }
@@ -86,26 +81,24 @@ namespace Pathoschild.Http.Client
         /// <typeparam name="TBody">The request body type.</typeparam>
         /// <param name="resource">The URI to send the request to.</param>
         /// <param name="body">The request body.</param>
-        /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>Returns a request builder.</returns>
         /// <exception cref="ObjectDisposedException">The instance has been disposed.</exception>
-        public static IRequest PutAsync<TBody>(this IClient client, string resource, TBody body, CancellationToken cancellationToken = default(CancellationToken))
+        public static IRequest PutAsync<TBody>(this IClient client, string resource, TBody body)
         {
-            return client.PutAsync(resource, cancellationToken).WithBody(body);
+            return client.PutAsync(resource).WithBody(body);
         }
 
         /// <summary>Create an asynchronous HTTP request message (but don't dispatch it yet).</summary>
         /// <param name="client">The client.</param>
         /// <param name="method">The HTTP method.</param>
         /// <param name="resource">The URI to send the request to.</param>
-        /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>Returns a request builder.</returns>
         /// <exception cref="ObjectDisposedException">The instance has been disposed.</exception>
-        public static IRequest SendAsync(this IClient client, HttpMethod method, string resource, CancellationToken cancellationToken = default(CancellationToken))
+        public static IRequest SendAsync(this IClient client, HttpMethod method, string resource)
         {
             var uri = new Uri(client.BaseClient.BaseAddress, resource);
             var message = Factory.GetRequestMessage(method, uri, client.Formatters);
-            return client.SendAsync(message, cancellationToken);
+            return client.SendAsync(message);
         }
 
         /// <summary>Use basic authentication with this request.</summary>
