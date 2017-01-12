@@ -41,6 +41,6 @@ namespace Pathoschild.Http.Client
 
         /// <summary>Set the default retry strategy</summary>
         /// <param name="retryStrategy">The retry strategy.</param>
-        void SetRetryStrategy(IRetryStrategy retryStrategy);
+        IClient SetRetryStrategy(IRetryStrategy retryStrategy);
     }
 }
