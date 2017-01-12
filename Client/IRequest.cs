@@ -70,5 +70,10 @@ namespace Pathoschild.Http.Client
         /// <code>await client.PostAsync("api/ideas", idea);</code>
         /// </example>
         TaskAwaiter<IResponse> GetAwaiter();
+
+        /// <summary>Specify the authentication for this request.</summary>
+        /// <param name="scheme">The scheme to use for authorization. e.g.: "Basic", "Bearer".</param>
+        /// <param name="parameter">The credentials containing the authentication information.</param>
+        IRequest WithAuthentication(string scheme, string parameter);
     }
 }

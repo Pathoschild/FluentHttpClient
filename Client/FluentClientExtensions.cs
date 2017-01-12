@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
+using System.Text;
 using Pathoschild.Http.Client.Extensibility;
 using Pathoschild.Http.Client.Internal;
 
@@ -97,6 +98,23 @@ namespace Pathoschild.Http.Client
             var uri = new Uri(client.BaseClient.BaseAddress, resource);
             var message = Factory.GetRequestMessage(method, uri, client.Formatters);
             return client.SendAsync(message);
+        }
+
+        /// <summary>Use basic authentication with this request.</summary>
+        /// <param name="request">The request.</param>
+        /// <param name="username">The username.</param>
+        /// <param name="password">The password.</param>
+        public static IRequest WithBasicAuthentication(this IRequest request, string username, string password)
+        {
+            return request.WithAuthentication("Basic", Convert.ToBase64String(Encoding.ASCII.GetBytes(string.Concat(username, ":", password))));
+        }
+
+        /// <summary>Use 'Bearer' authentication with this request.</summary>
+        /// <param name="request">The request.</param>
+        /// <param name="key">The bearer key (typically, this is an API key).</param>
+        public static IRequest WithBearerAuthentication(this IRequest request, string key)
+        {
+            return request.WithAuthentication("Bearer", key);
         }
     }
 }
