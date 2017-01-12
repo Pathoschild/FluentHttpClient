@@ -33,10 +33,5 @@ namespace Pathoschild.Http.Client
         /// <summary>Set the default user agent header.</summary>
         /// <param name="userAgent">The user agent header value.</param>
         void SetUserAgent(string userAgent);
-
-        /// <summary>Specify the authentication that will be used with every request.</summary>
-        /// <param name="scheme">The scheme to use for authorization. e.g.: "Basic", "Bearer".</param>
-        /// <param name="parameter">The credentials containing the authentication information.</param>
-        void SetAuthentication(string scheme, string parameter);
     }
 }

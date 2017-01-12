@@ -101,14 +101,6 @@ namespace Pathoschild.Http.Client
             this.BaseClient.DefaultRequestHeaders.Add("User-Agent", userAgent);
         }
 
-        /// <summary>Specify the authentication that will be used with every request.</summary>
-        /// <param name="scheme">The scheme to use for authorization. e.g.: "Basic", "Bearer".</param>
-        /// <param name="parameter">The credentials containing the authentication information.</param>
-        public void SetAuthentication(string scheme, string parameter)
-        {
-            this.BaseClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue(scheme, parameter);
-        }
-
         /// <summary>Free resources used by the client.</summary>
         public virtual void Dispose()
         {
