@@ -1,11 +1,10 @@
+using Pathoschild.Http.Client.Extensibility;
+using Pathoschild.Http.Client.Internal;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
 using System.Text;
-using Pathoschild.Http.Client.Extensibility;
-using Pathoschild.Http.Client.Internal;
-using System.Threading;
 
 namespace Pathoschild.Http.Client
 {
