@@ -7,6 +7,7 @@ using System.Reflection;
 using Pathoschild.Http.Client.Extensibility;
 using Pathoschild.Http.Client.Internal;
 using System.Net.Http.Headers;
+using System.Linq;
 
 namespace Pathoschild.Http.Client
 {
@@ -27,7 +28,7 @@ namespace Pathoschild.Http.Client
         ** Accessors
         *********/
         /// <summary>Interceptors which can read and modify HTTP requests and responses.</summary>
-        public List<IHttpFilter> Filters { get; }
+        public ICollection<IHttpFilter> Filters { get; }
 
         /// <summary>The underlying HTTP client.</summary>
         public HttpClient BaseClient { get; }
