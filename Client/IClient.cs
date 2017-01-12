@@ -19,7 +19,7 @@ namespace Pathoschild.Http.Client
         MediaTypeFormatterCollection Formatters { get; }
         
         /// <summary>Interceptors which can read and modify HTTP requests and responses.</summary>
-        List<IHttpFilter> Filters { get; }
+        ICollection<IHttpFilter> Filters { get; }
 
 
         /*********
