@@ -1,4 +1,6 @@
-﻿using System;
+﻿using Pathoschild.Http.Client.Extensibility;
+using System;
+using System.Collections.Generic;
 using System.Net.Http;
 using System.Net.Http.Formatting;
 
@@ -15,6 +17,9 @@ namespace Pathoschild.Http.Client
 
         /// <summary>The formatters used for serializing and deserializing message bodies.</summary>
         MediaTypeFormatterCollection Formatters { get; }
+        
+        /// <summary>Interceptors which can read and modify HTTP requests and responses.</summary>
+        List<IHttpFilter> Filters { get; }
 
 
         /*********
