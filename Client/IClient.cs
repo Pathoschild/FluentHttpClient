@@ -21,6 +21,9 @@ namespace Pathoschild.Http.Client
         /// <summary>Interceptors which can read and modify HTTP requests and responses.</summary>
         ICollection<IHttpFilter> Filters { get; }
 
+        /// <summary>The retry strategy.</summary>
+        IRetryStrategy RetryStrategy { get; }
+
 
         /*********
         ** Methods
@@ -33,10 +36,17 @@ namespace Pathoschild.Http.Client
         /// <summary>Specify the authentication that will be used with every request.</summary>
         /// <param name="scheme">The scheme to use for authorization. e.g.: "Basic", "Bearer".</param>
         /// <param name="parameter">The credentials containing the authentication information.</param>
+        /// <returns>Returns a request builder.</returns>
         IClient SetAuthentication(string scheme, string parameter);
 
         /// <summary>Set the default user agent header.</summary>
         /// <param name="userAgent">The user agent header value.</param>
+        /// <returns>Returns a request builder.</returns>
         IClient SetUserAgent(string userAgent);
+
+        /// <summary>Set the default retry strategy</summary>
+        /// <param name="retryStrategy">The retry strategy.</param>
+        /// <returns>Returns a request builder.</returns>
+        IClient SetRetryStrategy(IRetryStrategy retryStrategy);
     }
 }

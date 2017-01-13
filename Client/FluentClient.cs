@@ -37,6 +37,9 @@ namespace Pathoschild.Http.Client
         /// <summary>The formatters used for serializing and deserializing message bodies.</summary>
         public MediaTypeFormatterCollection Formatters { get; protected set; }
 
+        /// <summary>The retry strategy.</summary>
+        public IRetryStrategy RetryStrategy { get; private set; }
+
 
         /*********
         ** Public methods
@@ -87,7 +90,8 @@ namespace Pathoschild.Http.Client
         public virtual IRequest SendAsync(HttpRequestMessage message)
         {
             this.AssertNotDisposed();
-            return new Request(message, this.Formatters, request => this.BaseClient.SendAsync(request.Message, request.CancellationToken), this.Filters.ToArray());
+            return new Request(message, this.Formatters, request => this.BaseClient.SendAsync(request.Message, request.CancellationToken), this.Filters.ToArray())
+                .WithRetryStrategy(this.RetryStrategy);
         }
 
         /// <summary>Specify the authentication that will be used with every request.</summary>
@@ -105,6 +109,14 @@ namespace Pathoschild.Http.Client
         {
             this.BaseClient.DefaultRequestHeaders.Remove("User-Agent");
             this.BaseClient.DefaultRequestHeaders.Add("User-Agent", userAgent);
+            return this;
+        }
+
+        /// <summary>Set the default retry strategy.</summary>
+        /// <param name="retryStrategy">The retry strategy.</param>
+        public IClient SetRetryStrategy(IRetryStrategy retryStrategy)
+        {
+            this.RetryStrategy = retryStrategy;
             return this;
         }
 
