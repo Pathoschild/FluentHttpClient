@@ -11,6 +11,7 @@ using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using Pathoschild.Http.Client.Extensibility;
+using Pathoschild.Http.Client.Retry;
 
 namespace Pathoschild.Http.Client.Internal
 {
@@ -39,6 +40,9 @@ namespace Pathoschild.Http.Client.Internal
         /// <summary>The optional token used to cancel async operations.</summary>
         public CancellationToken CancellationToken { get; private set; }
 
+        /// <summary>The request coordinator.</summary>
+        public IRequestCoordinator RequestCoordinator { get; private set; }
+
 
         /*********
         ** Public methods
@@ -55,6 +59,7 @@ namespace Pathoschild.Http.Client.Internal
             this.Dispatch = new Lazy<Task<HttpResponseMessage>>(() => dispatcher(this));
             this.Filters = filters;
             this.CancellationToken = CancellationToken.None;
+            this.RequestCoordinator = null;
         }
 
         /***
@@ -141,6 +146,14 @@ namespace Pathoschild.Http.Client.Internal
             return this;
         }
 
+        /// <summary>Specify the request coordinator for this request.</summary>
+        /// <param name="requestCoordinator">The request coordinator</param>
+        public IRequest WithRequestCoordinator(IRequestCoordinator requestCoordinator)
+        {
+            this.RequestCoordinator = requestCoordinator;
+            return this;
+        }
+
         /***
         ** Retrieve response
         ***/
@@ -207,7 +220,14 @@ namespace Pathoschild.Http.Client.Internal
         {
             foreach (IHttpFilter filter in this.Filters)
                 filter.OnRequest(this, this.Message);
-            HttpResponseMessage response = await request.ConfigureAwait(false);
+
+            // If the coordinator is not specified, the default is a retry coordinator without any
+            // configuration which means the request will be executed once without any retry attempts
+            var coordinator = this.RequestCoordinator ?? new RetryCoordinator((IRetryConfig)null);
+
+            // Execute the request
+            var response = await coordinator.ExecuteAsync(request).ConfigureAwait(false);
+
             foreach (IHttpFilter filter in this.Filters)
                 filter.OnResponse(this, response);
             return response;

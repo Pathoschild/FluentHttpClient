@@ -1,3 +1,4 @@
+using Pathoschild.Http.Client.Retry;
 using System;
 using System.Net.Http;
 using System.Runtime.CompilerServices;
@@ -68,5 +69,9 @@ namespace Pathoschild.Http.Client
         /// <param name="scheme">The scheme to use for authorization. e.g.: "Basic", "Bearer".</param>
         /// <param name="parameter">The credentials containing the authentication information.</param>
         IRequest WithAuthentication(string scheme, string parameter);
+
+        /// <summary>Specify the request coordinator for this request.</summary>
+        /// <param name="requestCoordinator">The request coordinator</param>
+        IRequest WithRequestCoordinator(IRequestCoordinator requestCoordinator);
     }
 }
