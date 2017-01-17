@@ -18,7 +18,7 @@ namespace Pathoschild.Http.Tests.Client
         *********/
 
         [Test]
-        public void GetAsync_HTTP429_retry_success()
+        public void Retry_success()
         {
             // Arrange the Http client
             var mockHttp = new MockHttpMessageHandler();
@@ -54,7 +54,7 @@ namespace Pathoschild.Http.Tests.Client
         }
 
         [Test]
-        public void GetAsync_HTTP429_retry_failure()
+        public void Retry_failure()
         {
             // Arrange the Http client
             var mockHttp = new MockHttpMessageHandler();
@@ -77,7 +77,7 @@ namespace Pathoschild.Http.Tests.Client
                 .SetRequestCoordinator(coordinator);
 
             // Act
-            Assert.ThrowsAsync<Exception>(async () => await fluentClient.GetAsync("endpoint").As<JObject>());
+            Assert.ThrowsAsync<ApiException>(async () => await fluentClient.GetAsync("endpoint").As<JObject>());
 
             // Assert
             mockHttp.VerifyNoOutstandingExpectation();

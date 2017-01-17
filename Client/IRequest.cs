@@ -3,6 +3,7 @@ using System;
 using System.Net.Http;
 using System.Runtime.CompilerServices;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace Pathoschild.Http.Client
 {
@@ -17,6 +18,9 @@ namespace Pathoschild.Http.Client
 
         /// <summary>The optional token used to cancel async operations.</summary>
         CancellationToken CancellationToken { get; }
+
+        /// <summary>Dispatcher that executes the HTTP request.</summary>
+        Func<IRequest, Task<HttpResponseMessage>> Dispatcher { get; }
 
 
         /*********

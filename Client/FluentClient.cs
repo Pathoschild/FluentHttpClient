@@ -90,7 +90,11 @@ namespace Pathoschild.Http.Client
         public virtual IRequest SendAsync(HttpRequestMessage message)
         {
             this.AssertNotDisposed();
-            return new Request(message, this.Formatters, request => this.BaseClient.SendAsync(request.Message, request.CancellationToken), this.Filters.ToArray())
+
+            // Please note: it's important to clone the HttpRequestMessage because the .NET HttpClient does not
+            // allow re-sending the same request multiple times which, therefore, precludes 'retry' scenarios.
+
+            return new Request(message, this.Formatters, request => this.BaseClient.SendAsync(request.Message.Clone(), request.CancellationToken), this.Filters.ToArray())
                 .WithRequestCoordinator(this.RequestCoordinator);
         }
 

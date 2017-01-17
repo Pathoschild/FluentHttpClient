@@ -24,9 +24,6 @@ namespace Pathoschild.Http.Client.Internal
         /// <summary>Middleware classes which can intercept and modify HTTP requests and responses.</summary>
         private readonly IHttpFilter[] Filters;
 
-        /// <summary>Executes the current HTTP request.</summary>
-        private readonly Lazy<Task<HttpResponseMessage>> Dispatch;
-
 
         /*********
         ** Accessors
@@ -43,6 +40,9 @@ namespace Pathoschild.Http.Client.Internal
         /// <summary>The request coordinator.</summary>
         public IRequestCoordinator RequestCoordinator { get; private set; }
 
+        /// <summary>Dispatcher that executes the request.</summary>
+        public Func<IRequest, Task<HttpResponseMessage>> Dispatcher { get; private set; }
+
 
         /*********
         ** Public methods
@@ -56,7 +56,7 @@ namespace Pathoschild.Http.Client.Internal
         {
             this.Message = message;
             this.Formatters = formatters;
-            this.Dispatch = new Lazy<Task<HttpResponseMessage>>(() => dispatcher(this));
+            this.Dispatcher = dispatcher;
             this.Filters = filters;
             this.CancellationToken = CancellationToken.None;
             this.RequestCoordinator = null;
@@ -161,7 +161,7 @@ namespace Pathoschild.Http.Client.Internal
         /// <exception cref="ApiException">An error occurred processing the response.</exception>
         public Task<HttpResponseMessage> AsMessage()
         {
-            return this.GetResponse(this.Dispatch.Value);
+            return this.GetResponse();
         }
 
         /// <summary>Asynchronously retrieve the response body as a deserialized model.</summary>
@@ -216,7 +216,7 @@ namespace Pathoschild.Http.Client.Internal
         *********/
         /// <summary>Validate the HTTP response and raise any errors in the response as exceptions.</summary>
         /// <param name="request">The response message to validate.</param>
-        private async Task<HttpResponseMessage> GetResponse(Task<HttpResponseMessage> request)
+        private async Task<HttpResponseMessage> GetResponse()
         {
             foreach (IHttpFilter filter in this.Filters)
                 filter.OnRequest(this, this.Message);
@@ -226,7 +226,7 @@ namespace Pathoschild.Http.Client.Internal
             var coordinator = this.RequestCoordinator ?? new RetryCoordinator((IRetryConfig)null);
 
             // Execute the request
-            var response = await coordinator.ExecuteAsync(request).ConfigureAwait(false);
+            var response = await coordinator.ExecuteAsync(this).ConfigureAwait(false);
 
             foreach (IHttpFilter filter in this.Filters)
                 filter.OnResponse(this, response);

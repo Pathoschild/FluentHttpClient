@@ -215,5 +215,31 @@ namespace Pathoschild.Http.Client
         {
             return request.WithRequestCoordinator(new RetryCoordinator(config));
         }
+
+        /// <summary>
+        /// Clones the specified request.
+        /// </summary>
+        /// <param name="req">The request.</param>
+        /// <returns>A http request</returns>
+        /// <remarks>Please note that you must clone a request BEFORE dispatching it because the content stream is automatically disposed after the request is dispatched which, therefore, prevents cloning the request.</remarks>
+        public static HttpRequestMessage Clone(this HttpRequestMessage req)
+        {
+            HttpRequestMessage clone = new HttpRequestMessage(req.Method, req.RequestUri);
+
+            clone.Content = req.Content;
+            clone.Version = req.Version;
+
+            foreach (KeyValuePair<string, object> prop in req.Properties)
+            {
+                clone.Properties.Add(prop);
+            }
+
+            foreach (KeyValuePair<string, IEnumerable<string>> header in req.Headers)
+            {
+                clone.Headers.TryAddWithoutValidation(header.Key, header.Value);
+            }
+
+            return clone;
+        }
     }
 }

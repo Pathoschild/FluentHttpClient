@@ -8,8 +8,8 @@ namespace Pathoschild.Http.Client.Retry
     public interface IRequestCoordinator
     {
         /// <summary>Dispatch an HTTP request.</summary>
-        /// <param name="request">The response message to validate.</param>
+        /// <param name="request">The request.</param>
         /// <returns>The final HTTP response.</returns>
-        Task<HttpResponseMessage> ExecuteAsync(Task<HttpResponseMessage> request);
+        Task<HttpResponseMessage> ExecuteAsync(IRequest request);
     }
 }
