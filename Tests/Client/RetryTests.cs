@@ -72,12 +72,12 @@ namespace Pathoschild.Http.Tests.Client
                 (response) => response.StatusCode == (HttpStatusCode)429,
                 (attempts, response) => TimeSpan.Zero);
 
-            // Arrange the fluent htpp client
+            // Arrange the fluent http client
             var fluentClient = new FluentClient("https://api.fictitious-vendor.com/v1/", httpClient)
                 .SetRequestCoordinator(coordinator);
 
             // Act
-            Assert.ThrowsAsync<ApiException>(async () => await fluentClient.GetAsync("endpoint").As<JObject>());
+            Assert.ThrowsAsync<Exception>(async () => await fluentClient.GetAsync("endpoint").As<JObject>());
 
             // Assert
             mockHttp.VerifyNoOutstandingExpectation();
