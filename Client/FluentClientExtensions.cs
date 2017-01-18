@@ -100,6 +100,23 @@ namespace Pathoschild.Http.Client
             return client.SendAsync(message);
         }
 
+        /// <summary>Specify the username and password that will be used with every request.</summary>
+        /// <param name="client">The client.</param>
+        /// <param name="username">The username.</param>
+        /// <param name="password">The password.</param>
+        public static IClient SetBasicAuthentication(this IClient client, string username, string password)
+        {
+            return client.SetAuthentication("Basic", Convert.ToBase64String(Encoding.ASCII.GetBytes(string.Concat(username, ":", password))));
+        }
+
+        /// <summary>Specify the 'Bearer' authentication that will be used with every request.</summary>
+        /// <param name="client">The client.</param>
+        /// <param name="key">The bearer key (typically, this is an API key).</param>
+        public static IClient SetBearerAuthentication(this IClient client, string key)
+        {
+            return client.SetAuthentication("Bearer", key);
+        }
+
         /// <summary>Use basic authentication with this request.</summary>
         /// <param name="request">The request.</param>
         /// <param name="username">The username.</param>
