@@ -4,6 +4,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
+using System.Net.Http.Formatting;
+using System.Net.Http.Headers;
 using System.Text;
 
 namespace Pathoschild.Http.Client
@@ -132,6 +134,30 @@ namespace Pathoschild.Http.Client
         public static IRequest WithBearerAuthentication(this IRequest request, string key)
         {
             return request.WithAuthentication("Bearer", key);
+        }
+
+        /// <summary>Set the body content of the HTTP request.</summary>
+        /// <param name="request">The request.</param>
+        /// <param name="body">The value to serialize into the HTTP body content.</param>
+        /// <param name="contentType">The request body format (or <c>null</c> to use the first supported Content-Type in the <see cref="Formatters"/>).</param>
+        /// <returns>Returns the request builder for chaining.</returns>
+        /// <exception cref="InvalidOperationException">No MediaTypeFormatters are available on the API client for this content type.</exception>
+        public static IRequest WithBody<T>(this IRequest request, T body, MediaTypeHeaderValue contentType = null)
+        {
+            MediaTypeFormatter formatter = Factory.GetFormatter(request.Formatters, contentType);
+            string mediaType = contentType != null ? contentType.MediaType : null;
+            return request.WithBody(body, formatter, mediaType);
+        }
+
+        /// <summary>Set the body content of the HTTP request.</summary>
+        /// <param name="request">The request.</param>
+        /// <param name="body">The value to serialize into the HTTP body content.</param>
+        /// <param name="formatter">The media type formatter with which to format the request body format.</param>
+        /// <param name="mediaType">The HTTP media type (or <c>null</c> for the <paramref name="formatter"/>'s default).</param>
+        /// <returns>Returns the request builder for chaining.</returns>
+        public static IRequest WithBody<T>(this IRequest request, T body, MediaTypeFormatter formatter, string mediaType = null)
+        {
+            return request.WithBodyContent(new ObjectContent<T>(body, formatter, mediaType));
         }
     }
 }

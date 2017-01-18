@@ -1,7 +1,5 @@
 using System;
 using System.Net.Http;
-using System.Net.Http.Formatting;
-using System.Net.Http.Headers;
 using System.Runtime.CompilerServices;
 using System.Threading;
 
@@ -26,20 +24,6 @@ namespace Pathoschild.Http.Client
         /***
         ** Build request
         ***/
-        /// <summary>Set the body content of the HTTP request.</summary>
-        /// <param name="body">The value to serialize into the HTTP body content.</param>
-        /// <param name="contentType">The request body format (or <c>null</c> to use the first supported Content-Type in the <see cref="Formatters"/>).</param>
-        /// <returns>Returns the request builder for chaining.</returns>
-        /// <exception cref="InvalidOperationException">No MediaTypeFormatters are available on the API client for this content type.</exception>
-        IRequest WithBody<T>(T body, MediaTypeHeaderValue contentType = null);
-
-        /// <summary>Set the body content of the HTTP request.</summary>
-        /// <param name="body">The value to serialize into the HTTP body content.</param>
-        /// <param name="formatter">The media type formatter with which to format the request body format.</param>
-        /// <param name="mediaType">The HTTP media type (or <c>null</c> for the <paramref name="formatter"/>'s default).</param>
-        /// <returns>Returns the request builder for chaining.</returns>
-        IRequest WithBody<T>(T body, MediaTypeFormatter formatter, string mediaType = null);
-
         /// <summary>Set the body content of the HTTP request.</summary>
         /// <param name="body">The formatted HTTP body content.</param>
         /// <returns>Returns the request builder for chaining.</returns>
