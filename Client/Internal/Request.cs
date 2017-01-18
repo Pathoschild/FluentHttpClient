@@ -61,28 +61,6 @@ namespace Pathoschild.Http.Client.Internal
         ** Build request
         ***/
         /// <summary>Set the body content of the HTTP request.</summary>
-        /// <param name="body">The value to serialize into the HTTP body content.</param>
-        /// <param name="contentType">The request body format (or <c>null</c> to use the first supported Content-Type in the <see cref="Formatters"/>).</param>
-        /// <returns>Returns the request builder for chaining.</returns>
-        /// <exception cref="InvalidOperationException">No MediaTypeFormatters are available on the API client for this content type.</exception>
-        public IRequest WithBody<T>(T body, MediaTypeHeaderValue contentType = null)
-        {
-            MediaTypeFormatter formatter = Factory.GetFormatter(this.Formatters, contentType);
-            string mediaType = contentType != null ? contentType.MediaType : null;
-            return this.WithBody(body, formatter, mediaType);
-        }
-
-        /// <summary>Set the body content of the HTTP request.</summary>
-        /// <param name="body">The value to serialize into the HTTP body content.</param>
-        /// <param name="formatter">The media type formatter with which to format the request body format.</param>
-        /// <param name="mediaType">The HTTP media type (or <c>null</c> for the <paramref name="formatter"/>'s default).</param>
-        /// <returns>Returns the request builder for chaining.</returns>
-        public IRequest WithBody<T>(T body, MediaTypeFormatter formatter, string mediaType = null)
-        {
-            return this.WithBodyContent(new ObjectContent<T>(body, formatter, mediaType));
-        }
-
-        /// <summary>Set the body content of the HTTP request.</summary>
         /// <param name="body">The formatted HTTP body content.</param>
         /// <returns>Returns the request builder for chaining.</returns>
         public IRequest WithBodyContent(HttpContent body)
