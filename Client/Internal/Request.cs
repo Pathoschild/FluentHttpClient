@@ -24,6 +24,9 @@ namespace Pathoschild.Http.Client.Internal
         /// <summary>Middleware classes which can intercept and modify HTTP requests and responses.</summary>
         private readonly IHttpFilter[] Filters;
 
+        /// <summary>Dispatcher that executes the request.</summary>
+        private readonly Func<IRequest, Task<HttpResponseMessage>> Dispatcher;
+
 
         /*********
         ** Accessors
@@ -39,9 +42,6 @@ namespace Pathoschild.Http.Client.Internal
 
         /// <summary>The request coordinator.</summary>
         public IRequestCoordinator RequestCoordinator { get; private set; }
-
-        /// <summary>Dispatcher that executes the request.</summary>
-        public Func<IRequest, Task<HttpResponseMessage>> Dispatcher { get; private set; }
 
 
         /*********
@@ -226,7 +226,7 @@ namespace Pathoschild.Http.Client.Internal
             var coordinator = this.RequestCoordinator ?? new RetryCoordinator((IRetryConfig)null);
 
             // Execute the request
-            var response = await coordinator.ExecuteAsync(this).ConfigureAwait(false);
+            var response = await coordinator.ExecuteAsync(this, this.Dispatcher).ConfigureAwait(false);
 
             foreach (IHttpFilter filter in this.Filters)
                 filter.OnResponse(this, response);

@@ -19,9 +19,6 @@ namespace Pathoschild.Http.Client
         /// <summary>The optional token used to cancel async operations.</summary>
         CancellationToken CancellationToken { get; }
 
-        /// <summary>Dispatcher that executes the HTTP request.</summary>
-        Func<IRequest, Task<HttpResponseMessage>> Dispatcher { get; }
-
 
         /*********
         ** Methods

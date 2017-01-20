@@ -39,11 +39,12 @@ namespace Pathoschild.Http.Client.Retry
 
         /// <summary>Dispatch an HTTP request.</summary>   
         /// <param name="request">The response message to validate.</param>
+        /// <param name="dispatcher">Dispatcher that executes the request.</param>
         /// <returns>The final HTTP response.</returns>
-        public async Task<HttpResponseMessage> ExecuteAsync(IRequest request)
+        public async Task<HttpResponseMessage> ExecuteAsync(IRequest request, Func<IRequest, Task<HttpResponseMessage>> dispatcher)
         {
             // Initial attempt
-            var response = await request.Dispatcher(request).ConfigureAwait(false);
+            var response = await dispatcher(request).ConfigureAwait(false);
 
             // Make sure the retries have been configured
             if (this.Config == null) return response;
@@ -55,7 +56,7 @@ namespace Pathoschild.Http.Client.Retry
                 if (attempt == this.Config.MaxRetries) throw new ApiException(request, response, "Too many attempts");
                 var delay = this.Config.GetDelay(attempt, response);
                 if (delay.TotalMilliseconds > 0) await Task.Delay(delay).ConfigureAwait(false);
-                response = await request.Dispatcher(request).ConfigureAwait(false);
+                response = await dispatcher(request).ConfigureAwait(false);
                 attempt++;
             }
 

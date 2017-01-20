@@ -9,7 +9,8 @@ namespace Pathoschild.Http.Client.Retry
     {
         /// <summary>Dispatch an HTTP request.</summary>
         /// <param name="request">The request.</param>
+        /// <param name="dispatcher">Dispatcher that executes the request.</param>
         /// <returns>The final HTTP response.</returns>
-        Task<HttpResponseMessage> ExecuteAsync(IRequest request);
+        Task<HttpResponseMessage> ExecuteAsync(IRequest request, Func<IRequest, Task<HttpResponseMessage>> dispatcher);
     }
 }
