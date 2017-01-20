@@ -3,6 +3,7 @@ using System.Linq.Expressions;
 using System.Threading.Tasks;
 using NUnit.Framework;
 using Pathoschild.Http.Client;
+using System.Net;
 
 namespace Pathoschild.Http.Tests.Integration
 {
@@ -105,9 +106,17 @@ namespace Pathoschild.Http.Tests.Integration
         *********/
         /// <summary>Construct an HTTP client with the JSON.NET formatter.</summary>
         /// <param name="url">The base URI prepended to relative request URIs.</param>
-        protected IClient ConstructClient(string url)
+        /// <param name="useFiddler">Indicates if you want HTTP requests to be proxied throught Fidler for debugging purposes.</param>
+        protected IClient ConstructClient(string url, bool useFiddler = false)
         {
+#if NETFULL
+            var proxy = useFiddler ? new WebProxy("http://localhost:8888") : null;
+            return new FluentClient(url, proxy);
+#else
+            // WebProxy is not available in .netcore 1.0. 
+            // However, rumor is: Microsoft will be adding it to .netcore 2.0
             return new FluentClient(url);
+#endif
         }
 
         /// <summary>Performs assertions on the specified Wikimedia metadata.</summary>

@@ -5,6 +5,9 @@
   },
   "frameworks": {
     "netstandard1.3": {
+      "buildOptions": {
+        "define": [ "NETSTANDARD" ]
+      },
       "imports": [
         "dnxcore50"
       ],
@@ -16,7 +19,7 @@
     },
     "net452": {
       "buildOptions": {
-        "define": [ "NET452" ]
+        "define": [ "NETFULL" ]
       },
       "dependencies": {
         "Microsoft.AspNet.WebApi.Client": "5.2.3",
