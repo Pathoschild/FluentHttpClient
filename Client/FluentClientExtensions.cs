@@ -222,7 +222,7 @@ namespace Pathoschild.Http.Client
         /// <param name="req">The request.</param>
         /// <returns>A http request</returns>
         /// <remarks>Please note that you must clone a request BEFORE dispatching it because the content stream is automatically disposed after the request is dispatched which, therefore, prevents cloning the request.</remarks>
-        public static HttpRequestMessage Clone(this HttpRequestMessage req)
+        internal static HttpRequestMessage Clone(this HttpRequestMessage req)
         {
             HttpRequestMessage clone = new HttpRequestMessage(req.Method, req.RequestUri);
 
