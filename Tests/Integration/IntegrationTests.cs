@@ -82,6 +82,22 @@ namespace Pathoschild.Http.Tests.Integration
             this.AssertResponse(response, this.ZhwikiMetadata, "First request");
         }
 
+        [Test(Description = "The client response is null if it performs the same request twice. This matches the behaviour of the underlying HTTP client.")]
+        public async Task Wikipedia_ResendingRequestSetsResponseToNull()
+        {
+            // arrange
+            IClient client = this.ConstructClient("http://en.wikipedia.org/");
+
+            // act
+            IRequest request = client
+                .GetAsync("w/api.php")
+                .WithArguments(new { action = "query", meta = "siteinfo", siprop = "general", format = "json" });
+
+            // assert
+            this.AssertResponse(await request.As<WikipediaMetadata>(), this.EnwikiMetadata, "First request");
+            Assert.IsNull(await request.WithArgument("limit", "max").As<WikipediaMetadata>(), null);
+        }
+
         [Test(Description = "The client can fetch a resource from Wikipedia's API and read the response multiple times.")]
         public async Task Wikipedia_MultipleReads()
         {
