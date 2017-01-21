@@ -1,10 +1,14 @@
-**FluentHttpClient** is an easy asynchronous HTTP client for REST APIs. It provides a fluent interface that lets you create an HTTP request, dispatch and wait for it, and parse the response. The client takes care of the gritty details for you (like deserialisation, [content negotiation][], and URL encoding), and is easy to extend and customise.
+**FluentHttpClient** is an easy asynchronous HTTP client for REST APIs. It provides a fluent
+interface that lets you create an HTTP request, dispatch and wait for it, and parse the response.
+The client takes care of the gritty details for you (like deserialisation, [content negotiation][],
+and URL encoding), and it's easy to extend and customise.
 
 ## Installing
 The fluent client is [available on NuGet][Pathoschild.Http.FluentClient]:
 > Install-Package Pathoschild.Http.FluentClient
 
-You can use the client with .NET Framework 4.5.2+ or [.NET Standard 1.3+](https://docs.microsoft.com/en-us/dotnet/articles/standard/library). That includes:
+You can use the client with .NET Framework 4.5.2+ or [.NET Standard][] 1.3+. That
+includes:
 
 | platform                    | min version |
 | :-------------------------- | :---------- |
@@ -20,7 +24,8 @@ You start by creating a client:
 IClient client = new FluentClient("https://example.org/api/");
 ```
 
-Next you chain methods to configure your request and response handling. For example, here's a simple GET request whose response will be parsed into an `Item` model:
+Next you chain methods to configure your request and response handling. For example, here's a
+simple GET request whose response will be parsed into an `Item` model:
 ```c#
 Item item = await client
     .GetAsync("items/14")
@@ -39,7 +44,8 @@ If you don't need the response, you can just wait for the request to complete.
 await client.PostAsync("items", new Item(..));
 ```
 
-You can configure some pretty complex requests using the fluent interface (the client will take care of the details like input sanitisation and URL encoding):
+You can configure some pretty complex requests using the fluent interface (the client will take
+care of the details like input sanitisation and URL encoding):
 ```c#
 Item item = await client
     .GetAsync("items")
@@ -48,12 +54,16 @@ Item item = await client
     .As<Item>();
 ```
 
-A lot of features aren't shown in these examples, but it should be fairly discoverable since every method is fully code-documented for IntelliSense.
+A lot of features aren't shown in these examples, but it should be fairly discoverable since every
+method is fully code-documented for IntelliSense.
 
 ### Error handling
-If the server returns a non-success HTTP code, the client will raise an `ApiException` by default. The exception includes all the information needed to troubleshoot the error, including the underlying HTTP request and response.
+If the server returns a non-success HTTP code, the client will raise an `ApiException` by default.
+The exception includes all the information needed to troubleshoot the error, including the
+underlying HTTP request and response.
 
-For example, here's how you'd throw a new exception containing the actual text of the server response:
+For example, here's how you'd throw a new exception containing the actual text of the server
+response:
 ```c#
 try
 {
@@ -77,7 +87,11 @@ You can also add your own error handling; see _customising the client_ below.
 
 
 ### Synchronous use
-The client is designed to take advantage of the `async` and `await` keywords in .NET 4.5, but you can use the client synchronously. This is *not* recommended — it complicates error-handling (e.g. errors get wrapped into [AggregateException][]), and it's very easy to cause thread deadlocks when you do this (see _[Parallel Programming with .NET: Await, and UI, and deadlocks! Oh my!](http://blogs.msdn.com/b/pfxteam/archive/2011/01/13/10115163.aspx)_ and _[Don't Block on Async Code](http://blog.stephencleary.com/2012/07/dont-block-on-async-code.html))._
+The client is designed to take advantage of the `async` and `await` keywords in .NET 4.5, but
+you can use the client synchronously. This is *not* recommended — it complicates error-handling
+(e.g. errors get wrapped into [AggregateException][]), and it's very easy to cause thread deadlocks
+when you do this (see _[Parallel Programming with .NET: Await, and UI, and deadlocks! Oh my!][]_
+and _[Don't Block on Async Code][])._
 
 If you really need to use it synchronously, you can just call the `Result` property:
 ```c#
@@ -95,15 +109,20 @@ client.PostAsync("items", new Item()).AsMessage().Wait();
 
 ## Customising the client
 ### Custom formats
-By default the client supports JSON and XML. The client recognises [`MediaTypeFormatter` implementations][MediaTypeFormatter], so you can easily add different formats:
+By default the client supports JSON and XML. The client recognises
+[`MediaTypeFormatter` implementations][MediaTypeFormatter], so you can easily add different formats:
 ```c#
 client.Formatters.Add(new BsonFormatter());
 ```
 
-You can use [one of the many `MediaTypeFormatter` implementations](https://www.nuget.org/packages?q=MediaTypeFormatter), use the included BSON formatter, or create your own (optionally using the included `MediaTypeFormatterBase` base class).
+You can use one of the many [`MediaTypeFormatter` implementations][], use the included BSON
+formatter, or create your own (optionally using the included `MediaTypeFormatterBase` base class).
 
 ### Custom behaviour
-You can customise the client by adding your own implementations of `IHttpFilter`. Each filter can read and change the underlying HTTP requests (e.g. for authentication) and responses (e.g. for error handling). For example, you can easily replace the default error handling (see _Error handling_ above):
+You can customise the client by adding your own implementations of `IHttpFilter`. Each filter
+can read and change the underlying HTTP requests (e.g. for authentication) and responses (e.g. for
+error handling). For example, you can easily replace the default error handling (see _Error
+handling_ above):
 ```c#
 client.Filters.Remove<DefaultErrorFilter>();
 client.Filters.Add(new YourErrorFilter());
@@ -135,7 +154,8 @@ public void OnRequest(IRequest request, HttpRequestMessage requestMessage)
 You can even rewrite HTTP responses from the server before they're parsed if you want to.
 
 ### Custom HTTP client
-For really advanced scenarios, you can customise the underlying [HttpClient][] and [HttpClientHandler][]:
+For really advanced scenarios, you can customise the underlying [HttpClient][] and
+[HttpClientHandler][]:
 ```c#
 // create custom HTTP handler
 var handler = new HttpClientHandler()
@@ -148,6 +168,11 @@ handler.CookieContainer.Add(new Cookie(...));
 // create client
 var client = new FluentClient("http://example.org/api/", new HttpClient(handler));
 ```
+
+[.NET Standard]: https://docs.microsoft.com/en-us/dotnet/articles/standard/library
+[Parallel Programming with .NET: Await, and UI, and deadlocks! Oh my!]: http://blogs.msdn.com/b/pfxteam/archive/2011/01/13/10115163.aspx
+[Don't Block on Async Code]: http://blog.stephencleary.com/2012/07/dont-block-on-async-code.html
+[`MediaTypeFormatter` implementations]: https://www.nuget.org/packages?q=MediaTypeFormatter
 
 [AggregateException]: http://msdn.microsoft.com/en-us/library/system.aggregateexception.aspx
 [HttpClient]: https://msdn.microsoft.com/en-us/library/system.net.http.httpclient.aspx
