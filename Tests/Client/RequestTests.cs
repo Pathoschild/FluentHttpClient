@@ -232,13 +232,13 @@ namespace Pathoschild.Http.Tests.Client
             Assert.That(header.Value.First(), Is.EqualTo(value), "The header value is invalid.");
         }
 
-        [Test(Description = "A request is dispatched only once.")]
-        public async Task RequestDispatchedOnce_MultipleReads()
+        [Test(Description = "A request can be executed multiple times.")]
+        public async Task RequestIsReexecutable()
         {
             // arrange
             var counter = 0;
             var mockHttp = new MockHttpMessageHandler();
-            mockHttp.When(HttpMethod.Get, "https://api.fictitious-vendor.com/v1/endpoint").Respond(HttpStatusCode.OK, (RequestTests) => new StringContent($"This is request was dispatched {++counter} times"));
+            mockHttp.When(HttpMethod.Get, "https://api.fictitious-vendor.com/v1/endpoint").Respond(HttpStatusCode.OK, testRequest => new StringContent($"This is request #{++counter}"));
 
             var httpClient = new HttpClient(mockHttp);
             var fluentClient = new FluentClient("https://api.fictitious-vendor.com/v1/", httpClient);
@@ -249,9 +249,8 @@ namespace Pathoschild.Http.Tests.Client
             string valueB = await request.AsString();
 
             // assert
-            Assert.IsNotNull(valueA, "response is null");
-            Assert.IsNotEmpty(valueA, "response is empty");
-            Assert.AreEqual(valueA, valueB, "second read got a different result");
+            Assert.AreEqual("This is request #1", valueA, "The first request got an unexpected value.");
+            Assert.AreEqual("This is request #2", valueB, "The second request got an unexpected value.");
         }
 
         /***
