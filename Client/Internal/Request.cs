@@ -11,6 +11,7 @@ using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using Pathoschild.Http.Client.Extensibility;
+using Polly;
 
 namespace Pathoschild.Http.Client.Internal
 {
@@ -36,6 +37,9 @@ namespace Pathoschild.Http.Client.Internal
         /// <summary>The formatters used for serializing and deserializing message bodies.</summary>
         public MediaTypeFormatterCollection Formatters { get; }
 
+        /// <summary>The retry strategy.</summary>
+        public IRetryStrategy RetryStrategy { get; private set; }
+
         /// <summary>The optional token used to cancel async operations.</summary>
         public CancellationToken CancellationToken { get; private set; }
 
@@ -54,6 +58,7 @@ namespace Pathoschild.Http.Client.Internal
             this.Formatters = formatters;
             this.Dispatch = new Lazy<Task<HttpResponseMessage>>(() => dispatcher(this));
             this.Filters = filters;
+            this.RetryStrategy = new NoRetryStrategy();
             this.CancellationToken = CancellationToken.None;
         }
 
@@ -105,6 +110,15 @@ namespace Pathoschild.Http.Client.Internal
         public IRequest WithCustom(Action<HttpRequestMessage> request)
         {
             request(this.Message);
+            return this;
+        }
+
+        /// <summary>Specify the retry strategy.</summary>
+        /// <param name="retryStrategy">The retry strategy.</param>
+        /// <returns>Returns the request builder for chaining.</returns>
+        public IRequest WithRetryStrategy(IRetryStrategy retryStrategy)
+        {
+            this.RetryStrategy = retryStrategy ?? new NoRetryStrategy();
             return this;
         }
 
@@ -207,9 +221,16 @@ namespace Pathoschild.Http.Client.Internal
         {
             foreach (IHttpFilter filter in this.Filters)
                 filter.OnRequest(this, this.Message);
-            HttpResponseMessage response = await request.ConfigureAwait(false);
+
+            var retryPolicy = Policy
+                .HandleResult<HttpResponseMessage>(responseMessage => RetryStrategy.ShouldRetry(responseMessage))
+                .WaitAndRetryAsync(RetryStrategy.MaxRetriesCount, retryAttempt => RetryStrategy.GetNextDelay(retryAttempt));
+
+            var response = await retryPolicy.ExecuteAsync(async () => await request.ConfigureAwait(false));
+
             foreach (IHttpFilter filter in this.Filters)
                 filter.OnResponse(this, response);
+
             return response;
         }
 
