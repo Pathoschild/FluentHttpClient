@@ -27,6 +27,8 @@ namespace Pathoschild.Http.Client.Internal
         /// <summary>Dispatcher that executes the request.</summary>
         private readonly Func<IRequest, Task<HttpResponseMessage>> Dispatcher;
 
+        private HttpResponseMessage HttpResponse;
+
 
         /*********
         ** Accessors
@@ -159,9 +161,13 @@ namespace Pathoschild.Http.Client.Internal
         ***/
         /// <summary>Asynchronously retrieve the HTTP response.</summary>
         /// <exception cref="ApiException">An error occurred processing the response.</exception>
-        public Task<HttpResponseMessage> AsMessage()
+        public async Task<HttpResponseMessage> AsMessage()
         {
-            return this.GetResponse();
+            if (this.HttpResponse == null)
+            {
+                this.HttpResponse = await this.GetResponse().ConfigureAwait(false);
+            }
+            return this.HttpResponse;
         }
 
         /// <summary>Asynchronously retrieve the response body as a deserialized model.</summary>
@@ -215,7 +221,6 @@ namespace Pathoschild.Http.Client.Internal
         ** Protected methods
         *********/
         /// <summary>Validate the HTTP response and raise any errors in the response as exceptions.</summary>
-        /// <param name="request">The response message to validate.</param>
         private async Task<HttpResponseMessage> GetResponse()
         {
             foreach (IHttpFilter filter in this.Filters)
@@ -230,6 +235,7 @@ namespace Pathoschild.Http.Client.Internal
 
             foreach (IHttpFilter filter in this.Filters)
                 filter.OnResponse(this, response);
+
             return response;
         }
 
