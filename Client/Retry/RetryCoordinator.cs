@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Net.Http;
 using System.Threading.Tasks;
+using Pathoschild.Http.Client.Internal;
 
 namespace Pathoschild.Http.Client.Retry
 {
@@ -37,14 +38,14 @@ namespace Pathoschild.Http.Client.Retry
             this.Config = config;
         }
 
-        /// <summary>Dispatch an HTTP request.</summary>   
+        /// <summary>Dispatch an HTTP request.</summary>
         /// <param name="request">The response message to validate.</param>
         /// <param name="dispatcher">Dispatcher that executes the request.</param>
         /// <returns>The final HTTP response.</returns>
         public async Task<HttpResponseMessage> ExecuteAsync(IRequest request, Func<IRequest, Task<HttpResponseMessage>> dispatcher)
         {
             // Initial attempt
-            var response = await dispatcher(request).ConfigureAwait(false);
+            HttpResponseMessage response = await dispatcher(request).ConfigureAwait(false);
 
             // Make sure the retries have been configured
             if (this.Config == null) return response;
@@ -53,7 +54,7 @@ namespace Pathoschild.Http.Client.Retry
             var attempt = 1;
             while (attempt <= this.Config.MaxRetries && this.Config.ShouldRetry(response))
             {
-                if (attempt == this.Config.MaxRetries) throw new ApiException(request, response, "Too many attempts");
+                if (attempt == this.Config.MaxRetries) throw new ApiException(new Response(response, request.Formatters), "Too many attempts");
                 var delay = this.Config.GetDelay(attempt, response);
                 if (delay.TotalMilliseconds > 0) await Task.Delay(delay).ConfigureAwait(false);
                 response = await dispatcher(request).ConfigureAwait(false);

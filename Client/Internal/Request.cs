@@ -27,8 +27,6 @@ namespace Pathoschild.Http.Client.Internal
         /// <summary>Dispatcher that executes the request.</summary>
         private readonly Func<IRequest, Task<HttpResponseMessage>> Dispatcher;
 
-        private HttpResponseMessage HttpResponse;
-
 
         /*********
         ** Accessors
@@ -131,11 +129,7 @@ namespace Pathoschild.Http.Client.Internal
         /// </example>
         public TaskAwaiter<IResponse> GetAwaiter()
         {
-            Func<Task<IResponse>> waiter = async () =>
-            {
-                await this.AsMessage();
-                return this;
-            };
+            Func<Task<IResponse>> waiter = async () => await this.Execute().ConfigureAwait(false);
             return waiter().GetAwaiter();
         }
 
@@ -161,13 +155,17 @@ namespace Pathoschild.Http.Client.Internal
         ***/
         /// <summary>Asynchronously retrieve the HTTP response.</summary>
         /// <exception cref="ApiException">An error occurred processing the response.</exception>
+        public async Task<IResponse> AsResponse()
+        {
+            return await this.Execute().ConfigureAwait(false);
+        }
+
+        /// <summary>Asynchronously retrieve the HTTP response.</summary>
+        /// <exception cref="ApiException">An error occurred processing the response.</exception>
         public async Task<HttpResponseMessage> AsMessage()
         {
-            if (this.HttpResponse == null)
-            {
-                this.HttpResponse = await this.GetResponse().ConfigureAwait(false);
-            }
-            return this.HttpResponse;
+            IResponse response = await this.AsResponse().ConfigureAwait(false);
+            return response.Message;
         }
 
         /// <summary>Asynchronously retrieve the response body as a deserialized model.</summary>
@@ -175,8 +173,8 @@ namespace Pathoschild.Http.Client.Internal
         /// <exception cref="ApiException">An error occurred processing the response.</exception>
         public async Task<T> As<T>()
         {
-            HttpResponseMessage message = await this.AsMessage().ConfigureAwait(false);
-            return await message.Content.ReadAsAsync<T>(this.Formatters).ConfigureAwait(false);
+            IResponse response = await this.AsResponse().ConfigureAwait(false);
+            return await response.As<T>().ConfigureAwait(false);
         }
 
         /// <summary>Asynchronously retrieve the response body as a list of deserialized models.</summary>
@@ -192,8 +190,8 @@ namespace Pathoschild.Http.Client.Internal
         /// <exception cref="ApiException">An error occurred processing the response.</exception>
         public async Task<byte[]> AsByteArray()
         {
-            HttpResponseMessage message = await this.AsMessage().ConfigureAwait(false);
-            return await message.Content.ReadAsByteArrayAsync().ConfigureAwait(false);
+            IResponse response = await this.AsResponse().ConfigureAwait(false);
+            return await response.AsByteArray().ConfigureAwait(false);
         }
 
         /// <summary>Asynchronously retrieve the response body as a <see cref="string"/>.</summary>
@@ -201,8 +199,8 @@ namespace Pathoschild.Http.Client.Internal
         /// <exception cref="ApiException">An error occurred processing the response.</exception>
         public async Task<string> AsString()
         {
-            HttpResponseMessage message = await this.AsMessage().ConfigureAwait(false);
-            return await message.Content.ReadAsStringAsync().ConfigureAwait(false);
+            IResponse response = await this.AsResponse().ConfigureAwait(false);
+            return await response.AsString().ConfigureAwait(false);
         }
 
         /// <summary>Asynchronously retrieve the response body as a <see cref="Stream"/>.</summary>
@@ -210,31 +208,30 @@ namespace Pathoschild.Http.Client.Internal
         /// <exception cref="ApiException">An error occurred processing the response.</exception>
         public async Task<Stream> AsStream()
         {
-            HttpResponseMessage message = await this.AsMessage().ConfigureAwait(false);
-            Stream stream = await message.Content.ReadAsStreamAsync().ConfigureAwait(false);
-            stream.Position = 0;
-            return stream;
+            IResponse response = await this.AsResponse().ConfigureAwait(false);
+            return await response.AsStream().ConfigureAwait(false);
         }
 
 
         /*********
         ** Protected methods
         *********/
-        /// <summary>Validate the HTTP response and raise any errors in the response as exceptions.</summary>
-        private async Task<HttpResponseMessage> GetResponse()
+        /// <summary>Execute the HTTP request and fetch the response.</summary>
+        private async Task<IResponse> Execute()
         {
+            // apply request filters
             foreach (IHttpFilter filter in this.Filters)
                 filter.OnRequest(this, this.Message);
 
-            // If the coordinator is not specified, the default is a retry coordinator without any
-            // configuration which means the request will be executed once without any retry attempts
-            var coordinator = this.RequestCoordinator ?? new RetryCoordinator((IRetryConfig)null);
+            // execute the request
+            HttpResponseMessage responseMessage = this.RequestCoordinator != null
+                ? await this.RequestCoordinator.ExecuteAsync(this, this.Dispatcher).ConfigureAwait(false)
+                : await this.Dispatcher(this).ConfigureAwait(false);
+            IResponse response = new Response(responseMessage, this.Formatters);
 
-            // Execute the request
-            var response = await coordinator.ExecuteAsync(this, this.Dispatcher).ConfigureAwait(false);
-
+            // apply response filters
             foreach (IHttpFilter filter in this.Filters)
-                filter.OnResponse(this, response);
+                filter.OnResponse(response, responseMessage);
 
             return response;
         }

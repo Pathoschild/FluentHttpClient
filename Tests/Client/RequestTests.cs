@@ -1,5 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Net.Http;
 using System.Net.Http.Formatting;
 using System.Threading.Tasks;
@@ -9,7 +11,6 @@ using Pathoschild.Http.Client;
 using Pathoschild.Http.Client.Extensibility;
 using Pathoschild.Http.Client.Internal;
 using RichardSzalay.MockHttp;
-using System.Net;
 
 namespace Pathoschild.Http.Tests.Client
 {
@@ -20,6 +21,9 @@ namespace Pathoschild.Http.Tests.Client
         /*********
         ** Unit tests
         *********/
+        /**
+        ** Request configuration
+        ***/
         [Test(Description = "Ensure that the request builder is constructed with the expected initial state.")]
         [TestCase("DELETE", "resource")]
         [TestCase("GET", "resource")]
@@ -250,6 +254,56 @@ namespace Pathoschild.Http.Tests.Client
             Assert.AreEqual(valueA, valueB, "second read got a different result");
         }
 
+        /***
+        ** Request infrastructure
+        ***/
+        [Test(Description = "An appropriate exception is thrown when the request task faults or aborts. This is regardless of configuration.")]
+        [TestCase(true, typeof(NotSupportedException))]
+        [TestCase(false, typeof(NotSupportedException))]
+        public void Task_Async_FaultHandled(bool throwError, Type exceptionType)
+        {
+            // arrange
+            IRequest response = this.ConstructResponseFromTask(() => { throw (Exception)Activator.CreateInstance(exceptionType); });
+
+            // act
+            Assert.ThrowsAsync<NotSupportedException>(async () => await response);
+        }
+
+        [Test(Description = "The asynchronous methods really are asynchronous.")]
+        public void Task_Async_IsAsync()
+        {
+            // arrange
+            IRequest request = this.ConstructResponseFromTask(Task
+                .Delay(5000)
+                .ContinueWith<HttpResponseMessage>(task =>
+                {
+                    Assert.Fail("The response was not invoked asynchronously.");
+                    return null;
+                })
+            );
+
+            // act
+            Task<HttpResponseMessage> result = request.AsMessage();
+
+            // assert
+            Assert.AreNotEqual(result.Status, TaskStatus.Created);
+            Assert.False(result.IsCompleted, "The request was not executed asynchronously.");
+        }
+
+        [Test(Description = "The request succeeds when passed a HTTP request that is in progress.")]
+        public void Task_Async()
+        {
+            // arrange
+            IRequest request = this.ConstructResponseFromTask(() => new HttpResponseMessage(HttpStatusCode.OK));
+
+            // act
+            HttpResponseMessage result = request.AsMessage().Result;
+
+            // assert
+            Assert.IsNotNull(result);
+            Assert.IsTrue(result.IsSuccessStatusCode);
+        }
+
 
         /*********
         ** Protected methods
@@ -282,6 +336,22 @@ namespace Pathoschild.Http.Tests.Client
                     Assert.Inconclusive("The client could not be constructed: {0}", exc.Message);
                 throw;
             }
+        }
+
+        /// <summary>Construct an <see cref="IResponse"/> instance around an asynchronous task.</summary>
+        /// <remarks>The asynchronous task to wrap.</remarks>
+        protected IRequest ConstructResponseFromTask(Task<HttpResponseMessage> task)
+        {
+            HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Get, "http://example.org/");
+            return new Request(request, new MediaTypeFormatterCollection(), p => task, new IHttpFilter[0]);
+        }
+
+        /// <summary>Construct an <see cref="IResponse"/> instance around an asynchronous task.</summary>
+        /// <remarks>The work to start in a new asynchronous task.</remarks>
+        protected IRequest ConstructResponseFromTask(Func<HttpResponseMessage> task)
+        {
+            HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Get, "http://example.org/");
+            return new Request(request, new MediaTypeFormatterCollection(), p => Task<HttpResponseMessage>.Factory.StartNew(task), new IHttpFilter[0]);
         }
 
         /// <summary>Assert that an HTTP request's state matches the expected values.</summary>
