@@ -98,25 +98,6 @@ namespace Pathoschild.Http.Tests.Integration
             Assert.IsNull(await request.WithArgument("limit", "max").As<WikipediaMetadata>(), null);
         }
 
-        [Test(Description = "The client can fetch a resource from Wikipedia's API and read the response multiple times.")]
-        public async Task Wikipedia_MultipleReads()
-        {
-            // arrange
-            IClient client = this.ConstructClient("http://en.wikipedia.org/");
-
-            // act
-            IRequest request = client
-                .GetAsync("w/api.php")
-                .WithArguments(new { action = "query", meta = "siteinfo", siprop = "general", format = "json" });
-            string valueA = await request.AsString();
-            string valueB = await request.AsString();
-
-            // assert
-            Assert.IsNotNull(valueA, "response is null");
-            Assert.IsNotEmpty(valueA, "response is empty");
-            Assert.AreEqual(valueA, valueB, "second read got a different result");
-        }
-
         /*********
         ** Protected methods
         *********/

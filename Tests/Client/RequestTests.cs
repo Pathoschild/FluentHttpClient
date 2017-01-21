@@ -8,6 +8,8 @@ using NUnit.Framework;
 using Pathoschild.Http.Client;
 using Pathoschild.Http.Client.Extensibility;
 using Pathoschild.Http.Client.Internal;
+using RichardSzalay.MockHttp;
+using System.Net;
 
 namespace Pathoschild.Http.Tests.Client
 {
@@ -224,6 +226,28 @@ namespace Pathoschild.Http.Tests.Client
             Assert.That(header, Is.Not.Null, "The header is invalid.");
             Assert.That(header.Value, Is.Not.Null.Or.Empty, "The header value is invalid.");
             Assert.That(header.Value.First(), Is.EqualTo(value), "The header value is invalid.");
+        }
+
+        [Test(Description = "A request is dispatched only once.")]
+        public async Task RequestDispatchedOnce_MultipleReads()
+        {
+            // arrange
+            var counter = 0;
+            var mockHttp = new MockHttpMessageHandler();
+            mockHttp.When(HttpMethod.Get, "https://api.fictitious-vendor.com/v1/endpoint").Respond(HttpStatusCode.OK, (RequestTests) => new StringContent($"This is request was dispatched {++counter} times"));
+
+            var httpClient = new HttpClient(mockHttp);
+            var fluentClient = new FluentClient("https://api.fictitious-vendor.com/v1/", httpClient);
+
+            // act
+            var request = fluentClient.GetAsync("endpoint");
+            string valueA = await request.AsString();
+            string valueB = await request.AsString();
+
+            // assert
+            Assert.IsNotNull(valueA, "response is null");
+            Assert.IsNotEmpty(valueA, "response is empty");
+            Assert.AreEqual(valueA, valueB, "second read got a different result");
         }
 
 
