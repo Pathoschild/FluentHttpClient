@@ -42,9 +42,9 @@ namespace Pathoschild.Http.Client.Internal
         /// <summary>Asynchronously retrieve the response body as a deserialized model.</summary>
         /// <typeparam name="T">The response model to deserialize into.</typeparam>
         /// <exception cref="ApiException">An error occurred processing the response.</exception>
-        public async Task<T> As<T>()
+        public Task<T> As<T>()
         {
-            return await this.Message.Content.ReadAsAsync<T>(this.Formatters).ConfigureAwait(false);
+            return this.Message.Content.ReadAsAsync<T>(this.Formatters);
         }
 
         /// <summary>Asynchronously retrieve the response body as a list of deserialized models.</summary>
@@ -58,17 +58,17 @@ namespace Pathoschild.Http.Client.Internal
         /// <summary>Asynchronously retrieve the response body as an array of <see cref="byte"/>.</summary>
         /// <returns>Returns the response body, or <c>null</c> if the response has no body.</returns>
         /// <exception cref="ApiException">An error occurred processing the response.</exception>
-        public async Task<byte[]> AsByteArray()
+        public Task<byte[]> AsByteArray()
         {
-            return await this.Message.Content.ReadAsByteArrayAsync().ConfigureAwait(false);
+            return this.Message.Content.ReadAsByteArrayAsync();
         }
 
         /// <summary>Asynchronously retrieve the response body as a <see cref="string"/>.</summary>
         /// <returns>Returns the response body, or <c>null</c> if the response has no body.</returns>
         /// <exception cref="ApiException">An error occurred processing the response.</exception>
-        public async Task<string> AsString()
+        public Task<string> AsString()
         {
-            return await this.Message.Content.ReadAsStringAsync().ConfigureAwait(false);
+            return this.Message.Content.ReadAsStringAsync();
         }
 
         /// <summary>Asynchronously retrieve the response body as a <see cref="Stream"/>.</summary>

@@ -155,9 +155,9 @@ namespace Pathoschild.Http.Client.Internal
         ***/
         /// <summary>Asynchronously retrieve the HTTP response.</summary>
         /// <exception cref="ApiException">An error occurred processing the response.</exception>
-        public async Task<IResponse> AsResponse()
+        public Task<IResponse> AsResponse()
         {
-            return await this.Execute().ConfigureAwait(false);
+            return this.Execute();
         }
 
         /// <summary>Asynchronously retrieve the HTTP response.</summary>
