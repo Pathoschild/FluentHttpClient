@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq.Expressions;
+using System.Net;
 using System.Threading.Tasks;
 using NUnit.Framework;
 using Pathoschild.Http.Client;
@@ -81,49 +82,23 @@ namespace Pathoschild.Http.Tests.Integration
             this.AssertResponse(response, this.ZhwikiMetadata, "First request");
         }
 
-        [Test(Description = "The client response is null if it performs the same request twice. This matches the behaviour of the underlying HTTP client.")]
-        public async Task Wikipedia_ResendingRequestSetsResponseToNull()
-        {
-            // arrange
-            IClient client = this.ConstructClient("http://en.wikipedia.org/");
-
-            // act
-            IRequest request = client
-                .GetAsync("w/api.php")
-                .WithArguments(new { action = "query", meta = "siteinfo", siprop = "general", format = "json" });
-
-            // assert
-            this.AssertResponse(await request.As<WikipediaMetadata>(), this.EnwikiMetadata, "First request");
-            Assert.IsNull(await request.WithArgument("limit", "max").As<WikipediaMetadata>(), null);
-        }
-
-        [Test(Description = "The client can fetch a resource from Wikipedia's API and read the response multiple times.")]
-        public async Task Wikipedia_MultipleReads()
-        {
-            // arrange
-            IClient client = this.ConstructClient("http://en.wikipedia.org/");
-
-            // act
-            IRequest request = client
-                .GetAsync("w/api.php")
-                .WithArguments(new { action = "query", meta = "siteinfo", siprop = "general", format = "json" });
-            string valueA = await request.AsString();
-            string valueB = await request.AsString();
-
-            // assert
-            Assert.IsNotNull(valueA, "response is null");
-            Assert.IsNotEmpty(valueA, "response is empty");
-            Assert.AreEqual(valueA, valueB, "second read got a different result");
-        }
 
         /*********
         ** Protected methods
         *********/
         /// <summary>Construct an HTTP client with the JSON.NET formatter.</summary>
         /// <param name="url">The base URI prepended to relative request URIs.</param>
-        protected IClient ConstructClient(string url)
+        /// <param name="useFiddler">Indicates if you want HTTP requests to be proxied throught Fidler for debugging purposes.</param>
+        protected IClient ConstructClient(string url, bool useFiddler = false)
         {
+#if NETFULL
+            var proxy = useFiddler ? new WebProxy("http://localhost:8888") : null;
+            return new FluentClient(url, proxy);
+#else
+            // WebProxy is not available in .netcore 1.0. 
+            // However, rumor is: Microsoft will be adding it to .netcore 2.0
             return new FluentClient(url);
+#endif
         }
 
         /// <summary>Performs assertions on the specified Wikimedia metadata.</summary>

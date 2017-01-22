@@ -1,14 +1,14 @@
-﻿using System;
+﻿using Pathoschild.Http.Client.Extensibility;
+using Pathoschild.Http.Client.Internal;
+using Pathoschild.Http.Client.Retry;
+using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Formatting;
-using System.Reflection;
-using Pathoschild.Http.Client.Extensibility;
-using Pathoschild.Http.Client.Internal;
 using System.Net.Http.Headers;
-using System.Linq;
-using System.Threading;
+using System.Reflection;
 
 namespace Pathoschild.Http.Client
 {
@@ -36,6 +36,9 @@ namespace Pathoschild.Http.Client
 
         /// <summary>The formatters used for serializing and deserializing message bodies.</summary>
         public MediaTypeFormatterCollection Formatters { get; protected set; }
+
+        /// <summary>The request coordinator.</summary>
+        public IRequestCoordinator RequestCoordinator { get; private set; }
 
 
         /*********
@@ -87,7 +90,12 @@ namespace Pathoschild.Http.Client
         public virtual IRequest SendAsync(HttpRequestMessage message)
         {
             this.AssertNotDisposed();
-            return new Request(message, this.Formatters, request => this.BaseClient.SendAsync(request.Message, request.CancellationToken), this.Filters.ToArray());
+
+            // Please note: it's important to clone the HttpRequestMessage because the .NET HttpClient does not
+            // allow re-sending the same request multiple times which, therefore, precludes 'retry' scenarios.
+
+            return new Request(message, this.Formatters, request => this.BaseClient.SendAsync(request.Message.Clone(), request.CancellationToken), this.Filters.ToArray())
+                .WithRequestCoordinator(this.RequestCoordinator);
         }
 
         /// <summary>Specify the authentication that will be used with every request.</summary>
@@ -105,6 +113,15 @@ namespace Pathoschild.Http.Client
         {
             this.BaseClient.DefaultRequestHeaders.Remove("User-Agent");
             this.BaseClient.DefaultRequestHeaders.Add("User-Agent", userAgent);
+            return this;
+        }
+
+        /// <summary>Set the default request coordinator</summary>
+        /// <param name="requestCoordinator">The request coordinator.</param>
+        /// <remarks>If the request coordinator is null, it will cause requests to be executed once without any retry attempts.</remarks>
+        public IClient SetRequestCoordinator(IRequestCoordinator requestCoordinator)
+        {
+            this.RequestCoordinator = requestCoordinator;
             return this;
         }
 

@@ -19,7 +19,7 @@ namespace Pathoschild.Http.Client.Extensibility
         public void OnResponse(IResponse response, HttpResponseMessage responseMessage)
         {
             if (!responseMessage.IsSuccessStatusCode)
-                throw new ApiException(response, responseMessage, $"The API query failed with status code {responseMessage.StatusCode}: {responseMessage.ReasonPhrase}");
+                throw new ApiException(response, $"The API query failed with status code {responseMessage.StatusCode}: {responseMessage.ReasonPhrase}");
         }
     }
 }

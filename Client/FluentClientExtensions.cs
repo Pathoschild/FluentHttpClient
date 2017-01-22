@@ -1,5 +1,6 @@
 using Pathoschild.Http.Client.Extensibility;
 using Pathoschild.Http.Client.Internal;
+using Pathoschild.Http.Client.Retry;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -20,9 +21,7 @@ namespace Pathoschild.Http.Client
         public static bool Remove<TFilter>(this List<IHttpFilter> filters)
             where TFilter : IHttpFilter
         {
-            TFilter filter = filters.OfType<TFilter>().FirstOrDefault();
-            return filter != null && filters.Remove(filter);
-
+            return filters.RemoveAll(filter => filter is TFilter) > 0;
         }
 
         /// <summary>Create an asynchronous HTTP DELETE request message (but don't dispatch it yet).</summary>
@@ -158,6 +157,88 @@ namespace Pathoschild.Http.Client
         public static IRequest WithBody<T>(this IRequest request, T body, MediaTypeFormatter formatter, string mediaType = null)
         {
             return request.WithBodyContent(new ObjectContent<T>(body, formatter, mediaType));
+        }
+
+        /// <summary>Set the default request coordinator</summary>
+        /// <param name="client">The client.</param>
+        /// <param name="shouldRetry">A lambda which returns whether a request should be retried.</param>
+        /// <param name="intervals">The intervals between each retry attempt.</param>
+        public static IClient SetRequestCoordinator(this IClient client, Func<HttpResponseMessage, bool> shouldRetry, params TimeSpan[] intervals)
+        {
+            return client.SetRequestCoordinator(new RetryCoordinator(shouldRetry, intervals));
+        }
+
+        /// <summary>Set the default request coordinator</summary>
+        /// <param name="client">The client.</param>
+        /// <param name="maxRetries">The maximum number of times to retry a request before failing.</param>
+        /// <param name="shouldRetry">A lambda which returns whether a request should be retried.</param>
+        /// <param name="getDelay">A lambda which returns the time to wait until the next retry.</param>
+        public static IClient SetRequestCoordinator(this IClient client, int maxRetries, Func<HttpResponseMessage, bool> shouldRetry, Func<int, HttpResponseMessage, TimeSpan> getDelay)
+        {
+            return client.SetRequestCoordinator(new RetryCoordinator(maxRetries, shouldRetry, getDelay));
+        }
+
+        /// <summary>Set the default request coordinator</summary>
+        /// <param name="client">The client.</param>
+        /// <param name="config">The retry configuration.</param>
+        /// <remarks>If the retry configuration is null, it will cause requests to be executed once without any retry attempts.</remarks>
+        public static IClient SetRequestCoordinator(this IClient client, IRetryConfig config)
+        {
+            return client.SetRequestCoordinator(new RetryCoordinator(config));
+        }
+
+        /// <summary>Set the request coordinator for this request</summary>
+        /// <param name="request">The request.</param>
+        /// <param name="shouldRetry">A lambda which returns whether a request should be retried.</param>
+        /// <param name="intervals">The intervals between each retry attempt.</param>
+        public static IRequest WithRequestCoordinator(this IRequest request, Func<HttpResponseMessage, bool> shouldRetry, params TimeSpan[] intervals)
+        {
+            return request.WithRequestCoordinator(new RetryCoordinator(shouldRetry, intervals));
+        }
+
+        /// <summary>Set the request coordinator for this request</summary>
+        /// <param name="request">The request.</param>
+        /// <param name="maxRetries">The maximum number of times to retry a request before failing.</param>
+        /// <param name="shouldRetry">A lambda which returns whether a request should be retried.</param>
+        /// <param name="getDelay">A lambda which returns the time to wait until the next retry.</param>
+        public static IRequest WithRequestCoordinator(this IRequest request, int maxRetries, Func<HttpResponseMessage, bool> shouldRetry, Func<int, HttpResponseMessage, TimeSpan> getDelay)
+        {
+            return request.WithRequestCoordinator(new RetryCoordinator(maxRetries, shouldRetry, getDelay));
+        }
+
+        /// <summary>Set the request coordinator for this request</summary>
+        /// <param name="request">The request.</param>
+        /// <param name="config">The retry configuration.</param>
+        /// <remarks>If the retry configuration is null, it will cause requests to be executed once without any retry attempts.</remarks>
+        public static IRequest WithRequestCoordinator(this IRequest request, IRetryConfig config)
+        {
+            return request.WithRequestCoordinator(new RetryCoordinator(config));
+        }
+
+        /// <summary>
+        /// Clones the specified request.
+        /// </summary>
+        /// <param name="req">The request.</param>
+        /// <returns>A http request</returns>
+        /// <remarks>Please note that you must clone a request BEFORE dispatching it because the content stream is automatically disposed after the request is dispatched which, therefore, prevents cloning the request.</remarks>
+        internal static HttpRequestMessage Clone(this HttpRequestMessage req)
+        {
+            HttpRequestMessage clone = new HttpRequestMessage(req.Method, req.RequestUri);
+
+            clone.Content = req.Content;
+            clone.Version = req.Version;
+
+            foreach (KeyValuePair<string, object> prop in req.Properties)
+            {
+                clone.Properties.Add(prop);
+            }
+
+            foreach (KeyValuePair<string, IEnumerable<string>> header in req.Headers)
+            {
+                clone.Headers.TryAddWithoutValidation(header.Key, header.Value);
+            }
+
+            return clone;
         }
     }
 }

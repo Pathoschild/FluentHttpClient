@@ -1,4 +1,5 @@
 ﻿using Pathoschild.Http.Client.Extensibility;
+using Pathoschild.Http.Client.Retry;
 using System;
 using System.Collections.Generic;
 using System.Net.Http;
@@ -38,5 +39,10 @@ namespace Pathoschild.Http.Client
         /// <summary>Set the default user agent header.</summary>
         /// <param name="userAgent">The user agent header value.</param>
         IClient SetUserAgent(string userAgent);
+
+        /// <summary>Set the default request coordinator</summary>
+        /// <param name="requestCoordinator">The request coordinator.</param>
+        /// <remarks>If the request coordinator is null, it will cause requests to be executed once without any retry attempts.</remarks>
+        IClient SetRequestCoordinator(IRequestCoordinator requestCoordinator);
     }
 }

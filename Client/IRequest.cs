@@ -1,12 +1,17 @@
+using Pathoschild.Http.Client.Retry;
 using System;
+using System.Collections.Generic;
+using System.IO;
 using System.Net.Http;
+using System.Net.Http.Formatting;
 using System.Runtime.CompilerServices;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace Pathoschild.Http.Client
 {
     /// <summary>Builds and dispatches an asynchronous HTTP request, and asynchronously parses the response.</summary>
-    public interface IRequest : IResponse
+    public interface IRequest
     {
         /*********
         ** Accessors
@@ -16,6 +21,9 @@ namespace Pathoschild.Http.Client
 
         /// <summary>The optional token used to cancel async operations.</summary>
         CancellationToken CancellationToken { get; }
+
+        /// <summary>The formatters used for serializing and deserializing message bodies.</summary>
+        MediaTypeFormatterCollection Formatters { get; }
 
 
         /*********
@@ -68,5 +76,45 @@ namespace Pathoschild.Http.Client
         /// <param name="scheme">The scheme to use for authorization. e.g.: "Basic", "Bearer".</param>
         /// <param name="parameter">The credentials containing the authentication information.</param>
         IRequest WithAuthentication(string scheme, string parameter);
+
+        /// <summary>Specify the request coordinator for this request.</summary>
+        /// <param name="requestCoordinator">The request coordinator</param>
+        IRequest WithRequestCoordinator(IRequestCoordinator requestCoordinator);
+
+        /****
+        ** Response shortcuts
+        ****/
+        /// <summary>Asynchronously retrieve the HTTP response. This method exists for discoverability but isn't strictly needed; you can just await the request (like <c>await GetAsync()</c>) to get the response.</summary>
+        /// <exception cref="ApiException">An error occurred processing the response.</exception>
+        Task<IResponse> AsResponse();
+
+        /// <summary>Asynchronously retrieve the HTTP response message.</summary>
+        /// <exception cref="ApiException">An error occurred processing the response.</exception>
+        Task<HttpResponseMessage> AsMessage();
+
+        /// <summary>Asynchronously retrieve the response body as a deserialized model.</summary>
+        /// <typeparam name="T">The response model to deserialize into.</typeparam>
+        /// <exception cref="ApiException">An error occurred processing the response.</exception>
+        Task<T> As<T>();
+
+        /// <summary>Asynchronously retrieve the response body as a list of deserialized models.</summary>
+        /// <typeparam name="T">The response model to deserialize into.</typeparam>
+        /// <exception cref="ApiException">An error occurred processing the response.</exception>
+        Task<List<T>> AsList<T>();
+
+        /// <summary>Asynchronously retrieve the response body as an array of <see cref="byte"/>.</summary>
+        /// <returns>Returns the response body, or <c>null</c> if the response has no body.</returns>
+        /// <exception cref="ApiException">An error occurred processing the response.</exception>
+        Task<byte[]> AsByteArray();
+
+        /// <summary>Asynchronously retrieve the response body as a <see cref="string"/>.</summary>
+        /// <returns>Returns the response body, or <c>null</c> if the response has no body.</returns>
+        /// <exception cref="ApiException">An error occurred processing the response.</exception>
+        Task<string> AsString();
+
+        /// <summary>Asynchronously retrieve the response body as a <see cref="Stream"/>.</summary>
+        /// <returns>Returns the response body, or <c>null</c> if the response has no body.</returns>
+        /// <exception cref="ApiException">An error occurred processing the response.</exception>
+        Task<Stream> AsStream();
     }
 }
