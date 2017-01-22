@@ -21,8 +21,7 @@ namespace Pathoschild.Http.Client
         public static bool Remove<TFilter>(this List<IHttpFilter> filters)
             where TFilter : IHttpFilter
         {
-            IEnumerable<TFilter> tFilters = filters.OfType<TFilter>();
-            return tFilters.Any() && filters.Remove(tFilters.First());
+            return filters.RemoveAll(filter => filter is TFilter) > 0;
         }
 
         /// <summary>Create an asynchronous HTTP DELETE request message (but don't dispatch it yet).</summary>
