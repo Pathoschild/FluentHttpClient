@@ -15,6 +15,7 @@ Upcoming release.
 * Fixed `client.Filters` not added to the interface.
 * Fixed `client.Filters.Remove<T>()` only removing the first matching filter.
 * Removed `JsonNetFormatter` (deprecated since 2.1).
+* Relicensed from CC-BY 3.0 to more permissive MIT license.
 
 ## 2.3
 Released 12 December 2016. See [log](https://github.com/Pathoschild/FluentHttpClient/compare/2.2.0..2.3).

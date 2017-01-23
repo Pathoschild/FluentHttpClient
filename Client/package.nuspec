@@ -6,7 +6,7 @@
     <version>3.0.0</version>
     <authors>Jesse Plamondon-Willard</authors>
     <description>A fluent async REST API client that packs a punch. It provides a fluent interface to create an HTTP request, dispatch and wait for it, and parse the response. The client takes care of deserialisation, error-handling, optional fault tolerance, and more for you.</description>
-    <licenseUrl>https://creativecommons.org/licenses/by/3.0/</licenseUrl>
+    <licenseUrl>https://github.com/Pathoschild/FluentHttpClient/blob/3.0/LICENSE.txt</licenseUrl>
     <projectUrl>https://github.com/Pathoschild/FluentHttpClient#readme</projectUrl>
     <iconUrl>https://s3.amazonaws.com/pathoschild/avatar-64x64.png</iconUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
