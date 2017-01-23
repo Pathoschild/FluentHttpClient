@@ -165,7 +165,7 @@ namespace Pathoschild.Http.Tests.Client
 
         [Test(Description = "The response can be read as a deserialized list of models.")]
         [TestCase("model value A", "model value B")]
-        public void AsList(string contentA, string contentB)
+        public void AsArray(string contentA, string contentB)
         {
             // arrange
             Model<string>[] expected = { new Model<string>(contentA), new Model<string>(contentB) };
@@ -173,7 +173,7 @@ namespace Pathoschild.Http.Tests.Client
 
             // act
             Model<string>[] actual = response
-                .AsList<Model<string>>()
+                .AsArray<Model<string>>()
                 .VerifyTaskResult();
 
             // assert

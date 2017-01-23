@@ -180,7 +180,7 @@ namespace Pathoschild.Http.Client.Internal
         /// <summary>Asynchronously retrieve the response body as a list of deserialized models.</summary>
         /// <typeparam name="T">The response model to deserialize into.</typeparam>
         /// <exception cref="ApiException">An error occurred processing the response.</exception>
-        public Task<T[]> AsList<T>()
+        public Task<T[]> AsArray<T>()
         {
             return this.As<T[]>();
         }

@@ -100,7 +100,7 @@ namespace Pathoschild.Http.Client
         /// <summary>Asynchronously retrieve the response body as a list of deserialized models.</summary>
         /// <typeparam name="T">The response model to deserialize into.</typeparam>
         /// <exception cref="ApiException">An error occurred processing the response.</exception>
-        Task<T[]> AsList<T>();
+        Task<T[]> AsArray<T>();
 
         /// <summary>Asynchronously retrieve the response body as an array of <see cref="byte"/>.</summary>
         /// <returns>Returns the response body, or <c>null</c> if the response has no body.</returns>

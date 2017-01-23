@@ -2,19 +2,22 @@
 ## 3.0
 Upcoming release.
 
-* Added support for fault tolerance using `IRequestCoordinator`.
-* Added an optional `RetryCoordinator` that automatically retries failed requests.
-* Added fluent methods to set authentication headers, with built-in support for basic auth and bearer tokens.
-* Added fluent method to override the default `User-Agent` header.
-* Added support for `IWebProxy`.
-* Added support for cancellation tokens.
-* Revamped `IResponse` to make it easier to read response data before parsing the body.
-* Simplified `IClient` and `IRequest` by moving some methods into extension methods.
-* Changed `response.AsList<T>` to return an array instead of `List<T>`.
-* Fixed the underlying `HttpClient` being disposed when it isn't owned by the fluent client.
-* Fixed `client.Filters` not added to the interface.
-* Fixed `client.Filters.Remove<T>()` only removing the first matching filter.
-* Removed `JsonNetFormatter` (deprecated since 2.1).
+* New features:
+  * Added support for fault tolerance using `IRequestCoordinator`.
+  * Added an optional `RetryCoordinator` that automatically retries failed requests.
+  * Added fluent methods to set authentication headers, with built-in support for basic auth and bearer tokens.
+  * Added fluent method to override the default `User-Agent` header.
+  * Added support for `IWebProxy`.
+  * Added support for cancellation tokens.
+* Breaking changes:
+  * Replaced `response.AsList<T>` with `reponse.AsArray<T>`.
+  * Removed `JsonNetFormatter` (deprecated since 2.1).
+  * Revamped `IResponse` to make it easier to read response data before parsing the body.
+  * Simplified `IClient` and `IRequest` by moving some methods into extension methods.
+* Improvements:
+  * Fixed the underlying `HttpClient` being disposed when it isn't owned by the fluent client.
+  * Fixed `client.Filters` not added to the interface.
+  * Fixed `client.Filters.Remove<T>()` only removing the first matching filter.
 * Relicensed from CC-BY 3.0 to more permissive MIT license.
 
 ## 2.3

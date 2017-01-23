@@ -64,9 +64,9 @@ times, it won't re-execute the request.
 ```c#
 IResponse response = await client.GetAsync("polymorphicAPI");
 if (response.Headers.Contains("X-Multiple-Records"))
-    return response.AsList<T>();
+    return response.AsArray<T>();
 else
-    return new List<T> { response.As<T>() };
+    return new T[] { response.As<T>() };
 ```
 
 ### Error handling
@@ -81,7 +81,7 @@ try
 {
     return await client
         .Get("items")
-        .AsList<Item>();
+        .AsArray<Item>();
 }
 catch(ApiException ex)
 {
