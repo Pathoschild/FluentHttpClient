@@ -3,9 +3,9 @@
   <metadata>
     <title>Fluent HTTP client</title>
     <id>Pathoschild.Http.FluentClient</id>
-    <version>2.4.0</version>
+    <version>3.0.0</version>
     <authors>Jesse Plamondon-Willard</authors>
-    <description>An easy asynchronous HTTP client for REST APIs. It provides a fluent interface that lets you create an HTTP request, dispatch and wait for it, and parse the response.</description>
+    <description>A fluent async REST API client that packs a punch. It provides a fluent interface to create an HTTP request, dispatch and wait for it, and parse the response. The client takes care of deserialisation, error-handling, optional fault tolerance, and more for you.</description>
     <licenseUrl>https://creativecommons.org/licenses/by/3.0/</licenseUrl>
     <projectUrl>https://github.com/Pathoschild/FluentHttpClient#readme</projectUrl>
     <iconUrl>https://s3.amazonaws.com/pathoschild/avatar-64x64.png</iconUrl>
@@ -24,7 +24,7 @@
         <dependency id="System.Net.Http" version="4.3.0" />
       </group>
     </dependencies>
-    <releaseNotes>Added convenience constructors; added method to set user agent; the fluent client no longer disposes HTTP clients that are passed in.</releaseNotes>
+    <releaseNotes>See release notes at https://github.com/Pathoschild/FluentHttpClient/blob/3.0/RELEASE-NOTES.md#30.</releaseNotes>
   </metadata>
   <files>
     <file src="bin\Release\net452\Pathoschild.Http.Client.dll" target="lib\net452\" />
