@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Net;
 using System.Net.Http;
@@ -169,11 +168,11 @@ namespace Pathoschild.Http.Tests.Client
         public void AsList(string contentA, string contentB)
         {
             // arrange
-            List<Model<string>> expected = new List<Model<string>> { new Model<string>(contentA), new Model<string>(contentB) };
+            Model<string>[] expected = { new Model<string>(contentA), new Model<string>(contentB) };
             IResponse response = this.ConstructResponse(expected);
 
             // act
-            List<Model<string>> actual = response
+            Model<string>[] actual = response
                 .AsList<Model<string>>()
                 .VerifyTaskResult();
 

@@ -10,6 +10,7 @@ Upcoming release.
 * Added support for cancellation tokens.
 * Revamped `IResponse` to make it easier to read response data before parsing the body.
 * Simplified `IClient` and `IRequest` by moving some methods into extension methods.
+* Changed `response.AsList<T>` to return an array instead of `List<T>`.
 * Fixed the underlying `HttpClient` being disposed when it isn't owned by the fluent client.
 * Fixed `client.Filters` not added to the interface.
 * Fixed `client.Filters.Remove<T>()` only removing the first matching filter.
