@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Linq.Expressions;
+#if NETFULL
 using System.Net;
+#endif
 using System.Threading.Tasks;
 using NUnit.Framework;
 using Pathoschild.Http.Client;

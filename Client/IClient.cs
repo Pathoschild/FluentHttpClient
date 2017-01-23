@@ -1,9 +1,9 @@
-﻿using Pathoschild.Http.Client.Extensibility;
-using Pathoschild.Http.Client.Retry;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Net.Http;
 using System.Net.Http.Formatting;
+using Pathoschild.Http.Client.Extensibility;
+using Pathoschild.Http.Client.Retry;
 
 namespace Pathoschild.Http.Client
 {
@@ -18,7 +18,7 @@ namespace Pathoschild.Http.Client
 
         /// <summary>The formatters used for serializing and deserializing message bodies.</summary>
         MediaTypeFormatterCollection Formatters { get; }
-        
+
         /// <summary>Interceptors which can read and modify HTTP requests and responses.</summary>
         ICollection<IHttpFilter> Filters { get; }
 
@@ -40,9 +40,8 @@ namespace Pathoschild.Http.Client
         /// <param name="userAgent">The user agent header value.</param>
         IClient SetUserAgent(string userAgent);
 
-        /// <summary>Set the default request coordinator</summary>
-        /// <param name="requestCoordinator">The request coordinator.</param>
-        /// <remarks>If the request coordinator is null, it will cause requests to be executed once without any retry attempts.</remarks>
+        /// <summary>Set the default request coordinator.</summary>
+        /// <param name="requestCoordinator">The request coordinator (or null to use the default behaviour).</param>
         IClient SetRequestCoordinator(IRequestCoordinator requestCoordinator);
     }
 }

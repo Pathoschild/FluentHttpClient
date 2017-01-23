@@ -1,11 +1,11 @@
-﻿using Newtonsoft.Json.Linq;
+﻿using System;
+using System.Net;
+using System.Net.Http;
+using Newtonsoft.Json.Linq;
 using NUnit.Framework;
 using Pathoschild.Http.Client;
 using Pathoschild.Http.Client.Retry;
 using RichardSzalay.MockHttp;
-using System;
-using System.Net;
-using System.Net.Http;
 
 namespace Pathoschild.Http.Tests.Client
 {

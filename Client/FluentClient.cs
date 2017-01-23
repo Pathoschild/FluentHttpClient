@@ -1,7 +1,4 @@
-﻿using Pathoschild.Http.Client.Extensibility;
-using Pathoschild.Http.Client.Internal;
-using Pathoschild.Http.Client.Retry;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
@@ -9,6 +6,9 @@ using System.Net.Http;
 using System.Net.Http.Formatting;
 using System.Net.Http.Headers;
 using System.Reflection;
+using Pathoschild.Http.Client.Extensibility;
+using Pathoschild.Http.Client.Internal;
+using Pathoschild.Http.Client.Retry;
 
 namespace Pathoschild.Http.Client
 {
@@ -35,7 +35,7 @@ namespace Pathoschild.Http.Client
         public HttpClient BaseClient { get; }
 
         /// <summary>The formatters used for serializing and deserializing message bodies.</summary>
-        public MediaTypeFormatterCollection Formatters { get; protected set; }
+        public MediaTypeFormatterCollection Formatters { get; }
 
         /// <summary>The request coordinator.</summary>
         public IRequestCoordinator RequestCoordinator { get; private set; }
@@ -91,9 +91,8 @@ namespace Pathoschild.Http.Client
         {
             this.AssertNotDisposed();
 
-            // Please note: it's important to clone the HttpRequestMessage because the .NET HttpClient does not
-            // allow re-sending the same request multiple times which, therefore, precludes 'retry' scenarios.
-
+            // clone the underlying message because HttpClient doesn't normally allow re-sending
+            // the same request, which would break IRequestCoordinator.
             return new Request(message, this.Formatters, request => this.BaseClient.SendAsync(request.Message.Clone(), request.CancellationToken), this.Filters.ToArray())
                 .WithRequestCoordinator(this.RequestCoordinator);
         }

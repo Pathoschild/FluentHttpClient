@@ -1,4 +1,3 @@
-using Pathoschild.Http.Client.Retry;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -7,6 +6,7 @@ using System.Net.Http.Formatting;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
+using Pathoschild.Http.Client.Retry;
 
 namespace Pathoschild.Http.Client
 {
@@ -65,6 +65,18 @@ namespace Pathoschild.Http.Client
         /// <returns>Returns the request builder for chaining.</returns>
         IRequest WithCancellationToken(CancellationToken cancellationToken);
 
+        /// <summary>Add an authentication header for this request.</summary>
+        /// <param name="scheme">The authentication header scheme to use for authorization (like 'basic' or 'bearer').</param>
+        /// <param name="parameter">The authentication header value (e.g. the bearer token).</param>
+        IRequest WithAuthentication(string scheme, string parameter);
+
+        /// <summary>Set the request coordinator for this request.</summary>
+        /// <param name="requestCoordinator">The request coordinator (or null to use the default behaviour).</param>
+        IRequest WithRequestCoordinator(IRequestCoordinator requestCoordinator);
+
+        /****
+        ** Response shortcuts
+        ****/
         /// <summary>Get an object that waits for the completion of the request. This enables support for the <c>await</c> keyword.</summary>
         /// <example>
         /// <code>await client.GetAsync("api/ideas").AsString();</code>
@@ -72,18 +84,6 @@ namespace Pathoschild.Http.Client
         /// </example>
         TaskAwaiter<IResponse> GetAwaiter();
 
-        /// <summary>Specify the authentication for this request.</summary>
-        /// <param name="scheme">The scheme to use for authorization. e.g.: "Basic", "Bearer".</param>
-        /// <param name="parameter">The credentials containing the authentication information.</param>
-        IRequest WithAuthentication(string scheme, string parameter);
-
-        /// <summary>Specify the request coordinator for this request.</summary>
-        /// <param name="requestCoordinator">The request coordinator</param>
-        IRequest WithRequestCoordinator(IRequestCoordinator requestCoordinator);
-
-        /****
-        ** Response shortcuts
-        ****/
         /// <summary>Asynchronously retrieve the HTTP response. This method exists for discoverability but isn't strictly needed; you can just await the request (like <c>await GetAsync()</c>) to get the response.</summary>
         /// <exception cref="ApiException">An error occurred processing the response.</exception>
         Task<IResponse> AsResponse();

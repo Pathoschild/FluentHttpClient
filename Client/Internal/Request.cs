@@ -84,6 +84,15 @@ namespace Pathoschild.Http.Client.Internal
             return this;
         }
 
+        /// <summary>Add an authentication header.</summary>
+        /// <param name="scheme">The scheme to use for authorization. e.g.: "Basic", "Bearer".</param>
+        /// <param name="parameter">The credentials containing the authentication information.</param>
+        public IRequest WithAuthentication(string scheme, string parameter)
+        {
+            this.Message.Headers.Authorization = new AuthenticationHeaderValue(scheme, parameter);
+            return this;
+        }
+
         /// <summary>Add an HTTP query string argument.</summary>
         /// <param name="key">The key of the query argument.</param>
         /// <param name="value">The value of the query argument.</param>
@@ -122,26 +131,6 @@ namespace Pathoschild.Http.Client.Internal
             return this;
         }
 
-        /// <summary>Get an object that waits for the completion of the request. This enables support for the <c>await</c> keyword.</summary>
-        /// <example>
-        /// <code>await client.PostAsync("api/ideas", idea);</code>
-        /// <code>await client.GetAsync("api/ideas").AsString();</code>
-        /// </example>
-        public TaskAwaiter<IResponse> GetAwaiter()
-        {
-            Func<Task<IResponse>> waiter = async () => await this.Execute().ConfigureAwait(false);
-            return waiter().GetAwaiter();
-        }
-
-        /// <summary>Specify the authentication that will be used with every request.</summary>
-        /// <param name="scheme">The scheme to use for authorization. e.g.: "Basic", "Bearer".</param>
-        /// <param name="parameter">The credentials containing the authentication information.</param>
-        public IRequest WithAuthentication(string scheme, string parameter)
-        {
-            this.Message.Headers.Authorization = new AuthenticationHeaderValue(scheme, parameter);
-            return this;
-        }
-
         /// <summary>Specify the request coordinator for this request.</summary>
         /// <param name="requestCoordinator">The request coordinator</param>
         public IRequest WithRequestCoordinator(IRequestCoordinator requestCoordinator)
@@ -153,6 +142,17 @@ namespace Pathoschild.Http.Client.Internal
         /***
         ** Retrieve response
         ***/
+        /// <summary>Get an object that waits for the completion of the request. This enables support for the <c>await</c> keyword.</summary>
+        /// <example>
+        /// <code>await client.PostAsync("api/ideas", idea);</code>
+        /// <code>await client.GetAsync("api/ideas").AsString();</code>
+        /// </example>
+        public TaskAwaiter<IResponse> GetAwaiter()
+        {
+            Func<Task<IResponse>> waiter = async () => await this.Execute().ConfigureAwait(false);
+            return waiter().GetAwaiter();
+        }
+
         /// <summary>Asynchronously retrieve the HTTP response.</summary>
         /// <exception cref="ApiException">An error occurred processing the response.</exception>
         public Task<IResponse> AsResponse()

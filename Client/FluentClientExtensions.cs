@@ -1,19 +1,24 @@
-using Pathoschild.Http.Client.Extensibility;
-using Pathoschild.Http.Client.Internal;
-using Pathoschild.Http.Client.Retry;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Formatting;
 using System.Net.Http.Headers;
 using System.Text;
+using Pathoschild.Http.Client.Extensibility;
+using Pathoschild.Http.Client.Internal;
+using Pathoschild.Http.Client.Retry;
 
 namespace Pathoschild.Http.Client
 {
     /// <summary>Provides convenience methods for configuring the HTTP client.</summary>
     public static class FluentClientExtensions
     {
+        /*********
+        ** Public methods
+        *********/
+        /****
+        ** IClient
+        ****/
         /// <summary>Remove the first HTTP filter of the specified type.</summary>
         /// <typeparam name="TFilter">The filter type.</typeparam>
         /// <param name="filters">The filters to adjust.</param>
@@ -101,7 +106,7 @@ namespace Pathoschild.Http.Client
             return client.SendAsync(message);
         }
 
-        /// <summary>Specify the username and password that will be used with every request.</summary>
+        /// <summary>Set the default authentication header using basic auth.</summary>
         /// <param name="client">The client.</param>
         /// <param name="username">The username.</param>
         /// <param name="password">The password.</param>
@@ -110,15 +115,45 @@ namespace Pathoschild.Http.Client
             return client.SetAuthentication("Basic", Convert.ToBase64String(Encoding.ASCII.GetBytes(string.Concat(username, ":", password))));
         }
 
-        /// <summary>Specify the 'Bearer' authentication that will be used with every request.</summary>
+        /// <summary>Set the default authentication header using a bearer token.</summary>
         /// <param name="client">The client.</param>
-        /// <param name="key">The bearer key (typically, this is an API key).</param>
-        public static IClient SetBearerAuthentication(this IClient client, string key)
+        /// <param name="token">The bearer token (typically an API key).</param>
+        public static IClient SetBearerAuthentication(this IClient client, string token)
         {
-            return client.SetAuthentication("Bearer", key);
+            return client.SetAuthentication("Bearer", token);
         }
 
-        /// <summary>Use basic authentication with this request.</summary>
+        /// <summary>Set the default request coordinator.</summary>
+        /// <param name="client">The client.</param>
+        /// <param name="shouldRetry">A method which returns whether a request should be retried.</param>
+        /// <param name="intervals">The intervals between each retry attempt.</param>
+        public static IClient SetRequestCoordinator(this IClient client, Func<HttpResponseMessage, bool> shouldRetry, params TimeSpan[] intervals)
+        {
+            return client.SetRequestCoordinator(new RetryCoordinator(shouldRetry, intervals));
+        }
+
+        /// <summary>Set the default request coordinator.</summary>
+        /// <param name="client">The client.</param>
+        /// <param name="maxRetries">The maximum number of times to retry a request before failing.</param>
+        /// <param name="shouldRetry">A method which returns whether a request should be retried.</param>
+        /// <param name="getDelay">A method which returns the time to wait until the next retry. This is passed the retry index (starting at 1) and the last HTTP response received.</param>
+        public static IClient SetRequestCoordinator(this IClient client, int maxRetries, Func<HttpResponseMessage, bool> shouldRetry, Func<int, HttpResponseMessage, TimeSpan> getDelay)
+        {
+            return client.SetRequestCoordinator(new RetryCoordinator(maxRetries, shouldRetry, getDelay));
+        }
+
+        /// <summary>Set the default request coordinator.</summary>
+        /// <param name="client">The client.</param>
+        /// <param name="config">The retry configuration (or null for the default coordinator).</param>
+        public static IClient SetRequestCoordinator(this IClient client, IRetryConfig config)
+        {
+            return client.SetRequestCoordinator(new RetryCoordinator(config));
+        }
+
+        /****
+        ** IRequest
+        ****/
+        /// <summary>Add an authentication header using basic auth.</summary>
         /// <param name="request">The request.</param>
         /// <param name="username">The username.</param>
         /// <param name="password">The password.</param>
@@ -127,12 +162,12 @@ namespace Pathoschild.Http.Client
             return request.WithAuthentication("Basic", Convert.ToBase64String(Encoding.ASCII.GetBytes(string.Concat(username, ":", password))));
         }
 
-        /// <summary>Use 'Bearer' authentication with this request.</summary>
+        /// <summary>Add an authentication header using a bearer token.</summary>
         /// <param name="request">The request.</param>
-        /// <param name="key">The bearer key (typically, this is an API key).</param>
-        public static IRequest WithBearerAuthentication(this IRequest request, string key)
+        /// <param name="token">The bearer token (typically an API key).</param>
+        public static IRequest WithBearerAuthentication(this IRequest request, string token)
         {
-            return request.WithAuthentication("Bearer", key);
+            return request.WithAuthentication("Bearer", token);
         }
 
         /// <summary>Set the body content of the HTTP request.</summary>
@@ -144,7 +179,7 @@ namespace Pathoschild.Http.Client
         public static IRequest WithBody<T>(this IRequest request, T body, MediaTypeHeaderValue contentType = null)
         {
             MediaTypeFormatter formatter = Factory.GetFormatter(request.Formatters, contentType);
-            string mediaType = contentType != null ? contentType.MediaType : null;
+            string mediaType = contentType?.MediaType;
             return request.WithBody(body, formatter, mediaType);
         }
 
@@ -159,34 +194,6 @@ namespace Pathoschild.Http.Client
             return request.WithBodyContent(new ObjectContent<T>(body, formatter, mediaType));
         }
 
-        /// <summary>Set the default request coordinator</summary>
-        /// <param name="client">The client.</param>
-        /// <param name="shouldRetry">A lambda which returns whether a request should be retried.</param>
-        /// <param name="intervals">The intervals between each retry attempt.</param>
-        public static IClient SetRequestCoordinator(this IClient client, Func<HttpResponseMessage, bool> shouldRetry, params TimeSpan[] intervals)
-        {
-            return client.SetRequestCoordinator(new RetryCoordinator(shouldRetry, intervals));
-        }
-
-        /// <summary>Set the default request coordinator</summary>
-        /// <param name="client">The client.</param>
-        /// <param name="maxRetries">The maximum number of times to retry a request before failing.</param>
-        /// <param name="shouldRetry">A lambda which returns whether a request should be retried.</param>
-        /// <param name="getDelay">A lambda which returns the time to wait until the next retry.</param>
-        public static IClient SetRequestCoordinator(this IClient client, int maxRetries, Func<HttpResponseMessage, bool> shouldRetry, Func<int, HttpResponseMessage, TimeSpan> getDelay)
-        {
-            return client.SetRequestCoordinator(new RetryCoordinator(maxRetries, shouldRetry, getDelay));
-        }
-
-        /// <summary>Set the default request coordinator</summary>
-        /// <param name="client">The client.</param>
-        /// <param name="config">The retry configuration.</param>
-        /// <remarks>If the retry configuration is null, it will cause requests to be executed once without any retry attempts.</remarks>
-        public static IClient SetRequestCoordinator(this IClient client, IRetryConfig config)
-        {
-            return client.SetRequestCoordinator(new RetryCoordinator(config));
-        }
-
         /// <summary>Set the request coordinator for this request</summary>
         /// <param name="request">The request.</param>
         /// <param name="shouldRetry">A lambda which returns whether a request should be retried.</param>
@@ -199,8 +206,8 @@ namespace Pathoschild.Http.Client
         /// <summary>Set the request coordinator for this request</summary>
         /// <param name="request">The request.</param>
         /// <param name="maxRetries">The maximum number of times to retry a request before failing.</param>
-        /// <param name="shouldRetry">A lambda which returns whether a request should be retried.</param>
-        /// <param name="getDelay">A lambda which returns the time to wait until the next retry.</param>
+        /// <param name="shouldRetry">A method which returns whether a request should be retried.</param>
+        /// <param name="getDelay">A method which returns the time to wait until the next retry. This is passed the retry index (starting at 1) and the last HTTP response received.</param>
         public static IRequest WithRequestCoordinator(this IRequest request, int maxRetries, Func<HttpResponseMessage, bool> shouldRetry, Func<int, HttpResponseMessage, TimeSpan> getDelay)
         {
             return request.WithRequestCoordinator(new RetryCoordinator(maxRetries, shouldRetry, getDelay));
@@ -208,36 +215,29 @@ namespace Pathoschild.Http.Client
 
         /// <summary>Set the request coordinator for this request</summary>
         /// <param name="request">The request.</param>
-        /// <param name="config">The retry configuration.</param>
-        /// <remarks>If the retry configuration is null, it will cause requests to be executed once without any retry attempts.</remarks>
+        /// <param name="config">The retry config (or null to use the default behaviour).</param>
         public static IRequest WithRequestCoordinator(this IRequest request, IRetryConfig config)
         {
             return request.WithRequestCoordinator(new RetryCoordinator(config));
         }
 
-        /// <summary>
-        /// Clones the specified request.
-        /// </summary>
-        /// <param name="req">The request.</param>
-        /// <returns>A http request</returns>
-        /// <remarks>Please note that you must clone a request BEFORE dispatching it because the content stream is automatically disposed after the request is dispatched which, therefore, prevents cloning the request.</remarks>
-        internal static HttpRequestMessage Clone(this HttpRequestMessage req)
+        /*********
+        ** Internal methods
+        *********/
+        /// <summary>Get a copy of the request.</summary>
+        /// <param name="request">The request to copy.</param>
+        /// <remarks>Note that cloning a request isn't possible after it's dispatched, because the content stream is automatically disposed after the request.</remarks>
+        internal static HttpRequestMessage Clone(this HttpRequestMessage request)
         {
-            HttpRequestMessage clone = new HttpRequestMessage(req.Method, req.RequestUri);
-
-            clone.Content = req.Content;
-            clone.Version = req.Version;
-
-            foreach (KeyValuePair<string, object> prop in req.Properties)
+            HttpRequestMessage clone = new HttpRequestMessage(request.Method, request.RequestUri)
             {
+                Content = request.Content,
+                Version = request.Version
+            };
+            foreach (KeyValuePair<string, object> prop in request.Properties)
                 clone.Properties.Add(prop);
-            }
-
-            foreach (KeyValuePair<string, IEnumerable<string>> header in req.Headers)
-            {
+            foreach (KeyValuePair<string, IEnumerable<string>> header in request.Headers)
                 clone.Headers.TryAddWithoutValidation(header.Key, header.Value);
-            }
-
             return clone;
         }
     }
