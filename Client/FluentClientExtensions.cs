@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Formatting;
 using System.Net.Http.Headers;
@@ -19,14 +20,38 @@ namespace Pathoschild.Http.Client
         /****
         ** IClient
         ****/
-        /// <summary>Remove the first HTTP filter of the specified type.</summary>
+        /// <summary>Remove all HTTP filters of the specified type.</summary>
         /// <typeparam name="TFilter">The filter type.</typeparam>
         /// <param name="filters">The filters to adjust.</param>
         /// <returns>Returns whether a filter was removed.</returns>
-        public static bool Remove<TFilter>(this List<IHttpFilter> filters)
+        public static bool Remove<TFilter>(this ICollection<IHttpFilter> filters)
             where TFilter : IHttpFilter
         {
-            return filters.RemoveAll(filter => filter is TFilter) > 0;
+            return filters.RemoveAll(f => f is TFilter) > 0;
+        }
+
+        /// <summary>Removes all items from a collection matching a given criteria</summary>
+        /// <typeparam name="T">The type of items in the collection</typeparam>
+        /// <param name="collection">The collection.</param>
+        /// <param name="predicate">The predicate.</param>
+        /// <returns>The number of items removed from the collection</returns>
+        /// <remarks>Based on Mark Gravell's RemoveAll extension method (http://stackoverflow.com/a/653602/153084)</remarks>
+        private static int RemoveAll<T>(this ICollection<T> collection, Func<T, bool> predicate)
+        {
+            T element;
+            int removedCount = 0;
+
+            for (int i = 0; i < collection.Count; i++)
+            {
+                element = collection.ElementAt(i);
+                if (predicate(element))
+                {
+                    collection.Remove(element);
+                    i--;
+                    removedCount++;
+                }
+            }
+            return removedCount;
         }
 
         /// <summary>Create an asynchronous HTTP DELETE request message (but don't dispatch it yet).</summary>
