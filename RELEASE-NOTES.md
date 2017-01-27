@@ -14,6 +14,7 @@ Upcoming release.
   * Removed `JsonNetFormatter` (deprecated since 2.1).
   * Revamped `IResponse` to make it easier to read response data before parsing the body.
   * Simplified `IClient` and `IRequest` by moving some methods into extension methods.
+  * Simplified `IHttpFilter` by removing the message arguments (already accessible via `IRequest` and `IResponse`).
 * Improvements:
   * Fixed the underlying `HttpClient` being disposed when it isn't owned by the fluent client.
   * Fixed `client.Filters` not added to the interface.
