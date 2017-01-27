@@ -27,31 +27,10 @@ namespace Pathoschild.Http.Client
         public static bool Remove<TFilter>(this ICollection<IHttpFilter> filters)
             where TFilter : IHttpFilter
         {
-            return filters.RemoveAll(f => f is TFilter) > 0;
-        }
-
-        /// <summary>Removes all items from a collection matching a given criteria</summary>
-        /// <typeparam name="T">The type of items in the collection</typeparam>
-        /// <param name="collection">The collection.</param>
-        /// <param name="predicate">The predicate.</param>
-        /// <returns>The number of items removed from the collection</returns>
-        /// <remarks>Based on Mark Gravell's RemoveAll extension method (http://stackoverflow.com/a/653602/153084)</remarks>
-        private static int RemoveAll<T>(this ICollection<T> collection, Func<T, bool> predicate)
-        {
-            T element;
-            int removedCount = 0;
-
-            for (int i = 0; i < collection.Count; i++)
-            {
-                element = collection.ElementAt(i);
-                if (predicate(element))
-                {
-                    collection.Remove(element);
-                    i--;
-                    removedCount++;
-                }
-            }
-            return removedCount;
+            TFilter[] remove = filters.OfType<TFilter>().ToArray();
+            foreach (TFilter filter in remove)
+                filters.Remove(filter);
+            return remove.Any();
         }
 
         /// <summary>Create an asynchronous HTTP DELETE request message (but don't dispatch it yet).</summary>
