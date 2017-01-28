@@ -94,7 +94,7 @@ if (response.Status == HttpStatusCode.OK)
 
 ...or disable it for all requests:
 ```c#
-client.SetHttpErrorsAsExceptions(false);
+client.SetHttpErrorAsException(false);
 ```
 
 You can optionally create your own error-handling logic; see _customising the client_ below.
