@@ -9,6 +9,7 @@
 
         /// <summary>Method invoked just after the HTTP response is received. This method can modify the incoming HTTP response.</summary>
         /// <param name="response">The HTTP response.</param>
-        void OnResponse(IResponse response);
+        /// <param name="httpErrorAsException">Whether HTTP error responses (e.g. HTTP 404) should be raised as exceptions.</param>
+        void OnResponse(IResponse response, bool httpErrorAsException);
     }
 }

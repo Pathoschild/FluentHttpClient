@@ -2,7 +2,6 @@ using System.IO;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Formatting;
-using System.Net.Http.Headers;
 using System.Threading.Tasks;
 
 namespace Pathoschild.Http.Client.Internal
@@ -20,10 +19,7 @@ namespace Pathoschild.Http.Client.Internal
         public MediaTypeFormatterCollection Formatters { get; }
 
         /// <summary>The HTTP status code.</summary>
-        public HttpStatusCode StatusCode => this.Message.StatusCode;
-
-        /// <summary>The HTTP response headers.</summary>
-        public HttpResponseHeaders Headers => this.Message.Headers;
+        public HttpStatusCode Status => this.Message.StatusCode;
 
 
         /*********

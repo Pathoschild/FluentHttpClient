@@ -59,43 +59,45 @@ The client has many more methods you can use to configure the request. These are
 documented for IntelliSense, so you can use code completion as you type to find the ones you need.
 
 ### Get response metadata
-You can get the response metadata by awaiting the `IRequest`. You can read the content multiple
-times, it won't re-execute the request.
+You can read the response data (e.g. status code or headers) by awaiting the `IRequest`. Reading
+the response content won't re-execute the request.
+
 ```c#
-IResponse response = await client.GetAsync("polymorphicAPI");
-if (response.Headers.Contains("X-Multiple-Records"))
+IResponse response = await client.GetAsync("weird-api");
+if (response.Headers.Contains("X-Array-Response"))
     return response.AsArray<T>();
 else
     return new T[] { response.As<T>() };
 ```
 
-### Error handling
-If the server returns a non-success HTTP code, the client will raise an `ApiException` by default.
-The exception includes all the information needed to troubleshoot the error, including the
-underlying HTTP request and response.
-
-For example, here's how you'd throw a new exception containing the actual text of the server
-response:
+### Handling errors
+The client will throw an `ApiException` for non-success HTTP responses like HTTP 404, with the
+response metadata on the exception object:
 ```c#
 try
 {
-    return await client
-        .Get("items")
-        .AsArray<Item>();
+    await client.Get("items");
 }
 catch(ApiException ex)
 {
-    string responseText = await ex.ResponseMessage.Content.ReadAsStringAsync();
-    throw new Exception($"The API responded with HTTP {ex.ResponseMessage.StatusCode}: {responseText}");
+    string responseText = await ex.Response.AsString();
+    throw new Exception($"The API responded with HTTP {ex.Response.Status}: {responseText}");
 }
 ```
 
-If you don't want the client to throw an exception, you can simply remove the default error handler:
+You can disable HTTP errors as exceptions for one request to handle the response directly:
 ```c#
-client.Filters.Remove<DefaultErrorFilter>();
+IResponse response = await client.GetAsync("items").WithHttpErrorAsException(false);
+if (response.Status == HttpStatusCode.OK)
+    return response.As<Item>();
 ```
 
-You can also add your own error handling; see _customising the client_ below.
+...or disable it for all requests:
+```c#
+client.SetHttpErrorsAsExceptions(false);
+```
+
+You can optionally create your own error-handling logic; see _customising the client_ below.
 
 ### Retry logic
 The client lets you configure retry logic out of the box:
@@ -103,8 +105,8 @@ The client lets you configure retry logic out of the box:
 IClient client = new FluentClient("https://example.org")
     .SetRequestCoordinator(
         maxRetries: 3,
-        shouldRetry: request => request.StatusCode == HttpStatusCode.InternalServerError,
-        getDelay: (attempt, response) => return attempt // 1 second, 2 seconds, then 3 seconds
+        shouldRetry: request => request.StatusCode != HttpStatusCode.OK,
+        getDelay: (attempt, response) => return attempt // 1, 2, and 3 seconds
     );
 ```
 
@@ -154,22 +156,23 @@ For reference, the default error filter is essentially this one method:
 ```c#
 /// <summary>Method invoked just after the HTTP response is received. This method can modify the incoming HTTP response.</summary>
 /// <param name="response">The HTTP response.</param>
-/// <param name="responseMessage">The underlying HTTP response message.</param>
-public void OnResponse(IResponse response, HttpResponseMessage responseMessage)
+/// <param name="httpErrorAsException">Whether HTTP error responses (e.g. HTTP 404) should be raised as exceptions.</param>
+public void OnResponse(IResponse response, bool httpErrorAsException)
 {
-    if (!responseMessage.IsSuccessStatusCode)
-        throw new ApiException(response, responseMessage, $"The API query failed with status code {responseMessage.StatusCode}: {responseMessage.ReasonPhrase}");
+    if (httpErrorAsException && !response.Message.IsSuccessStatusCode)
+        throw new ApiException(response, $"The API query failed with status code {response.Message.StatusCode}: {response.Message.ReasonPhrase}");
 }
 ```
 
-That's a pretty simple filter, but you can do some much more advanced things by changing the request and response messages. For example, here's a minimal filter that injects an authentication token into every HTTP request:
+That's a pretty simple filter, but you can do more advanced things by changing the request and 
+response messages. For example, here's a minimal filter that injects an authentication token into
+every HTTP request:
 ```c#
 /// <summary>Method invoked just before the HTTP request is submitted. This method can modify the outgoing HTTP request.</summary>
 /// <param name="request">The HTTP request.</param>
-/// <param name="requestMessage">The underlying HTTP request message.</param>
-public void OnRequest(IRequest request, HttpRequestMessage requestMessage)
+public void OnRequest(IRequest request)
 {
-    requestMessage.Headers.Authorization = new AuthenticationHeaderValue("token", "...");
+    request.Message.Headers.Authorization = new AuthenticationHeaderValue("token", "...");
 }
 ```
 

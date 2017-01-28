@@ -1,5 +1,5 @@
-using System.Collections.Generic;
 using System.IO;
+using System.Net;
 using System.Net.Http;
 using System.Net.Http.Formatting;
 using System.Threading.Tasks;
@@ -12,6 +12,9 @@ namespace Pathoschild.Http.Client
         /*********
         ** Accessors
         *********/
+        /// <summary>The HTTP status code.</summary>
+        HttpStatusCode Status { get; }
+
         /// <summary>The underlying HTTP response message.</summary>
         HttpResponseMessage Message { get; }
 

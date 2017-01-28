@@ -36,6 +36,10 @@ namespace Pathoschild.Http.Client
         /// <param name="parameter">The credentials containing the authentication information.</param>
         IClient SetAuthentication(string scheme, string parameter);
 
+        /// <summary>Set whether HTTP error responses (e.g. HTTP 404) should be raised as exceptions by default.</summary>
+        /// <param name="enabled">Whether to raise HTTP errors as exceptions by default.</param>
+        IClient SetHttpErrorAsException(bool enabled);
+
         /// <summary>Set the default user agent header.</summary>
         /// <param name="userAgent">The user agent header value.</param>
         IClient SetUserAgent(string userAgent);

@@ -24,6 +24,9 @@ namespace Pathoschild.Http.Client
         /// <summary>Whether to dispose the <see cref="BaseClient"/> when disposing.</summary>
         private readonly bool MustDisposeBaseClient;
 
+        /// <summary>Whether HTTP error responses (e.g. HTTP 404) should be raised as exceptions.</summary>
+        private bool HttpErrorAsException = true;
+
 
         /*********
         ** Accessors
@@ -94,7 +97,8 @@ namespace Pathoschild.Http.Client
             // clone the underlying message because HttpClient doesn't normally allow re-sending
             // the same request, which would break IRequestCoordinator.
             return new Request(message, this.Formatters, request => this.BaseClient.SendAsync(request.Message.Clone(), request.CancellationToken), this.Filters.ToArray())
-                .WithRequestCoordinator(this.RequestCoordinator);
+                .WithRequestCoordinator(this.RequestCoordinator)
+                .WithHttpErrorAsException(this.HttpErrorAsException);
         }
 
         /// <summary>Specify the authentication that will be used with every request.</summary>
@@ -103,6 +107,14 @@ namespace Pathoschild.Http.Client
         public IClient SetAuthentication(string scheme, string parameter)
         {
             this.BaseClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue(scheme, parameter);
+            return this;
+        }
+
+        /// <summary>Set whether HTTP error responses (e.g. HTTP 404) should be raised as exceptions by default.</summary>
+        /// <param name="enabled">Whether to raise HTTP errors as exceptions by default.</param>
+        public IClient SetHttpErrorAsException(bool enabled)
+        {
+            this.HttpErrorAsException = enabled;
             return this;
         }
 

@@ -27,6 +27,9 @@ namespace Pathoschild.Http.Client.Internal
         /// <summary>Dispatcher that executes the request.</summary>
         private readonly Func<IRequest, Task<HttpResponseMessage>> Dispatcher;
 
+        /// <summary>Whether HTTP error responses (e.g. HTTP 404) should be raised as exceptions.</summary>
+        private bool HttpErrorAsException;
+
 
         /*********
         ** Accessors
@@ -131,6 +134,14 @@ namespace Pathoschild.Http.Client.Internal
             return this;
         }
 
+        /// <summary>Set whether HTTP errors (e.g. HTTP 500) should be raised an exceptions for this request.</summary>
+        /// <param name="enabled">Whether to raise HTTP errors as exceptions.</param>
+        public IRequest WithHttpErrorAsException(bool enabled)
+        {
+            this.HttpErrorAsException = enabled;
+            return this;
+        }
+
         /// <summary>Specify the request coordinator for this request.</summary>
         /// <param name="requestCoordinator">The request coordinator</param>
         public IRequest WithRequestCoordinator(IRequestCoordinator requestCoordinator)
@@ -221,7 +232,7 @@ namespace Pathoschild.Http.Client.Internal
         {
             // apply request filters
             foreach (IHttpFilter filter in this.Filters)
-                filter.OnRequest(this, this.Message);
+                filter.OnRequest(this);
 
             // execute the request
             HttpResponseMessage responseMessage = this.RequestCoordinator != null
@@ -231,7 +242,7 @@ namespace Pathoschild.Http.Client.Internal
 
             // apply response filters
             foreach (IHttpFilter filter in this.Filters)
-                filter.OnResponse(response, responseMessage);
+                filter.OnResponse(response, this.HttpErrorAsException);
 
             return response;
         }

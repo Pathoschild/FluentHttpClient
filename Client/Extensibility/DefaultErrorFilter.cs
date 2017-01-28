@@ -12,9 +12,10 @@
 
         /// <summary>Method invoked just after the HTTP response is received. This method can modify the incoming HTTP response.</summary>
         /// <param name="response">The HTTP response.</param>
-        public void OnResponse(IResponse response)
+        /// <param name="httpErrorAsException">Whether HTTP error responses (e.g. HTTP 404) should be raised as exceptions.</param>
+        public void OnResponse(IResponse response, bool httpErrorAsException)
         {
-            if (!response.Message.IsSuccessStatusCode)
+            if (httpErrorAsException && !response.Message.IsSuccessStatusCode)
                 throw new ApiException(response, $"The API query failed with status code {response.Message.StatusCode}: {response.Message.ReasonPhrase}");
         }
     }

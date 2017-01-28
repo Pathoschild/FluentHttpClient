@@ -232,6 +232,36 @@ namespace Pathoschild.Http.Tests.Client
             Assert.That(header.Value.First(), Is.EqualTo(value), "The header value is invalid.");
         }
 
+        [Test(Description = "Ensure that WithHttpErrorAsException throws an exception by default.")]
+        public void WithHttpErrorAsException_ThrowsExceptionByDefault()
+        {
+            // arrange
+            var mockHttp = new MockHttpMessageHandler();
+            mockHttp.When(HttpMethod.Get, "https://example.org").Respond(HttpStatusCode.NotFound);
+            var client = new FluentClient("https://example.org", new HttpClient(mockHttp));
+
+            // verify
+            ApiException ex = Assert.ThrowsAsync<ApiException>(async () => await client.GetAsync("/"), "The client didn't throw an exception for a non-success code");
+            Assert.AreEqual(HttpStatusCode.NotFound, ex.Status, "The HTTP status on the exception doesn't match the response.");
+            Assert.NotNull(ex.ResponseMessage, "The HTTP response message on the exception is null.");
+            Assert.NotNull(ex.Response, "The HTTP response on the exception is null.");
+        }
+
+        [Test(Description = "Ensure that WithHttpErrorAsException can disable HTTP errors as exceptions.")]
+        public async Task WithHttpErrorAsException_DisablesException()
+        {
+            // arrange
+            var mockHttp = new MockHttpMessageHandler();
+            mockHttp.When(HttpMethod.Get, "https://example.org").Respond(HttpStatusCode.NotFound);
+            var client = new FluentClient("https://example.org", new HttpClient(mockHttp));
+
+            // verify
+            IResponse response = await client.GetAsync("/").WithHttpErrorAsException(false);
+            Assert.NotNull(response, "The HTTP response is null.");
+            Assert.NotNull(response.Message, "The HTTP response message is null.");
+            Assert.AreEqual(HttpStatusCode.NotFound, response.Status, "The HTTP status doesn't match the response.");
+        }
+
         [Test(Description = "A request can be executed multiple times.")]
         public async Task RequestIsReexecutable()
         {
