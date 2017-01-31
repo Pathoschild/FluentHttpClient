@@ -7,6 +7,7 @@ using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using Pathoschild.Http.Client.Retry;
+using Pathoschild.Http.Client.Extensibility;
 
 namespace Pathoschild.Http.Client
 {
@@ -24,6 +25,9 @@ namespace Pathoschild.Http.Client
 
         /// <summary>The formatters used for serializing and deserializing message bodies.</summary>
         MediaTypeFormatterCollection Formatters { get; }
+
+		/// <summary>Middleware classes which can intercept and modify HTTP requests and responses.</summary>
+		ICollection<IHttpFilter> Filters { get; }
 
 
         /*********
