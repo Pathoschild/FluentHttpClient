@@ -96,7 +96,7 @@ namespace Pathoschild.Http.Client
 
             // clone the underlying message because HttpClient doesn't normally allow re-sending
             // the same request, which would break IRequestCoordinator.
-            return new Request(message, this.Formatters, request => this.BaseClient.SendAsync(request.Message.Clone(), request.CancellationToken), this.Filters.ToArray())
+            return new Request(message, this.Formatters, request => this.BaseClient.SendAsync(request.Message.Clone(), request.CancellationToken), this.Filters)
                 .WithRequestCoordinator(this.RequestCoordinator)
                 .WithHttpErrorAsException(this.HttpErrorAsException);
         }
