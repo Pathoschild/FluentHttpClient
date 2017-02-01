@@ -21,9 +21,6 @@ namespace Pathoschild.Http.Client.Internal
         /*********
         ** Properties
         *********/
-        /// <summary>Middleware classes which can intercept and modify HTTP requests and responses.</summary>
-        private readonly IHttpFilter[] Filters;
-
         /// <summary>Dispatcher that executes the request.</summary>
         private readonly Func<IRequest, Task<HttpResponseMessage>> Dispatcher;
 
@@ -40,6 +37,9 @@ namespace Pathoschild.Http.Client.Internal
         /// <summary>The formatters used for serializing and deserializing message bodies.</summary>
         public MediaTypeFormatterCollection Formatters { get; }
 
+        /// <summary>Middleware classes which can intercept and modify HTTP requests and responses.</summary>
+        public ICollection<IHttpFilter> Filters { get; }
+
         /// <summary>The optional token used to cancel async operations.</summary>
         public CancellationToken CancellationToken { get; private set; }
 
@@ -55,7 +55,7 @@ namespace Pathoschild.Http.Client.Internal
         /// <param name="formatters">The formatters used for serializing and deserializing message bodies.</param>
         /// <param name="dispatcher">Executes an HTTP request.</param>
         /// <param name="filters">Middleware classes which can intercept and modify HTTP requests and responses.</param>
-        public Request(HttpRequestMessage message, MediaTypeFormatterCollection formatters, Func<IRequest, Task<HttpResponseMessage>> dispatcher, IHttpFilter[] filters)
+        public Request(HttpRequestMessage message, MediaTypeFormatterCollection formatters, Func<IRequest, Task<HttpResponseMessage>> dispatcher, ICollection<IHttpFilter> filters)
         {
             this.Message = message;
             this.Formatters = formatters;
