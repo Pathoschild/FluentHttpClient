@@ -26,8 +26,8 @@ namespace Pathoschild.Http.Client
         /// <summary>The formatters used for serializing and deserializing message bodies.</summary>
         MediaTypeFormatterCollection Formatters { get; }
 
-		/// <summary>Middleware classes which can intercept and modify HTTP requests and responses.</summary>
-		ICollection<IHttpFilter> Filters { get; }
+        /// <summary>Middleware classes which can intercept and modify HTTP requests and responses.</summary>
+        ICollection<IHttpFilter> Filters { get; }
 
 
         /*********
