@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
@@ -77,9 +78,15 @@ namespace Pathoschild.Http.Client
             this.MustDisposeBaseClient = client == null;
             this.BaseClient = client ?? new HttpClient();
             this.Filters = new List<IHttpFilter> { new DefaultErrorFilter() };
-            if (baseUri != null)
-                this.BaseClient.BaseAddress = baseUri;
             this.Formatters = new MediaTypeFormatterCollection();
+
+            if (baseUri != null)
+            {
+                // Don't modify URIs that look like this: https://example.org/api.php
+                if (Path.HasExtension(baseUri.AbsoluteUri)) this.BaseClient.BaseAddress = baseUri;
+                // Make sure that all other URIs end with a slash
+                else this.BaseClient.BaseAddress = new Uri(baseUri.AbsoluteUri.TrimEnd('/') + '/');
+            }
 
             // set default user agent
             Version version = typeof(FluentClient).GetTypeInfo().Assembly.GetName().Version;
