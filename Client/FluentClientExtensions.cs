@@ -97,6 +97,28 @@ namespace Pathoschild.Http.Client
             return client.PutAsync(resource).WithBody(body);
         }
 
+        /// <summary>Create an asynchronous HTTP PATCH request message (but don't dispatch it yet).</summary>
+        /// <param name="client">The client.</param>
+        /// <param name="resource">The URI to send the request to.</param>
+        /// <returns>Returns a request builder.</returns>
+        /// <exception cref="ObjectDisposedException">The instance has been disposed.</exception>
+        public static IRequest PatchAsync(this IClient client, string resource)
+        {
+            return client.SendAsync(new HttpMethod("PATCH"), resource);
+        }
+
+        /// <summary>Create an asynchronous HTTP PATCH request message (but don't dispatch it yet).</summary>
+        /// <param name="client">The client.</param>
+        /// <typeparam name="TBody">The request body type.</typeparam>
+        /// <param name="resource">The URI to send the request to.</param>
+        /// <param name="body">The request body.</param>
+        /// <returns>Returns a request builder.</returns>
+        /// <exception cref="ObjectDisposedException">The instance has been disposed.</exception>
+        public static IRequest PatchtAsync<TBody>(this IClient client, string resource, TBody body)
+        {
+            return client.PatchAsync(resource).WithBody(body);
+        }
+
         /// <summary>Create an asynchronous HTTP request message (but don't dispatch it yet).</summary>
         /// <param name="client">The client.</param>
         /// <param name="method">The HTTP method.</param>
