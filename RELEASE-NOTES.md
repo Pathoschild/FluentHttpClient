@@ -20,6 +20,7 @@ Upcoming release.
   * Fixed the underlying `HttpClient` being disposed when it isn't owned by the fluent client.
   * Fixed `client.Filters` not added to the interface.
   * Fixed `client.Filters.Remove<T>()` only removing the first matching filter.
+  * Fixed unintuitive behaviour when the base URL doesn't end in a slash.
 * Relicensed from CC-BY 3.0 to more permissive MIT license.
 
 ## 2.3
