@@ -79,14 +79,8 @@ namespace Pathoschild.Http.Client
             this.BaseClient = client ?? new HttpClient();
             this.Filters = new List<IHttpFilter> { new DefaultErrorFilter() };
             this.Formatters = new MediaTypeFormatterCollection();
-
             if (baseUri != null)
-            {
-                // Don't modify URIs that look like this: https://example.org/api.php
-                if (Path.HasExtension(baseUri.AbsoluteUri)) this.BaseClient.BaseAddress = baseUri;
-                // Make sure that all other URIs end with a slash
-                else this.BaseClient.BaseAddress = new Uri(baseUri.AbsoluteUri.TrimEnd('/') + '/');
-            }
+                this.BaseClient.BaseAddress = this.NormaliseUrl(baseUri);
 
             // set default user agent
             Version version = typeof(FluentClient).GetTypeInfo().Assembly.GetName().Version;
@@ -154,6 +148,24 @@ namespace Pathoschild.Http.Client
         /*********
         ** Protected methods
         *********/
+        /// <summary>Normalise the given URI.</summary>
+        /// <param name="uri">The URI to normalise.</param>
+        private Uri NormaliseUrl(Uri uri)
+        {
+            if (uri == null)
+                return null;
+
+            // make sure directory paths end with a slash to avoid unintuitive behaviour
+            UriBuilder builder = new UriBuilder(uri);
+            if (!uri.AbsolutePath.EndsWith("/") && !Path.HasExtension(uri.AbsolutePath))
+            {
+                builder.Path += "/";
+                uri = builder.Uri;
+            }
+
+            return uri;
+        }
+
         /// <summary>Assert that the instance has not been disposed.</summary>
         /// <exception cref="ObjectDisposedException">The instance has been disposed.</exception>
         protected void AssertNotDisposed()
