@@ -10,6 +10,7 @@ Upcoming release.
   * Added support for `IWebProxy`.
   * Added support for cancellation tokens.
   * Added support for disabling HTTP-errors-as-exceptions per-request or per-client.
+  * Added `client.PatchAsync` methods.
 * Breaking changes:
   * Replaced `response.AsList<T>` with `reponse.AsArray<T>`.
   * Removed `JsonNetFormatter` (deprecated since 2.1).

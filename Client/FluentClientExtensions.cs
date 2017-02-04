@@ -114,7 +114,7 @@ namespace Pathoschild.Http.Client
         /// <param name="body">The request body.</param>
         /// <returns>Returns a request builder.</returns>
         /// <exception cref="ObjectDisposedException">The instance has been disposed.</exception>
-        public static IRequest PatchtAsync<TBody>(this IClient client, string resource, TBody body)
+        public static IRequest PatchAsync<TBody>(this IClient client, string resource, TBody body)
         {
             return client.PatchAsync(resource).WithBody(body);
         }
