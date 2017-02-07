@@ -92,17 +92,18 @@ catch(ApiException ex)
 }
 ```
 
-You can easily disable that for one request:
-```c#
-IResponse response = await client
-    .GetAsync("items")
-    .WithHttpErrorAsException(false);
-```
-
-...or disable it for all requests:
-```c#
-client.SetHttpErrorAsException(false);
-```
+If you don't want that, you can easily:
+* disable it for one request:
+  ```c#
+  IResponse response = await client
+      .GetAsync("items")
+      .WithHttpErrorAsException(false);
+  ```
+* disable it for all requests:
+  ```c#
+  client.SetHttpErrorAsException(false);
+  ```
+* [use your own error filter](#custom-filters).
 
 ## Advanced features
 ### Custom formats
@@ -126,7 +127,7 @@ client
     .SetRequestCoordinator(
         maxRetries: 3,
         shouldRetry: request => request.StatusCode != HttpStatusCode.OK,
-        getDelay: (attempt, response) => return attempt // 1, 2, and 3 seconds
+        getDelay: (attempt, response) => return TimeSpan.FromSeconds(attempt) // 1, 2, and 3 seconds
     );
 ```
 
@@ -189,24 +190,22 @@ before they're parsed:
 /// <param name="request">The HTTP request.</param>
 public void OnRequest(IRequest request)
 {
+    // example only — you'd normally use a method like client.SetAuthentication(…) instead.
     request.Message.Headers.Authorization = new AuthenticationHeaderValue("token", "…");
 }
 ```
 
 ### Custom HTTP
-For really advanced scenarios, you can customise the underlying [HttpClient][] and
-[HttpClientHandler][]:
+For advanced scenarios, you can customise the underlying [HttpClient][] and
+[HttpClientHandler][]. For example, here's how to create mock requests for unit testing using
+[RichardSzalay.MockHttp](https://www.nuget.org/packages/RichardSzalay.MockHttp/):
 ```c#
-// create custom HTTP handler
-var handler = new HttpClientHandler()
-{
-    Credentials = new NetworkCredential("username", "password"),
-    Proxy = new WebProxy(…)
-};
-handler.CookieContainer.Add(new Cookie(…));
+// create mock
+var mockHandler = new MockHttpMessageHandler();
+mockHandler.When(HttpMethod.Get, "https://example.org/api/items").Respond(HttpStatusCode.OK, testRequest => new StringContent("[]"));
 
 // create client
-var client = new FluentClient("http://example.org/api/", new HttpClient(handler));
+var client = new FluentClient("https://example.org/api", new HttpClient(mockHandler));
 ```
 
 ### Cancellation token support
