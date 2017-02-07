@@ -3,24 +3,24 @@
 Upcoming release.
 
 * New features:
-  * Added support for fault tolerance using `IRequestCoordinator`.
-  * Added an optional `RetryCoordinator` that automatically retries failed requests.
-  * Added fluent methods to set authentication headers, with built-in support for basic auth and bearer tokens.
-  * Added fluent method to override the default `User-Agent` header.
-  * Added support for `IWebProxy`.
+  * Added built-in retry support.
+  * Added methods to set authentication headers (with wrappers for basic auth and OAuth bearer tokens).
   * Added support for cancellation tokens.
   * Added support for disabling HTTP-errors-as-exceptions per-request or per-client.
-  * Added `client.PatchAsync` methods.
+  * Added support for fault tolerance using `IRequestCoordinator`.
+  * Added support for `IWebProxy`.
+  * Added `client.PatchAsync`.
+  * Added `client.SetUserAgent` to override default `User-Agent` header.
 * Breaking changes:
   * Replaced `response.AsList<T>` with `reponse.AsArray<T>`.
-  * Removed `JsonNetFormatter` (deprecated since 2.1).
-  * Revamped `IResponse` to make it easier to read response data before parsing the body.
+  * Removed `JsonNetFormatter` (deprecated since 2.1, now built-in).
+  * Revamped `IResponse` to make it easier to read response data.
   * Simplified `IClient` and `IRequest` by moving some methods into extension methods.
   * Simplified `IHttpFilter` by removing the message arguments (already accessible via `IRequest` and `IResponse`).
 * Improvements:
   * Fixed the underlying `HttpClient` being disposed when it isn't owned by the fluent client.
   * Fixed `client.Filters` not added to the interface.
-  * Fixed `client.Filters.Remove<T>()` only removing the first matching filter.
+  * Fixed `client.Filters.Remove<T>()` only removing the first match.
   * Fixed unintuitive behaviour when the base URL doesn't end in a slash.
 * Relicensed from CC-BY 3.0 to more permissive MIT license.
 
