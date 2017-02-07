@@ -94,15 +94,19 @@ catch(ApiException ex)
 
 If you don't want that, you can easily:
 * disable it for one request:
+
   ```c#
   IResponse response = await client
       .GetAsync("items")
       .WithHttpErrorAsException(false);
   ```
+
 * disable it for all requests:
+
   ```c#
   client.SetHttpErrorAsException(false);
   ```
+
 * [use your own error filter](#custom-filters).
 
 ## Advanced features
@@ -110,13 +114,17 @@ If you don't want that, you can easily:
 The client supports JSON and XML out of the box. If you need more, you can...
 
 * Add any of the existing [media type formatters][]:
+
   ```c#
   client.Formatters.Add(new YamlFormatter());
   ```
+
 * Add the included BSON formatter:
+
   ```c#
   client.Formatters.Add(new BsonFormatter());
   ```
+
 * Create your own by subclassing `MediaTypeFormatter` (optionally using the included
   `MediaTypeFormatterBase` class).
 
