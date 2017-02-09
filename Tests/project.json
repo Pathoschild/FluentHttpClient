@@ -8,11 +8,15 @@
     "Moq": "4.6.38-alpha",
     "NETStandard.Library": "1.6.1",
     "Newtonsoft.Json": "9.0.1",
-    "NUnit": "3.5.0"
+    "NUnit": "3.6.0",
+    "RichardSzalay.MockHttp": "1.4.0"
   },
 
   "frameworks": {
     "netcoreapp1.0": {
+      "buildOptions": {
+        "define": [ "NETCORE" ]
+      },
       "imports": [
         "dnxcore50"
       ],
@@ -24,6 +28,9 @@
       }
     },
     "net452": {
+      "buildOptions": {
+        "define": [ "NETFULL" ]
+      },
       "dependencies": {
       },
       "frameworkAssemblies": {

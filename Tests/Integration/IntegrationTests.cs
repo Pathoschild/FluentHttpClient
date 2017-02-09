@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Linq.Expressions;
+#if NETFULL
+using System.Net;
+#endif
 using System.Threading.Tasks;
 using NUnit.Framework;
 using Pathoschild.Http.Client;
-using Pathoschild.Http.Client.Formatters;
 
 namespace Pathoschild.Http.Tests.Integration
 {
@@ -12,10 +14,46 @@ namespace Pathoschild.Http.Tests.Integration
     public class IntegrationTests
     {
         /*********
+        ** Properties
+        *********/
+        /// <summary>The metadata expected from the English Wikipedia.</summary>
+        private readonly WikipediaMetadata.WikipediaGeneral EnwikiMetadata = new WikipediaMetadata.WikipediaGeneral
+        {
+            ArticlePath = "/wiki/$1",
+            Base = "https://en.wikipedia.org/wiki/Main_Page",
+            Language = "en",
+            MainPage = "Main Page",
+            MaxUploadSize = 4294967296,
+            ScriptPath = "/w",
+            Server = "//en.wikipedia.org",
+            SiteName = "Wikipedia",
+            Time = DateTime.UtcNow,
+            VariantArticlePath = "false",
+            WikiID = "enwiki"
+        };
+
+        /// <summary>The metadata expected from the Chinese Wikipedia.</summary>
+        private readonly WikipediaMetadata.WikipediaGeneral ZhwikiMetadata = new WikipediaMetadata.WikipediaGeneral
+        {
+            ArticlePath = "/wiki/$1",
+            Base = "https://zh.wikipedia.org/wiki/Wikipedia:%E9%A6%96%E9%A1%B5",
+            Language = "zh",
+            MainPage = "Wikipedia:\u9996\u9875",
+            MaxUploadSize = 4294967296,
+            ScriptPath = "/w",
+            Server = "//zh.wikipedia.org",
+            SiteName = "Wikipedia",
+            Time = DateTime.UtcNow,
+            VariantArticlePath = "/$2/$1",
+            WikiID = "zhwiki"
+        };
+
+
+        /*********
         ** Unit tests
         *********/
-        [Test(Description = "The client can fetch a resource from Wikipedia's API.")]
-        public async Task Wikipedia()
+        [Test(Description = "The client can fetch a resource from the English Wikipedia's API.")]
+        public async Task EnglishWikipedia()
         {
             // arrange
             IClient client = this.ConstructClient("https://en.wikipedia.org/");
@@ -26,62 +64,50 @@ namespace Pathoschild.Http.Tests.Integration
                 .WithArguments(new { action = "query", meta = "siteinfo", siprop = "general", format = "json" })
                 .As<WikipediaMetadata>();
 
-            this.AssertResponse(response, "First request");
+            // assert
+            this.AssertResponse(response, this.EnwikiMetadata, "First request");
         }
 
-        [Test(Description = "The client response is null if it performs the same request twice. This matches the behaviour of the underlying HTTP client.")]
-        public async Task Wikipedia_ResendingRequestSetsResponseToNull()
+        [Test(Description = "The client can fetch a resource from the Chinese Wikipedia's API, including proper Unicode handling.")]
+        public async Task ChineseWikipedia()
         {
             // arrange
-            IClient client = this.ConstructClient("http://en.wikipedia.org/");
-            IRequest request = client
-                .GetAsync("w/api.php")
-                .WithArguments(new { action = "query", meta = "siteinfo", siprop = "general", format = "json" });
+            IClient client = this.ConstructClient("https://zh.wikipedia.org/");
 
             // act
-            this.AssertResponse(await request.As<WikipediaMetadata>(), "First request");
-
-            // assert
-            Assert.IsNull(await request.WithArgument("limit", "max").As<WikipediaMetadata>(), null);
-        }
-
-        [Test(Description = "The client can fetch a resource from Wikipedia's API and read the response multiple times.")]
-        public async Task Wikipedia_MultipleReads()
-        {
-            // arrange
-            IClient client = this.ConstructClient("http://en.wikipedia.org/");
-
-            // act
-            IRequest request = client
+            WikipediaMetadata response = await client
                 .GetAsync("w/api.php")
-                .WithArguments(new { action = "query", meta = "siteinfo", siprop = "general", format = "json" });
-
-            string valueA = await request.AsString();
-            string valueB = await request.AsString();
+                .WithArguments(new { action = "query", meta = "siteinfo", siprop = "general", format = "json" })
+                .As<WikipediaMetadata>();
 
             // assert
-            Assert.IsNotNull(valueA, "response is null");
-            Assert.IsNotEmpty(valueA, "response is empty");
-            Assert.AreEqual(valueA, valueB, "second read got a different result");
+            this.AssertResponse(response, this.ZhwikiMetadata, "First request");
         }
+
 
         /*********
         ** Protected methods
         *********/
         /// <summary>Construct an HTTP client with the JSON.NET formatter.</summary>
         /// <param name="url">The base URI prepended to relative request URIs.</param>
-        protected IClient ConstructClient(string url)
+        /// <param name="useFiddler">Indicates if you want HTTP requests to be proxied throught Fidler for debugging purposes.</param>
+        protected IClient ConstructClient(string url, bool useFiddler = false)
         {
-            IClient client = new FluentClient(url);
-            client.Formatters.Remove(client.Formatters.JsonFormatter);
-            client.Formatters.Add(new JsonNetFormatter());
-            return client;
+#if NETFULL
+            var proxy = useFiddler ? new WebProxy("http://localhost:8888") : null;
+            return new FluentClient(url, proxy);
+#else
+            // WebProxy is not available in .netcore 1.0. 
+            // However, rumor is: Microsoft will be adding it to .netcore 2.0
+            return new FluentClient(url);
+#endif
         }
 
         /// <summary>Performs assertions on the specified Wikimedia metadata.</summary>
         /// <param name="response">The metadata to assert.</param>
+        /// <param name="expected">The expected metadata.</param>
         /// <param name="prefix">The property name prefix to use within assertion exceptions.</param>
-        protected void AssertResponse(WikipediaMetadata response, string prefix)
+        protected void AssertResponse(WikipediaMetadata response, WikipediaMetadata.WikipediaGeneral expected, string prefix)
         {
             // assert
             Assert.IsNotNull(response, prefix + " metadata is null");
@@ -89,17 +115,17 @@ namespace Pathoschild.Http.Tests.Integration
             Assert.IsNotNull(response.Query.General, prefix + " metadata.Query.General is null.");
 
             response.Query.General
-                .AssertValue(p => p.ArticlePath, "/wiki/$1")
-                .AssertValue(p => p.Base, "https://en.wikipedia.org/wiki/Main_Page")
-                .AssertValue(p => p.Language, "en")
-                .AssertValue(p => p.MainPage, "Main Page")
-                .AssertValue(p => p.MaxUploadSize, 4294967296)
-                .AssertValue(p => p.ScriptPath, "/w")
-                .AssertValue(p => p.Server, "//en.wikipedia.org")
-                .AssertValue(p => p.SiteName, "Wikipedia")
-                .AssertValue(p => p.Time.Date, DateTime.UtcNow.Date)
-                .AssertValue(p => p.VariantArticlePath, false)
-                .AssertValue(p => p.WikiID, "enwiki");
+                .AssertValue(p => p.ArticlePath, expected.ArticlePath)
+                .AssertValue(p => p.Base, expected.Base)
+                .AssertValue(p => p.Language, expected.Language)
+                .AssertValue(p => p.MainPage, expected.MainPage)
+                .AssertValue(p => p.MaxUploadSize, expected.MaxUploadSize)
+                .AssertValue(p => p.ScriptPath, expected.ScriptPath)
+                .AssertValue(p => p.Server, expected.Server)
+                .AssertValue(p => p.SiteName, expected.SiteName)
+                .AssertValue(p => p.Time.Date, expected.Time.Date)
+                .AssertValue(p => p.VariantArticlePath, expected.VariantArticlePath)
+                .AssertValue(p => p.WikiID, expected.WikiID);
         }
     }
 

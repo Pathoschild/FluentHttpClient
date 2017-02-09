@@ -8,8 +8,10 @@ using System.Net.Http.Formatting;
 using System.Net.Http.Headers;
 using System.Reflection;
 using System.Runtime.CompilerServices;
+using System.Threading;
 using System.Threading.Tasks;
 using Pathoschild.Http.Client.Extensibility;
+using Pathoschild.Http.Client.Retry;
 
 namespace Pathoschild.Http.Client.Internal
 {
@@ -19,11 +21,11 @@ namespace Pathoschild.Http.Client.Internal
         /*********
         ** Properties
         *********/
-        /// <summary>Middleware classes which can intercept and modify HTTP requests and responses.</summary>
-        private readonly IHttpFilter[] Filters;
+        /// <summary>Dispatcher that executes the request.</summary>
+        private readonly Func<IRequest, Task<HttpResponseMessage>> Dispatcher;
 
-        /// <summary>Executes the current HTTP request.</summary>
-        private readonly Lazy<Task<HttpResponseMessage>> Dispatch;
+        /// <summary>Whether HTTP error responses (e.g. HTTP 404) should be raised as exceptions.</summary>
+        private bool HttpErrorAsException;
 
 
         /*********
@@ -35,6 +37,15 @@ namespace Pathoschild.Http.Client.Internal
         /// <summary>The formatters used for serializing and deserializing message bodies.</summary>
         public MediaTypeFormatterCollection Formatters { get; }
 
+        /// <summary>Middleware classes which can intercept and modify HTTP requests and responses.</summary>
+        public ICollection<IHttpFilter> Filters { get; }
+
+        /// <summary>The optional token used to cancel async operations.</summary>
+        public CancellationToken CancellationToken { get; private set; }
+
+        /// <summary>The request coordinator.</summary>
+        public IRequestCoordinator RequestCoordinator { get; private set; }
+
 
         /*********
         ** Public methods
@@ -44,39 +55,19 @@ namespace Pathoschild.Http.Client.Internal
         /// <param name="formatters">The formatters used for serializing and deserializing message bodies.</param>
         /// <param name="dispatcher">Executes an HTTP request.</param>
         /// <param name="filters">Middleware classes which can intercept and modify HTTP requests and responses.</param>
-        public Request(HttpRequestMessage message, MediaTypeFormatterCollection formatters, Func<IRequest, Task<HttpResponseMessage>> dispatcher, IHttpFilter[] filters)
+        public Request(HttpRequestMessage message, MediaTypeFormatterCollection formatters, Func<IRequest, Task<HttpResponseMessage>> dispatcher, ICollection<IHttpFilter> filters)
         {
             this.Message = message;
             this.Formatters = formatters;
-            this.Dispatch = new Lazy<Task<HttpResponseMessage>>(() => dispatcher(this));
+            this.Dispatcher = dispatcher;
             this.Filters = filters;
+            this.CancellationToken = CancellationToken.None;
+            this.RequestCoordinator = null;
         }
 
         /***
         ** Build request
         ***/
-        /// <summary>Set the body content of the HTTP request.</summary>
-        /// <param name="body">The value to serialize into the HTTP body content.</param>
-        /// <param name="contentType">The request body format (or <c>null</c> to use the first supported Content-Type in the <see cref="Client.IRequest.Formatters"/>).</param>
-        /// <returns>Returns the request builder for chaining.</returns>
-        /// <exception cref="InvalidOperationException">No MediaTypeFormatters are available on the API client for this content type.</exception>
-        public IRequest WithBody<T>(T body, MediaTypeHeaderValue contentType = null)
-        {
-            MediaTypeFormatter formatter = Factory.GetFormatter(this.Formatters, contentType);
-            string mediaType = contentType != null ? contentType.MediaType : null;
-            return this.WithBody(body, formatter, mediaType);
-        }
-
-        /// <summary>Set the body content of the HTTP request.</summary>
-        /// <param name="body">The value to serialize into the HTTP body content.</param>
-        /// <param name="formatter">The media type formatter with which to format the request body format.</param>
-        /// <param name="mediaType">The HTTP media type (or <c>null</c> for the <paramref name="formatter"/>'s default).</param>
-        /// <returns>Returns the request builder for chaining.</returns>
-        public IRequest WithBody<T>(T body, MediaTypeFormatter formatter, string mediaType = null)
-        {
-            return this.WithBodyContent(new ObjectContent<T>(body, formatter, mediaType));
-        }
-
         /// <summary>Set the body content of the HTTP request.</summary>
         /// <param name="body">The formatted HTTP body content.</param>
         /// <returns>Returns the request builder for chaining.</returns>
@@ -93,6 +84,15 @@ namespace Pathoschild.Http.Client.Internal
         public IRequest WithHeader(string key, string value)
         {
             this.Message.Headers.Add(key, value);
+            return this;
+        }
+
+        /// <summary>Add an authentication header.</summary>
+        /// <param name="scheme">The scheme to use for authorization. e.g.: "Basic", "Bearer".</param>
+        /// <param name="parameter">The credentials containing the authentication information.</param>
+        public IRequest WithAuthentication(string scheme, string parameter)
+        {
+            this.Message.Headers.Authorization = new AuthenticationHeaderValue(scheme, parameter);
             return this;
         }
 
@@ -125,6 +125,34 @@ namespace Pathoschild.Http.Client.Internal
             return this;
         }
 
+        /// <summary>Specify the token that can be used to cancel the async operation.</summary>
+        /// <param name="cancellationToken">The cancellationtoken.</param>
+        /// <returns>Returns the request builder for chaining.</returns>
+        public IRequest WithCancellationToken(CancellationToken cancellationToken)
+        {
+            this.CancellationToken = cancellationToken;
+            return this;
+        }
+
+        /// <summary>Set whether HTTP errors (e.g. HTTP 500) should be raised an exceptions for this request.</summary>
+        /// <param name="enabled">Whether to raise HTTP errors as exceptions.</param>
+        public IRequest WithHttpErrorAsException(bool enabled)
+        {
+            this.HttpErrorAsException = enabled;
+            return this;
+        }
+
+        /// <summary>Specify the request coordinator for this request.</summary>
+        /// <param name="requestCoordinator">The request coordinator</param>
+        public IRequest WithRequestCoordinator(IRequestCoordinator requestCoordinator)
+        {
+            this.RequestCoordinator = requestCoordinator;
+            return this;
+        }
+
+        /***
+        ** Retrieve response
+        ***/
         /// <summary>Get an object that waits for the completion of the request. This enables support for the <c>await</c> keyword.</summary>
         /// <example>
         /// <code>await client.PostAsync("api/ideas", idea);</code>
@@ -132,22 +160,23 @@ namespace Pathoschild.Http.Client.Internal
         /// </example>
         public TaskAwaiter<IResponse> GetAwaiter()
         {
-            Func<Task<IResponse>> waiter = async () =>
-            {
-                await this.AsMessage();
-                return this;
-            };
+            Func<Task<IResponse>> waiter = async () => await this.Execute().ConfigureAwait(false);
             return waiter().GetAwaiter();
         }
 
-        /***
-        ** Retrieve response
-        ***/
+        /// <summary>Asynchronously retrieve the HTTP response.</summary>
+        /// <exception cref="ApiException">An error occurred processing the response.</exception>
+        public Task<IResponse> AsResponse()
+        {
+            return this.Execute();
+        }
+
         /// <summary>Asynchronously retrieve the HTTP response.</summary>
         /// <exception cref="ApiException">An error occurred processing the response.</exception>
         public async Task<HttpResponseMessage> AsMessage()
         {
-            return await this.GetResponse(this.Dispatch.Value).ConfigureAwait(false);
+            IResponse response = await this.AsResponse().ConfigureAwait(false);
+            return response.Message;
         }
 
         /// <summary>Asynchronously retrieve the response body as a deserialized model.</summary>
@@ -155,16 +184,16 @@ namespace Pathoschild.Http.Client.Internal
         /// <exception cref="ApiException">An error occurred processing the response.</exception>
         public async Task<T> As<T>()
         {
-            HttpResponseMessage message = await this.AsMessage().ConfigureAwait(false);
-            return await message.Content.ReadAsAsync<T>(this.Formatters).ConfigureAwait(false);
+            IResponse response = await this.AsResponse().ConfigureAwait(false);
+            return await response.As<T>().ConfigureAwait(false);
         }
 
         /// <summary>Asynchronously retrieve the response body as a list of deserialized models.</summary>
         /// <typeparam name="T">The response model to deserialize into.</typeparam>
         /// <exception cref="ApiException">An error occurred processing the response.</exception>
-        public Task<List<T>> AsList<T>()
+        public Task<T[]> AsArray<T>()
         {
-            return this.As<List<T>>();
+            return this.As<T[]>();
         }
 
         /// <summary>Asynchronously retrieve the response body as an array of <see cref="byte"/>.</summary>
@@ -172,8 +201,8 @@ namespace Pathoschild.Http.Client.Internal
         /// <exception cref="ApiException">An error occurred processing the response.</exception>
         public async Task<byte[]> AsByteArray()
         {
-            HttpResponseMessage message = await this.AsMessage().ConfigureAwait(false);
-            return await message.Content.ReadAsByteArrayAsync().ConfigureAwait(false);
+            IResponse response = await this.AsResponse().ConfigureAwait(false);
+            return await response.AsByteArray().ConfigureAwait(false);
         }
 
         /// <summary>Asynchronously retrieve the response body as a <see cref="string"/>.</summary>
@@ -181,8 +210,8 @@ namespace Pathoschild.Http.Client.Internal
         /// <exception cref="ApiException">An error occurred processing the response.</exception>
         public async Task<string> AsString()
         {
-            HttpResponseMessage message = await this.AsMessage().ConfigureAwait(false);
-            return await message.Content.ReadAsStringAsync().ConfigureAwait(false);
+            IResponse response = await this.AsResponse().ConfigureAwait(false);
+            return await response.AsString().ConfigureAwait(false);
         }
 
         /// <summary>Asynchronously retrieve the response body as a <see cref="Stream"/>.</summary>
@@ -190,25 +219,31 @@ namespace Pathoschild.Http.Client.Internal
         /// <exception cref="ApiException">An error occurred processing the response.</exception>
         public async Task<Stream> AsStream()
         {
-            HttpResponseMessage message = await this.AsMessage().ConfigureAwait(false);
-            Stream stream = await message.Content.ReadAsStreamAsync().ConfigureAwait(false);
-            stream.Position = 0;
-            return stream;
+            IResponse response = await this.AsResponse().ConfigureAwait(false);
+            return await response.AsStream().ConfigureAwait(false);
         }
 
 
         /*********
         ** Protected methods
         *********/
-        /// <summary>Validate the HTTP response and raise any errors in the response as exceptions.</summary>
-        /// <param name="request">The response message to validate.</param>
-        private async Task<HttpResponseMessage> GetResponse(Task<HttpResponseMessage> request)
+        /// <summary>Execute the HTTP request and fetch the response.</summary>
+        private async Task<IResponse> Execute()
         {
+            // apply request filters
             foreach (IHttpFilter filter in this.Filters)
-                filter.OnRequest(this, this.Message);
-            HttpResponseMessage response = await request.ConfigureAwait(false);
+                filter.OnRequest(this);
+
+            // execute the request
+            HttpResponseMessage responseMessage = this.RequestCoordinator != null
+                ? await this.RequestCoordinator.ExecuteAsync(this, this.Dispatcher).ConfigureAwait(false)
+                : await this.Dispatcher(this).ConfigureAwait(false);
+            IResponse response = new Response(responseMessage, this.Formatters);
+
+            // apply response filters
             foreach (IHttpFilter filter in this.Filters)
-                filter.OnResponse(this, response);
+                filter.OnResponse(response, this.HttpErrorAsException);
+
             return response;
         }
 

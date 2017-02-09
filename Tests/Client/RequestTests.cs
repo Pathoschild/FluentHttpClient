@@ -1,5 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Net.Http;
 using System.Net.Http.Formatting;
 using System.Threading.Tasks;
@@ -8,6 +10,7 @@ using NUnit.Framework;
 using Pathoschild.Http.Client;
 using Pathoschild.Http.Client.Extensibility;
 using Pathoschild.Http.Client.Internal;
+using RichardSzalay.MockHttp;
 
 namespace Pathoschild.Http.Tests.Client
 {
@@ -18,6 +21,9 @@ namespace Pathoschild.Http.Tests.Client
         /*********
         ** Unit tests
         *********/
+        /**
+        ** Request configuration
+        ***/
         [Test(Description = "Ensure that the request builder is constructed with the expected initial state.")]
         [TestCase("DELETE", "resource")]
         [TestCase("GET", "resource")]
@@ -226,6 +232,107 @@ namespace Pathoschild.Http.Tests.Client
             Assert.That(header.Value.First(), Is.EqualTo(value), "The header value is invalid.");
         }
 
+        [Test(Description = "Ensure that WithHttpErrorAsException throws an exception by default.")]
+        public void WithHttpErrorAsException_ThrowsExceptionByDefault()
+        {
+            // arrange
+            var mockHttp = new MockHttpMessageHandler();
+            mockHttp.When(HttpMethod.Get, "https://example.org").Respond(HttpStatusCode.NotFound);
+            var client = new FluentClient("https://example.org", new HttpClient(mockHttp));
+
+            // verify
+            ApiException ex = Assert.ThrowsAsync<ApiException>(async () => await client.GetAsync("/"), "The client didn't throw an exception for a non-success code");
+            Assert.AreEqual(HttpStatusCode.NotFound, ex.Status, "The HTTP status on the exception doesn't match the response.");
+            Assert.NotNull(ex.ResponseMessage, "The HTTP response message on the exception is null.");
+            Assert.NotNull(ex.Response, "The HTTP response on the exception is null.");
+        }
+
+        [Test(Description = "Ensure that WithHttpErrorAsException can disable HTTP errors as exceptions.")]
+        public async Task WithHttpErrorAsException_DisablesException()
+        {
+            // arrange
+            var mockHttp = new MockHttpMessageHandler();
+            mockHttp.When(HttpMethod.Get, "https://example.org").Respond(HttpStatusCode.NotFound);
+            var client = new FluentClient("https://example.org", new HttpClient(mockHttp));
+
+            // verify
+            IResponse response = await client.GetAsync("/").WithHttpErrorAsException(false);
+            Assert.NotNull(response, "The HTTP response is null.");
+            Assert.NotNull(response.Message, "The HTTP response message is null.");
+            Assert.AreEqual(HttpStatusCode.NotFound, response.Status, "The HTTP status doesn't match the response.");
+        }
+
+        [Test(Description = "A request can be executed multiple times.")]
+        public async Task RequestIsReexecutable()
+        {
+            // arrange
+            var counter = 0;
+            var mockHttp = new MockHttpMessageHandler();
+            mockHttp.When(HttpMethod.Get, "https://api.fictitious-vendor.com/v1/endpoint").Respond(HttpStatusCode.OK, testRequest => new StringContent($"This is request #{++counter}"));
+
+            var httpClient = new HttpClient(mockHttp);
+            var fluentClient = new FluentClient("https://api.fictitious-vendor.com/v1/", httpClient);
+
+            // act
+            var request = fluentClient.GetAsync("endpoint");
+            string valueA = await request.AsString();
+            string valueB = await request.AsString();
+
+            // assert
+            Assert.AreEqual("This is request #1", valueA, "The first request got an unexpected value.");
+            Assert.AreEqual("This is request #2", valueB, "The second request got an unexpected value.");
+        }
+
+        /***
+        ** Request infrastructure
+        ***/
+        [Test(Description = "An appropriate exception is thrown when the request task faults or aborts. This is regardless of configuration.")]
+        [TestCase(true, typeof(NotSupportedException))]
+        [TestCase(false, typeof(NotSupportedException))]
+        public void Task_Async_FaultHandled(bool throwError, Type exceptionType)
+        {
+            // arrange
+            IRequest response = this.ConstructResponseFromTask(() => { throw (Exception)Activator.CreateInstance(exceptionType); });
+
+            // act
+            Assert.ThrowsAsync<NotSupportedException>(async () => await response);
+        }
+
+        [Test(Description = "The asynchronous methods really are asynchronous.")]
+        public void Task_Async_IsAsync()
+        {
+            // arrange
+            IRequest request = this.ConstructResponseFromTask(Task
+                .Delay(5000)
+                .ContinueWith<HttpResponseMessage>(task =>
+                {
+                    Assert.Fail("The response was not invoked asynchronously.");
+                    return null;
+                })
+            );
+
+            // act
+            Task<HttpResponseMessage> result = request.AsMessage();
+
+            // assert
+            Assert.AreNotEqual(result.Status, TaskStatus.Created);
+            Assert.False(result.IsCompleted, "The request was not executed asynchronously.");
+        }
+
+        [Test(Description = "The request succeeds when passed a HTTP request that is in progress.")]
+        public void Task_Async()
+        {
+            // arrange
+            IRequest request = this.ConstructResponseFromTask(() => new HttpResponseMessage(HttpStatusCode.OK));
+
+            // act
+            HttpResponseMessage result = request.AsMessage().Result;
+
+            // assert
+            Assert.IsNotNull(result);
+            Assert.IsTrue(result.IsSuccessStatusCode);
+        }
+
 
         /*********
         ** Protected methods
@@ -258,6 +365,22 @@ namespace Pathoschild.Http.Tests.Client
                     Assert.Inconclusive("The client could not be constructed: {0}", exc.Message);
                 throw;
             }
+        }
+
+        /// <summary>Construct an <see cref="IResponse"/> instance around an asynchronous task.</summary>
+        /// <remarks>The asynchronous task to wrap.</remarks>
+        protected IRequest ConstructResponseFromTask(Task<HttpResponseMessage> task)
+        {
+            HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Get, "http://example.org/");
+            return new Request(request, new MediaTypeFormatterCollection(), p => task, new IHttpFilter[0]);
+        }
+
+        /// <summary>Construct an <see cref="IResponse"/> instance around an asynchronous task.</summary>
+        /// <remarks>The work to start in a new asynchronous task.</remarks>
+        protected IRequest ConstructResponseFromTask(Func<HttpResponseMessage> task)
+        {
+            HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Get, "http://example.org/");
+            return new Request(request, new MediaTypeFormatterCollection(), p => Task<HttpResponseMessage>.Factory.StartNew(task), new IHttpFilter[0]);
         }
 
         /// <summary>Assert that an HTTP request's state matches the expected values.</summary>

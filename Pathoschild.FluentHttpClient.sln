@@ -10,8 +10,9 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "~metadata", "~metadata", "{E4A79030-4C0D-40D9-9A44-7321A74140FF}"
 	ProjectSection(SolutionItems) = preProject
 		.gitignore = .gitignore
+		LICENSE.txt = LICENSE.txt
 		README.md = README.md
-		packages\repositories.config = packages\repositories.config
+		RELEASE-NOTES.md = RELEASE-NOTES.md
 	EndProjectSection
 EndProject
 Global
