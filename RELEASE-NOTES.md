@@ -1,6 +1,6 @@
 # Release notes
 ## 3.0
-Upcoming release.
+Released 08 February 2017. See [log](https://github.com/Pathoschild/FluentHttpClient/compare/2.3...3.0).
 
 * New features:
   * Added built-in retry support.
