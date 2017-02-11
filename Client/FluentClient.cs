@@ -166,7 +166,7 @@ namespace Pathoschild.Http.Client
 
             // make sure directory paths end with a slash to avoid unintuitive behaviour
             UriBuilder builder = new UriBuilder(uri);
-            if (!uri.AbsolutePath.EndsWith("/") && !Path.HasExtension(uri.AbsolutePath))
+            if (!uri.AbsolutePath.EndsWith("/", StringComparison.OrdinalIgnoreCase) && !Path.HasExtension(uri.AbsolutePath))
             {
                 builder.Path += "/";
                 uri = builder.Uri;
