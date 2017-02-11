@@ -137,6 +137,15 @@ namespace Pathoschild.Http.Client
             return this;
         }
 
+        /// <summary>Adds a header which should be sent with each request.</summary>
+        /// <param name="name">The name of the header.</param>
+        /// <param name="value">The value of the header.</param>
+        public IClient SetHeader(string name, string value)
+        {
+            this.BaseClient.DefaultRequestHeaders.Add(name, value);
+            return this;
+        }
+
         /// <summary>Free resources used by the client.</summary>
         public virtual void Dispose()
         {
