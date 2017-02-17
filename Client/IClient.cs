@@ -48,9 +48,16 @@ namespace Pathoschild.Http.Client
         /// <param name="requestCoordinator">The request coordinator (or null to use the default behaviour).</param>
         IClient SetRequestCoordinator(IRequestCoordinator requestCoordinator);
 
+        /// <summary>Set a header which should be sent with each request.</summary>
+        /// <param name="name">The name of the header.</param>
+        /// <param name="value">The value of the header.</param>
+        /// <remarks>Invoking this method multiple times with the same 'name' will result in the header being overwritten.</remarks>
+        IClient SetHeader(string name, string value);
+
         /// <summary>Adds a header which should be sent with each request.</summary>
         /// <param name="name">The name of the header.</param>
         /// <param name="value">The value of the header.</param>
-        IClient SetHeader(string name, string value);
+        /// <remarks>Invoking this method multiple times with the same 'name' will result in multiple headers with the same name added to the collection.</remarks>
+        IClient AddHeader(string name, string value);
     }
 }
