@@ -261,10 +261,10 @@ namespace Pathoschild.Http.Client
                 Content = request.Content.Clone(),
                 Version = request.Version
             };
-            foreach (KeyValuePair<string, object> prop in request.Properties)
-                clone.Properties.Add(prop);
-            foreach (KeyValuePair<string, IEnumerable<string>> header in request.Headers)
-                clone.Headers.TryAddWithoutValidation(header.Key, header.Value);
+
+            foreach (var prop in request.Properties) clone.Properties.Add(prop);
+            foreach (var header in request.Headers) clone.Headers.TryAddWithoutValidation(header.Key, header.Value);
+
             return clone;
         }
 
@@ -277,9 +277,7 @@ namespace Pathoschild.Http.Client
             ms.Position = 0;
 
             var clone = new StreamContent(ms);
-
-            foreach (KeyValuePair<string, IEnumerable<string>> header in content.Headers)
-                clone.Headers.Add(header.Key, header.Value);
+            foreach (var header in content.Headers) clone.Headers.Add(header.Key, header.Value);
 
             return clone;
         }
