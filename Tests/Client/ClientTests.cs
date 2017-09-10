@@ -80,6 +80,24 @@ namespace Pathoschild.Http.Tests.Client
             Assert.AreEqual(sampleValue, userAgent);
         }
 
+        [Test(Description = "Ensure that all specified defaults are correctly applied.")]
+        public void AddDefault()
+        {
+            // arrange
+            const string expectedUserAgent = "boop";
+
+            // execute
+            IClient client = this.ConstructClient()
+                .AddDefault(req => req.WithHeader("User-Agent", expectedUserAgent))
+                .AddDefault(req => req.WithArgument("boop", 1));
+            IRequest request = client.GetAsync("example");
+
+            // verify
+            string userAgent = request.Message.Headers.UserAgent.ToString();
+            Assert.AreEqual(expectedUserAgent, userAgent, "The user agent header does not match the specified default.");
+            Assert.AreEqual("/example?boop=1", request.Message.RequestUri.PathAndQuery, "The URL arguments don't match the specified default.");
+        }
+
         [Test(Description = "Ensure that the HTTP DELETE method constructs a request message with the expected initial state.")]
         [TestCase("resource")]
         public void Delete(string resource)
@@ -188,6 +206,7 @@ namespace Pathoschild.Http.Tests.Client
             // verify
             this.AssertEqual(request, method, resource, baseUri: "");
         }
+
 
         /*********
         ** Protected methods

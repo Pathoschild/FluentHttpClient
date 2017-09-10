@@ -47,5 +47,9 @@ namespace Pathoschild.Http.Client
         /// <summary>Set the default request coordinator.</summary>
         /// <param name="requestCoordinator">The request coordinator (or null to use the default behaviour).</param>
         IClient SetRequestCoordinator(IRequestCoordinator requestCoordinator);
+
+        /// <summary>Add a default behaviour for all subsequent HTTP requests.</summary>
+        /// <param name="apply">The default behaviour to apply.</param>
+        IClient AddDefault(Func<IRequest, IRequest> apply);
     }
 }

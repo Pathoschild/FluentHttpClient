@@ -28,6 +28,9 @@ namespace Pathoschild.Http.Client
         /// <summary>Whether HTTP error responses (e.g. HTTP 404) should be raised as exceptions.</summary>
         private bool HttpErrorAsException = true;
 
+        /// <summary>The default behaviours to apply to all requests.</summary>
+        private readonly IList<Func<IRequest, IRequest>> Defaults = new List<Func<IRequest, IRequest>>();
+
 
         /*********
         ** Accessors
@@ -95,11 +98,12 @@ namespace Pathoschild.Http.Client
         {
             this.AssertNotDisposed();
 
-            // clone the underlying message because HttpClient doesn't normally allow re-sending
-            // the same request, which would break IRequestCoordinator.
-            return new Request(message, this.Formatters, request => this.BaseClient.SendAsync(request.Message.Clone(), request.CancellationToken), this.Filters.ToList())
+            IRequest request = new Request(message, this.Formatters, req => this.BaseClient.SendAsync(req.Message.Clone(), req.CancellationToken), this.Filters.ToList()) // clone the underlying message because HttpClient doesn't normally allow re-sending the same request, which would break IRequestCoordinator
                 .WithRequestCoordinator(this.RequestCoordinator)
                 .WithHttpErrorAsException(this.HttpErrorAsException);
+            foreach (Func<IRequest, IRequest> apply in this.Defaults)
+                request = apply(request);
+            return request;
         }
 
         /// <summary>Specify the authentication that will be used with every request.</summary>
@@ -134,6 +138,14 @@ namespace Pathoschild.Http.Client
         public IClient SetRequestCoordinator(IRequestCoordinator requestCoordinator)
         {
             this.RequestCoordinator = requestCoordinator;
+            return this;
+        }
+
+        /// <summary>Add a default behaviour for all subsequent HTTP requests.</summary>
+        /// <param name="apply">The default behaviour to apply.</param>
+        public IClient AddDefault(Func<IRequest, IRequest> apply)
+        {
+            this.Defaults.Add(apply);
             return this;
         }
 
