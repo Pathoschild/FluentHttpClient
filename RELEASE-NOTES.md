@@ -4,6 +4,7 @@ Upcoming release. See [log](https://github.com/Pathoschild/FluentHttpClient/comp
 
 * Added `client.AddDefault` method to specify default behaviour for all later requests.  
     _For example, when using an API with URL-based authentication, you can do `client.AddDefault(request => request.WithArgument("authToken", "..."))` to add that argument to all later requests._
+* Added support for retrying timed-out requests.
 * Fixed error when using a retry policy with some requests.
 
 ## 3.0
