@@ -1,11 +1,8 @@
 ﻿using System;
-using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
 using NUnit.Framework;
 using Pathoschild.Http.Client;
-using Pathoschild.Http.Client.Retry;
-using RichardSzalay.MockHttp;
 
 namespace Pathoschild.Http.Tests.Client
 {
@@ -211,107 +208,16 @@ namespace Pathoschild.Http.Tests.Client
             this.AssertEqual(request, method, resource, baseUri: "");
         }
 
-        [Test(Description = "Ensure that the retry coordinator retries failed requests.")]
-        public async Task RetryCoordinator_RetriesFailedRequests()
-        {
-            // configure
-            const string domain = "https://example.org";
-            const int maxAttempts = 2;
-
-            // set up
-            int attempts = 0;
-            var mockHttp = new MockHttpMessageHandler();
-            mockHttp.When(HttpMethod.Get, domain).With(req => ++attempts == maxAttempts).Respond(HttpStatusCode.OK); // succeed on last attempt
-            mockHttp.When(HttpMethod.Get, domain).Respond(HttpStatusCode.NotFound);
-            var client = new FluentClient(domain, new HttpClient(mockHttp))
-                .SetRequestCoordinator(this.GetRetryConfig(maxAttempts - 1));
-
-            // execute
-            IResponse response = await client.GetAsync("");
-
-            // verify
-            Assert.AreEqual(maxAttempts, attempts, "The client did not retry the expected number of times.");
-            Assert.AreEqual(response.Status, HttpStatusCode.OK, "The response is unexpectedly not successful.");
-        }
-
-        [Test(Description = "Ensure that the retry coordinator retries (or does not retry) timed-out requests.")]
-        public async Task RetryCoordinator_RetriesOnTimeout([Values(true, false)] bool retryOnTimeout)
-        {
-            // configure
-            const string domain = "https://example.org";
-            const int maxAttempts = 2;
-
-            // set up
-            int attempts = 0;
-            var mockHttp = new MockHttpMessageHandler();
-            mockHttp.When(HttpMethod.Get, domain).With(req => ++attempts == maxAttempts).Respond(HttpStatusCode.OK); // succeed on last attempt
-            mockHttp
-                .When(HttpMethod.Get, domain)
-                .Respond(async request =>
-                {
-                    await Task.Delay(TimeSpan.FromSeconds(10));
-                    throw new InvalidOperationException("The request unexpectedly didn't time out.");
-                });
-
-            IClient client = new FluentClient(domain, new HttpClient(mockHttp))
-                .SetRequestCoordinator(this.GetRetryConfig(maxAttempts - 1, retryOnTimeout));
-            client.BaseClient.Timeout = TimeSpan.FromMilliseconds(500);
-
-            // execute & verify
-            if (retryOnTimeout)
-            {
-                IResponse response = await client.GetAsync("");
-                Assert.AreEqual(maxAttempts, attempts, "The client did not retry the expected number of times.");
-                Assert.AreEqual(response.Status, HttpStatusCode.OK, "The response is unexpectedly not successful.");
-            }
-            else
-            {
-                Assert.ThrowsAsync<TaskCanceledException>(async () => await client.GetAsync(""));
-                Assert.AreEqual(1, attempts, "The client unexpectedly retried.");
-            }
-        }
-
-        [Test(Description = "Ensure that the retry coordinator gives up after too many failed requests.")]
-        public void RetryCoordinator_AbandonsOnTooManyFailures()
-        {
-            // configure
-            const string domain = "https://example.org";
-            const int maxAttempts = 2;
-
-            // set up
-            var mockHttp = new MockHttpMessageHandler();
-            var mockRequest = mockHttp.When(HttpMethod.Get, domain).Respond(HttpStatusCode.NotFound);
-            var client = new FluentClient(domain, new HttpClient(mockHttp))
-                .SetRequestCoordinator(this.GetRetryConfig(maxAttempts - 1));
-
-            // execute & assert
-            Assert.ThrowsAsync<ApiException>(async () => await client.GetAsync(""));
-            Assert.AreEqual(maxAttempts, mockHttp.GetMatchCount(mockRequest), "The client did not retry the expected number of times.");
-        }
-
 
         /*********
-        ** Protected methods
+        ** Private methods
         *********/
         /// <summary>Construct an HTTP method for the method name.</summary>
         /// <param name="methodName">The name of the method.</param>
         /// <remarks><see cref="HttpMethod"/> is not an enumeration, so it cannot be used as a unit test input parameter.</remarks>
-        protected HttpMethod ConstructMethod(string methodName)
+        private HttpMethod ConstructMethod(string methodName)
         {
             return new HttpMethod(methodName);
-        }
-
-        /// <summary>Get a retry configuration which retries any non-OK request after 1 millisecond.</summary>
-        /// <param name="maxRetries">The maximum number of retries.</param>
-        /// <param name="retryOnTimeout">Whether to retry on timeout.</param>
-        protected IRetryConfig GetRetryConfig(int maxRetries, bool retryOnTimeout = true)
-        {
-            return new RetryConfig(
-                maxRetries: maxRetries,
-                shouldRetry: res => res.StatusCode != HttpStatusCode.OK,
-                getDelay: (attempt, res) => TimeSpan.FromMilliseconds(1),
-                retryOnTimeout: retryOnTimeout
-            );
         }
 
         /// <summary>Construct an <see cref="IClient"/> instance and assert that its initial state is valid.</summary>
@@ -320,7 +226,7 @@ namespace Pathoschild.Http.Tests.Client
         /// <param name="httpClient">The underlying HTTP client.</param>
         /// <exception cref="InconclusiveException">The initial state of the constructed client is invalid, and <paramref name="inconclusiveOnFailure"/> is <c>true</c>.</exception>
         /// <exception cref="AssertionException">The initial state of the constructed client is invalid, and <paramref name="inconclusiveOnFailure"/> is <c>false</c>.</exception>
-        protected IClient ConstructClient(string baseUri = "http://example.com/", bool inconclusiveOnFailure = true, HttpClient httpClient = null)
+        private IClient ConstructClient(string baseUri = "http://example.com/", bool inconclusiveOnFailure = true, HttpClient httpClient = null)
         {
             try
             {
@@ -346,7 +252,7 @@ namespace Pathoschild.Http.Tests.Client
         /// <param name="method">The expected HTTP method.</param>
         /// <param name="resource">The expected relative URI.</param>
         /// <param name="baseUri">The expected base URI of the request.</param>
-        protected void AssertEqual(IRequest request, HttpMethod method, string resource, string baseUri = "http://example.com/")
+        private void AssertEqual(IRequest request, HttpMethod method, string resource, string baseUri = "http://example.com/")
         {
             // not null
             Assert.That(request, Is.Not.Null, "The request is null.");
