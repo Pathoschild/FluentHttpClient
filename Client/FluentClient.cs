@@ -98,7 +98,7 @@ namespace Pathoschild.Http.Client
         {
             this.AssertNotDisposed();
 
-            IRequest request = new Request(message, this.Formatters, req => this.BaseClient.SendAsync(req.Message.Clone(), req.CancellationToken), this.Filters.ToList()) // clone the underlying message because HttpClient doesn't normally allow re-sending the same request, which would break IRequestCoordinator
+            IRequest request = new Request(message, this.Formatters, async req => await this.BaseClient.SendAsync(await req.Message.CloneAsync().ConfigureAwait(false), req.CancellationToken).ConfigureAwait(false), this.Filters.ToList()) // clone the underlying message because HttpClient doesn't normally allow re-sending the same request, which would break IRequestCoordinator
                 .WithRequestCoordinator(this.RequestCoordinator)
                 .WithHttpErrorAsException(this.HttpErrorAsException);
             foreach (Func<IRequest, IRequest> apply in this.Defaults)
