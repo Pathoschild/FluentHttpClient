@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Formatting;
@@ -257,13 +258,27 @@ namespace Pathoschild.Http.Client
         {
             HttpRequestMessage clone = new HttpRequestMessage(request.Method, request.RequestUri)
             {
-                Content = request.Content,
+                Content = request.Content.Clone(),
                 Version = request.Version
             };
-            foreach (KeyValuePair<string, object> prop in request.Properties)
-                clone.Properties.Add(prop);
-            foreach (KeyValuePair<string, IEnumerable<string>> header in request.Headers)
-                clone.Headers.TryAddWithoutValidation(header.Key, header.Value);
+
+            foreach (var prop in request.Properties) clone.Properties.Add(prop);
+            foreach (var header in request.Headers) clone.Headers.TryAddWithoutValidation(header.Key, header.Value);
+
+            return clone;
+        }
+
+        internal static HttpContent Clone(this HttpContent content)
+        {
+            if (content == null) return null;
+
+            var ms = new MemoryStream();
+            content.CopyToAsync(ms).Wait();
+            ms.Position = 0;
+
+            var clone = new StreamContent(ms);
+            foreach (var header in content.Headers) clone.Headers.Add(header.Key, header.Value);
+
             return clone;
         }
     }
