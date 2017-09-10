@@ -55,8 +55,7 @@ namespace Pathoschild.Http.Client.Retry
                 {
                     // fail on too many attempts
                     if (attempt == this.Config.MaxRetries)
-                        throw new ApiException(new Response(response, request.Formatters),
-                            $"The HTTP request failed, and the retry coordinator gave up after the maximum {this.Config.MaxRetries} retries");
+                        throw new ApiException(new Response(response, request.Formatters), $"The HTTP request failed, and the retry coordinator gave up after the maximum {this.Config.MaxRetries} retries");
 
                     // apply delay
                     TimeSpan delay = this.Config.GetDelay(attempt, response);

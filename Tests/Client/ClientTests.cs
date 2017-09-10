@@ -1,7 +1,11 @@
 ﻿using System;
+using System.Net;
 using System.Net.Http;
+using System.Threading.Tasks;
 using NUnit.Framework;
 using Pathoschild.Http.Client;
+using Pathoschild.Http.Client.Retry;
+using RichardSzalay.MockHttp;
 
 namespace Pathoschild.Http.Tests.Client
 {
@@ -205,6 +209,55 @@ namespace Pathoschild.Http.Tests.Client
 
             // verify
             this.AssertEqual(request, method, resource, baseUri: "");
+        }
+
+        [Test(Description = "Ensure that the retry coordinator retries failed requests.")]
+        public async Task RetryCoordinator_RetriesFailedRequests()
+        {
+            // configure
+            const string domain = "https://example.org";
+            const int maxAttempts = 2;
+
+            // set up
+            var mockHttp = new MockHttpMessageHandler();
+            int attempts = 0;
+            mockHttp.When(HttpMethod.Get, domain).With(req => ++attempts < maxAttempts).Respond(HttpStatusCode.NotFound);
+            mockHttp.When(HttpMethod.Get, domain).With(req => attempts >= maxAttempts).Respond(HttpStatusCode.OK);
+            var client = new FluentClient(domain, new HttpClient(mockHttp))
+                .SetRequestCoordinator(new RetryConfig(
+                    maxRetries: maxAttempts,
+                    shouldRetry: res => res.StatusCode != HttpStatusCode.OK,
+                    getDelay: (attempt, res) => TimeSpan.FromMilliseconds(1))
+                );
+            
+            // execute
+            IResponse response = await client.GetAsync("");
+
+            // verify
+            Assert.AreEqual(maxAttempts, attempts, "The client did not retry the expected number of times.");
+            Assert.AreEqual(response.Status, HttpStatusCode.OK, "The response is unexpectedly not successful.");
+        }
+
+        [Test(Description = "Ensure that the retry coordinator gives up after too many failed requests.")]
+        public void RetryCoordinator_AbandonsOnTooManyFailures()
+        {
+            // configure
+            const string domain = "https://example.org";
+            const int maxAttempts = 2;
+
+            // set up
+            var mockHttp = new MockHttpMessageHandler();
+            var mockRequest = mockHttp.When(HttpMethod.Get, domain).Respond(HttpStatusCode.NotFound);
+            var client = new FluentClient(domain, new HttpClient(mockHttp))
+                .SetRequestCoordinator(new RetryConfig(
+                    maxRetries: maxAttempts,
+                    shouldRetry: res => res.StatusCode != HttpStatusCode.OK,
+                    getDelay: (attempt, res) => TimeSpan.FromMilliseconds(1))
+                );
+
+            // execute & assert
+            Assert.ThrowsAsync<ApiException>(async () => await client.GetAsync(""));
+            Assert.AreEqual(maxAttempts, mockHttp.GetMatchCount(mockRequest), "The client did not retry the expected number of times.");
         }
 
 
