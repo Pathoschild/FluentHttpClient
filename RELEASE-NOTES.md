@@ -1,4 +1,9 @@
 # Release notes
+## 3.1
+Upcoming release. See [log](https://github.com/Pathoschild/FluentHttpClient/compare/3.0...develop).
+
+* Fixed error when using a retry policy with some requests.
+
 ## 3.0
 Released 08 February 2017. See [log](https://github.com/Pathoschild/FluentHttpClient/compare/2.3...3.0).
 
