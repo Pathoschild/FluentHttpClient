@@ -137,6 +137,27 @@ namespace Pathoschild.Http.Client
             return this;
         }
 
+        /// <summary>Set a header which should be sent with each request.</summary>
+        /// <param name="name">The name of the header.</param>
+        /// <param name="value">The value of the header.</param>
+        /// <remarks>Invoking this method multiple times with the same 'name' will result in header value being overwritten.</remarks>
+        public IClient SetHeader(string name, string value)
+        {
+            this.BaseClient.DefaultRequestHeaders.Remove(name);
+            this.BaseClient.DefaultRequestHeaders.Add(name, value);
+            return this;
+        }
+
+        /// <summary>Adds a header which should be sent with each request.</summary>
+        /// <param name="name">The name of the header.</param>
+        /// <param name="value">The value of the header.</param>
+        /// <remarks>Invoking this method multiple times with the same 'name' will result in multiple headers with the same name added to the collection.</remarks>
+        public IClient AddHeader(string name, string value)
+        {
+            this.BaseClient.DefaultRequestHeaders.Add(name, value);
+            return this;
+        }
+
         /// <summary>Free resources used by the client.</summary>
         public virtual void Dispose()
         {
@@ -156,8 +177,8 @@ namespace Pathoschild.Http.Client
                 return null;
 
             // make sure directory paths end with a slash to avoid unintuitive behaviour
-            UriBuilder builder = new UriBuilder(uri);
-            if (!uri.AbsolutePath.EndsWith("/") && !Path.HasExtension(uri.AbsolutePath))
+            var builder = new UriBuilder(uri);
+            if (!uri.AbsolutePath.EndsWith("/", StringComparison.OrdinalIgnoreCase) && !Path.HasExtension(uri.AbsolutePath))
             {
                 builder.Path += "/";
                 uri = builder.Uri;
