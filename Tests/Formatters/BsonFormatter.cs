@@ -1,4 +1,5 @@
-﻿using System.Net.Http;
+﻿using System;
+using System.Net.Http;
 using NUnit.Framework;
 using Pathoschild.Http.Client.Formatters;
 
@@ -7,6 +8,7 @@ namespace Pathoschild.Http.Tests.Formatters
     /// <summary>Unit tests verifying that the <see cref="BsonFormatter"/> correctly formats content.</summary>
     /// <remarks>The JSON.NET serializer itself is thoroughly unit tested; these unit tests ensure that the media type formatter correctly handles the various use cases.</remarks>
     [TestFixture]
+    [Obsolete("Unit tests for an obsolete class.")]
     public class JsonNetBsonFormatterTests : FormatterTestsBase
     {
         /*********

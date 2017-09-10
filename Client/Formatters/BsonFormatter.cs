@@ -9,6 +9,7 @@ using Newtonsoft.Json.Bson;
 namespace Pathoschild.Http.Client.Formatters
 {
     /// <summary>Serializes and deserializes data as BSON.</summary>
+    [Obsolete("This class is deprecated and will be removed in a future version.")]
     public class BsonFormatter : MediaTypeFormatterBase
     {
         /*********
