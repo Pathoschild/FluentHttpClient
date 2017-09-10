@@ -56,12 +56,9 @@ namespace Pathoschild.Http.Client.Retry
                 {
                     response = await dispatcher(request).ConfigureAwait(false);
                 }
-                catch (TaskCanceledException) // timeout
+                catch (TaskCanceledException) when (this.Config.RetryOnTimeout && attempt < maxAttempt) // timeout
                 {
-                    if (this.Config.RetryOnTimeout && attempt < maxAttempt)
-                        response = null;
-                    else
-                        throw;
+                    response = null;
                 }
 
                 // exit if done
@@ -69,7 +66,7 @@ namespace Pathoschild.Http.Client.Retry
                 if (!shouldRetry)
                     return response;
                 if (attempt >= maxAttempt)
-                    throw new ApiException(new Response(response, request.Formatters), $"The HTTP request failed, and the retry coordinator gave up after the maximum {this.Config.MaxRetries} retries");
+                    throw new ApiException(new Response(response, request.Formatters), $"The HTTP request {(response != null ? "failed" : "timed out")}, and the retry coordinator gave up after the maximum {this.Config.MaxRetries} retries");
 
                 // set up retry
                 TimeSpan delay = this.Config.GetDelay(attempt, response);
