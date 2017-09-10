@@ -57,5 +57,16 @@ namespace Pathoschild.Http.Client.Retry
         {
             return this.GetDelayCallback(retry, response);
         }
+
+        /// <summary>Get a retry config indicating no request should be retried.</summary>
+        public static IRetryConfig None()
+        {
+            return new RetryConfig(
+                maxRetries: 0,
+                shouldRetry: response => false,
+                getDelay: (attempt, response) => TimeSpan.Zero,
+                retryOnTimeout: false
+            );
+        }
     }
 }

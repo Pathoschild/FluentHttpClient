@@ -36,7 +36,7 @@ namespace Pathoschild.Http.Client.Retry
         /// <param name="config">The retry configuration.</param>
         public RetryCoordinator(IRetryConfig config)
         {
-            this.Config = config;
+            this.Config = config ?? RetryConfig.None();
         }
 
         /// <summary>Dispatch an HTTP request.</summary>
@@ -46,7 +46,7 @@ namespace Pathoschild.Http.Client.Retry
         public async Task<HttpResponseMessage> ExecuteAsync(IRequest request, Func<IRequest, Task<HttpResponseMessage>> dispatcher)
         {
             int attempt = 0;
-            int maxAttempt = this.Config.MaxRetries + 1;
+            int maxAttempt = 1 + this.Config.MaxRetries;
             while (true)
             {
                 // dispatch request
