@@ -330,7 +330,7 @@ namespace Pathoschild.Http.Tests.Client
         public void Task_Async_FaultHandled(bool throwError, Type exceptionType)
         {
             // arrange
-            IRequest response = this.ConstructResponseFromTask(() => { throw (Exception)Activator.CreateInstance(exceptionType); });
+            IRequest response = this.ConstructResponseFromTask(() => throw (Exception)Activator.CreateInstance(exceptionType));
 
             // act
             Assert.ThrowsAsync<NotSupportedException>(async () => await response);
@@ -373,7 +373,7 @@ namespace Pathoschild.Http.Tests.Client
 
 
         /*********
-        ** Protected methods
+        ** Private methods
         *********/
         /// <summary>Construct an <see cref="IRequest"/> instance and assert that its initial state is valid.</summary>
         /// <param name="methodName">The expected HTTP method.</param>
@@ -381,7 +381,7 @@ namespace Pathoschild.Http.Tests.Client
         /// <param name="inconclusiveOnFailure">Whether to throw an <see cref="InconclusiveException"/> if the initial state is invalid.</param>
         /// <exception cref="InconclusiveException">The initial state of the constructed client is invalid, and <paramref name="inconclusiveOnFailure"/> is <c>true</c>.</exception>
         /// <exception cref="AssertionException">The initial state of the constructed client is invalid, and <paramref name="inconclusiveOnFailure"/> is <c>false</c>.</exception>
-        protected IRequest ConstructRequest(string methodName, string uri = "http://example.org/", bool inconclusiveOnFailure = true)
+        private IRequest ConstructRequest(string methodName, string uri = "http://example.org/", bool inconclusiveOnFailure = true)
         {
             try
             {
@@ -407,7 +407,7 @@ namespace Pathoschild.Http.Tests.Client
 
         /// <summary>Construct an <see cref="IResponse"/> instance around an asynchronous task.</summary>
         /// <remarks>The asynchronous task to wrap.</remarks>
-        protected IRequest ConstructResponseFromTask(Task<HttpResponseMessage> task)
+        private IRequest ConstructResponseFromTask(Task<HttpResponseMessage> task)
         {
             HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Get, "http://example.org/");
             return new Request(request, new MediaTypeFormatterCollection(), p => task, new IHttpFilter[0]);
@@ -415,7 +415,7 @@ namespace Pathoschild.Http.Tests.Client
 
         /// <summary>Construct an <see cref="IResponse"/> instance around an asynchronous task.</summary>
         /// <remarks>The work to start in a new asynchronous task.</remarks>
-        protected IRequest ConstructResponseFromTask(Func<HttpResponseMessage> task)
+        private IRequest ConstructResponseFromTask(Func<HttpResponseMessage> task)
         {
             HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Get, "http://example.org/");
             return new Request(request, new MediaTypeFormatterCollection(), p => Task<HttpResponseMessage>.Factory.StartNew(task), new IHttpFilter[0]);
@@ -426,7 +426,7 @@ namespace Pathoschild.Http.Tests.Client
         /// <param name="method">The expected HTTP method.</param>
         /// <param name="uri">The expected URI.</param>
         /// <param name="ignoreArguments">Whether to ignore query string arguments when validating the request URI.</param>
-        protected void AssertEqual(HttpRequestMessage request, HttpMethod method, string uri = "http://example.org/", bool ignoreArguments = false)
+        private void AssertEqual(HttpRequestMessage request, HttpMethod method, string uri = "http://example.org/", bool ignoreArguments = false)
         {
             Assert.That(request, Is.Not.Null, "The request message is null.");
             Assert.That(request.Method, Is.EqualTo(method), "The request method is invalid.");
@@ -438,7 +438,7 @@ namespace Pathoschild.Http.Tests.Client
         /// <param name="method">The expected HTTP method.</param>
         /// <param name="uri">The expected URI.</param>
         /// <param name="ignoreArguments">Whether to ignore query string arguments when validating the request URI.</param>
-        protected void AssertEqual(HttpRequestMessage request, string method, string uri = "http://example.org/", bool ignoreArguments = false)
+        private void AssertEqual(HttpRequestMessage request, string method, string uri = "http://example.org/", bool ignoreArguments = false)
         {
             this.AssertEqual(request, new HttpMethod(method), uri, ignoreArguments);
         }

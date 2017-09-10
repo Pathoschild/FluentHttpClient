@@ -83,11 +83,11 @@ namespace Pathoschild.Http.Tests.Integration
 
 
         /*********
-        ** Protected methods
+        ** Private methods
         *********/
         /// <summary>Construct an HTTP client with the JSON.NET formatter.</summary>
         /// <param name="url">The base URI prepended to relative request URIs.</param>
-        protected IClient ConstructClient(string url)
+        private IClient ConstructClient(string url)
         {
             return new FluentClient(url);
         }
@@ -96,7 +96,7 @@ namespace Pathoschild.Http.Tests.Integration
         /// <param name="response">The metadata to assert.</param>
         /// <param name="expected">The expected metadata.</param>
         /// <param name="prefix">The property name prefix to use within assertion exceptions.</param>
-        protected void AssertResponse(WikipediaMetadata response, WikipediaMetadata.WikipediaGeneral expected, string prefix)
+        private void AssertResponse(WikipediaMetadata response, WikipediaMetadata.WikipediaGeneral expected, string prefix)
         {
             // assert
             Assert.IsNotNull(response, prefix + " metadata is null");

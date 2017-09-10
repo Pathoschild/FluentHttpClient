@@ -85,8 +85,7 @@ namespace Pathoschild.Http.Tests.Client
         public void AsMessage(string content)
         {
             // arrange
-            HttpResponseMessage message;
-            IResponse response = this.ConstructResponse(content, out message);
+            IResponse response = this.ConstructResponse(content, out HttpResponseMessage message);
 
             // act
             HttpResponseMessage actual = response.Message;
@@ -101,8 +100,7 @@ namespace Pathoschild.Http.Tests.Client
         public void AsMessage_OfModel(string content)
         {
             // arrange
-            HttpResponseMessage message;
-            IResponse response = this.ConstructResponseForModel(content, out message);
+            IResponse response = this.ConstructResponseForModel(content, out HttpResponseMessage message);
 
             // act
             HttpResponseMessage actual = response.Message;
@@ -271,7 +269,7 @@ namespace Pathoschild.Http.Tests.Client
 
 
         /*********
-        ** Protected methods
+        ** Private methods
         *********/
         /// <summary>Construct an <see cref="IResponse"/> instance and assert that its initial state is valid.</summary>
         /// <param name="method">The HTTP request method.</param>
@@ -282,7 +280,7 @@ namespace Pathoschild.Http.Tests.Client
         /// <param name="inconclusiveOnFailure">Whether to throw an <see cref="InconclusiveException"/> if the initial state is invalid.</param>
         /// <exception cref="InconclusiveException">The initial state of the constructed client is invalid, and <paramref name="inconclusiveOnFailure"/> is <c>true</c>.</exception>
         /// <exception cref="AssertionException">The initial state of the constructed client is invalid, and <paramref name="inconclusiveOnFailure"/> is <c>false</c>.</exception>
-        protected IResponse ConstructResponse<T>(T content, out HttpResponseMessage responseMessage, string method = "GET", HttpStatusCode status = HttpStatusCode.OK, string uri = "http://example.org/", bool inconclusiveOnFailure = true)
+        private IResponse ConstructResponse<T>(T content, out HttpResponseMessage responseMessage, string method = "GET", HttpStatusCode status = HttpStatusCode.OK, string uri = "http://example.org/", bool inconclusiveOnFailure = true)
         {
             try
             {
@@ -312,10 +310,9 @@ namespace Pathoschild.Http.Tests.Client
         /// <param name="inconclusiveOnFailure">Whether to throw an <see cref="InconclusiveException"/> if the initial state is invalid.</param>
         /// <exception cref="InconclusiveException">The initial state of the constructed client is invalid, and <paramref name="inconclusiveOnFailure"/> is <c>true</c>.</exception>
         /// <exception cref="AssertionException">The initial state of the constructed client is invalid, and <paramref name="inconclusiveOnFailure"/> is <c>false</c>.</exception>
-        protected IResponse ConstructResponse<T>(T content, string method = "GET", HttpStatusCode status = HttpStatusCode.OK, string uri = "http://example.org/", bool inconclusiveOnFailure = true)
+        private IResponse ConstructResponse<T>(T content, string method = "GET", HttpStatusCode status = HttpStatusCode.OK, string uri = "http://example.org/", bool inconclusiveOnFailure = true)
         {
-            HttpResponseMessage message;
-            return this.ConstructResponse(content, out message, method, status, uri, inconclusiveOnFailure);
+            return this.ConstructResponse(content, out _, method, status, uri, inconclusiveOnFailure);
         }
 
         /// <summary>Construct an <see cref="IResponse"/> instance and assert that its initial state is valid.</summary>
@@ -327,7 +324,7 @@ namespace Pathoschild.Http.Tests.Client
         /// <param name="inconclusiveOnFailure">Whether to throw an <see cref="InconclusiveException"/> if the initial state is invalid.</param>
         /// <exception cref="InconclusiveException">The initial state of the constructed client is invalid, and <paramref name="inconclusiveOnFailure"/> is <c>true</c>.</exception>
         /// <exception cref="AssertionException">The initial state of the constructed client is invalid, and <paramref name="inconclusiveOnFailure"/> is <c>false</c>.</exception>
-        protected IResponse ConstructResponseForModel<T>(T content, out HttpResponseMessage responseMessage, string method = "GET", HttpStatusCode status = HttpStatusCode.OK, string uri = "http://example.org/", bool inconclusiveOnFailure = true)
+        private IResponse ConstructResponseForModel<T>(T content, out HttpResponseMessage responseMessage, string method = "GET", HttpStatusCode status = HttpStatusCode.OK, string uri = "http://example.org/", bool inconclusiveOnFailure = true)
         {
             Model<T> model = new Model<T>(content);
             return this.ConstructResponse(model, out responseMessage, method, status, uri, inconclusiveOnFailure);
@@ -341,10 +338,9 @@ namespace Pathoschild.Http.Tests.Client
         /// <param name="inconclusiveOnFailure">Whether to throw an <see cref="InconclusiveException"/> if the initial state is invalid.</param>
         /// <exception cref="InconclusiveException">The initial state of the constructed client is invalid, and <paramref name="inconclusiveOnFailure"/> is <c>true</c>.</exception>
         /// <exception cref="AssertionException">The initial state of the constructed client is invalid, and <paramref name="inconclusiveOnFailure"/> is <c>false</c>.</exception>
-        protected IResponse ConstructResponseForModel<T>(T content, string method = "GET", HttpStatusCode status = HttpStatusCode.OK, string uri = "http://example.org/", bool inconclusiveOnFailure = true)
+        private IResponse ConstructResponseForModel<T>(T content, string method = "GET", HttpStatusCode status = HttpStatusCode.OK, string uri = "http://example.org/", bool inconclusiveOnFailure = true)
         {
-            HttpResponseMessage message;
-            return this.ConstructResponseForModel(content, out message, method, status, uri, inconclusiveOnFailure);
+            return this.ConstructResponseForModel(content, out _, method, status, uri, inconclusiveOnFailure);
         }
 
         /// <summary>Assert that an HTTP request's state matches the expected values.</summary>
@@ -352,7 +348,7 @@ namespace Pathoschild.Http.Tests.Client
         /// <param name="method">The expected HTTP method.</param>
         /// <param name="uri">The expected URI.</param>
         /// <param name="ignoreArguments">Whether to ignore query string arguments when validating the request URI.</param>
-        protected void AssertEqual(HttpRequestMessage request, HttpMethod method, string uri = "http://example.org/", bool ignoreArguments = false)
+        private void AssertEqual(HttpRequestMessage request, HttpMethod method, string uri = "http://example.org/", bool ignoreArguments = false)
         {
             Assert.That(request, Is.Not.Null, "The request message is null.");
             Assert.That(request.Method, Is.EqualTo(method), "The request method is invalid.");
@@ -364,7 +360,7 @@ namespace Pathoschild.Http.Tests.Client
         /// <param name="method">The expected HTTP method.</param>
         /// <param name="uri">The expected URI.</param>
         /// <param name="ignoreArguments">Whether to ignore query string arguments when validating the request URI.</param>
-        protected void AssertEqual(HttpRequestMessage request, string method, string uri = "http://example.org/", bool ignoreArguments = false)
+        private void AssertEqual(HttpRequestMessage request, string method, string uri = "http://example.org/", bool ignoreArguments = false)
         {
             this.AssertEqual(request, new HttpMethod(method), uri, ignoreArguments);
         }

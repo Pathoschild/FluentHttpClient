@@ -160,8 +160,8 @@ namespace Pathoschild.Http.Client.Internal
         /// </example>
         public TaskAwaiter<IResponse> GetAwaiter()
         {
-            Func<Task<IResponse>> waiter = async () => await this.Execute().ConfigureAwait(false);
-            return waiter().GetAwaiter();
+            async Task<IResponse> Waiter() => await this.Execute().ConfigureAwait(false);
+            return Waiter().GetAwaiter();
         }
 
         /// <summary>Asynchronously retrieve the HTTP response.</summary>
@@ -225,7 +225,7 @@ namespace Pathoschild.Http.Client.Internal
 
 
         /*********
-        ** Protected methods
+        ** Private methods
         *********/
         /// <summary>Execute the HTTP request and fetch the response.</summary>
         private async Task<IResponse> Execute()
@@ -256,16 +256,15 @@ namespace Pathoschild.Http.Client.Internal
                 return new Dictionary<string, object>();
 
             // generic dictionary
-            if (arguments is IDictionary<string, object>)
-                return (IDictionary<string, object>)arguments;
+            if (arguments is IDictionary<string, object> genericDict)
+                return genericDict;
 
             // dictionary
-            if (arguments is IDictionary)
+            if (arguments is IDictionary objDict)
             {
                 IDictionary<string, object> dict = new Dictionary<string, object>();
-                IDictionary argDict = (IDictionary)arguments;
-                foreach (var key in argDict.Keys)
-                    dict.Add(key.ToString(), argDict[key]);
+                foreach (var key in objDict.Keys)
+                    dict.Add(key.ToString(), objDict[key]);
                 return dict;
             }
 

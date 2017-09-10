@@ -11,13 +11,13 @@ namespace Pathoschild.Http.Client
         ** Accessors
         *********/
         /// <summary>The HTTP status of the response.</summary>
-        public HttpStatusCode Status { get; protected set; }
+        public HttpStatusCode Status { get; }
 
         /// <summary>The HTTP response which caused the exception.</summary>
-        public IResponse Response { get; protected set; }
+        public IResponse Response { get; }
 
         /// <summary>The HTTP response message which caused the exception.</summary>
-        public HttpResponseMessage ResponseMessage { get; protected set; }
+        public HttpResponseMessage ResponseMessage { get; }
 
 
         /*********
