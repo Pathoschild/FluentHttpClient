@@ -135,7 +135,8 @@ client
     .SetRequestCoordinator(
         maxRetries: 3,
         shouldRetry: request => request.StatusCode != HttpStatusCode.OK,
-        getDelay: (attempt, response) => return TimeSpan.FromSeconds(attempt) // 1, 2, and 3 seconds
+        getDelay: (attempt, response) => return TimeSpan.FromSeconds(attempt), // 1, 2, and 3 seconds
+        retryOnTimeout: true
     );
 ```
 

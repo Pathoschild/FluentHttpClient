@@ -23,6 +23,9 @@ namespace Pathoschild.Http.Client.Retry
         /// <summary>The maximum number of times to retry a request before failing.</summary>
         public int MaxRetries { get; }
 
+        /// <summary>Whether to retry if the request times out.</summary>
+        public bool RetryOnTimeout { get; }
+
 
         /*********
         ** Public methods
@@ -31,11 +34,13 @@ namespace Pathoschild.Http.Client.Retry
         /// <param name="maxRetries">The maximum number of retries.</param>
         /// <param name="shouldRetry">A method which indicates whether a request should be retried.</param>
         /// <param name="getDelay">A method which returns the time to wait until the next retry. This is passed the retry index (starting at 1) and the last HTTP response received.</param>
-        public RetryConfig(int maxRetries, Func<HttpResponseMessage, bool> shouldRetry, Func<int, HttpResponseMessage, TimeSpan> getDelay)
+        /// <param name="retryOnTimeout">Whether to retry if the request times out.</param>
+        public RetryConfig(int maxRetries, Func<HttpResponseMessage, bool> shouldRetry, Func<int, HttpResponseMessage, TimeSpan> getDelay, bool retryOnTimeout = true)
         {
             this.MaxRetries = maxRetries;
             this.ShouldRetryCallback = shouldRetry;
             this.GetDelayCallback = getDelay;
+            this.RetryOnTimeout = retryOnTimeout;
         }
 
         /// <summary>Get whether a request should be retried.</summary>
