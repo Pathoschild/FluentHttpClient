@@ -136,7 +136,7 @@ namespace Pathoschild.Http.Tests.Client
         [TestCase("OPTIONS", "body value")]
         [TestCase("POST", "body value")]
         [TestCase("TRACE", "body value")]
-        public void WithBodyContent(string methodName, object body)
+        public async Task WithBodyContent(string methodName, object body)
         {
             // set up
             HttpContent content = new ObjectContent(typeof(string), body, new JsonMediaTypeFormatter());
@@ -148,7 +148,7 @@ namespace Pathoschild.Http.Tests.Client
 
             // verify
             this.AssertEqual(request.Message, methodName, ignoreArguments: true);
-            Assert.That(request.Message.Content.ReadAsStringAsync().Result, Is.EqualTo('"' + body.ToString() + '"'), "The message body is invalid.");
+            Assert.That(await request.Message.Content.ReadAsStringAsync(), Is.EqualTo('"' + body.ToString() + '"'), "The message body is invalid.");
         }
 
         [Test(Description = "Ensure that WithBody sets the request body and does not incorrectly alter request state.")]
@@ -159,7 +159,7 @@ namespace Pathoschild.Http.Tests.Client
         [TestCase("OPTIONS", "body value")]
         [TestCase("POST", "body value")]
         [TestCase("TRACE", "body value")]
-        public void WithBody(string methodName, object body)
+        public async Task WithBody(string methodName, object body)
         {
             // execute
             IRequest request = this
@@ -168,7 +168,7 @@ namespace Pathoschild.Http.Tests.Client
 
             // verify
             this.AssertEqual(request.Message, methodName, ignoreArguments: true);
-            Assert.That(request.Message.Content.ReadAsStringAsync().Result, Is.EqualTo('"' + body.ToString() + '"'), "The message body is invalid.");
+            Assert.That(await request.Message.Content.ReadAsStringAsync(), Is.EqualTo('"' + body.ToString() + '"'), "The message body is invalid.");
         }
 
         [Test(Description = "Ensure that WithBody sets the request body and does not incorrectly alter request state.")]
@@ -179,7 +179,7 @@ namespace Pathoschild.Http.Tests.Client
         [TestCase("OPTIONS", "body value")]
         [TestCase("POST", "body value")]
         [TestCase("TRACE", "body value")]
-        public void WithBody_AndFormatter(string methodName, object body)
+        public async Task WithBody_AndFormatter(string methodName, object body)
         {
             // execute
             IRequest request = this
@@ -188,7 +188,7 @@ namespace Pathoschild.Http.Tests.Client
 
             // verify
             this.AssertEqual(request.Message, methodName, ignoreArguments: true);
-            Assert.That(request.Message.Content.ReadAsStringAsync().Result, Is.EqualTo('"' + body.ToString() + '"'), "The message body is invalid.");
+            Assert.That(await request.Message.Content.ReadAsStringAsync(), Is.EqualTo('"' + body.ToString() + '"'), "The message body is invalid.");
         }
 
         [Test(Description = "Ensure that WithCustom persists the custom changes and does not incorrectly alter request state.")]
@@ -199,7 +199,7 @@ namespace Pathoschild.Http.Tests.Client
         [TestCase("OPTIONS", "body value")]
         [TestCase("POST", "body value")]
         [TestCase("TRACE", "body value")]
-        public void WithCustom(string methodName, string customBody)
+        public async Task WithCustom(string methodName, string customBody)
         {
             // execute
             IRequest request = this
@@ -208,7 +208,7 @@ namespace Pathoschild.Http.Tests.Client
 
             // verify
             this.AssertEqual(request.Message, methodName, ignoreArguments: true);
-            Assert.That(request.Message.Content.ReadAsStringAsync().Result, Is.EqualTo('"' + customBody + '"'), "The customized message body is invalid.");
+            Assert.That(await request.Message.Content.ReadAsStringAsync(), Is.EqualTo('"' + customBody + '"'), "The customized message body is invalid.");
         }
 
         [Test(Description = "Ensure that WithHeader sets the expected header and does not incorrectly alter request state.")]
@@ -358,13 +358,13 @@ namespace Pathoschild.Http.Tests.Client
         }
 
         [Test(Description = "The request succeeds when passed a HTTP request that is in progress.")]
-        public void Task_Async()
+        public async Task Task_Async()
         {
             // arrange
             IRequest request = this.ConstructResponseFromTask(() => new HttpResponseMessage(HttpStatusCode.OK));
 
             // act
-            HttpResponseMessage result = request.AsMessage().Result;
+            HttpResponseMessage result = await request.AsMessage();
 
             // assert
             Assert.IsNotNull(result);

@@ -137,14 +137,14 @@ namespace Pathoschild.Http.Tests.Client
 
         [Test(Description = "Ensure that the HTTP POST method with a body constructs a request message with the expected initial state.")]
         [TestCase("resource", "value")]
-        public void Post_WithBody(string resource, string value)
+        public async Task Post_WithBody(string resource, string value)
         {
             // execute
             IRequest request = this.ConstructClient().PostAsync("resource", value);
 
             // verify
             this.AssertEqual(request, HttpMethod.Post, resource);
-            Assert.That(request.Message.Content.ReadAsStringAsync().Result, Is.EqualTo('"' + value + '"'), "The message request body is invalid.");
+            Assert.That(await request.Message.Content.ReadAsStringAsync(), Is.EqualTo('"' + value + '"'), "The message request body is invalid.");
         }
 
         [Test(Description = "Ensure that the HTTP PUT method constructs a request message with the expected initial state.")]
@@ -160,14 +160,14 @@ namespace Pathoschild.Http.Tests.Client
 
         [Test(Description = "Ensure that the HTTP PUT method with a body constructs a request message with the expected initial state.")]
         [TestCase("resource", "value")]
-        public void Put_WithBody(string resource, string value)
+        public async Task Put_WithBody(string resource, string value)
         {
             // execute
             IRequest request = this.ConstructClient().PutAsync("resource", value);
 
             // verify
             this.AssertEqual(request, HttpMethod.Put, resource);
-            Assert.That(request.Message.Content.ReadAsStringAsync().Result, Is.EqualTo('"' + value + '"'), "The message request body is invalid.");
+            Assert.That(await request.Message.Content.ReadAsStringAsync(), Is.EqualTo('"' + value + '"'), "The message request body is invalid.");
         }
 
         [Test(Description = "Ensure that an arbitrary HTTP request message is passed on with the expected initial state.")]
