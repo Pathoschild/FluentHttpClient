@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Formatting;
+using System.Text;
 using System.Threading.Tasks;
 using Microsoft.AspNet.WebUtilities;
 using NUnit.Framework;
@@ -262,11 +264,11 @@ namespace Pathoschild.Http.Tests.Client
             Assert.AreEqual(HttpStatusCode.NotFound, response.Status, "The HTTP status doesn't match the response.");
         }
 
-        [Test(Description = "A request can be executed multiple times.")]
-        public async Task RequestIsReexecutable()
+        [Test(Description = "A GET request can be executed multiple times.")]
+        public async Task Request_CanResubmit_Get()
         {
             // arrange
-            var counter = 0;
+            int counter = 0;
             var mockHttp = new MockHttpMessageHandler();
             mockHttp.When(HttpMethod.Get, "https://api.fictitious-vendor.com/v1/endpoint").Respond(HttpStatusCode.OK, testRequest => new StringContent($"This is request #{++counter}"));
 
@@ -275,6 +277,42 @@ namespace Pathoschild.Http.Tests.Client
 
             // act
             var request = fluentClient.GetAsync("endpoint");
+            string valueA = await request.AsString();
+            string valueB = await request.AsString();
+
+            // assert
+            Assert.AreEqual("This is request #1", valueA, "The first request got an unexpected value.");
+            Assert.AreEqual("This is request #2", valueB, "The second request got an unexpected value.");
+        }
+
+        [Test(Description = "A POST request can be executed multiple times.")]
+        public async Task Request_CanResubmit_Post([Values("string", "stream")] string contentType)
+        {
+            // arrange
+            int counter = 0;
+            var mockHttp = new MockHttpMessageHandler();
+            mockHttp.When(HttpMethod.Post, "https://api.fictitious-vendor.com/v1/endpoint").Respond(HttpStatusCode.OK, testRequest => new StringContent($"This is request #{++counter}"));
+
+            var httpClient = new HttpClient(mockHttp);
+            var fluentClient = new FluentClient("https://api.fictitious-vendor.com/v1/", httpClient);
+
+            // act
+            var request = fluentClient.PostAsync("endpoint");
+            switch (contentType)
+            {
+                case "string":
+                    request = request.WithBodyContent(new StringContent("example string"));
+                    break;
+
+                case "stream":
+                    Stream stream = new MemoryStream(Encoding.UTF8.GetBytes("Example stream content"));
+                    request = request.WithBodyContent(new StreamContent(stream));
+                    break;
+
+                default:
+                    throw new NotSupportedException("Unknown content type.");
+            }
+
             string valueA = await request.AsString();
             string valueB = await request.AsString();
 

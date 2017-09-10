@@ -21,7 +21,7 @@ namespace Pathoschild.Http.Tests.Client
 
         [Test(Description = "Ensure that the fluent client disposes its own HTTP client.")]
         [TestCase("http://base-url/")]
-        public void Dipose_DisposesOwnClient(string uri)
+        public void Dispose_DisposesOwnClient(string uri)
         {
             // execute
             IClient client = this.ConstructClient(uri);
@@ -33,7 +33,7 @@ namespace Pathoschild.Http.Tests.Client
 
         [Test(Description = "Ensure that the fluent client does not dispose the HTTP client if it was passed in.")]
         [TestCase("http://base-url/")]
-        public void Dipose_DoesNotDisposeInjectedClient(string uri)
+        public void Dispose_DoesNotDisposeInjectedClient(string uri)
         {
             using (HttpClient httpClient = new HttpClient())
             {

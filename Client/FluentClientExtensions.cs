@@ -248,6 +248,7 @@ namespace Pathoschild.Http.Client
             return request.WithRequestCoordinator(new RetryCoordinator(config));
         }
 
+
         /*********
         ** Internal methods
         *********/
@@ -262,22 +263,29 @@ namespace Pathoschild.Http.Client
                 Version = request.Version
             };
 
-            foreach (var prop in request.Properties) clone.Properties.Add(prop);
-            foreach (var header in request.Headers) clone.Headers.TryAddWithoutValidation(header.Key, header.Value);
+            foreach (var prop in request.Properties)
+                clone.Properties.Add(prop);
+            foreach (var header in request.Headers)
+                clone.Headers.TryAddWithoutValidation(header.Key, header.Value);
 
             return clone;
         }
 
+        /// <summary>Get a copy of the request content.</summary>
+        /// <param name="content">The content to copy.</param>
+        /// <remarks>Note that cloning content isn't possible after it's dispatched, because the stream is automatically disposed after the request.</remarks>
         internal static HttpContent Clone(this HttpContent content)
         {
-            if (content == null) return null;
+            if (content == null)
+                return null;
 
-            var ms = new MemoryStream();
-            content.CopyToAsync(ms).Wait();
-            ms.Position = 0;
+            Stream stream = new MemoryStream();
+            content.CopyToAsync(stream).Wait();
+            stream.Position = 0;
 
-            var clone = new StreamContent(ms);
-            foreach (var header in content.Headers) clone.Headers.Add(header.Key, header.Value);
+            StreamContent clone = new StreamContent(stream);
+            foreach (var header in content.Headers)
+                clone.Headers.Add(header.Key, header.Value);
 
             return clone;
         }
