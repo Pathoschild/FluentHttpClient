@@ -2,12 +2,12 @@
 ## 3.1
 Upcoming release. See [log](https://github.com/Pathoschild/FluentHttpClient/compare/3.0...develop).
 
-* Added `client.AddDefault` method to specify default behaviour for all later requests.  
+* Added option to set default behaviour for all requests.  
   <small>_For example, when using an API with URL-based authentication, you can do `client.AddDefault(request => request.WithArgument("authToken", "..."))` to add that argument to all later requests._</small>
 * Added support for retrying timed-out requests.
 * Deprecated `BsonFormatter`.  
   <small>_This uses Json.NET's `BsonReader`, which is now deprecated. The format isn't used often enough to justify adding a new dependency. If you use it, you can switch to another BSON media type formatter or copy it from the FluentHttpClient code before it's removed._</small>
-* Fixed error when using a retry policy with some requests.
+* Fixed error when retrying a request with `POST` content.
 
 ## 3.0
 Released 08 February 2017. See [log](https://github.com/Pathoschild/FluentHttpClient/compare/2.3...3.0).
