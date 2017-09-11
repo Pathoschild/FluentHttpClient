@@ -12,9 +12,6 @@ namespace Pathoschild.Http.Client.Retry
         /// <summary>The maximum number of times to retry a request before failing.</summary>
         int MaxRetries { get; }
 
-        /// <summary>Whether to retry if the request times out.</summary>
-        bool RetryOnTimeout { get; }
-
 
         /*********
         ** Public methods

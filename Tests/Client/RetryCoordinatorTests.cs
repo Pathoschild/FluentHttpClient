@@ -14,6 +14,14 @@ namespace Pathoschild.Http.Tests.Client
     public class RetryCoordinatorTests
     {
         /*********
+        ** Properties
+        *********/
+        /// <summary>The status code representing a request timeout.</summary>
+        /// <remarks>See remarks on the equivalent <see cref="RetryCoordinator"/> field.</remarks>
+        private readonly HttpStatusCode TimeoutStatusCode = (HttpStatusCode)589;
+
+
+        /*********
         ** Unit tests
         *********/
         [Test(Description = "Ensure that the retry coordinator retries failed requests.")]
@@ -44,7 +52,7 @@ namespace Pathoschild.Http.Tests.Client
         {
             // configure
             const string domain = "https://example.org";
-            const int maxAttempts = 2;
+            const int maxAttempts = 3; // two test requests in non-retry mode
 
             // set up
             int attempts = 0;
@@ -67,12 +75,17 @@ namespace Pathoschild.Http.Tests.Client
             {
                 IResponse response = await client.GetAsync("");
                 Assert.AreEqual(maxAttempts, attempts, "The client did not retry the expected number of times.");
-                Assert.AreEqual(response.Status, HttpStatusCode.OK, "The response is unexpectedly not successful.");
+                Assert.AreEqual(HttpStatusCode.OK, response.Status, "The response is unexpectedly not successful.");
             }
             else
             {
-                Assert.ThrowsAsync<TaskCanceledException>(async () => await client.GetAsync(""));
+                // make sure timeout is treated as a normal error
+                Assert.ThrowsAsync<ApiException>(async () => await client.GetAsync(""), "The request unexpectedly didn't fail.");
                 Assert.AreEqual(1, attempts, "The client unexpectedly retried.");
+
+                // validate response when errors-as-exceptions is disabled
+                IResponse response = await client.GetAsync("").WithHttpErrorAsException(false);
+                Assert.AreEqual(this.TimeoutStatusCode, response.Status, "The response has an unexpected status code.");
             }
         }
 
@@ -105,9 +118,8 @@ namespace Pathoschild.Http.Tests.Client
         {
             return new RetryConfig(
                 maxRetries: maxRetries,
-                shouldRetry: res => res.StatusCode != HttpStatusCode.OK,
-                getDelay: (attempt, res) => TimeSpan.FromMilliseconds(1),
-                retryOnTimeout: retryOnTimeout
+                shouldRetry: res => res.StatusCode != HttpStatusCode.OK && (retryOnTimeout || res.StatusCode != this.TimeoutStatusCode),
+                getDelay: (attempt, res) => TimeSpan.FromMilliseconds(1)
             );
         }
     }
