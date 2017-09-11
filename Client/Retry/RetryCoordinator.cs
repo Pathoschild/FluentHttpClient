@@ -60,7 +60,7 @@ namespace Pathoschild.Http.Client.Retry
                 {
                     response = await dispatcher(request).ConfigureAwait(false);
                 }
-                catch (TaskCanceledException)
+                catch (TaskCanceledException) when (!request.CancellationToken.IsCancellationRequested)
                 {
                     response = request.Message.CreateResponse(this.TimeoutStatusCode);
                 }
