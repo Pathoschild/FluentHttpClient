@@ -8,7 +8,7 @@ Upcoming release. See [log](https://github.com/Pathoschild/FluentHttpClient/comp
 * Deprecated `BsonFormatter`.  
   <small>_This uses Json.NET's `BsonReader`, which is now deprecated. The format isn't used often enough to justify adding a new dependency. If you use it, you can switch to another BSON media type formatter or copy it from the FluentHttpClient code before it's removed._</small>
 * Fixed error when retrying a request with `POST` content.
-* Fixed `IRetryConfig.MaxRetries` including the initial request.
+* Fixed `IRetryConfig.MaxRetries` counting the initial request as a retry (e.g. `maxRetries: 1` never retried). This value now sets the maximum number of retries after the initial request.
 
 ## 3.0
 Released 08 February 2017. See [log](https://github.com/Pathoschild/FluentHttpClient/compare/2.3...3.0).
