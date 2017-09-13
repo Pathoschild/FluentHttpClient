@@ -15,7 +15,7 @@
     <RepositoryType>git</RepositoryType>
     <RepositoryUrl>https://github.com/Pathoschild/FluentHttpClient</RepositoryUrl>
     <PackageReleaseNotes>See release notes at https://github.com/Pathoschild/FluentHttpClient/blob/3.1/RELEASE-NOTES.md#31.</PackageReleaseNotes>
-    <PackageTags>wcf;web;webapi;httpclient</PackageTags>
+    <PackageTags>wcf;web;webapi;HttpClient;FluentHttp;FluentHttpClient</PackageTags>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
   </PropertyGroup>
