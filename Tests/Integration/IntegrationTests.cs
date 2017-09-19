@@ -1,8 +1,5 @@
 ﻿using System;
 using System.Linq.Expressions;
-#if NETFULL
-using System.Net;
-#endif
 using System.Threading.Tasks;
 using NUnit.Framework;
 using Pathoschild.Http.Client;
@@ -86,28 +83,20 @@ namespace Pathoschild.Http.Tests.Integration
 
 
         /*********
-        ** Protected methods
+        ** Private methods
         *********/
         /// <summary>Construct an HTTP client with the JSON.NET formatter.</summary>
         /// <param name="url">The base URI prepended to relative request URIs.</param>
-        /// <param name="useFiddler">Indicates if you want HTTP requests to be proxied throught Fidler for debugging purposes.</param>
-        protected IClient ConstructClient(string url, bool useFiddler = false)
+        private IClient ConstructClient(string url)
         {
-#if NETFULL
-            var proxy = useFiddler ? new WebProxy("http://localhost:8888") : null;
-            return new FluentClient(url, proxy);
-#else
-            // WebProxy is not available in .netcore 1.0. 
-            // However, rumor is: Microsoft will be adding it to .netcore 2.0
             return new FluentClient(url);
-#endif
         }
 
         /// <summary>Performs assertions on the specified Wikimedia metadata.</summary>
         /// <param name="response">The metadata to assert.</param>
         /// <param name="expected">The expected metadata.</param>
         /// <param name="prefix">The property name prefix to use within assertion exceptions.</param>
-        protected void AssertResponse(WikipediaMetadata response, WikipediaMetadata.WikipediaGeneral expected, string prefix)
+        private void AssertResponse(WikipediaMetadata response, WikipediaMetadata.WikipediaGeneral expected, string prefix)
         {
             // assert
             Assert.IsNotNull(response, prefix + " metadata is null");

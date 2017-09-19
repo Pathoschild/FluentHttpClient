@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Formatting;
+using System.Text;
 using System.Threading.Tasks;
 using Microsoft.AspNet.WebUtilities;
 using NUnit.Framework;
@@ -134,7 +136,7 @@ namespace Pathoschild.Http.Tests.Client
         [TestCase("OPTIONS", "body value")]
         [TestCase("POST", "body value")]
         [TestCase("TRACE", "body value")]
-        public void WithBodyContent(string methodName, object body)
+        public async Task WithBodyContent(string methodName, object body)
         {
             // set up
             HttpContent content = new ObjectContent(typeof(string), body, new JsonMediaTypeFormatter());
@@ -146,7 +148,7 @@ namespace Pathoschild.Http.Tests.Client
 
             // verify
             this.AssertEqual(request.Message, methodName, ignoreArguments: true);
-            Assert.That(request.Message.Content.ReadAsStringAsync().Result, Is.EqualTo('"' + body.ToString() + '"'), "The message body is invalid.");
+            Assert.That(await request.Message.Content.ReadAsStringAsync(), Is.EqualTo('"' + body.ToString() + '"'), "The message body is invalid.");
         }
 
         [Test(Description = "Ensure that WithBody sets the request body and does not incorrectly alter request state.")]
@@ -157,7 +159,7 @@ namespace Pathoschild.Http.Tests.Client
         [TestCase("OPTIONS", "body value")]
         [TestCase("POST", "body value")]
         [TestCase("TRACE", "body value")]
-        public void WithBody(string methodName, object body)
+        public async Task WithBody(string methodName, object body)
         {
             // execute
             IRequest request = this
@@ -166,7 +168,7 @@ namespace Pathoschild.Http.Tests.Client
 
             // verify
             this.AssertEqual(request.Message, methodName, ignoreArguments: true);
-            Assert.That(request.Message.Content.ReadAsStringAsync().Result, Is.EqualTo('"' + body.ToString() + '"'), "The message body is invalid.");
+            Assert.That(await request.Message.Content.ReadAsStringAsync(), Is.EqualTo('"' + body.ToString() + '"'), "The message body is invalid.");
         }
 
         [Test(Description = "Ensure that WithBody sets the request body and does not incorrectly alter request state.")]
@@ -177,7 +179,7 @@ namespace Pathoschild.Http.Tests.Client
         [TestCase("OPTIONS", "body value")]
         [TestCase("POST", "body value")]
         [TestCase("TRACE", "body value")]
-        public void WithBody_AndFormatter(string methodName, object body)
+        public async Task WithBody_AndFormatter(string methodName, object body)
         {
             // execute
             IRequest request = this
@@ -186,7 +188,7 @@ namespace Pathoschild.Http.Tests.Client
 
             // verify
             this.AssertEqual(request.Message, methodName, ignoreArguments: true);
-            Assert.That(request.Message.Content.ReadAsStringAsync().Result, Is.EqualTo('"' + body.ToString() + '"'), "The message body is invalid.");
+            Assert.That(await request.Message.Content.ReadAsStringAsync(), Is.EqualTo('"' + body.ToString() + '"'), "The message body is invalid.");
         }
 
         [Test(Description = "Ensure that WithCustom persists the custom changes and does not incorrectly alter request state.")]
@@ -197,7 +199,7 @@ namespace Pathoschild.Http.Tests.Client
         [TestCase("OPTIONS", "body value")]
         [TestCase("POST", "body value")]
         [TestCase("TRACE", "body value")]
-        public void WithCustom(string methodName, string customBody)
+        public async Task WithCustom(string methodName, string customBody)
         {
             // execute
             IRequest request = this
@@ -206,7 +208,7 @@ namespace Pathoschild.Http.Tests.Client
 
             // verify
             this.AssertEqual(request.Message, methodName, ignoreArguments: true);
-            Assert.That(request.Message.Content.ReadAsStringAsync().Result, Is.EqualTo('"' + customBody + '"'), "The customized message body is invalid.");
+            Assert.That(await request.Message.Content.ReadAsStringAsync(), Is.EqualTo('"' + customBody + '"'), "The customized message body is invalid.");
         }
 
         [Test(Description = "Ensure that WithHeader sets the expected header and does not incorrectly alter request state.")]
@@ -262,11 +264,11 @@ namespace Pathoschild.Http.Tests.Client
             Assert.AreEqual(HttpStatusCode.NotFound, response.Status, "The HTTP status doesn't match the response.");
         }
 
-        [Test(Description = "A request can be executed multiple times.")]
-        public async Task RequestIsReexecutable()
+        [Test(Description = "A GET request can be executed multiple times.")]
+        public async Task Request_CanResubmit_Get()
         {
             // arrange
-            var counter = 0;
+            int counter = 0;
             var mockHttp = new MockHttpMessageHandler();
             mockHttp.When(HttpMethod.Get, "https://api.fictitious-vendor.com/v1/endpoint").Respond(HttpStatusCode.OK, testRequest => new StringContent($"This is request #{++counter}"));
 
@@ -275,6 +277,42 @@ namespace Pathoschild.Http.Tests.Client
 
             // act
             var request = fluentClient.GetAsync("endpoint");
+            string valueA = await request.AsString();
+            string valueB = await request.AsString();
+
+            // assert
+            Assert.AreEqual("This is request #1", valueA, "The first request got an unexpected value.");
+            Assert.AreEqual("This is request #2", valueB, "The second request got an unexpected value.");
+        }
+
+        [Test(Description = "A POST request can be executed multiple times.")]
+        public async Task Request_CanResubmit_Post([Values("string", "stream")] string contentType)
+        {
+            // arrange
+            int counter = 0;
+            var mockHttp = new MockHttpMessageHandler();
+            mockHttp.When(HttpMethod.Post, "https://api.fictitious-vendor.com/v1/endpoint").Respond(HttpStatusCode.OK, testRequest => new StringContent($"This is request #{++counter}"));
+
+            var httpClient = new HttpClient(mockHttp);
+            var fluentClient = new FluentClient("https://api.fictitious-vendor.com/v1/", httpClient);
+
+            // act
+            var request = fluentClient.PostAsync("endpoint");
+            switch (contentType)
+            {
+                case "string":
+                    request = request.WithBodyContent(new StringContent("example string"));
+                    break;
+
+                case "stream":
+                    Stream stream = new MemoryStream(Encoding.UTF8.GetBytes("Example stream content"));
+                    request = request.WithBodyContent(new StreamContent(stream));
+                    break;
+
+                default:
+                    throw new NotSupportedException("Unknown content type.");
+            }
+
             string valueA = await request.AsString();
             string valueB = await request.AsString();
 
@@ -292,7 +330,7 @@ namespace Pathoschild.Http.Tests.Client
         public void Task_Async_FaultHandled(bool throwError, Type exceptionType)
         {
             // arrange
-            IRequest response = this.ConstructResponseFromTask(() => { throw (Exception)Activator.CreateInstance(exceptionType); });
+            IRequest response = this.ConstructResponseFromTask(() => throw (Exception)Activator.CreateInstance(exceptionType));
 
             // act
             Assert.ThrowsAsync<NotSupportedException>(async () => await response);
@@ -320,13 +358,13 @@ namespace Pathoschild.Http.Tests.Client
         }
 
         [Test(Description = "The request succeeds when passed a HTTP request that is in progress.")]
-        public void Task_Async()
+        public async Task Task_Async()
         {
             // arrange
             IRequest request = this.ConstructResponseFromTask(() => new HttpResponseMessage(HttpStatusCode.OK));
 
             // act
-            HttpResponseMessage result = request.AsMessage().Result;
+            HttpResponseMessage result = await request.AsMessage();
 
             // assert
             Assert.IsNotNull(result);
@@ -335,7 +373,7 @@ namespace Pathoschild.Http.Tests.Client
 
 
         /*********
-        ** Protected methods
+        ** Private methods
         *********/
         /// <summary>Construct an <see cref="IRequest"/> instance and assert that its initial state is valid.</summary>
         /// <param name="methodName">The expected HTTP method.</param>
@@ -343,7 +381,7 @@ namespace Pathoschild.Http.Tests.Client
         /// <param name="inconclusiveOnFailure">Whether to throw an <see cref="InconclusiveException"/> if the initial state is invalid.</param>
         /// <exception cref="InconclusiveException">The initial state of the constructed client is invalid, and <paramref name="inconclusiveOnFailure"/> is <c>true</c>.</exception>
         /// <exception cref="AssertionException">The initial state of the constructed client is invalid, and <paramref name="inconclusiveOnFailure"/> is <c>false</c>.</exception>
-        protected IRequest ConstructRequest(string methodName, string uri = "http://example.org/", bool inconclusiveOnFailure = true)
+        private IRequest ConstructRequest(string methodName, string uri = "http://example.org/", bool inconclusiveOnFailure = true)
         {
             try
             {
@@ -369,7 +407,7 @@ namespace Pathoschild.Http.Tests.Client
 
         /// <summary>Construct an <see cref="IResponse"/> instance around an asynchronous task.</summary>
         /// <remarks>The asynchronous task to wrap.</remarks>
-        protected IRequest ConstructResponseFromTask(Task<HttpResponseMessage> task)
+        private IRequest ConstructResponseFromTask(Task<HttpResponseMessage> task)
         {
             HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Get, "http://example.org/");
             return new Request(request, new MediaTypeFormatterCollection(), p => task, new IHttpFilter[0]);
@@ -377,7 +415,7 @@ namespace Pathoschild.Http.Tests.Client
 
         /// <summary>Construct an <see cref="IResponse"/> instance around an asynchronous task.</summary>
         /// <remarks>The work to start in a new asynchronous task.</remarks>
-        protected IRequest ConstructResponseFromTask(Func<HttpResponseMessage> task)
+        private IRequest ConstructResponseFromTask(Func<HttpResponseMessage> task)
         {
             HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Get, "http://example.org/");
             return new Request(request, new MediaTypeFormatterCollection(), p => Task<HttpResponseMessage>.Factory.StartNew(task), new IHttpFilter[0]);
@@ -388,7 +426,7 @@ namespace Pathoschild.Http.Tests.Client
         /// <param name="method">The expected HTTP method.</param>
         /// <param name="uri">The expected URI.</param>
         /// <param name="ignoreArguments">Whether to ignore query string arguments when validating the request URI.</param>
-        protected void AssertEqual(HttpRequestMessage request, HttpMethod method, string uri = "http://example.org/", bool ignoreArguments = false)
+        private void AssertEqual(HttpRequestMessage request, HttpMethod method, string uri = "http://example.org/", bool ignoreArguments = false)
         {
             Assert.That(request, Is.Not.Null, "The request message is null.");
             Assert.That(request.Method, Is.EqualTo(method), "The request method is invalid.");
@@ -400,7 +438,7 @@ namespace Pathoschild.Http.Tests.Client
         /// <param name="method">The expected HTTP method.</param>
         /// <param name="uri">The expected URI.</param>
         /// <param name="ignoreArguments">Whether to ignore query string arguments when validating the request URI.</param>
-        protected void AssertEqual(HttpRequestMessage request, string method, string uri = "http://example.org/", bool ignoreArguments = false)
+        private void AssertEqual(HttpRequestMessage request, string method, string uri = "http://example.org/", bool ignoreArguments = false)
         {
             this.AssertEqual(request, new HttpMethod(method), uri, ignoreArguments);
         }

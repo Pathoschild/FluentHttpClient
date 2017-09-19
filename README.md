@@ -119,12 +119,6 @@ The client supports JSON and XML out of the box. If you need more, you can...
   client.Formatters.Add(new YamlFormatter());
   ```
 
-* Add the included BSON formatter:
-
-  ```c#
-  client.Formatters.Add(new BsonFormatter());
-  ```
-
 * Create your own by subclassing `MediaTypeFormatter` (optionally using the included
   `MediaTypeFormatterBase` class).
 
@@ -135,7 +129,8 @@ client
     .SetRequestCoordinator(
         maxRetries: 3,
         shouldRetry: request => request.StatusCode != HttpStatusCode.OK,
-        getDelay: (attempt, response) => return TimeSpan.FromSeconds(attempt) // 1, 2, and 3 seconds
+        getDelay: (attempt, response) => return TimeSpan.FromSeconds(attempt), // 1, 2, and 3 seconds
+        retryOnTimeout: true
     );
 ```
 
@@ -259,9 +254,7 @@ client.PostAsync("items", new Item(…)).AsResponse().Wait();
 [MediaTypeFormatter]: http://msdn.microsoft.com/en-us/library/system.net.http.formatting.mediatypeformatter.aspx
 
 [Json.NET]: http://james.newtonking.com/projects/json-net.aspx
-[BSON]: https://en.wikipedia.org/wiki/BSON
 [JSON]: https://en.wikipedia.org/wiki/JSON
-[JSONP]: https://en.wikipedia.org/wiki/JSONP
 
 [IClient]: https://github.com/Pathoschild/Pathoschild.FluentHttpClient/blob/master/Client/IClient.cs#L6
 [IRequest]: https://github.com/Pathoschild/Pathoschild.FluentHttpClient/blob/master/Client/IRequest.cs#L12

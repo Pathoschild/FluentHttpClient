@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
 using Pathoschild.Http.Client.Internal;
@@ -13,6 +14,10 @@ namespace Pathoschild.Http.Client.Retry
         *********/
         /// <summary>The retry configuration.</summary>
         private readonly IRetryConfig Config;
+
+        /// <summary>The status code representing a request timeout.</summary>
+        /// <remarks>HTTP 598 Network Read Timeout is the closest match, though it's non-standard so there's no <see cref="HttpStatusCode"/> constant. This is needed to avoid passing <c>null</c> into <see cref="IRetryConfig.ShouldRetry"/>, which isn't intuitive and would cause errors.</remarks>
+        private readonly HttpStatusCode TimeoutStatusCode = (HttpStatusCode)589;
 
 
         /*********
@@ -35,7 +40,7 @@ namespace Pathoschild.Http.Client.Retry
         /// <param name="config">The retry configuration.</param>
         public RetryCoordinator(IRetryConfig config)
         {
-            this.Config = config;
+            this.Config = config ?? RetryConfig.None();
         }
 
         /// <summary>Dispatch an HTTP request.</summary>
@@ -44,33 +49,33 @@ namespace Pathoschild.Http.Client.Retry
         /// <returns>The final HTTP response.</returns>
         public async Task<HttpResponseMessage> ExecuteAsync(IRequest request, Func<IRequest, Task<HttpResponseMessage>> dispatcher)
         {
-            // initial request
-            HttpResponseMessage response = await dispatcher(request).ConfigureAwait(false);
-
-            // retry if needed
-            if (this.Config != null)
+            int attempt = 0;
+            int maxAttempt = 1 + this.Config.MaxRetries;
+            while (true)
             {
-                var attempt = 1;
-                while (attempt <= this.Config.MaxRetries && this.Config.ShouldRetry(response))
+                // dispatch request
+                attempt++;
+                HttpResponseMessage response;
+                try
                 {
-                    // fail on too many attempts
-                    if (attempt == this.Config.MaxRetries)
-                        throw new ApiException(new Response(response, request.Formatters),
-                            $"The HTTP request failed, and the retry coordinator gave up after the maximum {this.Config.MaxRetries} retries");
-
-                    // apply delay
-                    TimeSpan delay = this.Config.GetDelay(attempt, response);
-                    if (delay.TotalMilliseconds > 0)
-                        await Task.Delay(delay).ConfigureAwait(false);
-
-                    // retry request
                     response = await dispatcher(request).ConfigureAwait(false);
-                    attempt++;
                 }
-            }
+                catch (TaskCanceledException) when (!request.CancellationToken.IsCancellationRequested)
+                {
+                    response = request.Message.CreateResponse(this.TimeoutStatusCode);
+                }
 
-            // return final response
-            return response;
+                // exit if done
+                if (!this.Config.ShouldRetry(response))
+                    return response;
+                if (attempt >= maxAttempt)
+                    throw new ApiException(new Response(response, request.Formatters), $"The HTTP request {(response != null ? "failed" : "timed out")}, and the retry coordinator gave up after the maximum {this.Config.MaxRetries} retries");
+
+                // set up retry
+                TimeSpan delay = this.Config.GetDelay(attempt, response);
+                if (delay.TotalMilliseconds > 0)
+                    await Task.Delay(delay).ConfigureAwait(false);
+            }
         }
     }
 }

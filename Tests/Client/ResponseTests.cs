@@ -85,8 +85,7 @@ namespace Pathoschild.Http.Tests.Client
         public void AsMessage(string content)
         {
             // arrange
-            HttpResponseMessage message;
-            IResponse response = this.ConstructResponse(content, out message);
+            IResponse response = this.ConstructResponse(content, out HttpResponseMessage message);
 
             // act
             HttpResponseMessage actual = response.Message;
@@ -101,8 +100,7 @@ namespace Pathoschild.Http.Tests.Client
         public void AsMessage_OfModel(string content)
         {
             // arrange
-            HttpResponseMessage message;
-            IResponse response = this.ConstructResponseForModel(content, out message);
+            IResponse response = this.ConstructResponseForModel(content, out HttpResponseMessage message);
 
             // act
             HttpResponseMessage actual = response.Message;
@@ -114,15 +112,15 @@ namespace Pathoschild.Http.Tests.Client
 
         [Test(Description = "The response can be asynchronously read as a deserialized model.")]
         [TestCase("model value", ExpectedResult = "model value")]
-        public string As(string content)
+        public async Task<string> As(string content)
         {
             // arrange
             IResponse response = this.ConstructResponseForModel(content);
 
             // act
-            Model<string> actual = response
+            Model<string> actual = await response
                 .As<Model<string>>()
-                .VerifyTaskResult();
+                .VerifyTaskResultAsync();
 
             // assert
             Assert.That(actual, Is.Not.Null, "deserialized model");
@@ -131,15 +129,15 @@ namespace Pathoschild.Http.Tests.Client
 
         [Test(Description = "The response can be asynchronously read as a byte array.")]
         [TestCase("model value", ExpectedResult = "\"model value\"")]
-        public string AsByteArray(string content)
+        public async Task<string> AsByteArray(string content)
         {
             // arrange
             IResponse response = this.ConstructResponse(content);
 
             // act
-            byte[] actual = response
+            byte[] actual = await response
                 .AsByteArray()
-                .VerifyTaskResult();
+                .VerifyTaskResultAsync();
 
             // assert
             Assert.That(actual, Is.Not.Null.Or.Empty, "byte array");
@@ -148,15 +146,15 @@ namespace Pathoschild.Http.Tests.Client
 
         [Test(Description = "The response can be asynchronously read as a byte array when the content is a model.")]
         [TestCase("model value", ExpectedResult = "{\"Value\":\"model value\"}")]
-        public string AsByteArray_OfModel(string content)
+        public async Task<string> AsByteArray_OfModel(string content)
         {
             // arrange
             IResponse response = this.ConstructResponse(new Model<string>(content));
 
             // act
-            byte[] actual = response
+            byte[] actual = await response
                 .AsByteArray()
-                .VerifyTaskResult();
+                .VerifyTaskResultAsync();
 
             // assert
             Assert.That(actual, Is.Not.Null.Or.Empty, "byte array");
@@ -165,16 +163,16 @@ namespace Pathoschild.Http.Tests.Client
 
         [Test(Description = "The response can be read as a deserialized list of models.")]
         [TestCase("model value A", "model value B")]
-        public void AsArray(string contentA, string contentB)
+        public async Task AsArray(string contentA, string contentB)
         {
             // arrange
             Model<string>[] expected = { new Model<string>(contentA), new Model<string>(contentB) };
             IResponse response = this.ConstructResponse(expected);
 
             // act
-            Model<string>[] actual = response
+            Model<string>[] actual = await response
                 .AsArray<Model<string>>()
-                .VerifyTaskResult();
+                .VerifyTaskResultAsync();
 
             // assert
             Assert.That(actual, Is.EquivalentTo(expected));
@@ -185,14 +183,14 @@ namespace Pathoschild.Http.Tests.Client
         ***/
         [Test(Description = "The response can be read as a stream.")]
         [TestCase("stream content")]
-        public void AsStream(string content)
+        public async Task AsStream(string content)
         {
             // arrange
             IResponse response = this.ConstructResponse(content);
             string actual;
 
             // act
-            using (Stream stream = response.AsStream().VerifyTaskResult())
+            using (Stream stream = await response.AsStream().VerifyTaskResultAsync())
             using (StreamReader reader = new StreamReader(stream))
                 actual = reader.ReadToEnd();
 
@@ -202,14 +200,14 @@ namespace Pathoschild.Http.Tests.Client
 
         [Test(Description = "The response can be read as a stream when the content is a model.")]
         [TestCase("stream content")]
-        public void AsStream_OfModel(string content)
+        public async Task AsStream_OfModel(string content)
         {
             // arrange
             IResponse response = this.ConstructResponse(new Model<string>(content));
             string actual;
 
             // act
-            using (Stream stream = response.AsStream().VerifyTaskResult())
+            using (Stream stream = await response.AsStream().VerifyTaskResultAsync())
             using (StreamReader reader = new StreamReader(stream))
                 actual = reader.ReadToEnd();
 
@@ -219,15 +217,15 @@ namespace Pathoschild.Http.Tests.Client
 
         [Test(Description = "The response can be asynchronously read as a string.")]
         [TestCase("stream content")]
-        public void AsString(string content)
+        public async Task AsString(string content)
         {
             // arrange
             IResponse response = this.ConstructResponse(content);
 
             // act
-            string actual = response
+            string actual = await response
                 .AsString()
-                .VerifyTaskResult();
+                .VerifyTaskResultAsync();
 
             // assert
             Assert.That(actual, Is.EqualTo('"' + content + '"'));
@@ -235,18 +233,18 @@ namespace Pathoschild.Http.Tests.Client
 
         [Test(Description = "The response can be asynchronously read as a string multiple times.")]
         [TestCase("stream content")]
-        public void AsString_MultipleReads(string content)
+        public async Task AsString_MultipleReads(string content)
         {
             // arrange
             IResponse response = this.ConstructResponse(content);
 
             // act
-            string actualA = response
+            string actualA = await response
                 .AsString()
-                .VerifyTaskResult();
-            string actualB = response
+                .VerifyTaskResultAsync();
+            string actualB = await response
                 .AsString()
-                .VerifyTaskResult();
+                .VerifyTaskResultAsync();
 
             // assert
             Assert.That(actualA, Is.EqualTo('"' + content + '"'), "The content is not equal to the input.");
@@ -255,15 +253,15 @@ namespace Pathoschild.Http.Tests.Client
 
         [Test(Description = "The response can be asynchronously read as a string when the content is a model.")]
         [TestCase("stream content")]
-        public void AsString_OfModel(string content)
+        public async Task AsString_OfModel(string content)
         {
             // arrange
             IResponse response = this.ConstructResponse(new Model<string>(content));
 
             // act
-            string actual = response
+            string actual = await response
                 .AsString()
-                .VerifyTaskResult();
+                .VerifyTaskResultAsync();
 
             // assert
             Assert.That(actual, Is.EqualTo("{\"Value\":\"stream content\"}"));
@@ -271,7 +269,7 @@ namespace Pathoschild.Http.Tests.Client
 
 
         /*********
-        ** Protected methods
+        ** Private methods
         *********/
         /// <summary>Construct an <see cref="IResponse"/> instance and assert that its initial state is valid.</summary>
         /// <param name="method">The HTTP request method.</param>
@@ -282,7 +280,7 @@ namespace Pathoschild.Http.Tests.Client
         /// <param name="inconclusiveOnFailure">Whether to throw an <see cref="InconclusiveException"/> if the initial state is invalid.</param>
         /// <exception cref="InconclusiveException">The initial state of the constructed client is invalid, and <paramref name="inconclusiveOnFailure"/> is <c>true</c>.</exception>
         /// <exception cref="AssertionException">The initial state of the constructed client is invalid, and <paramref name="inconclusiveOnFailure"/> is <c>false</c>.</exception>
-        protected IResponse ConstructResponse<T>(T content, out HttpResponseMessage responseMessage, string method = "GET", HttpStatusCode status = HttpStatusCode.OK, string uri = "http://example.org/", bool inconclusiveOnFailure = true)
+        private IResponse ConstructResponse<T>(T content, out HttpResponseMessage responseMessage, string method = "GET", HttpStatusCode status = HttpStatusCode.OK, string uri = "http://example.org/", bool inconclusiveOnFailure = true)
         {
             try
             {
@@ -312,10 +310,9 @@ namespace Pathoschild.Http.Tests.Client
         /// <param name="inconclusiveOnFailure">Whether to throw an <see cref="InconclusiveException"/> if the initial state is invalid.</param>
         /// <exception cref="InconclusiveException">The initial state of the constructed client is invalid, and <paramref name="inconclusiveOnFailure"/> is <c>true</c>.</exception>
         /// <exception cref="AssertionException">The initial state of the constructed client is invalid, and <paramref name="inconclusiveOnFailure"/> is <c>false</c>.</exception>
-        protected IResponse ConstructResponse<T>(T content, string method = "GET", HttpStatusCode status = HttpStatusCode.OK, string uri = "http://example.org/", bool inconclusiveOnFailure = true)
+        private IResponse ConstructResponse<T>(T content, string method = "GET", HttpStatusCode status = HttpStatusCode.OK, string uri = "http://example.org/", bool inconclusiveOnFailure = true)
         {
-            HttpResponseMessage message;
-            return this.ConstructResponse(content, out message, method, status, uri, inconclusiveOnFailure);
+            return this.ConstructResponse(content, out _, method, status, uri, inconclusiveOnFailure);
         }
 
         /// <summary>Construct an <see cref="IResponse"/> instance and assert that its initial state is valid.</summary>
@@ -327,7 +324,7 @@ namespace Pathoschild.Http.Tests.Client
         /// <param name="inconclusiveOnFailure">Whether to throw an <see cref="InconclusiveException"/> if the initial state is invalid.</param>
         /// <exception cref="InconclusiveException">The initial state of the constructed client is invalid, and <paramref name="inconclusiveOnFailure"/> is <c>true</c>.</exception>
         /// <exception cref="AssertionException">The initial state of the constructed client is invalid, and <paramref name="inconclusiveOnFailure"/> is <c>false</c>.</exception>
-        protected IResponse ConstructResponseForModel<T>(T content, out HttpResponseMessage responseMessage, string method = "GET", HttpStatusCode status = HttpStatusCode.OK, string uri = "http://example.org/", bool inconclusiveOnFailure = true)
+        private IResponse ConstructResponseForModel<T>(T content, out HttpResponseMessage responseMessage, string method = "GET", HttpStatusCode status = HttpStatusCode.OK, string uri = "http://example.org/", bool inconclusiveOnFailure = true)
         {
             Model<T> model = new Model<T>(content);
             return this.ConstructResponse(model, out responseMessage, method, status, uri, inconclusiveOnFailure);
@@ -341,10 +338,9 @@ namespace Pathoschild.Http.Tests.Client
         /// <param name="inconclusiveOnFailure">Whether to throw an <see cref="InconclusiveException"/> if the initial state is invalid.</param>
         /// <exception cref="InconclusiveException">The initial state of the constructed client is invalid, and <paramref name="inconclusiveOnFailure"/> is <c>true</c>.</exception>
         /// <exception cref="AssertionException">The initial state of the constructed client is invalid, and <paramref name="inconclusiveOnFailure"/> is <c>false</c>.</exception>
-        protected IResponse ConstructResponseForModel<T>(T content, string method = "GET", HttpStatusCode status = HttpStatusCode.OK, string uri = "http://example.org/", bool inconclusiveOnFailure = true)
+        private IResponse ConstructResponseForModel<T>(T content, string method = "GET", HttpStatusCode status = HttpStatusCode.OK, string uri = "http://example.org/", bool inconclusiveOnFailure = true)
         {
-            HttpResponseMessage message;
-            return this.ConstructResponseForModel(content, out message, method, status, uri, inconclusiveOnFailure);
+            return this.ConstructResponseForModel(content, out _, method, status, uri, inconclusiveOnFailure);
         }
 
         /// <summary>Assert that an HTTP request's state matches the expected values.</summary>
@@ -352,7 +348,7 @@ namespace Pathoschild.Http.Tests.Client
         /// <param name="method">The expected HTTP method.</param>
         /// <param name="uri">The expected URI.</param>
         /// <param name="ignoreArguments">Whether to ignore query string arguments when validating the request URI.</param>
-        protected void AssertEqual(HttpRequestMessage request, HttpMethod method, string uri = "http://example.org/", bool ignoreArguments = false)
+        private void AssertEqual(HttpRequestMessage request, HttpMethod method, string uri = "http://example.org/", bool ignoreArguments = false)
         {
             Assert.That(request, Is.Not.Null, "The request message is null.");
             Assert.That(request.Method, Is.EqualTo(method), "The request method is invalid.");
@@ -364,15 +360,19 @@ namespace Pathoschild.Http.Tests.Client
         /// <param name="method">The expected HTTP method.</param>
         /// <param name="uri">The expected URI.</param>
         /// <param name="ignoreArguments">Whether to ignore query string arguments when validating the request URI.</param>
-        protected void AssertEqual(HttpRequestMessage request, string method, string uri = "http://example.org/", bool ignoreArguments = false)
+        private void AssertEqual(HttpRequestMessage request, string method, string uri = "http://example.org/", bool ignoreArguments = false)
         {
             this.AssertEqual(request, new HttpMethod(method), uri, ignoreArguments);
         }
     }
 
+    /// <summary>Provides extension methods for response tests.</summary>
     public static class TaskExtensions
     {
-        public static T VerifyTaskResult<T>(this Task<T> task)
+        /// <summary>Assert that a task isn't broken and return its result.</summary>
+        /// <typeparam name="T">The task result type.</typeparam>
+        /// <param name="task">The task to verify.</param>
+        public static async Task<T> VerifyTaskResultAsync<T>(this Task<T> task)
         {
             Assert.That(task, Is.Not.Null, "The asynchronous task is invalid.");
             Assert.That(task.IsCanceled, Is.False, "The asynchronous task was cancelled.");
@@ -382,7 +382,7 @@ namespace Pathoschild.Http.Tests.Client
             Assert.That(task.IsCanceled, Is.False, "The asynchronous task was cancelled.");
             Assert.That(task.IsFaulted, Is.False, "The asynchronous task is faulted.");
 
-            return task.Result;
+            return await task;
         }
     }
 }

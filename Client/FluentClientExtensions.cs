@@ -1,10 +1,12 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Formatting;
 using System.Net.Http.Headers;
 using System.Text;
+using System.Threading.Tasks;
 using Pathoschild.Http.Client.Extensibility;
 using Pathoschild.Http.Client.Internal;
 using Pathoschild.Http.Client.Retry;
@@ -247,23 +249,45 @@ namespace Pathoschild.Http.Client
             return request.WithRequestCoordinator(new RetryCoordinator(config));
         }
 
+
         /*********
         ** Internal methods
         *********/
         /// <summary>Get a copy of the request.</summary>
         /// <param name="request">The request to copy.</param>
         /// <remarks>Note that cloning a request isn't possible after it's dispatched, because the content stream is automatically disposed after the request.</remarks>
-        internal static HttpRequestMessage Clone(this HttpRequestMessage request)
+        internal static async Task<HttpRequestMessage> CloneAsync(this HttpRequestMessage request)
         {
             HttpRequestMessage clone = new HttpRequestMessage(request.Method, request.RequestUri)
             {
-                Content = request.Content,
+                Content = await request.Content.CloneAsync().ConfigureAwait(false),
                 Version = request.Version
             };
-            foreach (KeyValuePair<string, object> prop in request.Properties)
+
+            foreach (var prop in request.Properties)
                 clone.Properties.Add(prop);
-            foreach (KeyValuePair<string, IEnumerable<string>> header in request.Headers)
+            foreach (var header in request.Headers)
                 clone.Headers.TryAddWithoutValidation(header.Key, header.Value);
+
+            return clone;
+        }
+
+        /// <summary>Get a copy of the request content.</summary>
+        /// <param name="content">The content to copy.</param>
+        /// <remarks>Note that cloning content isn't possible after it's dispatched, because the stream is automatically disposed after the request.</remarks>
+        internal static async Task<HttpContent> CloneAsync(this HttpContent content)
+        {
+            if (content == null)
+                return null;
+
+            Stream stream = new MemoryStream();
+            await content.CopyToAsync(stream).ConfigureAwait(false);
+            stream.Position = 0;
+
+            StreamContent clone = new StreamContent(stream);
+            foreach (var header in content.Headers)
+                clone.Headers.Add(header.Key, header.Value);
+
             return clone;
         }
     }

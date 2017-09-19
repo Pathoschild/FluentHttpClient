@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Net.Http;
+using System.Threading.Tasks;
 using NUnit.Framework;
 using Pathoschild.Http.Client;
 
@@ -21,7 +22,7 @@ namespace Pathoschild.Http.Tests.Client
 
         [Test(Description = "Ensure that the fluent client disposes its own HTTP client.")]
         [TestCase("http://base-url/")]
-        public void Dipose_DisposesOwnClient(string uri)
+        public void Dispose_DisposesOwnClient(string uri)
         {
             // execute
             IClient client = this.ConstructClient(uri);
@@ -33,7 +34,7 @@ namespace Pathoschild.Http.Tests.Client
 
         [Test(Description = "Ensure that the fluent client does not dispose the HTTP client if it was passed in.")]
         [TestCase("http://base-url/")]
-        public void Dipose_DoesNotDisposeInjectedClient(string uri)
+        public void Dispose_DoesNotDisposeInjectedClient(string uri)
         {
             using (HttpClient httpClient = new HttpClient())
             {
@@ -80,6 +81,24 @@ namespace Pathoschild.Http.Tests.Client
             Assert.AreEqual(sampleValue, userAgent);
         }
 
+        [Test(Description = "Ensure that all specified defaults are correctly applied.")]
+        public void AddDefault()
+        {
+            // arrange
+            const string expectedUserAgent = "boop";
+
+            // execute
+            IClient client = this.ConstructClient()
+                .AddDefault(req => req.WithHeader("User-Agent", expectedUserAgent))
+                .AddDefault(req => req.WithArgument("boop", 1));
+            IRequest request = client.GetAsync("example");
+
+            // verify
+            string userAgent = request.Message.Headers.UserAgent.ToString();
+            Assert.AreEqual(expectedUserAgent, userAgent, "The user agent header does not match the specified default.");
+            Assert.AreEqual("/example?boop=1", request.Message.RequestUri.PathAndQuery, "The URL arguments don't match the specified default.");
+        }
+
         [Test(Description = "Ensure that the HTTP DELETE method constructs a request message with the expected initial state.")]
         [TestCase("resource")]
         public void Delete(string resource)
@@ -115,14 +134,14 @@ namespace Pathoschild.Http.Tests.Client
 
         [Test(Description = "Ensure that the HTTP POST method with a body constructs a request message with the expected initial state.")]
         [TestCase("resource", "value")]
-        public void Post_WithBody(string resource, string value)
+        public async Task Post_WithBody(string resource, string value)
         {
             // execute
             IRequest request = this.ConstructClient().PostAsync("resource", value);
 
             // verify
             this.AssertEqual(request, HttpMethod.Post, resource);
-            Assert.That(request.Message.Content.ReadAsStringAsync().Result, Is.EqualTo('"' + value + '"'), "The message request body is invalid.");
+            Assert.That(await request.Message.Content.ReadAsStringAsync(), Is.EqualTo('"' + value + '"'), "The message request body is invalid.");
         }
 
         [Test(Description = "Ensure that the HTTP PUT method constructs a request message with the expected initial state.")]
@@ -138,14 +157,14 @@ namespace Pathoschild.Http.Tests.Client
 
         [Test(Description = "Ensure that the HTTP PUT method with a body constructs a request message with the expected initial state.")]
         [TestCase("resource", "value")]
-        public void Put_WithBody(string resource, string value)
+        public async Task Put_WithBody(string resource, string value)
         {
             // execute
             IRequest request = this.ConstructClient().PutAsync("resource", value);
 
             // verify
             this.AssertEqual(request, HttpMethod.Put, resource);
-            Assert.That(request.Message.Content.ReadAsStringAsync().Result, Is.EqualTo('"' + value + '"'), "The message request body is invalid.");
+            Assert.That(await request.Message.Content.ReadAsStringAsync(), Is.EqualTo('"' + value + '"'), "The message request body is invalid.");
         }
 
         [Test(Description = "Ensure that an arbitrary HTTP request message is passed on with the expected initial state.")]
@@ -189,13 +208,14 @@ namespace Pathoschild.Http.Tests.Client
             this.AssertEqual(request, method, resource, baseUri: "");
         }
 
+
         /*********
-        ** Protected methods
+        ** Private methods
         *********/
         /// <summary>Construct an HTTP method for the method name.</summary>
         /// <param name="methodName">The name of the method.</param>
         /// <remarks><see cref="HttpMethod"/> is not an enumeration, so it cannot be used as a unit test input parameter.</remarks>
-        protected HttpMethod ConstructMethod(string methodName)
+        private HttpMethod ConstructMethod(string methodName)
         {
             return new HttpMethod(methodName);
         }
@@ -206,7 +226,7 @@ namespace Pathoschild.Http.Tests.Client
         /// <param name="httpClient">The underlying HTTP client.</param>
         /// <exception cref="InconclusiveException">The initial state of the constructed client is invalid, and <paramref name="inconclusiveOnFailure"/> is <c>true</c>.</exception>
         /// <exception cref="AssertionException">The initial state of the constructed client is invalid, and <paramref name="inconclusiveOnFailure"/> is <c>false</c>.</exception>
-        protected IClient ConstructClient(string baseUri = "http://example.com/", bool inconclusiveOnFailure = true, HttpClient httpClient = null)
+        private IClient ConstructClient(string baseUri = "http://example.com/", bool inconclusiveOnFailure = true, HttpClient httpClient = null)
         {
             try
             {
@@ -232,7 +252,7 @@ namespace Pathoschild.Http.Tests.Client
         /// <param name="method">The expected HTTP method.</param>
         /// <param name="resource">The expected relative URI.</param>
         /// <param name="baseUri">The expected base URI of the request.</param>
-        protected void AssertEqual(IRequest request, HttpMethod method, string resource, string baseUri = "http://example.com/")
+        private void AssertEqual(IRequest request, HttpMethod method, string resource, string baseUri = "http://example.com/")
         {
             // not null
             Assert.That(request, Is.Not.Null, "The request is null.");
