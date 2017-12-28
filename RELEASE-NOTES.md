@@ -1,4 +1,9 @@
 # Release notes
+## 3.2
+Released 29 December 2017. See [log](https://github.com/Pathoschild/FluentHttpClient/compare/3.1...3.2).
+
+* Improved the `WithArguments` method to accept multiple arguments with the same name
+
 ## 3.1
 Released 19 September 2017. See [log](https://github.com/Pathoschild/FluentHttpClient/compare/3.0...3.1).
 

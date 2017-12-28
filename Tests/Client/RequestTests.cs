@@ -128,6 +128,31 @@ namespace Pathoschild.Http.Tests.Client
             Assert.That(arguments["keyB"], Is.Not.Null.And.EqualTo(valueB), "The second key=>value pair is invalid.");
         }
 
+        [Test(Description = "Ensure that WithArguments correctly allows duplicate keys.")]
+        [TestCase("DELETE", "keyA", "value A", "value B")]
+        [TestCase("GET", "keyA", "value A", "value B")]
+        [TestCase("HEAD", "keyA", "value A", "value B")]
+        [TestCase("PUT", "keyA", "value A", "value B")]
+        [TestCase("OPTIONS", "keyA", "value A", "value B")]
+        [TestCase("POST", "keyA", "value A", "value B")]
+        [TestCase("TRACE", "keyA", "value A", "value B")]
+        public void WithArguments_AllowsDuplicateKeys(string methodName, string keyA, string valueA, string valueB)
+        {
+            // execute
+            IRequest request = this
+                .ConstructRequest(methodName)
+                .WithArguments(new[]
+                {
+                    new KeyValuePair<string, object>(keyA, valueA),
+                    new KeyValuePair<string, object>(keyA, valueB)
+                });
+
+            // verify
+            this.AssertEqual(request.Message, methodName, ignoreArguments: true);
+            var arguments = QueryHelpers.ParseQuery(request.Message.RequestUri.Query);
+            Assert.That(arguments[keyA], Is.Not.Null.And.EqualTo(new[] { valueA, valueB }), "The values don't match.");
+        }
+
         [Test(Description = "Ensure that WithBodyContent sets the request body and does not incorrectly alter request state.")]
         [TestCase("DELETE", "body value")]
         [TestCase("GET", "body value")]

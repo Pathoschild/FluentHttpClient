@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -248,31 +247,22 @@ namespace Pathoschild.Http.Client.Internal
         }
 
         /// <summary>Get the key=>value pairs represented by a dictionary or anonymous object.</summary>
-        /// <param name="arguments">The key=>value pairs in the query argument. If this is a dictionary, the keys and values are used. Otherwise, the property names and values are used.</param>
-        private IDictionary<string, object> GetArguments(object arguments)
+        /// <param name="arguments">The key=>value pairs in the query argument. If this is an enumeration of key/value pairs, the pairs are used. Otherwise, the property names and values are used.</param>
+        private IEnumerable<KeyValuePair<string, object>> GetArguments(object arguments)
         {
             // null
             if (arguments == null)
-                return new Dictionary<string, object>();
+                return Enumerable.Empty<KeyValuePair<string, object>>();
 
-            // generic dictionary
-            if (arguments is IDictionary<string, object> genericDict)
-                return genericDict;
-
-            // dictionary
-            if (arguments is IDictionary objDict)
-            {
-                IDictionary<string, object> dict = new Dictionary<string, object>();
-                foreach (var key in objDict.Keys)
-                    dict.Add(key.ToString(), objDict[key]);
-                return dict;
-            }
+            // enumeration
+            if (arguments is IEnumerable<KeyValuePair<string, object>> genericEnumeration)
+                return genericEnumeration;
 
             // object
             return arguments.GetType()
                 .GetRuntimeProperties()
                 .Where(p => p.CanRead)
-                .ToDictionary(p => p.Name, p => p.GetValue(arguments));
+                .Select(p => new KeyValuePair<string, object>(p.Name, p.GetValue(arguments)));
         }
     }
 }
