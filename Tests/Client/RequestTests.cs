@@ -84,6 +84,22 @@ namespace Pathoschild.Http.Tests.Client
             Assert.That(arguments[keyA], Is.Not.Null.And.EqualTo(new[] { valueA, valueB }), "The values don't match.");
         }
 
+        [Test(Description = "Ensure that WithArgument accept arguments of various types.")]
+        [TestCase("GET", "param", 42l)]
+        [TestCase("GET", "param", 42d)]
+        public void WithArgument_accepts_various_arg_types(string methodName, string key, object value)
+        {
+            // execute
+            IRequest request = this
+                .ConstructRequest(methodName)
+                .WithArgument(key, value);
+
+            // verify
+            this.AssertEqual(request.Message, methodName, ignoreArguments: true);
+            var arguments = QueryHelpers.ParseQuery(request.Message.RequestUri.Query);
+            Assert.That(arguments[key], Is.Not.Null.And.EqualTo(value.ToString()), "The key=>value pair is invalid.");
+        }
+
         [Test(Description = "Ensure that WithArguments (with a dictionary) appends the query arguments to the request message and does not incorrectly alter request state.")]
         [TestCase("DELETE", "keyA", "24", "key:!@#$%^&*()_+-=?'\"", "value:!@#$%^&*()_+-=?'\"")]
         [TestCase("GET", "keyA", "24", "key:!@#$%^&*()_+-=?'\"", "value:!@#$%^&*()_+-=?'\"")]
@@ -151,6 +167,22 @@ namespace Pathoschild.Http.Tests.Client
             this.AssertEqual(request.Message, methodName, ignoreArguments: true);
             var arguments = QueryHelpers.ParseQuery(request.Message.RequestUri.Query);
             Assert.That(arguments[keyA], Is.Not.Null.And.EqualTo(new[] { valueA, valueB }), "The values don't match.");
+        }
+
+        [Test(Description = "Ensure that WithArguments accept arguments of various types.")]
+        [TestCase("GET", "param", 42)]
+        [TestCase("GET", "param", 42d)]
+        public void WithArguments_Dictionary_accepts_various_arg_types(string methodName, string key, object value)
+        {
+            // execute
+            IRequest request = this
+                .ConstructRequest(methodName)
+                .WithArguments(new Dictionary<string, object> { { key, value } });
+
+            // verify
+            this.AssertEqual(request.Message, methodName, ignoreArguments: true);
+            var arguments = QueryHelpers.ParseQuery(request.Message.RequestUri.Query);
+            Assert.That(arguments[key], Is.Not.Null.And.EqualTo(value.ToString()), "The key=>value pair is invalid.");
         }
 
         [Test(Description = "Ensure that WithBodyContent sets the request body and does not incorrectly alter request state.")]
