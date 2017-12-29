@@ -1,4 +1,10 @@
-﻿using System;
+﻿using Microsoft.AspNet.WebUtilities;
+using NUnit.Framework;
+using Pathoschild.Http.Client;
+using Pathoschild.Http.Client.Extensibility;
+using Pathoschild.Http.Client.Internal;
+using RichardSzalay.MockHttp;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -7,12 +13,6 @@ using System.Net.Http;
 using System.Net.Http.Formatting;
 using System.Text;
 using System.Threading.Tasks;
-using Microsoft.AspNet.WebUtilities;
-using NUnit.Framework;
-using Pathoschild.Http.Client;
-using Pathoschild.Http.Client.Extensibility;
-using Pathoschild.Http.Client.Internal;
-using RichardSzalay.MockHttp;
 
 namespace Pathoschild.Http.Tests.Client
 {
@@ -178,6 +178,21 @@ namespace Pathoschild.Http.Tests.Client
             IRequest request = this
                 .ConstructRequest(methodName)
                 .WithArguments(new Dictionary<string, object> { { key, value } });
+
+            // verify
+            this.AssertEqual(request.Message, methodName, ignoreArguments: true);
+            var arguments = QueryHelpers.ParseQuery(request.Message.RequestUri.Query);
+            Assert.That(arguments[key], Is.Not.Null.And.EqualTo(value.ToString()), "The key=>value pair is invalid.");
+        }
+
+        [Test(Description = "Ensure that WithArguments accept arguments of various types.")]
+        [TestCase("GET", "param", 42)]
+        public void WithArguments_Dictionary_accepts_dictionary_int(string methodName, string key, int value)
+        {
+            // execute
+            IRequest request = this
+                .ConstructRequest(methodName)
+                .WithArguments(new Dictionary<string, int> { { key, value } });
 
             // verify
             this.AssertEqual(request.Message, methodName, ignoreArguments: true);
