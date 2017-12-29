@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -246,17 +247,46 @@ namespace Pathoschild.Http.Client.Internal
             return response;
         }
 
-        /// <summary>Get the key=>value pairs represented by a dictionary or anonymous object.</summary>
-        /// <param name="arguments">The key=>value pairs in the query argument. If this is an enumeration of key/value pairs, the pairs are used. Otherwise, the property names and values are used.</param>
+        /// <summary>Get the key=>value pairs represented by a dictionary, enumeration of KeyValue pairs or anonymous object.</summary>
+        /// <param name="arguments">The key=>value pairs in the query argument.</param>
         private IEnumerable<KeyValuePair<string, object>> GetArguments(object arguments)
         {
             // null
             if (arguments == null)
                 return Enumerable.Empty<KeyValuePair<string, object>>();
 
+            // dictionary
+            if (arguments is IDictionary dictionary)
+                return dictionary
+                    .Cast<dynamic>()
+                    .Select(item => new KeyValuePair<string, object>(item.Key.ToString(), item.Value));
+
             // enumeration
-            if (arguments is IEnumerable<KeyValuePair<string, object>> genericEnumeration)
-                return genericEnumeration;
+            if (arguments is IEnumerable enumeration)
+            {
+#if NETFULL
+                var argumentsType = enumeration.GetType();
+                var itemType = argumentsType.GetElementType();
+                var isGeneric = itemType.IsGenericType;
+                var enumeratedType = isGeneric ? itemType.GetGenericTypeDefinition() : null;
+#else
+                var argumentsTypeInfo = enumeration.GetType().GetTypeInfo();
+                var itemTypeInfo = argumentsTypeInfo.GetElementType().GetTypeInfo();
+                var isGeneric = itemTypeInfo.IsGenericType;
+                var enumeratedType = isGeneric ? itemTypeInfo.GetGenericTypeDefinition() : null;
+#endif
+
+                if (enumeratedType == typeof(KeyValuePair<,>))
+                {
+                    return enumeration
+                        .Cast<dynamic>()
+                        .Select(item => new KeyValuePair<string, object>(item.Key.ToString(), item.Value));
+                }
+                else
+                {
+                    throw new ArgumentException("You must provide an enumeration of KeyValuePair", nameof(arguments));
+                }
+            }
 
             // object
             return arguments.GetType()

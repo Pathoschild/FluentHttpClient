@@ -85,7 +85,7 @@ namespace Pathoschild.Http.Tests.Client
         }
 
         [Test(Description = "Ensure that WithArgument accept arguments of various types.")]
-        [TestCase("GET", "param", 42l)]
+        [TestCase("GET", "param", 42L)]
         [TestCase("GET", "param", 42d)]
         public void WithArgument_accepts_various_arg_types(string methodName, string key, object value)
         {
@@ -193,6 +193,24 @@ namespace Pathoschild.Http.Tests.Client
             IRequest request = this
                 .ConstructRequest(methodName)
                 .WithArguments(new Dictionary<string, int> { { key, value } });
+
+            // verify
+            this.AssertEqual(request.Message, methodName, ignoreArguments: true);
+            var arguments = QueryHelpers.ParseQuery(request.Message.RequestUri.Query);
+            Assert.That(arguments[key], Is.Not.Null.And.EqualTo(value.ToString()), "The key=>value pair is invalid.");
+        }
+
+        [Test(Description = "Ensure that WithArguments accept arguments of various types.")]
+        [TestCase("GET", "param", 42)]
+        public void WithArguments_Enumeration_accepts_dictionary_int(string methodName, string key, int value)
+        {
+            // execute
+            IRequest request = this
+                .ConstructRequest(methodName)
+                .WithArguments(new []
+                {
+                    new KeyValuePair<string, int>(key, value )
+                });
 
             // verify
             this.AssertEqual(request.Message, methodName, ignoreArguments: true);
