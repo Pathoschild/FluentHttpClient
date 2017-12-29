@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -107,12 +106,42 @@ namespace Pathoschild.Http.Client.Internal
         }
 
         /// <summary>Add HTTP query string arguments.</summary>
-        /// <param name="arguments">The key=>value pairs in the query string. If this is a dictionary, the keys and values are used. Otherwise, the property names and values are used.</param>
+        /// <param name="arguments">An enumeration of key=>value pairs.</param>
+        /// <returns>Returns the request builder for chaining.</returns>
+        /// <example><code>client.WithArguments(new[] { new KeyValuePair<string, string>("genre", "drama"), new KeyValuePair<string, int>("genre", "comedy") })</code></example>
+        public IRequest WithArguments<TKey, TValue>(IEnumerable<KeyValuePair<TKey, TValue>> arguments)
+        {
+            var args = Enumerable.Empty<KeyValuePair<string, object>>().ToArray();
+
+            if (arguments != null)
+            {
+                args = arguments
+                    .Select(a => new KeyValuePair<string, object>(a.Key.ToString(), a.Value))
+                    .ToArray();
+            }
+
+            this.Message.RequestUri = this.Message.RequestUri.WithArguments(args);
+            return this;
+        }
+
+        /// <summary>Add HTTP query string arguments.</summary>
+        /// <param name="arguments">An anonymous object where the property names and values are used.</param>
         /// <returns>Returns the request builder for chaining.</returns>
         /// <example><code>client.WithArguments(new { id = 14, name = "Joe" })</code></example>
         public IRequest WithArguments(object arguments)
         {
-            this.Message.RequestUri = this.Message.RequestUri.WithArguments(this.GetArguments(arguments).ToArray());
+            var args = Enumerable.Empty<KeyValuePair<string, object>>().ToArray();
+
+            if (arguments != null)
+            {
+                args = arguments.GetType()
+                    .GetRuntimeProperties()
+                    .Where(p => p.CanRead)
+                    .Select(p => new KeyValuePair<string, object>(p.Name, p.GetValue(arguments)))
+                    .ToArray();
+            }
+
+            this.Message.RequestUri = this.Message.RequestUri.WithArguments(args);
             return this;
         }
 
@@ -245,54 +274,6 @@ namespace Pathoschild.Http.Client.Internal
                 filter.OnResponse(response, this.HttpErrorAsException);
 
             return response;
-        }
-
-        /// <summary>Get the key=>value pairs represented by a dictionary, enumeration of KeyValue pairs or anonymous object.</summary>
-        /// <param name="arguments">The key=>value pairs in the query argument.</param>
-        private IEnumerable<KeyValuePair<string, object>> GetArguments(object arguments)
-        {
-            // null
-            if (arguments == null)
-                return Enumerable.Empty<KeyValuePair<string, object>>();
-
-            // dictionary
-            if (arguments is IDictionary dictionary)
-                return dictionary
-                    .Cast<dynamic>()
-                    .Select(item => new KeyValuePair<string, object>(item.Key.ToString(), item.Value));
-
-            // enumeration
-            if (arguments is IEnumerable enumeration)
-            {
-#if NETFULL
-                var argumentsType = enumeration.GetType();
-                var itemType = argumentsType.GetElementType();
-                var isGeneric = itemType.IsGenericType;
-                var enumeratedType = isGeneric ? itemType.GetGenericTypeDefinition() : null;
-#else
-                var argumentsTypeInfo = enumeration.GetType().GetTypeInfo();
-                var itemTypeInfo = argumentsTypeInfo.GetElementType().GetTypeInfo();
-                var isGeneric = itemTypeInfo.IsGenericType;
-                var enumeratedType = isGeneric ? itemTypeInfo.GetGenericTypeDefinition() : null;
-#endif
-
-                if (enumeratedType == typeof(KeyValuePair<,>))
-                {
-                    return enumeration
-                        .Cast<dynamic>()
-                        .Select(item => new KeyValuePair<string, object>(item.Key.ToString(), item.Value));
-                }
-                else
-                {
-                    throw new ArgumentException("You must provide an enumeration of KeyValuePair", nameof(arguments));
-                }
-            }
-
-            // object
-            return arguments.GetType()
-                .GetRuntimeProperties()
-                .Where(p => p.CanRead)
-                .Select(p => new KeyValuePair<string, object>(p.Name, p.GetValue(arguments)));
         }
     }
 }

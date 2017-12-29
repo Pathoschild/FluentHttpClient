@@ -54,7 +54,13 @@ namespace Pathoschild.Http.Client
         IRequest WithArgument(string key, object value);
 
         /// <summary>Add HTTP query string arguments.</summary>
-        /// <param name="arguments">The key=>value pairs in the query string. If this is a dictionary, the keys and values are used. Otherwise, the property names and values are used.</param>
+        /// <param name="arguments">An enumeration of key=>value pairs.</param>
+        /// <returns>Returns the request builder for chaining.</returns>
+        /// <example><code>client.WithArguments(new[] { new KeyValuePair<string, string>("genre", "drama"), new KeyValuePair<string, int>("genre", "comedy") })</code></example>
+        IRequest WithArguments<TKey, TValue>(IEnumerable<KeyValuePair<TKey, TValue>> arguments);
+
+        /// <summary>Add HTTP query string arguments.</summary>
+        /// <param name="arguments">An anonymous object where the property names and values are used.</param>
         /// <returns>Returns the request builder for chaining.</returns>
         /// <example><code>client.WithArguments(new { id = 14, name = "Joe" })</code></example>
         IRequest WithArguments(object arguments);

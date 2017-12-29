@@ -14,7 +14,7 @@
     <PackageIconUrl>https://s3.amazonaws.com/pathoschild/avatar-64x64.png</PackageIconUrl>
     <RepositoryType>git</RepositoryType>
     <RepositoryUrl>https://github.com/Pathoschild/FluentHttpClient</RepositoryUrl>
-    <PackageReleaseNotes>See release notes at https://github.com/Pathoschild/FluentHttpClient/blob/3.1/RELEASE-NOTES.md#31.</PackageReleaseNotes>
+    <PackageReleaseNotes>See release notes at https://github.com/Pathoschild/FluentHttpClient/blob/3.1/RELEASE-NOTES.md#32</PackageReleaseNotes>
     <PackageTags>wcf;web;webapi;HttpClient;FluentHttp;FluentHttpClient</PackageTags>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
@@ -31,17 +31,5 @@
     <PackageReference Include="Newtonsoft.Json" Version="10.0.3" />
     <PackageReference Include="System.Net.Http" Version="4.0.0" />
   </ItemGroup>
-
-  <ItemGroup>
-    <PackageReference Include="Microsoft.CSharp" Version="4.4.1" />
-  </ItemGroup>
-    
-  <PropertyGroup Condition=" '$(TargetFramework)' == 'netstandard1.3' ">
-    <DefineConstants>$(DefineConstants);NETSTANDARD</DefineConstants>
-  </PropertyGroup>
-
-  <PropertyGroup Condition=" '$(TargetFramework)' == 'net452' ">
-    <DefineConstants>$(DefineConstants);NETFULL</DefineConstants>
-  </PropertyGroup>
 
 </Project>
