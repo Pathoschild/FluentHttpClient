@@ -111,7 +111,7 @@ namespace Pathoschild.Http.Client.Internal
         /// <example><code>client.WithArguments(new[] { new KeyValuePair&lt;string, string&gt;("genre", "drama"), new KeyValuePair&lt;string, int&gt;("genre", "comedy") })</code></example>
         public IRequest WithArguments<TKey, TValue>(IEnumerable<KeyValuePair<TKey, TValue>> arguments)
         {
-            var args = Enumerable.Empty<KeyValuePair<string, object>>().ToArray();
+            KeyValuePair<string, object>[] args;
 
             if (arguments != null)
             {
@@ -119,6 +119,8 @@ namespace Pathoschild.Http.Client.Internal
                     .Select(a => new KeyValuePair<string, object>(a.Key.ToString(), a.Value))
                     .ToArray();
             }
+            else
+                args = new KeyValuePair<string, object>[0];
 
             this.Message.RequestUri = this.Message.RequestUri.WithArguments(args);
             return this;
@@ -130,16 +132,18 @@ namespace Pathoschild.Http.Client.Internal
         /// <example><code>client.WithArguments(new { id = 14, name = "Joe" })</code></example>
         public IRequest WithArguments(object arguments)
         {
-            var args = Enumerable.Empty<KeyValuePair<string, object>>().ToArray();
+            KeyValuePair<string, object>[] args;
 
             if (arguments != null)
             {
                 args = arguments.GetType()
                     .GetRuntimeProperties()
-                    .Where(p => p.CanRead)
+                    .Where(p => p.CanRead && p.GetIndexParameters() == null)
                     .Select(p => new KeyValuePair<string, object>(p.Name, p.GetValue(arguments)))
                     .ToArray();
             }
+            else
+                args = new KeyValuePair<string, object>[0];
 
             this.Message.RequestUri = this.Message.RequestUri.WithArguments(args);
             return this;
