@@ -1,10 +1,4 @@
-﻿using Microsoft.AspNet.WebUtilities;
-using NUnit.Framework;
-using Pathoschild.Http.Client;
-using Pathoschild.Http.Client.Extensibility;
-using Pathoschild.Http.Client.Internal;
-using RichardSzalay.MockHttp;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -13,6 +7,12 @@ using System.Net.Http;
 using System.Net.Http.Formatting;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.AspNet.WebUtilities;
+using NUnit.Framework;
+using Pathoschild.Http.Client;
+using Pathoschild.Http.Client.Extensibility;
+using Pathoschild.Http.Client.Internal;
+using RichardSzalay.MockHttp;
 
 namespace Pathoschild.Http.Tests.Client
 {
@@ -58,8 +58,8 @@ namespace Pathoschild.Http.Tests.Client
             // verify
             this.AssertEqual(request.Message, methodName, ignoreArguments: true);
             var arguments = QueryHelpers.ParseQuery(request.Message.RequestUri.Query);
-            Assert.That(arguments[keyA], Is.Not.Null.And.EqualTo(valueA), "The first key=>value pair is invalid.");
-            Assert.That(arguments[keyB], Is.Not.Null.And.EqualTo(valueB), "The second key=>value pair is invalid.");
+            Assert.That(arguments[keyA], Is.Not.Null.And.EqualTo(valueA), "The first argument doesn't match the input.");
+            Assert.That(arguments[keyB], Is.Not.Null.And.EqualTo(valueB), "The second argument doesn't match the input.");
         }
 
         [Test(Description = "Ensure that WithArgument correctly allows duplicate keys.")]
@@ -84,10 +84,12 @@ namespace Pathoschild.Http.Tests.Client
             Assert.That(arguments[keyA], Is.Not.Null.And.EqualTo(new[] { valueA, valueB }), "The values don't match.");
         }
 
-        [Test(Description = "Ensure that WithArgument accept arguments of various types.")]
+        [Test(Description = "Ensure that WithArgument accepts arguments of various types.")]
         [TestCase("GET", "param", 42L)]
         [TestCase("GET", "param", 42d)]
-        public void WithArgument_accepts_various_arg_types(string methodName, string key, object value)
+        [TestCase("GET", "param", 42u)]
+        [TestCase("GET", "param", "value")]
+        public void WithArgument_AcceptsVariousValueTypes(string methodName, string key, object value)
         {
             // execute
             IRequest request = this
@@ -97,7 +99,7 @@ namespace Pathoschild.Http.Tests.Client
             // verify
             this.AssertEqual(request.Message, methodName, ignoreArguments: true);
             var arguments = QueryHelpers.ParseQuery(request.Message.RequestUri.Query);
-            Assert.That(arguments[key], Is.Not.Null.And.EqualTo(value.ToString()), "The key=>value pair is invalid.");
+            Assert.That(arguments[key], Is.Not.Null.And.EqualTo(value.ToString()), "The arguments don't match the input.");
         }
 
         [Test(Description = "Ensure that WithArguments (with a dictionary) appends the query arguments to the request message and does not incorrectly alter request state.")]
@@ -118,8 +120,8 @@ namespace Pathoschild.Http.Tests.Client
             // verify
             this.AssertEqual(request.Message, methodName, ignoreArguments: true);
             var arguments = QueryHelpers.ParseQuery(request.Message.RequestUri.Query);
-            Assert.That(arguments[keyA], Is.Not.Null.And.EqualTo(valueA), "The first key=>value pair is invalid.");
-            Assert.That(arguments[keyB], Is.Not.Null.And.EqualTo(valueB), "The second key=>value pair is invalid.");
+            Assert.That(arguments[keyA], Is.Not.Null.And.EqualTo(valueA), "The first argument doesn't match the input.");
+            Assert.That(arguments[keyB], Is.Not.Null.And.EqualTo(valueB), "The second argument doesn't match the input.");
         }
 
         [Test(Description = "Ensure that WithArguments (with an object) appends the query arguments to the request message and does not incorrectly alter request state.")]
@@ -140,8 +142,8 @@ namespace Pathoschild.Http.Tests.Client
             // verify
             this.AssertEqual(request.Message, methodName, ignoreArguments: true);
             var arguments = QueryHelpers.ParseQuery(request.Message.RequestUri.Query);
-            Assert.That(arguments["keyA"], Is.Not.Null.And.EqualTo(valueA), "The first key=>value pair is invalid.");
-            Assert.That(arguments["keyB"], Is.Not.Null.And.EqualTo(valueB), "The second key=>value pair is invalid.");
+            Assert.That(arguments["keyA"], Is.Not.Null.And.EqualTo(valueA), "The 'keyA' argument doesn't match the input.");
+            Assert.That(arguments["keyB"], Is.Not.Null.And.EqualTo(valueB), "The 'keyB' argument doesn't match the input.");
         }
 
         [Test(Description = "Ensure that WithArguments correctly allows duplicate keys.")]
@@ -169,10 +171,12 @@ namespace Pathoschild.Http.Tests.Client
             Assert.That(arguments[keyA], Is.Not.Null.And.EqualTo(new[] { valueA, valueB }), "The values don't match.");
         }
 
-        [Test(Description = "Ensure that WithArguments accept arguments of various types.")]
+        [Test(Description = "Ensure that WithArguments accepts a dictionary with object values.")]
         [TestCase("GET", "param", 42)]
         [TestCase("GET", "param", 42d)]
-        public void WithArguments_Dictionary_accepts_various_arg_types(string methodName, string key, object value)
+        [TestCase("GET", "param", 42u)]
+        [TestCase("GET", "param", "value")]
+        public void WithArguments_Dictionary_AcceptsDictionaryOfObject(string methodName, string key, object value)
         {
             // execute
             IRequest request = this
@@ -182,12 +186,12 @@ namespace Pathoschild.Http.Tests.Client
             // verify
             this.AssertEqual(request.Message, methodName, ignoreArguments: true);
             var arguments = QueryHelpers.ParseQuery(request.Message.RequestUri.Query);
-            Assert.That(arguments[key], Is.Not.Null.And.EqualTo(value.ToString()), "The key=>value pair is invalid.");
+            Assert.That(arguments[key], Is.Not.Null.And.EqualTo(value.ToString()), "The dictionary values don't match the input.");
         }
 
-        [Test(Description = "Ensure that WithArguments accept arguments of various types.")]
+        [Test(Description = "Ensure that WithArguments accepts a dictionary with int values.")]
         [TestCase("GET", "param", 42)]
-        public void WithArguments_Dictionary_accepts_dictionary_int(string methodName, string key, int value)
+        public void WithArguments_Dictionary_AcceptsDictionaryOfInt(string methodName, string key, int value)
         {
             // execute
             IRequest request = this
@@ -197,17 +201,17 @@ namespace Pathoschild.Http.Tests.Client
             // verify
             this.AssertEqual(request.Message, methodName, ignoreArguments: true);
             var arguments = QueryHelpers.ParseQuery(request.Message.RequestUri.Query);
-            Assert.That(arguments[key], Is.Not.Null.And.EqualTo(value.ToString()), "The key=>value pair is invalid.");
+            Assert.That(arguments[key], Is.Not.Null.And.EqualTo(value.ToString()), "The dictionary values don't match the input.");
         }
 
-        [Test(Description = "Ensure that WithArguments accept arguments of various types.")]
+        [Test(Description = "Ensure that WithArguments accepts key/value pairs with int values.")]
         [TestCase("GET", "param", 42)]
-        public void WithArguments_Enumeration_accepts_dictionary_int(string methodName, string key, int value)
+        public void WithArguments_KeyValuePairs_AcceptsIntValues(string methodName, string key, int value)
         {
             // execute
             IRequest request = this
                 .ConstructRequest(methodName)
-                .WithArguments(new []
+                .WithArguments(new[]
                 {
                     new KeyValuePair<string, int>(key, value )
                 });
@@ -215,7 +219,7 @@ namespace Pathoschild.Http.Tests.Client
             // verify
             this.AssertEqual(request.Message, methodName, ignoreArguments: true);
             var arguments = QueryHelpers.ParseQuery(request.Message.RequestUri.Query);
-            Assert.That(arguments[key], Is.Not.Null.And.EqualTo(value.ToString()), "The key=>value pair is invalid.");
+            Assert.That(arguments[key], Is.Not.Null.And.EqualTo(value.ToString()), "The dictionary values don't match the input.");
         }
 
         [Test(Description = "Ensure that WithBodyContent sets the request body and does not incorrectly alter request state.")]

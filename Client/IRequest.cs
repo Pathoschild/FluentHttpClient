@@ -6,8 +6,8 @@ using System.Net.Http.Formatting;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
-using Pathoschild.Http.Client.Retry;
 using Pathoschild.Http.Client.Extensibility;
+using Pathoschild.Http.Client.Retry;
 
 namespace Pathoschild.Http.Client
 {
@@ -54,7 +54,7 @@ namespace Pathoschild.Http.Client
         IRequest WithArgument(string key, object value);
 
         /// <summary>Add HTTP query string arguments.</summary>
-        /// <param name="arguments">An enumeration of key=>value pairs.</param>
+        /// <param name="arguments">The arguments to add.</param>
         /// <returns>Returns the request builder for chaining.</returns>
         /// <example><code>client.WithArguments(new[] { new KeyValuePair&lt;string, string&gt;("genre", "drama"), new KeyValuePair&lt;string, int&gt;("genre", "comedy") })</code></example>
         IRequest WithArguments<TKey, TValue>(IEnumerable<KeyValuePair<TKey, TValue>> arguments);

@@ -106,22 +106,20 @@ namespace Pathoschild.Http.Client.Internal
         }
 
         /// <summary>Add HTTP query string arguments.</summary>
-        /// <param name="arguments">An enumeration of key=>value pairs.</param>
+        /// <param name="arguments">The arguments to add.</param>
         /// <returns>Returns the request builder for chaining.</returns>
         /// <example><code>client.WithArguments(new[] { new KeyValuePair&lt;string, string&gt;("genre", "drama"), new KeyValuePair&lt;string, int&gt;("genre", "comedy") })</code></example>
         public IRequest WithArguments<TKey, TValue>(IEnumerable<KeyValuePair<TKey, TValue>> arguments)
         {
-            KeyValuePair<string, object>[] args;
+            if (arguments == null)
+                return this;
 
-            if (arguments != null)
-            {
-                args = arguments
-                    .Select(a => new KeyValuePair<string, object>(a.Key.ToString(), a.Value))
-                    .ToArray();
-            }
-            else
-                args = new KeyValuePair<string, object>[0];
-
+            KeyValuePair<string, object>[] args = (
+                from arg in arguments
+                let key = arg.Key?.ToString()
+                where !string.IsNullOrWhiteSpace(key)
+                select new KeyValuePair<string, object>(key, arg.Value)
+            ).ToArray();
             this.Message.RequestUri = this.Message.RequestUri.WithArguments(args);
             return this;
         }
@@ -132,18 +130,14 @@ namespace Pathoschild.Http.Client.Internal
         /// <example><code>client.WithArguments(new { id = 14, name = "Joe" })</code></example>
         public IRequest WithArguments(object arguments)
         {
-            KeyValuePair<string, object>[] args;
+            if (arguments == null)
+                return this;
 
-            if (arguments != null)
-            {
-                args = arguments.GetType()
-                    .GetRuntimeProperties()
-                    .Where(p => p.CanRead && p.GetIndexParameters() == null)
-                    .Select(p => new KeyValuePair<string, object>(p.Name, p.GetValue(arguments)))
-                    .ToArray();
-            }
-            else
-                args = new KeyValuePair<string, object>[0];
+            KeyValuePair<string, object>[] args = (
+                from property in arguments.GetType().GetRuntimeProperties()
+                where property.CanRead && property.GetIndexParameters()?.Any() != true
+                select new KeyValuePair<string, object>(property.Name, property.GetValue(arguments))
+            ).ToArray();
 
             this.Message.RequestUri = this.Message.RequestUri.WithArguments(args);
             return this;
