@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -107,12 +106,46 @@ namespace Pathoschild.Http.Client.Internal
         }
 
         /// <summary>Add HTTP query string arguments.</summary>
-        /// <param name="arguments">The key=>value pairs in the query string. If this is a dictionary, the keys and values are used. Otherwise, the property names and values are used.</param>
+        /// <param name="arguments">An enumeration of key=>value pairs.</param>
+        /// <returns>Returns the request builder for chaining.</returns>
+        /// <example><code>client.WithArguments(new[] { new KeyValuePair&lt;string, string&gt;("genre", "drama"), new KeyValuePair&lt;string, int&gt;("genre", "comedy") })</code></example>
+        public IRequest WithArguments<TKey, TValue>(IEnumerable<KeyValuePair<TKey, TValue>> arguments)
+        {
+            KeyValuePair<string, object>[] args;
+
+            if (arguments != null)
+            {
+                args = arguments
+                    .Select(a => new KeyValuePair<string, object>(a.Key.ToString(), a.Value))
+                    .ToArray();
+            }
+            else
+                args = new KeyValuePair<string, object>[0];
+
+            this.Message.RequestUri = this.Message.RequestUri.WithArguments(args);
+            return this;
+        }
+
+        /// <summary>Add HTTP query string arguments.</summary>
+        /// <param name="arguments">An anonymous object where the property names and values are used.</param>
         /// <returns>Returns the request builder for chaining.</returns>
         /// <example><code>client.WithArguments(new { id = 14, name = "Joe" })</code></example>
         public IRequest WithArguments(object arguments)
         {
-            this.Message.RequestUri = this.Message.RequestUri.WithArguments(this.GetArguments(arguments).ToArray());
+            KeyValuePair<string, object>[] args;
+
+            if (arguments != null)
+            {
+                args = arguments.GetType()
+                    .GetRuntimeProperties()
+                    .Where(p => p.CanRead && p.GetIndexParameters() == null)
+                    .Select(p => new KeyValuePair<string, object>(p.Name, p.GetValue(arguments)))
+                    .ToArray();
+            }
+            else
+                args = new KeyValuePair<string, object>[0];
+
+            this.Message.RequestUri = this.Message.RequestUri.WithArguments(args);
             return this;
         }
 
@@ -245,34 +278,6 @@ namespace Pathoschild.Http.Client.Internal
                 filter.OnResponse(response, this.HttpErrorAsException);
 
             return response;
-        }
-
-        /// <summary>Get the key=>value pairs represented by a dictionary or anonymous object.</summary>
-        /// <param name="arguments">The key=>value pairs in the query argument. If this is a dictionary, the keys and values are used. Otherwise, the property names and values are used.</param>
-        private IDictionary<string, object> GetArguments(object arguments)
-        {
-            // null
-            if (arguments == null)
-                return new Dictionary<string, object>();
-
-            // generic dictionary
-            if (arguments is IDictionary<string, object> genericDict)
-                return genericDict;
-
-            // dictionary
-            if (arguments is IDictionary objDict)
-            {
-                IDictionary<string, object> dict = new Dictionary<string, object>();
-                foreach (var key in objDict.Keys)
-                    dict.Add(key.ToString(), objDict[key]);
-                return dict;
-            }
-
-            // object
-            return arguments.GetType()
-                .GetRuntimeProperties()
-                .Where(p => p.CanRead)
-                .ToDictionary(p => p.Name, p => p.GetValue(arguments));
         }
     }
 }
