@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -8,6 +8,7 @@ using System.Net.Http.Formatting;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.AspNet.WebUtilities;
+using Microsoft.Extensions.Primitives;
 using NUnit.Framework;
 using Pathoschild.Http.Client;
 using Pathoschild.Http.Client.Extensibility;
@@ -102,6 +103,26 @@ namespace Pathoschild.Http.Tests.Client
             Assert.That(arguments[key], Is.Not.Null.And.EqualTo(value.ToString()), "The arguments don't match the input.");
         }
 
+        [Test(Description = "Ensure that WithArgument ignores null arguments.")]
+        [TestCase("GET", "param", "aaa", true)]
+        [TestCase("GET", "param", null, true)]
+        [TestCase("GET", "param", "bbb", false)]
+        [TestCase("GET", "param", null, false)]
+        public void WithArgument_IgnoresArgumentWithNullValue(string methodName, string key, string value, bool ignoreNullArguments)
+        {
+            // execute
+            IRequest request = this
+                .ConstructRequest(methodName)
+                .WithIgnoreNullArguments(ignoreNullArguments)
+                .WithArgument(key, value);
+
+            // verify
+            this.AssertEqual(request.Message, methodName, ignoreArguments: true);
+            var arguments = QueryHelpers.ParseQuery(request.Message.RequestUri.Query);
+
+            this.AssertQuerystringArgument(arguments, key, value, ignoreNullArguments);
+        }
+
         [Test(Description = "Ensure that WithArguments (with a dictionary) appends the query arguments to the request message and does not incorrectly alter request state.")]
         [TestCase("DELETE", "keyA", "24", "key:!@#$%^&*()_+-=?'\"", "value:!@#$%^&*()_+-=?'\"")]
         [TestCase("GET", "keyA", "24", "key:!@#$%^&*()_+-=?'\"", "value:!@#$%^&*()_+-=?'\"")]
@@ -169,6 +190,52 @@ namespace Pathoschild.Http.Tests.Client
             this.AssertEqual(request.Message, methodName, ignoreArguments: true);
             var arguments = QueryHelpers.ParseQuery(request.Message.RequestUri.Query);
             Assert.That(arguments[keyA], Is.Not.Null.And.EqualTo(new[] { valueA, valueB }), "The values don't match.");
+        }
+
+        [Test(Description = "Ensure that WithArgument ignores null arguments.")]
+        [TestCase("GET", "paramA", "aaa", "paramB", null, true)]
+        [TestCase("GET", "paramA", null, "paramB", "bbb", true)]
+        [TestCase("GET", "paramA", "aaa", "paramB", null, false)]
+        [TestCase("GET", "paramA", null, "paramB", "bbb", false)]
+        public void WithArguments_IgnoresArgumentWithNullValue(string methodName, string keyA, string valueA, string keyB, string valueB, bool ignoreNullArguments)
+        {
+            // execute
+            IRequest request = this
+                .ConstructRequest(methodName)
+                .WithIgnoreNullArguments(ignoreNullArguments)
+                .WithArguments(new[]
+                {
+                    new KeyValuePair<string, object>(keyA, valueA),
+                    new KeyValuePair<string, object>(keyB, valueB)
+                });
+
+            // verify
+            this.AssertEqual(request.Message, methodName, ignoreArguments: true);
+            var arguments = QueryHelpers.ParseQuery(request.Message.RequestUri.Query);
+
+            this.AssertQuerystringArgument(arguments, keyA, valueA, ignoreNullArguments);
+            this.AssertQuerystringArgument(arguments, keyB, valueB, ignoreNullArguments);
+        }
+
+        [Test(Description = "Ensure that WithArgument ignores null arguments.")]
+        [TestCase("GET", "aaa", null, true)]
+        [TestCase("GET", null, "bbb", true)]
+        [TestCase("GET", "aaa", null, false)]
+        [TestCase("GET", null,"bbb", false)]
+        public void WithArguments_Object_IgnoresArgumentWithNullValue(string methodName, string valueA, string valueB, bool ignoreNullArguments)
+        {
+            // execute
+            IRequest request = this
+                .ConstructRequest(methodName)
+                .WithIgnoreNullArguments(ignoreNullArguments)
+                .WithArguments(new { keyA = valueA, keyB = valueB });
+
+            // verify
+            this.AssertEqual(request.Message, methodName, ignoreArguments: true);
+            var arguments = QueryHelpers.ParseQuery(request.Message.RequestUri.Query);
+
+            this.AssertQuerystringArgument(arguments, "keyA", valueA, ignoreNullArguments);
+            this.AssertQuerystringArgument(arguments, "keyB", valueB, ignoreNullArguments);
         }
 
         [Test(Description = "Ensure that WithArguments accepts a dictionary with object values.")]
@@ -535,6 +602,34 @@ namespace Pathoschild.Http.Tests.Client
         private void AssertEqual(HttpRequestMessage request, string method, string uri = "http://example.org/", bool ignoreArguments = false)
         {
             this.AssertEqual(request, new HttpMethod(method), uri, ignoreArguments);
+        }
+
+        private void AssertQuerystringArgument(IDictionary<string, StringValues> arguments, string key, string value, bool ignoreNullArguments)
+        {
+            if (ignoreNullArguments)
+            {
+                if (value == null)
+                {
+                    Assert.That(arguments.ContainsKey(key), Is.False, $"Argument {key} with null value should have been ignored");
+                }
+                else
+                {
+                    Assert.That(arguments.ContainsKey(key), Is.True, $"Argument {key}  with null value shouldn't have been ignored");
+                    Assert.That(arguments[key], Is.EqualTo(value), $"Argument {key}'s value should be {value}.");
+                }
+            }
+            else
+            {
+                Assert.That(arguments.ContainsKey(key), Is.True, $"Argument {key} with null value shouldn't have been ignored");
+                if (value == null)
+                {
+                    Assert.That(string.IsNullOrEmpty(arguments[key]), Is.True, $"Argument {key}'s value should be null.");
+                }
+                else
+                {
+                    Assert.That(arguments[key], Is.EqualTo(value), $"Argument {key}'s value should be {value}.");
+                }
+            }
         }
     }
 }
