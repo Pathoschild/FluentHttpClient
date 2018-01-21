@@ -84,6 +84,10 @@ namespace Pathoschild.Http.Client
         /// <param name="enabled">Whether to raise HTTP errors as exceptions.</param>
         IRequest WithHttpErrorAsException(bool enabled);
 
+        /// <summary>Set whether aguments with null value should be ignored for this request.</summary>
+        /// <param name="ignoreNullArguments">Whether to ignore arguments with null value.</param>
+        IRequest WithIgnoreNullArguments(bool ignoreNullArguments);
+
         /// <summary>Set the request coordinator for this request.</summary>
         /// <param name="requestCoordinator">The request coordinator (or null to use the default behaviour).</param>
         IRequest WithRequestCoordinator(IRequestCoordinator requestCoordinator);

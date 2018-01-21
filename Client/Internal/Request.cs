@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -25,6 +25,9 @@ namespace Pathoschild.Http.Client.Internal
 
         /// <summary>Whether HTTP error responses (e.g. HTTP 404) should be raised as exceptions.</summary>
         private bool HttpErrorAsException;
+
+        /// <summary>Whether arguments with null value should be ignored.</summary>
+        private bool IgnoreNullArguments;
 
 
         /*********
@@ -101,7 +104,7 @@ namespace Pathoschild.Http.Client.Internal
         /// <returns>Returns the request builder for chaining.</returns>
         public IRequest WithArgument(string key, object value)
         {
-            this.Message.RequestUri = this.Message.RequestUri.WithArguments(new KeyValuePair<string, object>(key, value));
+            this.Message.RequestUri = this.Message.RequestUri.WithArguments(this.IgnoreNullArguments, new KeyValuePair<string, object>(key, value));
             return this;
         }
 
@@ -120,7 +123,7 @@ namespace Pathoschild.Http.Client.Internal
                 where !string.IsNullOrWhiteSpace(key)
                 select new KeyValuePair<string, object>(key, arg.Value)
             ).ToArray();
-            this.Message.RequestUri = this.Message.RequestUri.WithArguments(args);
+            this.Message.RequestUri = this.Message.RequestUri.WithArguments(this.IgnoreNullArguments, args);
             return this;
         }
 
@@ -139,7 +142,7 @@ namespace Pathoschild.Http.Client.Internal
                 select new KeyValuePair<string, object>(property.Name, property.GetValue(arguments))
             ).ToArray();
 
-            this.Message.RequestUri = this.Message.RequestUri.WithArguments(args);
+            this.Message.RequestUri = this.Message.RequestUri.WithArguments(this.IgnoreNullArguments, args);
             return this;
         }
 
@@ -166,6 +169,14 @@ namespace Pathoschild.Http.Client.Internal
         public IRequest WithHttpErrorAsException(bool enabled)
         {
             this.HttpErrorAsException = enabled;
+            return this;
+        }
+
+        /// <summary>Set whether aguments with null value should be ignored for this request.</summary>
+        /// <param name="ignoreNullArguments">Whether to ignore arguments with null value.</param>
+        public IRequest WithIgnoreNullArguments(bool ignoreNullArguments)
+        {
+            this.IgnoreNullArguments = ignoreNullArguments;
             return this;
         }
 
