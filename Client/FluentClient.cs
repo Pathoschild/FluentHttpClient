@@ -29,7 +29,7 @@ namespace Pathoschild.Http.Client
         private readonly IList<Func<IRequest, IRequest>> Defaults = new List<Func<IRequest, IRequest>>();
 
         /// <summary>Options for the fluent http client.</summary>
-        private readonly FluentClientOptions options;
+        private readonly FluentClientOptions Options = new FluentClientOptions();
 
 
         /*********
@@ -54,16 +54,14 @@ namespace Pathoschild.Http.Client
         /// <summary>Construct an instance.</summary>
         /// <param name="baseUri">The base URI prepended to relative request URIs.</param>
         /// <param name="proxy">The web proxy.</param>
-        /// <param name="options">The options.</param>
-        public FluentClient(string baseUri, IWebProxy proxy, FluentClientOptions options = null)
-            : this(new Uri(baseUri), proxy, options) { }
+        public FluentClient(string baseUri, IWebProxy proxy)
+            : this(new Uri(baseUri), proxy) { }
 
         /// <summary>Construct an instance.</summary>
         /// <param name="baseUri">The base URI prepended to relative request URIs.</param>
         /// <param name="proxy">The web proxy.</param>
-        /// <param name="options">The options.</param>
-        public FluentClient(Uri baseUri, IWebProxy proxy, FluentClientOptions options = null)
-            : this(baseUri, new HttpClient(new HttpClientHandler { Proxy = proxy, UseProxy = proxy != null }), options)
+        public FluentClient(Uri baseUri, IWebProxy proxy)
+            : this(baseUri, new HttpClient(new HttpClientHandler { Proxy = proxy, UseProxy = proxy != null }))
         {
             this.MustDisposeBaseClient = true;
         }
@@ -71,22 +69,19 @@ namespace Pathoschild.Http.Client
         /// <summary>Construct an instance.</summary>
         /// <param name="baseUri">The base URI prepended to relative request URIs.</param>
         /// <param name="client">The underlying HTTP client.</param>
-        /// <param name="options">The options.</param>
-        public FluentClient(string baseUri, HttpClient client = null, FluentClientOptions options = null)
-            : this(new Uri(baseUri), client, options) { }
+        public FluentClient(string baseUri, HttpClient client = null)
+            : this(new Uri(baseUri), client) { }
 
         /// <summary>Construct an instance.</summary>
         /// <param name="baseUri">The base URI prepended to relative request URIs.</param>
         /// <param name="client">The underlying HTTP client.</param>
-        /// <param name="options">The options.</param>
-        public FluentClient(Uri baseUri, HttpClient client = null, FluentClientOptions options = null)
+        public FluentClient(Uri baseUri, HttpClient client = null)
         {
             // initialise
             this.MustDisposeBaseClient = client == null;
             this.BaseClient = client ?? new HttpClient();
             this.Filters = new List<IHttpFilter> { new DefaultErrorFilter() };
             this.Formatters = new MediaTypeFormatterCollection();
-            this.options = options ?? new FluentClientOptions();
             if (baseUri != null)
                 this.BaseClient.BaseAddress = this.NormaliseUrl(baseUri);
 
@@ -105,8 +100,7 @@ namespace Pathoschild.Http.Client
 
             IRequest request = new Request(message, this.Formatters, async req => await this.BaseClient.SendAsync(await req.Message.CloneAsync().ConfigureAwait(false), req.CancellationToken).ConfigureAwait(false), this.Filters.ToList()) // clone the underlying message because HttpClient doesn't normally allow re-sending the same request, which would break IRequestCoordinator
                 .WithRequestCoordinator(this.RequestCoordinator)
-                .WithHttpErrorAsException(!this.options.IgnoreHttpErrors)
-                .WithIgnoreNullArguments(this.options.IgnoreNullArguments);
+                .WithOptions(this.Options.ToRequestOptions());
             foreach (Func<IRequest, IRequest> apply in this.Defaults)
                 request = apply(request);
             return request;
@@ -123,9 +117,20 @@ namespace Pathoschild.Http.Client
 
         /// <summary>Set whether HTTP error responses (e.g. HTTP 404) should be raised as exceptions by default.</summary>
         /// <param name="enabled">Whether to raise HTTP errors as exceptions by default.</param>
+        [Obsolete("Will be removed in version 4. Use `SetOptions` instead.")]
         public IClient SetHttpErrorAsException(bool enabled)
         {
-            this.options.IgnoreHttpErrors = !enabled;
+            this.Options.IgnoreHttpErrors = !enabled;
+            return this;
+        }
+
+        /// <summary>Set default options for all requests.</summary>
+        /// <param name="options">The options.</param>
+        public IClient SetOptions(FluentClientOptions options)
+        {
+            if (options == null) throw new ArgumentNullException(nameof(options));
+            if (options.IgnoreHttpErrors.HasValue) this.Options.IgnoreHttpErrors = options.IgnoreHttpErrors;
+            if (options.IgnoreNullArguments.HasValue) this.Options.IgnoreNullArguments = options.IgnoreHttpErrors;
             return this;
         }
 

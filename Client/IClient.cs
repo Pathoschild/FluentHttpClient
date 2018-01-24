@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Net.Http;
 using System.Net.Http.Formatting;
@@ -38,7 +38,12 @@ namespace Pathoschild.Http.Client
 
         /// <summary>Set whether HTTP error responses (e.g. HTTP 404) should be raised as exceptions by default.</summary>
         /// <param name="enabled">Whether to raise HTTP errors as exceptions by default.</param>
+        [Obsolete("Will be removed in version 4. Use `SetOptions` instead.")]
         IClient SetHttpErrorAsException(bool enabled);
+
+        /// <summary>Set default options for all requests.</summary>
+        /// <param name="options">The options.</param>
+        IClient SetOptions(FluentClientOptions options);
 
         /// <summary>Set the default user agent header.</summary>
         /// <param name="userAgent">The user agent header value.</param>

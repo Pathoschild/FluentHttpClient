@@ -113,7 +113,7 @@ namespace Pathoschild.Http.Tests.Client
             // execute
             IRequest request = this
                 .ConstructRequest(methodName)
-                .WithIgnoreNullArguments(ignoreNullArguments)
+                .WithOptions(new RequestOptions() { IgnoreNullArguments = ignoreNullArguments })
                 .WithArgument(key, value);
 
             // verify
@@ -202,7 +202,7 @@ namespace Pathoschild.Http.Tests.Client
             // execute
             IRequest request = this
                 .ConstructRequest(methodName)
-                .WithIgnoreNullArguments(ignoreNullArguments)
+                .WithOptions(new RequestOptions() { IgnoreNullArguments = ignoreNullArguments })
                 .WithArguments(new[]
                 {
                     new KeyValuePair<string, object>(keyA, valueA),
@@ -227,7 +227,7 @@ namespace Pathoschild.Http.Tests.Client
             // execute
             IRequest request = this
                 .ConstructRequest(methodName)
-                .WithIgnoreNullArguments(ignoreNullArguments)
+                .WithOptions(new RequestOptions() { IgnoreNullArguments = ignoreNullArguments })
                 .WithArguments(new { keyA = valueA, keyB = valueB });
 
             // verify
@@ -410,8 +410,8 @@ namespace Pathoschild.Http.Tests.Client
             Assert.NotNull(ex.Response, "The HTTP response on the exception is null.");
         }
 
-        [Test(Description = "Ensure that WithHttpErrorAsException can disable HTTP errors as exceptions.")]
-        public async Task WithHttpErrorAsException_DisablesException()
+        [Test(Description = "Ensure that WithOptions can disable HTTP errors as exceptions.")]
+        public async Task WithOptions_DisablesException()
         {
             // arrange
             var mockHttp = new MockHttpMessageHandler();
@@ -419,7 +419,7 @@ namespace Pathoschild.Http.Tests.Client
             var client = new FluentClient("https://example.org", new HttpClient(mockHttp));
 
             // verify
-            IResponse response = await client.GetAsync("/").WithHttpErrorAsException(false);
+            IResponse response = await client.GetAsync("/").WithOptions(new RequestOptions() { IgnoreHttpErrors = true });
             Assert.NotNull(response, "The HTTP response is null.");
             Assert.NotNull(response.Message, "The HTTP response message is null.");
             Assert.AreEqual(HttpStatusCode.NotFound, response.Status, "The HTTP status doesn't match the response.");

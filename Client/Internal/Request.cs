@@ -23,11 +23,12 @@ namespace Pathoschild.Http.Client.Internal
         /// <summary>Dispatcher that executes the request.</summary>
         private readonly Func<IRequest, Task<HttpResponseMessage>> Dispatcher;
 
-        /// <summary>Whether HTTP error responses (e.g. HTTP 404) should be raised as exceptions.</summary>
-        private bool HttpErrorAsException;
-
-        /// <summary>Whether arguments with null value should be ignored.</summary>
-        private bool IgnoreNullArguments;
+        /// <summary>Options for this request.</summary>
+        private RequestOptions Options = new RequestOptions()
+        {
+            IgnoreHttpErrors = false,   // By default, do not ignore errors
+            IgnoreNullArguments = true  // By default, ignore arguments with null value
+        };
 
 
         /*********
@@ -104,7 +105,7 @@ namespace Pathoschild.Http.Client.Internal
         /// <returns>Returns the request builder for chaining.</returns>
         public IRequest WithArgument(string key, object value)
         {
-            this.Message.RequestUri = this.Message.RequestUri.WithArguments(this.IgnoreNullArguments, new KeyValuePair<string, object>(key, value));
+            this.Message.RequestUri = this.Message.RequestUri.WithArguments(this.Options.IgnoreNullArguments.Value, new KeyValuePair<string, object>(key, value));
             return this;
         }
 
@@ -123,7 +124,7 @@ namespace Pathoschild.Http.Client.Internal
                 where !string.IsNullOrWhiteSpace(key)
                 select new KeyValuePair<string, object>(key, arg.Value)
             ).ToArray();
-            this.Message.RequestUri = this.Message.RequestUri.WithArguments(this.IgnoreNullArguments, args);
+            this.Message.RequestUri = this.Message.RequestUri.WithArguments(this.Options.IgnoreNullArguments.Value, args);
             return this;
         }
 
@@ -142,7 +143,7 @@ namespace Pathoschild.Http.Client.Internal
                 select new KeyValuePair<string, object>(property.Name, property.GetValue(arguments))
             ).ToArray();
 
-            this.Message.RequestUri = this.Message.RequestUri.WithArguments(this.IgnoreNullArguments, args);
+            this.Message.RequestUri = this.Message.RequestUri.WithArguments(this.Options.IgnoreNullArguments.Value, args);
             return this;
         }
 
@@ -166,17 +167,20 @@ namespace Pathoschild.Http.Client.Internal
 
         /// <summary>Set whether HTTP errors (e.g. HTTP 500) should be raised an exceptions for this request.</summary>
         /// <param name="enabled">Whether to raise HTTP errors as exceptions.</param>
+        [Obsolete("Will be removed in version 4. Use `WithOptions` instead.")]
         public IRequest WithHttpErrorAsException(bool enabled)
         {
-            this.HttpErrorAsException = enabled;
+            this.Options.IgnoreHttpErrors = !enabled;
             return this;
         }
 
-        /// <summary>Set whether aguments with null value should be ignored for this request.</summary>
-        /// <param name="ignoreNullArguments">Whether to ignore arguments with null value.</param>
-        public IRequest WithIgnoreNullArguments(bool ignoreNullArguments)
+        /// <summary>Set options for this request.</summary>
+        /// <param name="options">The options.</param>
+        public IRequest WithOptions(RequestOptions options)
         {
-            this.IgnoreNullArguments = ignoreNullArguments;
+            if (options == null) throw new ArgumentNullException(nameof(options));
+            if (options.IgnoreHttpErrors.HasValue) this.Options.IgnoreHttpErrors = options.IgnoreHttpErrors;
+            if (options.IgnoreNullArguments.HasValue) this.Options.IgnoreNullArguments = options.IgnoreNullArguments;
             return this;
         }
 
@@ -280,7 +284,7 @@ namespace Pathoschild.Http.Client.Internal
 
             // apply response filters
             foreach (IHttpFilter filter in this.Filters)
-                filter.OnResponse(response, this.HttpErrorAsException);
+                filter.OnResponse(response, !this.Options.IgnoreHttpErrors.Value);
 
             return response;
         }
