@@ -15,22 +15,13 @@ namespace Pathoschild.Http.Client.Internal
         /// <remarks>This method can't use <see cref="System.Net.Http.UriExtensions.ParseQueryString" /> because it isn't compatible with portable class libraries.</remarks>
         public static Uri WithArguments(this Uri uri, bool ignoreNullArguments, params KeyValuePair<string, object>[] arguments)
         {
-            string argumentsWithValue = string.Join("&",
+            string queryString = string.Join("&",
                 from argument in arguments
-                where argument.Value != null
+                where !ignoreNullArguments || argument.Value != null
                 let key = WebUtility.UrlEncode(argument.Key)
-                let value = WebUtility.UrlEncode(argument.Value.ToString())
+                let value = argument.Value != null ? WebUtility.UrlEncode(argument.Value.ToString()) : string.Empty
                 select key + "=" + value
             );
-
-            string argumentsWithoutValue = string.Join("&",
-                from argument in arguments
-                where argument.Value == null
-                let key = WebUtility.UrlEncode(argument.Key)
-                select key + "="
-            );
-
-            string queryString = argumentsWithValue + (!ignoreNullArguments && !string.IsNullOrEmpty(argumentsWithoutValue) ? "&" + argumentsWithoutValue : string.Empty);
 
             return new Uri(
                 uri
