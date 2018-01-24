@@ -221,7 +221,7 @@ namespace Pathoschild.Http.Tests.Client
         [TestCase("GET", "aaa", null, true)]
         [TestCase("GET", null, "bbb", true)]
         [TestCase("GET", "aaa", null, false)]
-        [TestCase("GET", null,"bbb", false)]
+        [TestCase("GET", null, "bbb", false)]
         public void WithArguments_Object_IgnoresArgumentWithNullValue(string methodName, string valueA, string valueB, bool ignoreNullArguments)
         {
             // execute
@@ -606,29 +606,14 @@ namespace Pathoschild.Http.Tests.Client
 
         private void AssertQuerystringArgument(IDictionary<string, StringValues> arguments, string key, string value, bool ignoreNullArguments)
         {
-            if (ignoreNullArguments)
+            if (ignoreNullArguments && value == null)
             {
-                if (value == null)
-                {
-                    Assert.That(arguments.ContainsKey(key), Is.False, $"Argument {key} with null value should have been ignored");
-                }
-                else
-                {
-                    Assert.That(arguments.ContainsKey(key), Is.True, $"Argument {key}  with null value shouldn't have been ignored");
-                    Assert.That(arguments[key], Is.EqualTo(value), $"Argument {key}'s value should be {value}.");
-                }
+                Assert.That(arguments.ContainsKey(key), Is.False, $"Argument {key} with null value should have been ignored");
             }
             else
             {
                 Assert.That(arguments.ContainsKey(key), Is.True, $"Argument {key} with null value shouldn't have been ignored");
-                if (value == null)
-                {
-                    Assert.That(string.IsNullOrEmpty(arguments[key]), Is.True, $"Argument {key}'s value should be null.");
-                }
-                else
-                {
-                    Assert.That(arguments[key], Is.EqualTo(value), $"Argument {key}'s value should be {value}.");
-                }
+                Assert.That(arguments[key], Is.EqualTo(value ?? ""), $"Argument {key}'s value should be '{value}'.");
             }
         }
     }
