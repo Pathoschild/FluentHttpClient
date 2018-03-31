@@ -441,6 +441,56 @@ namespace Pathoschild.Http.Tests.Client
             Assert.AreEqual("This is request #2", valueB, "The second request got an unexpected value.");
         }
 
+        [Test(Description = "A dispatched request is sent to the expected URL.")]
+        // empty resource
+        [TestCase("https://example.org/index.php", null, ExpectedResult = "https://example.org/index.php")]
+        [TestCase("https://example.org/index.php", "", ExpectedResult = "https://example.org/index.php")]
+        [TestCase("https://example.org/index.php", "   ", ExpectedResult = "https://example.org/index.php")]
+
+        // path resource
+        [TestCase("https://example.org", "api", ExpectedResult = "https://example.org/api")]
+        [TestCase("https://example.org/", "api", ExpectedResult = "https://example.org/api")]
+        [TestCase("https://example.org/index", "api", ExpectedResult = "https://example.org/index/api")]
+        [TestCase("https://example.org/index.php", "api", ExpectedResult = "https://example.org/index.php/api")]
+        [TestCase("https://example.org/index.php?x=1", "api", ExpectedResult = "https://example.org/index.php/api")]
+
+        // query resource
+        [TestCase("https://example.org/index", "?api", ExpectedResult = "https://example.org/index?api")]
+        [TestCase("https://example.org/index?api=1", "&api=2", ExpectedResult = "https://example.org/index?api=1&api=2")]
+
+        // URL resource
+        [TestCase("https://example.org/index.php", "https://example.org/api", ExpectedResult = "https://example.org/api")]
+
+        // special case: just combine fragments
+        [TestCase("https://example.org/index", "#api", ExpectedResult = "https://example.org/index#api")]
+        [TestCase("https://example.org/index.php?x=1", "#api", ExpectedResult = "https://example.org/index.php?x=1#api")]
+        [TestCase("https://example.org/api#fragment", "api", ExpectedResult = "https://example.org/api#fragmentapi")]
+        [TestCase("https://example.org/api/#fragment", "&x=1", ExpectedResult = "https://example.org/api/#fragment&x=1")]
+        public async Task<string> Request_Url(string baseUrl, string url)
+        {
+            // arrange
+            var mockHttp = new MockHttpMessageHandler();
+            mockHttp.When(HttpMethod.Get, "*").Respond(HttpStatusCode.OK, req => new StringContent(req.RequestUri.ToString()));
+            var fluentClient = new FluentClient(baseUrl, new HttpClient(mockHttp));
+
+            // act
+            return await fluentClient.GetAsync(url).AsString();
+        }
+
+        [Test(Description = "An appropriate exception is thrown when the resource isn't valid for the current base URL.")]
+        [TestCase("https://example.org?x=1", "?x=1")]
+        [TestCase("https://example.org", "&x=1")]
+        public void Request_Url_WhenInvalid(string baseUrl, string url)
+        {
+            // arrange
+            var mockHttp = new MockHttpMessageHandler();
+            mockHttp.When(HttpMethod.Get, "*").Respond(HttpStatusCode.OK, req => new StringContent(req.RequestUri.ToString()));
+            var fluentClient = new FluentClient(baseUrl, new HttpClient(mockHttp));
+
+            // assert
+            Assert.ThrowsAsync<FormatException>(async () => await fluentClient.GetAsync(url).AsString());
+        }
+
         /***
         ** Request infrastructure
         ***/

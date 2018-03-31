@@ -1,12 +1,12 @@
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Formatting;
 using System.Net.Http.Headers;
 using System.Reflection;
+using System.Threading.Tasks;
 using Pathoschild.Http.Client.Extensibility;
 using Pathoschild.Http.Client.Internal;
 using Pathoschild.Http.Client.Retry;
@@ -83,7 +83,7 @@ namespace Pathoschild.Http.Client
             this.Filters = new List<IHttpFilter> { new DefaultErrorFilter() };
             this.Formatters = new MediaTypeFormatterCollection();
             if (baseUri != null)
-                this.BaseClient.BaseAddress = this.NormaliseUrl(baseUri);
+                this.BaseClient.BaseAddress = baseUri;
 
             // set default user agent
             Version version = typeof(FluentClient).GetTypeInfo().Assembly.GetName().Version;
@@ -98,7 +98,7 @@ namespace Pathoschild.Http.Client
         {
             this.AssertNotDisposed();
 
-            IRequest request = new Request(message, this.Formatters, async req => await this.BaseClient.SendAsync(await req.Message.CloneAsync().ConfigureAwait(false), req.CancellationToken).ConfigureAwait(false), this.Filters.ToList()) // clone the underlying message because HttpClient doesn't normally allow re-sending the same request, which would break IRequestCoordinator
+            IRequest request = new Request(message, this.Formatters, async req => await this.SendImplAsync(req).ConfigureAwait(false), this.Filters.ToList()) // clone the underlying message because HttpClient doesn't normally allow re-sending the same request, which would break IRequestCoordinator
                 .WithRequestCoordinator(this.RequestCoordinator)
                 .WithHttpErrorAsException(this.HttpErrorAsException);
             foreach (Func<IRequest, IRequest> apply in this.Defaults)
@@ -160,22 +160,20 @@ namespace Pathoschild.Http.Client
         /*********
         ** Protected methods
         *********/
-        /// <summary>Normalise the given URI.</summary>
-        /// <param name="uri">The URI to normalise.</param>
-        private Uri NormaliseUrl(Uri uri)
+        /// <summary>Dispatch an HTTP request message and fetch the response message.</summary>
+        /// <param name="request">The request to send.</param>
+        /// <exception cref="ObjectDisposedException">The instance has been disposed.</exception>
+        protected virtual async Task<HttpResponseMessage> SendImplAsync(IRequest request)
         {
-            if (uri == null)
-                return null;
+            this.AssertNotDisposed();
 
-            // make sure directory paths end with a slash to avoid unintuitive behaviour
-            UriBuilder builder = new UriBuilder(uri);
-            if (!uri.AbsolutePath.EndsWith("/") && !Path.HasExtension(uri.AbsolutePath))
-            {
-                builder.Path += "/";
-                uri = builder.Uri;
-            }
+            // clone request (to avoid issues when resending messages)
+            HttpRequestMessage requestMessage = await request.Message.CloneAsync().ConfigureAwait(false);
 
-            return uri;
+            // dispatch request
+            return await this.BaseClient
+                .SendAsync(requestMessage, request.CancellationToken)
+                .ConfigureAwait(false);
         }
 
         /// <summary>Assert that the instance has not been disposed.</summary>
