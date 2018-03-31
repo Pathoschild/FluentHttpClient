@@ -23,12 +23,11 @@ namespace Pathoschild.Http.Client.Internal
         /// <summary>Dispatcher that executes the request.</summary>
         private readonly Func<IRequest, Task<HttpResponseMessage>> Dispatcher;
 
-        /// <summary>Options for this request.</summary>
-        private RequestOptions Options = new RequestOptions()
-        {
-            IgnoreHttpErrors = false,   // By default, do not ignore errors
-            IgnoreNullArguments = true  // By default, ignore arguments with null value
-        };
+        /// <summary>Whether to ignore arguments with null value when the request is dispatched.</summary>
+        public bool IgnoreNullArguments { get; set; } = true;
+
+        /// <summary>Whether HTTP error responses (e.g. HTTP 404) should be ignored (else raised as exceptions).</summary>
+        public bool IgnoreHttpErrors { get; set; }
 
 
         /*********
@@ -105,7 +104,7 @@ namespace Pathoschild.Http.Client.Internal
         /// <returns>Returns the request builder for chaining.</returns>
         public IRequest WithArgument(string key, object value)
         {
-            this.Message.RequestUri = this.Message.RequestUri.WithArguments(this.Options.IgnoreNullArguments.Value, new KeyValuePair<string, object>(key, value));
+            this.Message.RequestUri = this.Message.RequestUri.WithArguments(this.IgnoreNullArguments, new KeyValuePair<string, object>(key, value));
             return this;
         }
 
@@ -124,7 +123,7 @@ namespace Pathoschild.Http.Client.Internal
                 where !string.IsNullOrWhiteSpace(key)
                 select new KeyValuePair<string, object>(key, arg.Value)
             ).ToArray();
-            this.Message.RequestUri = this.Message.RequestUri.WithArguments(this.Options.IgnoreNullArguments.Value, args);
+            this.Message.RequestUri = this.Message.RequestUri.WithArguments(this.IgnoreNullArguments, args);
             return this;
         }
 
@@ -139,11 +138,11 @@ namespace Pathoschild.Http.Client.Internal
 
             KeyValuePair<string, object>[] args = (
                 from property in arguments.GetType().GetRuntimeProperties()
-                where property.CanRead && property.GetIndexParameters()?.Any() != true
+                where property.CanRead && property.GetIndexParameters().Any() != true
                 select new KeyValuePair<string, object>(property.Name, property.GetValue(arguments))
             ).ToArray();
 
-            this.Message.RequestUri = this.Message.RequestUri.WithArguments(this.Options.IgnoreNullArguments.Value, args);
+            this.Message.RequestUri = this.Message.RequestUri.WithArguments(this.IgnoreNullArguments, args);
             return this;
         }
 
@@ -167,20 +166,24 @@ namespace Pathoschild.Http.Client.Internal
 
         /// <summary>Set whether HTTP errors (e.g. HTTP 500) should be raised an exceptions for this request.</summary>
         /// <param name="enabled">Whether to raise HTTP errors as exceptions.</param>
-        [Obsolete("Will be removed in version 4. Use `WithOptions` instead.")]
+        [Obsolete("Will be removed in 4.0. Use `" + nameof(WithOptions) + "` instead.")]
         public IRequest WithHttpErrorAsException(bool enabled)
         {
-            this.Options.IgnoreHttpErrors = !enabled;
-            return this;
+            return this.WithOptions(new RequestOptions { IgnoreHttpErrors = !enabled });
         }
 
         /// <summary>Set options for this request.</summary>
-        /// <param name="options">The options.</param>
+        /// <param name="options">The options to set. (Fields set to <c>null</c> won't change the current value.)</param>
         public IRequest WithOptions(RequestOptions options)
         {
-            if (options == null) throw new ArgumentNullException(nameof(options));
-            if (options.IgnoreHttpErrors.HasValue) this.Options.IgnoreHttpErrors = options.IgnoreHttpErrors;
-            if (options.IgnoreNullArguments.HasValue) this.Options.IgnoreNullArguments = options.IgnoreNullArguments;
+            if (options == null)
+                throw new ArgumentNullException(nameof(options));
+
+            if (options.IgnoreHttpErrors.HasValue)
+                this.IgnoreHttpErrors = options.IgnoreHttpErrors.Value;
+            if (options.IgnoreNullArguments.HasValue)
+                this.IgnoreNullArguments = options.IgnoreNullArguments.Value;
+
             return this;
         }
 
@@ -284,7 +287,7 @@ namespace Pathoschild.Http.Client.Internal
 
             // apply response filters
             foreach (IHttpFilter filter in this.Filters)
-                filter.OnResponse(response, !this.Options.IgnoreHttpErrors.Value);
+                filter.OnResponse(response, !this.IgnoreHttpErrors);
 
             return response;
         }

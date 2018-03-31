@@ -2,8 +2,10 @@
 ## 3.2
 The upcoming release. See [log](https://github.com/Pathoschild/FluentHttpClient/compare/3.1...3.2).
 
-* The base URL now works more intuitively in many cases.
-* Added `Request.WithArguments` overload which takes `KeyValuePair` arguments to simplify multiple argument values.
+* Added more intuitive base URL logic in many cases.
+* Added `client.SetOptions` and `request.WithOptions` to change the client's behavior.
+* `Request.WithArguments` now ignores arguments with a null value by default.
+* `Request.WithArguments` now also accepts `KeyValuePair[]` arguments.
 * Fixed cookie headers not being set.
 * Fixed error when passing an object with an indexer property to `WithArguments`.
 

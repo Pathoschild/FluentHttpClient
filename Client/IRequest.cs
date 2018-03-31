@@ -82,11 +82,11 @@ namespace Pathoschild.Http.Client
 
         /// <summary>Set whether HTTP error responses (e.g. HTTP 404) should be raised as exceptions for this request.</summary>
         /// <param name="enabled">Whether to raise HTTP errors as exceptions.</param>
-        [Obsolete("Will be removed in version 4. Use `WithOptions` instead.")]
+        [Obsolete("Will be removed in 4.0. Use `" + nameof(WithOptions) + "` instead.")]
         IRequest WithHttpErrorAsException(bool enabled);
 
         /// <summary>Set options for this request.</summary>
-        /// <param name="options">The options.</param>
+        /// <param name="options">The options to set. (Fields set to <c>null</c> won't change the current value.)</param>
         IRequest WithOptions(RequestOptions options);
 
         /// <summary>Set the request coordinator for this request.</summary>

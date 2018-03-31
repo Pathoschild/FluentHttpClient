@@ -28,7 +28,7 @@ namespace Pathoschild.Http.Client
         /// <summary>The default behaviours to apply to all requests.</summary>
         private readonly IList<Func<IRequest, IRequest>> Defaults = new List<Func<IRequest, IRequest>>();
 
-        /// <summary>Options for the fluent http client.</summary>
+        /// <summary>Options for the fluent client.</summary>
         private readonly FluentClientOptions Options = new FluentClientOptions();
 
 
@@ -117,20 +117,24 @@ namespace Pathoschild.Http.Client
 
         /// <summary>Set whether HTTP error responses (e.g. HTTP 404) should be raised as exceptions by default.</summary>
         /// <param name="enabled">Whether to raise HTTP errors as exceptions by default.</param>
-        [Obsolete("Will be removed in version 4. Use `SetOptions` instead.")]
+        [Obsolete("Will be removed in 4.0. Use `" + nameof(SetOptions) + "` instead.")]
         public IClient SetHttpErrorAsException(bool enabled)
         {
-            this.Options.IgnoreHttpErrors = !enabled;
-            return this;
+            return this.SetOptions(new FluentClientOptions { IgnoreHttpErrors = !enabled });
         }
 
         /// <summary>Set default options for all requests.</summary>
-        /// <param name="options">The options.</param>
+        /// <param name="options">The options to set. (Fields set to <c>null</c> won't change the current value.)</param>
         public IClient SetOptions(FluentClientOptions options)
         {
-            if (options == null) throw new ArgumentNullException(nameof(options));
-            if (options.IgnoreHttpErrors.HasValue) this.Options.IgnoreHttpErrors = options.IgnoreHttpErrors;
-            if (options.IgnoreNullArguments.HasValue) this.Options.IgnoreNullArguments = options.IgnoreHttpErrors;
+            if (options == null)
+                throw new ArgumentNullException(nameof(options));
+
+            if (options.IgnoreHttpErrors.HasValue)
+                this.Options.IgnoreHttpErrors = options.IgnoreHttpErrors;
+            if (options.IgnoreNullArguments.HasValue)
+                this.Options.IgnoreNullArguments = options.IgnoreHttpErrors;
+
             return this;
         }
 
