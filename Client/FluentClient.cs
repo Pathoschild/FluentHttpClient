@@ -25,11 +25,11 @@ namespace Pathoschild.Http.Client
         /// <summary>Whether to dispose the <see cref="BaseClient"/> when disposing.</summary>
         private readonly bool MustDisposeBaseClient;
 
-        /// <summary>Whether HTTP error responses (e.g. HTTP 404) should be raised as exceptions.</summary>
-        private bool HttpErrorAsException = true;
-
         /// <summary>The default behaviours to apply to all requests.</summary>
         private readonly IList<Func<IRequest, IRequest>> Defaults = new List<Func<IRequest, IRequest>>();
+
+        /// <summary>Options for the fluent http client.</summary>
+        private readonly FluentClientOptions Options = new FluentClientOptions();
 
 
         /*********
@@ -100,7 +100,7 @@ namespace Pathoschild.Http.Client
 
             IRequest request = new Request(message, this.Formatters, async req => await this.SendImplAsync(req).ConfigureAwait(false), this.Filters.ToList()) // clone the underlying message because HttpClient doesn't normally allow re-sending the same request, which would break IRequestCoordinator
                 .WithRequestCoordinator(this.RequestCoordinator)
-                .WithHttpErrorAsException(this.HttpErrorAsException);
+                .WithOptions(this.Options.ToRequestOptions());
             foreach (Func<IRequest, IRequest> apply in this.Defaults)
                 request = apply(request);
             return request;
@@ -117,9 +117,20 @@ namespace Pathoschild.Http.Client
 
         /// <summary>Set whether HTTP error responses (e.g. HTTP 404) should be raised as exceptions by default.</summary>
         /// <param name="enabled">Whether to raise HTTP errors as exceptions by default.</param>
+        [Obsolete("Will be removed in version 4. Use `SetOptions` instead.")]
         public IClient SetHttpErrorAsException(bool enabled)
         {
-            this.HttpErrorAsException = enabled;
+            this.Options.IgnoreHttpErrors = !enabled;
+            return this;
+        }
+
+        /// <summary>Set default options for all requests.</summary>
+        /// <param name="options">The options.</param>
+        public IClient SetOptions(FluentClientOptions options)
+        {
+            if (options == null) throw new ArgumentNullException(nameof(options));
+            if (options.IgnoreHttpErrors.HasValue) this.Options.IgnoreHttpErrors = options.IgnoreHttpErrors;
+            if (options.IgnoreNullArguments.HasValue) this.Options.IgnoreNullArguments = options.IgnoreHttpErrors;
             return this;
         }
 
