@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -61,7 +61,7 @@ namespace Pathoschild.Http.Client
         /// <param name="baseUri">The base URI prepended to relative request URIs.</param>
         /// <param name="proxy">The web proxy.</param>
         public FluentClient(Uri baseUri, IWebProxy proxy)
-            : this(baseUri, new HttpClient(new HttpClientHandler { Proxy = proxy, UseProxy = proxy != null }))
+            : this(baseUri, new HttpClient(GetDefaultHandler(proxy)))
         {
             this.MustDisposeBaseClient = true;
         }
@@ -79,7 +79,7 @@ namespace Pathoschild.Http.Client
         {
             // initialise
             this.MustDisposeBaseClient = client == null;
-            this.BaseClient = client ?? new HttpClient();
+            this.BaseClient = client ?? new HttpClient(GetDefaultHandler());
             this.Filters = new List<IHttpFilter> { new DefaultErrorFilter() };
             this.Formatters = new MediaTypeFormatterCollection();
             if (baseUri != null)
@@ -197,6 +197,21 @@ namespace Pathoschild.Http.Client
                 this.BaseClient.Dispose();
 
             this.IsDisposed = true;
+        }
+
+        /// <summary>Get a default HTTP client handler.</summary>
+        /// <param name="proxy">The web proxy to use (if any).</param>
+        private static HttpClientHandler GetDefaultHandler(IWebProxy proxy = null)
+        {
+            return new HttpClientHandler
+            {
+                // configure proxy
+                Proxy = proxy,
+                UseProxy = proxy != null,
+
+                // don't use cookie container (so we can set cookies directly in request headers)
+                UseCookies = false
+            };
         }
 
         /// <summary>Destruct the instance.</summary>

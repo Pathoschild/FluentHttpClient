@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -326,6 +326,32 @@ namespace Pathoschild.Http.Tests.Client
             Assert.That(header, Is.Not.Null, "The header is invalid.");
             Assert.That(header.Value, Is.Not.Null.Or.Empty, "The header value is invalid.");
             Assert.That(header.Value.First(), Is.EqualTo(value), "The header value is invalid.");
+        }
+
+        [Test(Description = "Ensure that WithHeader for a Cookie header sets the expected header and does not incorrectly alter request state.")]
+        [TestCase("DELETE", "cookie key", "value")]
+        [TestCase("GET", "cookie key", "value")]
+        [TestCase("HEAD", "cookie key", "value")]
+        [TestCase("PUT", "cookie key", "value")]
+        [TestCase("OPTIONS", "cookie key", "value")]
+        [TestCase("POST", "cookie key", "value")]
+        [TestCase("TRACE", "cookie key", "value")]
+        public void WithHeader_Cookie(string methodName, string key, string value)
+        {
+            // arrange
+            string expectedValue = $"{key}={value}";
+
+            // execute
+            IRequest request = this
+                .ConstructRequest(methodName)
+                .WithHeader("Cookie", expectedValue);
+            var header = request.Message.Headers.FirstOrDefault(p => p.Key == "Cookie");
+
+            // verify
+            this.AssertEqual(request.Message, methodName, ignoreArguments: true);
+            Assert.That(header, Is.Not.Null, "The header is invalid.");
+            Assert.That(header.Value, Is.Not.Null.Or.Empty, "The header value is invalid.");
+            Assert.That(header.Value.First(), Is.EqualTo(expectedValue), "The header value is invalid.");
         }
 
         [Test(Description = "Ensure that WithHttpErrorAsException throws an exception by default.")]

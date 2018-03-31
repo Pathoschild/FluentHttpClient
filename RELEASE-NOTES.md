@@ -3,6 +3,7 @@
 The upcoming release. See [log](https://github.com/Pathoschild/FluentHttpClient/compare/3.1...3.2).
 
 * Added `Request.WithArguments` overload which takes `KeyValuePair` arguments to simplify multiple argument values.
+* Fixed cookie headers not being set.
 * Fixed error when passing an object with an indexer property to `WithArguments`.
 
 ## 3.1
