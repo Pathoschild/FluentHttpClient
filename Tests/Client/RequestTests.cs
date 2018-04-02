@@ -7,7 +7,11 @@ using System.Net.Http;
 using System.Net.Http.Formatting;
 using System.Text;
 using System.Threading.Tasks;
+#if NETCOREAPP2_0
+using Microsoft.AspNetCore.WebUtilities;
+#else
 using Microsoft.AspNet.WebUtilities;
+#endif
 using Microsoft.Extensions.Primitives;
 using NUnit.Framework;
 using Pathoschild.Http.Client;

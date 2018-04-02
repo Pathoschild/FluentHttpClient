@@ -4,11 +4,13 @@ The upcoming release. See [log](https://github.com/Pathoschild/FluentHttpClient/
 
 * Added more intuitive base URL logic in many cases.
 * Added `client.SetOptions` and `request.WithOptions` to change the client's behavior.
-* Added support for .NET Framework 4.5 (previously 4.5.2).
 * `Request.WithArguments` now ignores arguments with a null value by default.
 * `Request.WithArguments` now also accepts `KeyValuePair[]` arguments.
 * Fixed cookie headers not being set.
 * Fixed error when passing an object with an indexer property to `WithArguments`.
+* Compatibility changes:
+  * Added .NET Framework 4.5 (previously 4.5.2).
+  * Simplified dependencies in .NET Framework 4.5 and .NET Standard 2.0.
 
 ## 3.1
 Released 19 September 2017. See [log](https://github.com/Pathoschild/FluentHttpClient/compare/3.0...3.1).

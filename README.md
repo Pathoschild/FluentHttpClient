@@ -1,4 +1,4 @@
-﻿**FluentHttpClient** is a modern async HTTP client for REST APIs. Its fluent interface lets
+**FluentHttpClient** is a modern async HTTP client for REST APIs. Its fluent interface lets
 you send an HTTP request and parse the response in one go — hiding away the gritty
 details like deserialisation, content negotiation, optional retry logic, and URL encoding:
 
@@ -21,7 +21,7 @@ The client works on any modern platform (including Linux, Mac, and Windows):
 
 | platform                    | min version |
 | :-------------------------- | :---------- |
-| .NET Framework              | 4.5.2       |
+| .NET Framework              | 4.5         |
 | .NET Core                   | 1.0         |
 | [.NET Standard][]           | 1.3         |
 | Universal Windows Platform  | 10          |
