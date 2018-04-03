@@ -6,7 +6,7 @@ namespace Pathoschild.Http.Client
         /*********
         ** Accessors
         *********/
-        /// <summary>Whether to ignore arguments with null value when the request is dispatched.</summary>
+        /// <summary>Whether to ignore null arguments when the request is dispatched.</summary>
         public bool? IgnoreNullArguments { get; set; }
 
         /// <summary>Whether HTTP error responses (e.g. HTTP 404) should be ignored (else raised as exceptions).</summary>

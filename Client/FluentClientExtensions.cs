@@ -178,6 +178,19 @@ namespace Pathoschild.Http.Client
             return client.SetRequestCoordinator(new RetryCoordinator(config));
         }
 
+        /// <summary>Set default options for all requests.</summary>
+        /// <param name="client">The client.</param>
+        /// <param name="ignoreHttpErrors">Whether to ignore null arguments when the request is dispatched (or <c>null</c> to leave the option unchanged).</param>
+        /// <param name="ignoreNullArguments">Whether HTTP error responses like HTTP 404 should be ignored; else raised as exceptions (or <c>null</c> to leave the option unchanged).</param>
+        public static IClient SetOptions(this IClient client, bool? ignoreHttpErrors = null, bool? ignoreNullArguments = null)
+        {
+            return client.SetOptions(new FluentClientOptions
+            {
+                IgnoreHttpErrors = ignoreHttpErrors,
+                IgnoreNullArguments = ignoreNullArguments
+            });
+        }
+
         /****
         ** IRequest
         ****/
@@ -247,6 +260,19 @@ namespace Pathoschild.Http.Client
         public static IRequest WithRequestCoordinator(this IRequest request, IRetryConfig config)
         {
             return request.WithRequestCoordinator(new RetryCoordinator(config));
+        }
+
+        /// <summary>Set options for this request.</summary>
+        /// <param name="request">The request.</param>
+        /// <param name="ignoreHttpErrors">Whether to ignore null arguments when the request is dispatched (or <c>null</c> to leave the option unchanged).</param>
+        /// <param name="ignoreNullArguments">Whether HTTP error responses like HTTP 404 should be ignored; else raised as exceptions (or <c>null</c> to leave the option unchanged).</param>
+        public static IRequest WithOptions(this IRequest request, bool? ignoreHttpErrors = null, bool? ignoreNullArguments = null)
+        {
+            return request.WithOptions(new RequestOptions
+            {
+                IgnoreHttpErrors = ignoreHttpErrors,
+                IgnoreNullArguments = ignoreNullArguments
+            });
         }
 
 
