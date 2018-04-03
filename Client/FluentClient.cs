@@ -120,7 +120,7 @@ namespace Pathoschild.Http.Client
         [Obsolete("Will be removed in 4.0. Use `" + nameof(SetOptions) + "` instead.")]
         public IClient SetHttpErrorAsException(bool enabled)
         {
-            return this.SetOptions(new FluentClientOptions { IgnoreHttpErrors = !enabled });
+            return this.SetOptions(ignoreHttpErrors: !enabled);
         }
 
         /// <summary>Set default options for all requests.</summary>

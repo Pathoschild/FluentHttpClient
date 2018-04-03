@@ -82,7 +82,7 @@ namespace Pathoschild.Http.Tests.Client
                 Assert.AreEqual(1, attempts, "The client unexpectedly retried.");
 
                 // validate response when errors-as-exceptions is disabled
-                IResponse response = await client.GetAsync("").WithOptions(new RequestOptions { IgnoreHttpErrors = true });
+                IResponse response = await client.GetAsync("").WithOptions(ignoreHttpErrors: true);
                 Assert.AreEqual(this.TimeoutStatusCode, response.Status, "The response has an unexpected status code.");
             }
         }

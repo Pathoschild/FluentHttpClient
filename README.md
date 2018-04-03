@@ -55,7 +55,7 @@ If you don't need the response content, you can just wait for the request to com
 await client.PostAsync("items", new Item(…));
 ```
 
-### Request options
+### Detailed usage
 You can quickly configure complex requests with the fluent methods. Here's a more complicated
 example:
 
@@ -92,19 +92,19 @@ catch(ApiException ex)
 }
 ```
 
-If you don't want that, you can easily:
+If you don't want that, you can...
 * disable it for one request:
 
   ```c#
   IResponse response = await client
       .GetAsync("items")
-      .WithHttpErrorAsException(false);
+      .WithOptions(ignoreHttpErrors: true);
   ```
 
 * disable it for all requests:
 
   ```c#
-  client.SetHttpErrorAsException(false);
+  client.SetOptions(ignoreHttpErrors: true);
   ```
 
 * [use your own error filter](#custom-filters).

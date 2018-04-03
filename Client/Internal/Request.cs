@@ -169,7 +169,7 @@ namespace Pathoschild.Http.Client.Internal
         [Obsolete("Will be removed in 4.0. Use `" + nameof(WithOptions) + "` instead.")]
         public IRequest WithHttpErrorAsException(bool enabled)
         {
-            return this.WithOptions(new RequestOptions { IgnoreHttpErrors = !enabled });
+            return this.WithOptions(ignoreHttpErrors: !enabled);
         }
 
         /// <summary>Set options for this request.</summary>

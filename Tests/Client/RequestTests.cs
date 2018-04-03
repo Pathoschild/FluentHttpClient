@@ -117,7 +117,7 @@ namespace Pathoschild.Http.Tests.Client
             // execute
             IRequest request = this
                 .ConstructRequest(methodName)
-                .WithOptions(new RequestOptions { IgnoreNullArguments = ignoreNullArguments })
+                .WithOptions(ignoreNullArguments: ignoreNullArguments)
                 .WithArgument(key, value);
 
             // verify
@@ -206,7 +206,7 @@ namespace Pathoschild.Http.Tests.Client
             // execute
             IRequest request = this
                 .ConstructRequest(methodName)
-                .WithOptions(new RequestOptions { IgnoreNullArguments = ignoreNullArguments })
+                .WithOptions(ignoreNullArguments: ignoreNullArguments)
                 .WithArguments(new[]
                 {
                     new KeyValuePair<string, object>(keyA, valueA),
@@ -231,7 +231,7 @@ namespace Pathoschild.Http.Tests.Client
             // execute
             IRequest request = this
                 .ConstructRequest(methodName)
-                .WithOptions(new RequestOptions { IgnoreNullArguments = ignoreNullArguments })
+                .WithOptions(ignoreNullArguments: ignoreNullArguments)
                 .WithArguments(new { keyA = valueA, keyB = valueB });
 
             // verify
@@ -449,7 +449,7 @@ namespace Pathoschild.Http.Tests.Client
             var client = new FluentClient("https://example.org", new HttpClient(mockHttp));
 
             // verify
-            IResponse response = await client.GetAsync("/").WithOptions(new RequestOptions { IgnoreHttpErrors = true });
+            IResponse response = await client.GetAsync("/").WithOptions(ignoreHttpErrors: true);
             Assert.NotNull(response, "The HTTP response is null.");
             Assert.NotNull(response.Message, "The HTTP response message is null.");
             Assert.AreEqual(HttpStatusCode.NotFound, response.Status, "The HTTP status doesn't match the response.");
