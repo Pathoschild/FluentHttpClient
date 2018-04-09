@@ -294,10 +294,13 @@ namespace Pathoschild.Http.Tests.Client
         }
 
         [Test(Description = "Ensure that the WithArguments core implementation formats URLs correctly.")]
-        [TestCase("https://example.org/", false, ExpectedResult = "https://example.org/")]
-        [TestCase("https://example.org/", false, "x", true, "x", false, "x", null, ExpectedResult = "https://example.org/?x=True&x=False&x=")]
-        [TestCase("https://example.org/index.php?x=1#fragment", false, "x", true, "x", false, "x", null, ExpectedResult = "https://example.org/index.php?x=1&x=True&x=False&x=#fragment")]
-        public string WithArguments_Impl_AdjustsUrlCorrectly(string url, bool ignoreNullArguments, params object[] args)
+        [TestCase("https://example.org/", new object[0], false, ExpectedResult = "https://example.org/")]
+        [TestCase("https://example.org/", new object[] { "x", true, "x", false, "x", null }, false, ExpectedResult = "https://example.org/?x=True&x=False&x=")]
+        [TestCase("https://example.org/index.php?x=1#fragment", new object[] { "x", true, "x", false, "x", null }, false, ExpectedResult = "https://example.org/index.php?x=1&x=True&x=False&x=#fragment")]
+        [TestCase("https://example.org/", new object[0], true, ExpectedResult = "https://example.org/")]
+        [TestCase("https://example.org/", new object[] { "x", null }, true, ExpectedResult = "https://example.org/")]
+        [TestCase("https://example.org/index.php?x=1#fragment", new object[] { "x", "2", "x", null }, true, ExpectedResult = "https://example.org/index.php?x=1&x=2#fragment")]
+        public string WithArguments_Impl_AdjustsUrlCorrectly(string url, object[] args, bool ignoreNullArguments)
         {
             // validate
             if (args.Length % 2 != 0)
