@@ -24,7 +24,7 @@ namespace Pathoschild.Http.Client.Internal
         private readonly Func<IRequest, Task<HttpResponseMessage>> Dispatcher;
 
         /// <summary>Whether to ignore null arguments when the request is dispatched.</summary>
-        public bool IgnoreNullArguments { get; set; } = true;
+        public bool IgnoreNullArguments { get; set; }
 
         /// <summary>Whether HTTP error responses (e.g. HTTP 404) should be ignored (else raised as exceptions).</summary>
         public bool IgnoreHttpErrors { get; set; }

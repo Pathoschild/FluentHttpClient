@@ -1,4 +1,10 @@
 # Release notes
+<!--
+## 4.0
+**Breaking changes:**
+* When you specify null arguments like `request.WithArgument("x", null)`, the argument is now ignored instead of sending a blank value. You can use the previous behaviour by setting the `IgnoreNullArguments: false` option.
+-->
+
 ## 3.2
 Released 04 April 2018. See [log](https://github.com/Pathoschild/FluentHttpClient/compare/3.1...3.2).
 
@@ -16,7 +22,6 @@ Released 04 April 2018. See [log](https://github.com/Pathoschild/FluentHttpClien
 
 **Possible impacting changes:**
   * The base URL is no longer truncated in some cases. For example, a base URL `https://example.org/index.php` with resource `api` now resolves to `https://example.org/index.php/api` instead of `https://example.org/api`.
-  * When you specify null arguments like `request.WithArgument("x", null)`, the argument is now ignored instead of sending a blank value. You can use the previous behaviour by setting the `IgnoreNullArguments: false` option.
 
 ## 3.1
 Released 19 September 2017. See [log](https://github.com/Pathoschild/FluentHttpClient/compare/3.0...3.1).
