@@ -293,6 +293,25 @@ namespace Pathoschild.Http.Tests.Client
             Assert.That(arguments[key], Is.Not.Null.And.EqualTo(value.ToString()), "The dictionary values don't match the input.");
         }
 
+        [Test(Description = "Ensure that the WithArguments core implementation formats URLs correctly.")]
+        [TestCase("https://example.org/", false, ExpectedResult = "https://example.org/")]
+        [TestCase("https://example.org/", false, "x", true, "x", false, "x", null, ExpectedResult = "https://example.org/?x=True&x=False&x=")]
+        [TestCase("https://example.org/index.php?x=1#fragment", false, "x", true, "x", false, "x", null, ExpectedResult = "https://example.org/index.php?x=1&x=True&x=False&x=#fragment")]
+        public string WithArguments_Impl_AdjustsUrlCorrectly(string url, bool ignoreNullArguments, params object[] args)
+        {
+            // validate
+            if (args.Length % 2 != 0)
+                Assert.Inconclusive($"The {nameof(args)} arguments needs an even number of values (one key and one value each).");
+
+            // arrange
+            var argPairs = new List<KeyValuePair<string, object>>();
+            for (int i = 0; i < args.Length; i += 2)
+                argPairs.Add(new KeyValuePair<string, object>(args[i].ToString(), args[i + 1]));
+
+            // act
+            return new Uri(url).WithArguments(ignoreNullArguments, argPairs.ToArray()).ToString();
+        }
+
         [Test(Description = "Ensure that WithBodyContent sets the request body and does not incorrectly alter request state.")]
         [TestCase("DELETE", "body value")]
         [TestCase("GET", "body value")]
