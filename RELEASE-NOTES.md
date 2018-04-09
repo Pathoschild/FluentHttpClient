@@ -8,6 +8,7 @@ Released 04 April 2018. See [log](https://github.com/Pathoschild/FluentHttpClien
 * `Request.WithArguments` now also accepts key/value pairs.
 * Fixed cookie headers not being set.
 * Fixed error when passing an object with an indexer property to `WithArguments`.
+* Fixed `WithArguments` changing the URL incorrectly when it has a #fragment.
 * Deprecated `client.SetHttpErrorAsException` and `request.WithHttpErrorAsException` (use `client.SetOptions` and `request.WithOptions` instead).
 * Compatibility changes:
   * Added .NET Framework 4.5 (previously 4.5.2).
