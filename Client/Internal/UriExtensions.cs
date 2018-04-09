@@ -25,7 +25,7 @@ namespace Pathoschild.Http.Client.Internal
 
             return new Uri(
                 uri
-                + (string.IsNullOrWhiteSpace(uri.Query) ? "?" : "&")
+                + (string.IsNullOrEmpty(queryString) ? string.Empty : string.IsNullOrWhiteSpace(uri.Query) ? "?" : "&")
                 + queryString
             );
         }

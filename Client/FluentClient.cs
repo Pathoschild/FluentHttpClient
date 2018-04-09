@@ -133,7 +133,7 @@ namespace Pathoschild.Http.Client
             if (options.IgnoreHttpErrors.HasValue)
                 this.Options.IgnoreHttpErrors = options.IgnoreHttpErrors;
             if (options.IgnoreNullArguments.HasValue)
-                this.Options.IgnoreNullArguments = options.IgnoreHttpErrors;
+                this.Options.IgnoreNullArguments = options.IgnoreNullArguments;
 
             return this;
         }
