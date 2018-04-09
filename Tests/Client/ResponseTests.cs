@@ -1,5 +1,4 @@
-﻿using System;
-using System.IO;
+﻿using System.IO;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Formatting;
@@ -195,7 +194,7 @@ namespace Pathoschild.Http.Tests.Client
                 actual = reader.ReadToEnd();
 
             // assert
-            Assert.That(actual, Is.EqualTo(String.Format("\"{0}\"", content)));
+            Assert.That(actual, Is.EqualTo(string.Format("\"{0}\"", content)));
         }
 
         [Test(Description = "The response can be read as a stream when the content is a model.")]
@@ -212,7 +211,7 @@ namespace Pathoschild.Http.Tests.Client
                 actual = reader.ReadToEnd();
 
             // assert
-            Assert.That(actual, Is.EqualTo(String.Format("{{\"Value\":\"{0}\"}}", content)));
+            Assert.That(actual, Is.EqualTo(string.Format("{{\"Value\":\"{0}\"}}", content)));
         }
 
         [Test(Description = "The response can be asynchronously read as a string.")]
