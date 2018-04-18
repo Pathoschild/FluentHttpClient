@@ -1,12 +1,12 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Formatting;
 using System.Net.Http.Headers;
 using System.Reflection;
+using System.Threading.Tasks;
 using Pathoschild.Http.Client.Extensibility;
 using Pathoschild.Http.Client.Internal;
 using Pathoschild.Http.Client.Retry;
@@ -25,11 +25,11 @@ namespace Pathoschild.Http.Client
         /// <summary>Whether to dispose the <see cref="BaseClient"/> when disposing.</summary>
         private readonly bool MustDisposeBaseClient;
 
-        /// <summary>Whether HTTP error responses (e.g. HTTP 404) should be raised as exceptions.</summary>
-        private bool HttpErrorAsException = true;
-
         /// <summary>The default behaviours to apply to all requests.</summary>
         private readonly IList<Func<IRequest, IRequest>> Defaults = new List<Func<IRequest, IRequest>>();
+
+        /// <summary>Options for the fluent client.</summary>
+        private readonly FluentClientOptions Options = new FluentClientOptions();
 
 
         /*********
@@ -61,7 +61,7 @@ namespace Pathoschild.Http.Client
         /// <param name="baseUri">The base URI prepended to relative request URIs.</param>
         /// <param name="proxy">The web proxy.</param>
         public FluentClient(Uri baseUri, IWebProxy proxy)
-            : this(baseUri, new HttpClient(new HttpClientHandler { Proxy = proxy, UseProxy = proxy != null }))
+            : this(baseUri, new HttpClient(GetDefaultHandler(proxy)))
         {
             this.MustDisposeBaseClient = true;
         }
@@ -79,11 +79,11 @@ namespace Pathoschild.Http.Client
         {
             // initialise
             this.MustDisposeBaseClient = client == null;
-            this.BaseClient = client ?? new HttpClient();
+            this.BaseClient = client ?? new HttpClient(GetDefaultHandler());
             this.Filters = new List<IHttpFilter> { new DefaultErrorFilter() };
             this.Formatters = new MediaTypeFormatterCollection();
             if (baseUri != null)
-                this.BaseClient.BaseAddress = this.NormaliseUrl(baseUri);
+                this.BaseClient.BaseAddress = baseUri;
 
             // set default user agent
             Version version = typeof(FluentClient).GetTypeInfo().Assembly.GetName().Version;
@@ -98,9 +98,9 @@ namespace Pathoschild.Http.Client
         {
             this.AssertNotDisposed();
 
-            IRequest request = new Request(message, this.Formatters, async req => await this.BaseClient.SendAsync(await req.Message.CloneAsync().ConfigureAwait(false), req.CancellationToken).ConfigureAwait(false), this.Filters.ToList()) // clone the underlying message because HttpClient doesn't normally allow re-sending the same request, which would break IRequestCoordinator
+            IRequest request = new Request(message, this.Formatters, async req => await this.SendImplAsync(req).ConfigureAwait(false), this.Filters.ToList()) // clone the underlying message because HttpClient doesn't normally allow re-sending the same request, which would break IRequestCoordinator
                 .WithRequestCoordinator(this.RequestCoordinator)
-                .WithHttpErrorAsException(this.HttpErrorAsException);
+                .WithOptions(this.Options.ToRequestOptions());
             foreach (Func<IRequest, IRequest> apply in this.Defaults)
                 request = apply(request);
             return request;
@@ -117,9 +117,24 @@ namespace Pathoschild.Http.Client
 
         /// <summary>Set whether HTTP error responses (e.g. HTTP 404) should be raised as exceptions by default.</summary>
         /// <param name="enabled">Whether to raise HTTP errors as exceptions by default.</param>
+        [Obsolete("Will be removed in 4.0. Use `" + nameof(SetOptions) + "` instead.")]
         public IClient SetHttpErrorAsException(bool enabled)
         {
-            this.HttpErrorAsException = enabled;
+            return this.SetOptions(ignoreHttpErrors: !enabled);
+        }
+
+        /// <summary>Set default options for all requests.</summary>
+        /// <param name="options">The options to set. (Fields set to <c>null</c> won't change the current value.)</param>
+        public IClient SetOptions(FluentClientOptions options)
+        {
+            if (options == null)
+                throw new ArgumentNullException(nameof(options));
+
+            if (options.IgnoreHttpErrors.HasValue)
+                this.Options.IgnoreHttpErrors = options.IgnoreHttpErrors;
+            if (options.IgnoreNullArguments.HasValue)
+                this.Options.IgnoreNullArguments = options.IgnoreNullArguments;
+
             return this;
         }
 
@@ -160,22 +175,20 @@ namespace Pathoschild.Http.Client
         /*********
         ** Protected methods
         *********/
-        /// <summary>Normalise the given URI.</summary>
-        /// <param name="uri">The URI to normalise.</param>
-        private Uri NormaliseUrl(Uri uri)
+        /// <summary>Dispatch an HTTP request message and fetch the response message.</summary>
+        /// <param name="request">The request to send.</param>
+        /// <exception cref="ObjectDisposedException">The instance has been disposed.</exception>
+        protected virtual async Task<HttpResponseMessage> SendImplAsync(IRequest request)
         {
-            if (uri == null)
-                return null;
+            this.AssertNotDisposed();
 
-            // make sure directory paths end with a slash to avoid unintuitive behaviour
-            UriBuilder builder = new UriBuilder(uri);
-            if (!uri.AbsolutePath.EndsWith("/") && !Path.HasExtension(uri.AbsolutePath))
-            {
-                builder.Path += "/";
-                uri = builder.Uri;
-            }
+            // clone request (to avoid issues when resending messages)
+            HttpRequestMessage requestMessage = await request.Message.CloneAsync().ConfigureAwait(false);
 
-            return uri;
+            // dispatch request
+            return await this.BaseClient
+                .SendAsync(requestMessage, request.CancellationToken)
+                .ConfigureAwait(false);
         }
 
         /// <summary>Assert that the instance has not been disposed.</summary>
@@ -197,6 +210,21 @@ namespace Pathoschild.Http.Client
                 this.BaseClient.Dispose();
 
             this.IsDisposed = true;
+        }
+
+        /// <summary>Get a default HTTP client handler.</summary>
+        /// <param name="proxy">The web proxy to use (if any).</param>
+        private static HttpClientHandler GetDefaultHandler(IWebProxy proxy = null)
+        {
+            return new HttpClientHandler
+            {
+                // configure proxy
+                Proxy = proxy,
+                UseProxy = proxy != null,
+
+                // don't use cookie container (so we can set cookies directly in request headers)
+                UseCookies = false
+            };
         }
 
         /// <summary>Destruct the instance.</summary>

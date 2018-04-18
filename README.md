@@ -1,4 +1,4 @@
-﻿**FluentHttpClient** is a modern async HTTP client for REST APIs. Its fluent interface lets
+**FluentHttpClient** is a modern async HTTP client for REST APIs. Its fluent interface lets
 you send an HTTP request and parse the response in one go — hiding away the gritty
 details like deserialisation, content negotiation, optional retry logic, and URL encoding:
 
@@ -21,7 +21,7 @@ The client works on any modern platform (including Linux, Mac, and Windows):
 
 | platform                    | min version |
 | :-------------------------- | :---------- |
-| .NET Framework              | 4.5.2       |
+| .NET Framework              | 4.5         |
 | .NET Core                   | 1.0         |
 | [.NET Standard][]           | 1.3         |
 | Universal Windows Platform  | 10          |
@@ -55,7 +55,7 @@ If you don't need the response content, you can just wait for the request to com
 await client.PostAsync("items", new Item(…));
 ```
 
-### Request options
+### Detailed usage
 You can quickly configure complex requests with the fluent methods. Here's a more complicated
 example:
 
@@ -92,19 +92,19 @@ catch(ApiException ex)
 }
 ```
 
-If you don't want that, you can easily:
+If you don't want that, you can...
 * disable it for one request:
 
   ```c#
   IResponse response = await client
       .GetAsync("items")
-      .WithHttpErrorAsException(false);
+      .WithOptions(ignoreHttpErrors: true);
   ```
 
 * disable it for all requests:
 
   ```c#
-  client.SetHttpErrorAsException(false);
+  client.SetOptions(ignoreHttpErrors: true);
   ```
 
 * [use your own error filter](#custom-filters).

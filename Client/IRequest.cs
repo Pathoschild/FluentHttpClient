@@ -6,8 +6,8 @@ using System.Net.Http.Formatting;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
-using Pathoschild.Http.Client.Retry;
 using Pathoschild.Http.Client.Extensibility;
+using Pathoschild.Http.Client.Retry;
 
 namespace Pathoschild.Http.Client
 {
@@ -54,7 +54,13 @@ namespace Pathoschild.Http.Client
         IRequest WithArgument(string key, object value);
 
         /// <summary>Add HTTP query string arguments.</summary>
-        /// <param name="arguments">The key=>value pairs in the query string. If this is a dictionary, the keys and values are used. Otherwise, the property names and values are used.</param>
+        /// <param name="arguments">The arguments to add.</param>
+        /// <returns>Returns the request builder for chaining.</returns>
+        /// <example><code>client.WithArguments(new[] { new KeyValuePair&lt;string, string&gt;("genre", "drama"), new KeyValuePair&lt;string, int&gt;("genre", "comedy") })</code></example>
+        IRequest WithArguments<TKey, TValue>(IEnumerable<KeyValuePair<TKey, TValue>> arguments);
+
+        /// <summary>Add HTTP query string arguments.</summary>
+        /// <param name="arguments">An anonymous object where the property names and values are used.</param>
         /// <returns>Returns the request builder for chaining.</returns>
         /// <example><code>client.WithArguments(new { id = 14, name = "Joe" })</code></example>
         IRequest WithArguments(object arguments);
@@ -76,7 +82,12 @@ namespace Pathoschild.Http.Client
 
         /// <summary>Set whether HTTP error responses (e.g. HTTP 404) should be raised as exceptions for this request.</summary>
         /// <param name="enabled">Whether to raise HTTP errors as exceptions.</param>
+        [Obsolete("Will be removed in 4.0. Use `" + nameof(WithOptions) + "` instead.")]
         IRequest WithHttpErrorAsException(bool enabled);
+
+        /// <summary>Set options for this request.</summary>
+        /// <param name="options">The options to set. (Fields set to <c>null</c> won't change the current value.)</param>
+        IRequest WithOptions(RequestOptions options);
 
         /// <summary>Set the request coordinator for this request.</summary>
         /// <param name="requestCoordinator">The request coordinator (or null to use the default behaviour).</param>

@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -24,8 +23,11 @@ namespace Pathoschild.Http.Client.Internal
         /// <summary>Dispatcher that executes the request.</summary>
         private readonly Func<IRequest, Task<HttpResponseMessage>> Dispatcher;
 
-        /// <summary>Whether HTTP error responses (e.g. HTTP 404) should be raised as exceptions.</summary>
-        private bool HttpErrorAsException;
+        /// <summary>Whether to ignore null arguments when the request is dispatched.</summary>
+        public bool IgnoreNullArguments { get; set; }
+
+        /// <summary>Whether HTTP error responses (e.g. HTTP 404) should be ignored (else raised as exceptions).</summary>
+        public bool IgnoreHttpErrors { get; set; }
 
 
         /*********
@@ -102,17 +104,45 @@ namespace Pathoschild.Http.Client.Internal
         /// <returns>Returns the request builder for chaining.</returns>
         public IRequest WithArgument(string key, object value)
         {
-            this.Message.RequestUri = this.Message.RequestUri.WithArguments(new KeyValuePair<string, object>(key, value));
+            this.Message.RequestUri = this.Message.RequestUri.WithArguments(this.IgnoreNullArguments, new KeyValuePair<string, object>(key, value));
             return this;
         }
 
         /// <summary>Add HTTP query string arguments.</summary>
-        /// <param name="arguments">The key=>value pairs in the query string. If this is a dictionary, the keys and values are used. Otherwise, the property names and values are used.</param>
+        /// <param name="arguments">The arguments to add.</param>
+        /// <returns>Returns the request builder for chaining.</returns>
+        /// <example><code>client.WithArguments(new[] { new KeyValuePair&lt;string, string&gt;("genre", "drama"), new KeyValuePair&lt;string, int&gt;("genre", "comedy") })</code></example>
+        public IRequest WithArguments<TKey, TValue>(IEnumerable<KeyValuePair<TKey, TValue>> arguments)
+        {
+            if (arguments == null)
+                return this;
+
+            KeyValuePair<string, object>[] args = (
+                from arg in arguments
+                let key = arg.Key?.ToString()
+                where !string.IsNullOrWhiteSpace(key)
+                select new KeyValuePair<string, object>(key, arg.Value)
+            ).ToArray();
+            this.Message.RequestUri = this.Message.RequestUri.WithArguments(this.IgnoreNullArguments, args);
+            return this;
+        }
+
+        /// <summary>Add HTTP query string arguments.</summary>
+        /// <param name="arguments">An anonymous object where the property names and values are used.</param>
         /// <returns>Returns the request builder for chaining.</returns>
         /// <example><code>client.WithArguments(new { id = 14, name = "Joe" })</code></example>
         public IRequest WithArguments(object arguments)
         {
-            this.Message.RequestUri = this.Message.RequestUri.WithArguments(this.GetArguments(arguments).ToArray());
+            if (arguments == null)
+                return this;
+
+            KeyValuePair<string, object>[] args = (
+                from property in arguments.GetType().GetRuntimeProperties()
+                where property.CanRead && property.GetIndexParameters().Any() != true
+                select new KeyValuePair<string, object>(property.Name, property.GetValue(arguments))
+            ).ToArray();
+
+            this.Message.RequestUri = this.Message.RequestUri.WithArguments(this.IgnoreNullArguments, args);
             return this;
         }
 
@@ -136,9 +166,24 @@ namespace Pathoschild.Http.Client.Internal
 
         /// <summary>Set whether HTTP errors (e.g. HTTP 500) should be raised an exceptions for this request.</summary>
         /// <param name="enabled">Whether to raise HTTP errors as exceptions.</param>
+        [Obsolete("Will be removed in 4.0. Use `" + nameof(WithOptions) + "` instead.")]
         public IRequest WithHttpErrorAsException(bool enabled)
         {
-            this.HttpErrorAsException = enabled;
+            return this.WithOptions(ignoreHttpErrors: !enabled);
+        }
+
+        /// <summary>Set options for this request.</summary>
+        /// <param name="options">The options to set. (Fields set to <c>null</c> won't change the current value.)</param>
+        public IRequest WithOptions(RequestOptions options)
+        {
+            if (options == null)
+                throw new ArgumentNullException(nameof(options));
+
+            if (options.IgnoreHttpErrors.HasValue)
+                this.IgnoreHttpErrors = options.IgnoreHttpErrors.Value;
+            if (options.IgnoreNullArguments.HasValue)
+                this.IgnoreNullArguments = options.IgnoreNullArguments.Value;
+
             return this;
         }
 
@@ -242,37 +287,9 @@ namespace Pathoschild.Http.Client.Internal
 
             // apply response filters
             foreach (IHttpFilter filter in this.Filters)
-                filter.OnResponse(response, this.HttpErrorAsException);
+                filter.OnResponse(response, !this.IgnoreHttpErrors);
 
             return response;
-        }
-
-        /// <summary>Get the key=>value pairs represented by a dictionary or anonymous object.</summary>
-        /// <param name="arguments">The key=>value pairs in the query argument. If this is a dictionary, the keys and values are used. Otherwise, the property names and values are used.</param>
-        private IDictionary<string, object> GetArguments(object arguments)
-        {
-            // null
-            if (arguments == null)
-                return new Dictionary<string, object>();
-
-            // generic dictionary
-            if (arguments is IDictionary<string, object> genericDict)
-                return genericDict;
-
-            // dictionary
-            if (arguments is IDictionary objDict)
-            {
-                IDictionary<string, object> dict = new Dictionary<string, object>();
-                foreach (var key in objDict.Keys)
-                    dict.Add(key.ToString(), objDict[key]);
-                return dict;
-            }
-
-            // object
-            return arguments.GetType()
-                .GetRuntimeProperties()
-                .Where(p => p.CanRead)
-                .ToDictionary(p => p.Name, p => p.GetValue(arguments));
         }
     }
 }

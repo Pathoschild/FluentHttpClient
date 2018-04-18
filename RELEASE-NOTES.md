@@ -1,4 +1,28 @@
 # Release notes
+<!--
+## 4.0
+**Breaking changes:**
+* When you specify null arguments like `request.WithArgument("x", null)`, the argument is now ignored instead of sending a blank value. You can use the previous behaviour by setting the `IgnoreNullArguments: false` option.
+-->
+
+## 3.2
+Released 18 April 2018. See [log](https://github.com/Pathoschild/FluentHttpClient/compare/3.1...3.2).
+
+* Added options to finetune behavior (see `client.SetOptions` and `request.WithOptions`).
+* The base URL now behaves more intuitively in many cases.
+* `Request.WithArguments` now omits null argument values by default.  
+* `Request.WithArguments` now also accepts key/value pairs.
+* Fixed cookie headers not being set.
+* Fixed error when passing an object with an indexer property to `WithArguments`.
+* Fixed `WithArguments` changing the URL incorrectly when it has a #fragment.
+* Deprecated `client.SetHttpErrorAsException` and `request.WithHttpErrorAsException` (use `client.SetOptions` and `request.WithOptions` instead).
+* Compatibility changes:
+  * Added .NET Framework 4.5 (previously 4.5.2).
+  * Simplified dependencies in .NET Framework 4.5+ and .NET Standard 2.0+.
+
+**Possible impacting changes:**
+  * The base URL is no longer truncated in some cases. For example, a base URL `https://example.org/index.php` with resource `api` now resolves to `https://example.org/index.php/api` instead of `https://example.org/api`.
+
 ## 3.1
 Released 19 September 2017. See [log](https://github.com/Pathoschild/FluentHttpClient/compare/3.0...3.1).
 

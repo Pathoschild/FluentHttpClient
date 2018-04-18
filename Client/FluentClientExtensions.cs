@@ -129,7 +129,7 @@ namespace Pathoschild.Http.Client
         /// <exception cref="ObjectDisposedException">The instance has been disposed.</exception>
         public static IRequest SendAsync(this IClient client, HttpMethod method, string resource)
         {
-            var uri = new Uri(client.BaseClient.BaseAddress, resource);
+            var uri = FluentClientExtensions.ResolveFinalUrl(client.BaseClient.BaseAddress, resource);
             var message = Factory.GetRequestMessage(method, uri, client.Formatters);
             return client.SendAsync(message);
         }
@@ -176,6 +176,19 @@ namespace Pathoschild.Http.Client
         public static IClient SetRequestCoordinator(this IClient client, IRetryConfig config)
         {
             return client.SetRequestCoordinator(new RetryCoordinator(config));
+        }
+
+        /// <summary>Set default options for all requests.</summary>
+        /// <param name="client">The client.</param>
+        /// <param name="ignoreHttpErrors">Whether to ignore null arguments when the request is dispatched (or <c>null</c> to leave the option unchanged).</param>
+        /// <param name="ignoreNullArguments">Whether HTTP error responses like HTTP 404 should be ignored; else raised as exceptions (or <c>null</c> to leave the option unchanged).</param>
+        public static IClient SetOptions(this IClient client, bool? ignoreHttpErrors = null, bool? ignoreNullArguments = null)
+        {
+            return client.SetOptions(new FluentClientOptions
+            {
+                IgnoreHttpErrors = ignoreHttpErrors,
+                IgnoreNullArguments = ignoreNullArguments
+            });
         }
 
         /****
@@ -249,6 +262,19 @@ namespace Pathoschild.Http.Client
             return request.WithRequestCoordinator(new RetryCoordinator(config));
         }
 
+        /// <summary>Set options for this request.</summary>
+        /// <param name="request">The request.</param>
+        /// <param name="ignoreHttpErrors">Whether to ignore null arguments when the request is dispatched (or <c>null</c> to leave the option unchanged).</param>
+        /// <param name="ignoreNullArguments">Whether HTTP error responses like HTTP 404 should be ignored; else raised as exceptions (or <c>null</c> to leave the option unchanged).</param>
+        public static IRequest WithOptions(this IRequest request, bool? ignoreHttpErrors = null, bool? ignoreNullArguments = null)
+        {
+            return request.WithOptions(new RequestOptions
+            {
+                IgnoreHttpErrors = ignoreHttpErrors,
+                IgnoreNullArguments = ignoreNullArguments
+            });
+        }
+
 
         /*********
         ** Internal methods
@@ -289,6 +315,45 @@ namespace Pathoschild.Http.Client
                 clone.Headers.Add(header.Key, header.Value);
 
             return clone;
+        }
+
+        /// <summary>Resolve the final URL for a request.</summary>
+        /// <param name="baseUrl">The base URL.</param>
+        /// <param name="resource">The requested resource.</param>
+        private static Uri ResolveFinalUrl(Uri baseUrl, string resource)
+        {
+            // ignore if empty or already absolute
+            if (string.IsNullOrWhiteSpace(resource))
+                return baseUrl;
+            if (Uri.TryCreate(resource, UriKind.Absolute, out Uri absoluteUrl))
+                return absoluteUrl;
+
+            // parse URLs
+            resource = resource.Trim();
+            UriBuilder builder = new UriBuilder(baseUrl);
+
+            // special case: combine if either side is a fragment
+            if (!string.IsNullOrWhiteSpace(builder.Fragment) || resource.StartsWith("#"))
+                return new Uri(baseUrl + resource);
+
+            // special case: if resource is a query string, validate and append it
+            if (resource.StartsWith("?") || resource.StartsWith("&"))
+            {
+                bool baseHasQuery = !string.IsNullOrWhiteSpace(builder.Query);
+                if (baseHasQuery && resource.StartsWith("?"))
+                    throw new FormatException($"Can't add resource name '{resource}' to base URL '{baseUrl}' because the latter already has a query string.");
+                if (!baseHasQuery && resource.StartsWith("&"))
+                    throw new FormatException($"Can't add resource name '{resource}' to base URL '{baseUrl}' because the latter doesn't have a query string.");
+                return new Uri(baseUrl + resource);
+            }
+
+            // else make absolute URL
+            if (!builder.Path.EndsWith("/"))
+            {
+                builder.Path += "/";
+                baseUrl = builder.Uri;
+            }
+            return new Uri(baseUrl, resource);
         }
     }
 }
