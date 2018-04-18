@@ -145,9 +145,9 @@ public class RetryCoordinator : IRequestCoordinator
 {
     /// <summary>Dispatch an HTTP request.</summary>
     /// <param name="request">The response message to validate.</param>
-    /// <param name="dispatcher">Dispatcher that executes the request.</param>
+    /// <param name="send">Dispatcher that executes the request.</param>
     /// <returns>The final HTTP response.</returns>
-    public async Task<HttpResponseMessage> ExecuteAsync(IRequest request, Func<IRequest, Task<HttpResponseMessage>> dispatcher)
+    public async Task<HttpResponseMessage> ExecuteAsync(IRequest request, Func<IRequest, Task<HttpResponseMessage>> send)
     {
         int[] retryCodes = { 408, 500, 502, 503, 504 };
         return Policy
@@ -225,7 +225,7 @@ tokenSource.Cancel();
 
 
 ### Synchronous use
-The client is build around the `async` and `await` keywords, but you can use the client
+The client is built around the `async` and `await` keywords, but you can use the client
 synchronously. That's not recommended — it complicates error-handling (e.g. errors get wrapped
 into [AggregateException][]), and it's very easy to cause thread deadlocks when you do this (see
 _[Parallel Programming with .NET: Await, and UI, and deadlocks! Oh my!][]_ and
@@ -243,20 +243,16 @@ client.PostAsync("items", new Item(…)).AsResponse().Wait();
 ```
 
 [.NET Standard]: https://docs.microsoft.com/en-us/dotnet/articles/standard/library
-[Parallel Programming with .NET: Await, and UI, and deadlocks! Oh my!]: http://blogs.msdn.com/b/pfxteam/archive/2011/01/13/10115163.aspx
-[Don't Block on Async Code]: http://blog.stephencleary.com/2012/07/dont-block-on-async-code.html
+[Parallel Programming with .NET: Await, and UI, and deadlocks! Oh my!]: https://blogs.msdn.microsoft.com/pfxteam/2011/01/13/await-and-ui-and-deadlocks-oh-my/
+[Don't Block on Async Code]: https://blog.stephencleary.com/2012/07/dont-block-on-async-code.html
 [media type formatters]: https://www.nuget.org/packages?q=MediaTypeFormatter
-[circuit breaker]: https://msdn.microsoft.com/en-us/library/dn589784.aspx
 
-[AggregateException]: http://msdn.microsoft.com/en-us/library/system.aggregateexception.aspx
-[HttpClient]: https://msdn.microsoft.com/en-us/library/system.net.http.httpclient.aspx
-[HttpClientHandler]: http://msdn.microsoft.com/en-us/library/system.net.http.httpclienthandler.aspx
-[MediaTypeFormatter]: http://msdn.microsoft.com/en-us/library/system.net.http.formatting.mediatypeformatter.aspx
+[AggregateException]: https://docs.microsoft.com/en-us/dotnet/api/system.aggregateexception
+[HttpClient]: https://docs.microsoft.com/en-us/dotnet/api/system.net.http.httpclient
+[HttpClientHandler]: https://docs.microsoft.com/en-us/dotnet/api/system.net.http.httpclienthandler
+[MediaTypeFormatter]: https://msdn.microsoft.com/en-us/library/system.net.http.formatting.mediatypeformatter.aspx
 
-[Json.NET]: http://james.newtonking.com/projects/json-net.aspx
+[Json.NET]: https://www.newtonsoft.com/json
 [JSON]: https://en.wikipedia.org/wiki/JSON
-
-[IClient]: https://github.com/Pathoschild/Pathoschild.FluentHttpClient/blob/master/Client/IClient.cs#L6
-[IRequest]: https://github.com/Pathoschild/Pathoschild.FluentHttpClient/blob/master/Client/IRequest.cs#L12
 
 [Pathoschild.Http.FluentClient]: https://nuget.org/packages/Pathoschild.Http.FluentClient
