@@ -6,7 +6,7 @@
 -->
 
 ## 3.2
-Released 04 April 2018. See [log](https://github.com/Pathoschild/FluentHttpClient/compare/3.1...3.2).
+Released 18 April 2018. See [log](https://github.com/Pathoschild/FluentHttpClient/compare/3.1...3.2).
 
 * Added options to finetune behavior (see `client.SetOptions` and `request.WithOptions`).
 * The base URL now behaves more intuitively in many cases.
