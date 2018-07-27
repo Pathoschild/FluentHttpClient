@@ -9,6 +9,7 @@
 Released 30 July 2018. See [log](https://github.com/Pathoschild/FluentHttpClient/compare/3.2...3.2.1).
 
 * Fixed default web proxy not being used.
+* Updated dependencies.
 
 ## 3.2
 Released 18 April 2018. See [log](https://github.com/Pathoschild/FluentHttpClient/compare/3.1...3.2).
