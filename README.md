@@ -136,7 +136,7 @@ client
 
 If that's not enough, implementing `IRequestCoordinator` lets you control how the client
 dispatches requests. (You can only have one request coordinator on the client; you should use
-[HTTP filters](#custom-behaviour) instead for most overrides.)
+[HTTP filters](#custom-filters) instead for most overrides.)
 
 For example, here's a simple retry coordinator using [Polly](https://github.com/App-vNext/Polly):
 ```c#
