@@ -12,6 +12,9 @@ namespace Pathoschild.Http.Client.Internal
         /*********
         ** Properties
         *********/
+        /// <summary>Whether the HTTP response was successful.</summary>
+        public bool IsSuccessStatusCode => this.Message.IsSuccessStatusCode;
+
         /// <summary>The underlying HTTP response message.</summary>
         public HttpResponseMessage Message { get; }
 

@@ -12,6 +12,9 @@ namespace Pathoschild.Http.Client
         /*********
         ** Accessors
         *********/
+        /// <summary>Whether the HTTP response was successful.</summary>
+        bool IsSuccessStatusCode { get; }
+
         /// <summary>The HTTP status code.</summary>
         HttpStatusCode Status { get; }
 
