@@ -5,8 +5,8 @@
 * When you specify null arguments like `request.WithArgument("x", null)`, the argument is now ignored instead of sending a blank value. You can use the previous behaviour by setting the `IgnoreNullArguments: false` option.
 -->
 
-## 3.2.1
-Released 30 July 2018. See [log](https://github.com/Pathoschild/FluentHttpClient/compare/3.2...3.2.1).
+## Upcoming release
+See [log](https://github.com/Pathoschild/FluentHttpClient/compare/3.2...develop).
 
 * Fixed default web proxy not being used.
 * Updated dependencies.

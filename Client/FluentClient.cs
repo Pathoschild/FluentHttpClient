@@ -238,7 +238,7 @@ namespace Pathoschild.Http.Client
         /// <summary>Destruct the instance.</summary>
         ~FluentClient()
         {
-            Dispose(false);
+            this.Dispose(false);
         }
     }
 }
