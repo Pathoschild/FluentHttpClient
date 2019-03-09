@@ -29,28 +29,36 @@ The client works on any modern platform (including Linux, Mac, and Windows):
 ## Use
 ### Basic usage
 You start by creating a client for an API. You can use this client for one request, or reuse it for
-many requests for improved performance using its built-in connection pool.
+many requests (which improves performance using the built-in connection pool).
 
 ```c#
 IClient client = new FluentClient("https://example.org/api/");
 ```
 
-Then you just chain methods to set up the request and get the response. For example, here's a GET
-request which returns an `Item` model (automatically deserialised based on content negotiation):
+Then just chain methods to set up the request and get the response. For example, here's a GET
+request which reads the response content into a custom `Item` class (deserialised based on content
+negotiation):
+
 ```c#
 Item item = await client
     .GetAsync("items/14")
     .As<Item>();
 ```
 
-You can get the response as a model, array of models, bytes, string, or stream:
-```c#
-string content = await client
-    .GetAsync("items/14")
-    .AsString();
-```
+You can read the response into any of these formats:
 
-If you don't need the response content, you can just wait for the request to complete.
+type       | method
+---------- | ------
+`Item`    | `As<Item>()`
+`Item[]`  | `AsArray<Item>()`
+`byte[]`  | `AsByteArray()`
+`string`  | `AsString()`
+`Stream`  | `AsStream()`
+`JToken`  | `AsRawJson()`
+`JObject` | `AsRawJsonObject()`
+`JArray`  | `AsRawJsonArray()`
+
+If you don't need the response content, you can just await the request.
 ```c#
 await client.PostAsync("items", new Item(…));
 ```
@@ -74,8 +82,31 @@ metadata:
 
 ```c#
 IResponse response = await client.GetAsync("messages/latest");
-if (response.Status == HttpStatusCode.OK)
+if (response.IsSuccessStatusCode || response.Status == HttpStatusCode.Found)
    return response.AsArray<T>();
+```
+
+### Raw JSON reading
+If you don't want to create a model class, the `AsRawJson` methods let you fetch the response into
+a JSON structure instead. This lets you read values without mapping them to a model class:
+
+```c#
+JObject obj = await client
+    .GetAsync("items/14")
+    .AsRawJsonObject();
+
+int count = obj["count"].Value<int>();
+Item item = obj["data"]["items"].First.ToObject<Item>();
+```
+
+You can also read the values using `dynamic`:
+```c#
+dynamic obj = await client
+    .GetAsync("items/14")
+    .AsRawJsonObject();
+
+int count = obj.count;
+Item item = obj.data.items.First.ToObject<Item>();
 ```
 
 ### Error handling

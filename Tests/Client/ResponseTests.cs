@@ -1,9 +1,10 @@
-﻿using System.IO;
+using System.IO;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Formatting;
 using System.Text;
 using System.Threading.Tasks;
+using Newtonsoft.Json.Linq;
 using NUnit.Framework;
 using Pathoschild.Http.Client;
 using Pathoschild.Http.Client.Internal;
@@ -79,6 +80,9 @@ namespace Pathoschild.Http.Tests.Client
         /*********
         ** Retrieval
         *********/
+        /****
+        ** AsMessage
+        ****/
         [Test(Description = "The response can asynchronously return the underlying HttpResponseMessage.")]
         [TestCase("model value")]
         public void AsMessage(string content)
@@ -109,6 +113,9 @@ namespace Pathoschild.Http.Tests.Client
             Assert.That(actual.ToString(), Is.EqualTo(message.ToString()), "response message");
         }
 
+        /****
+        ** As
+        ****/
         [Test(Description = "The response can be asynchronously read as a deserialized model.")]
         [TestCase("model value", ExpectedResult = "model value")]
         public async Task<string> As(string content)
@@ -126,6 +133,29 @@ namespace Pathoschild.Http.Tests.Client
             return actual.Value;
         }
 
+        /****
+        ** AsArray
+        ****/
+        [Test(Description = "The response can be read as a deserialized list of models.")]
+        [TestCase("model value A", "model value B")]
+        public async Task AsArray(string contentA, string contentB)
+        {
+            // arrange
+            Model<string>[] expected = { new Model<string>(contentA), new Model<string>(contentB) };
+            IResponse response = this.ConstructResponse(expected);
+
+            // act
+            Model<string>[] actual = await response
+                .AsArray<Model<string>>()
+                .VerifyTaskResultAsync();
+
+            // assert
+            Assert.That(actual, Is.EquivalentTo(expected));
+        }
+
+        /****
+        ** AsByteArray
+        ****/
         [Test(Description = "The response can be asynchronously read as a byte array.")]
         [TestCase("model value", ExpectedResult = "\"model value\"")]
         public async Task<string> AsByteArray(string content)
@@ -160,23 +190,6 @@ namespace Pathoschild.Http.Tests.Client
             return Encoding.UTF8.GetString(actual);
         }
 
-        [Test(Description = "The response can be read as a deserialized list of models.")]
-        [TestCase("model value A", "model value B")]
-        public async Task AsArray(string contentA, string contentB)
-        {
-            // arrange
-            Model<string>[] expected = { new Model<string>(contentA), new Model<string>(contentB) };
-            IResponse response = this.ConstructResponse(expected);
-
-            // act
-            Model<string>[] actual = await response
-                .AsArray<Model<string>>()
-                .VerifyTaskResultAsync();
-
-            // assert
-            Assert.That(actual, Is.EquivalentTo(expected));
-        }
-
         /***
         ** AsStream
         ***/
@@ -194,7 +207,7 @@ namespace Pathoschild.Http.Tests.Client
                 actual = reader.ReadToEnd();
 
             // assert
-            Assert.That(actual, Is.EqualTo(string.Format("\"{0}\"", content)));
+            Assert.That(actual, Is.EqualTo($"\"{content}\""));
         }
 
         [Test(Description = "The response can be read as a stream when the content is a model.")]
@@ -211,9 +224,12 @@ namespace Pathoschild.Http.Tests.Client
                 actual = reader.ReadToEnd();
 
             // assert
-            Assert.That(actual, Is.EqualTo(string.Format("{{\"Value\":\"{0}\"}}", content)));
+            Assert.That(actual, Is.EqualTo($"{{\"Value\":\"{content}\"}}"));
         }
 
+        /***
+        ** AsString
+        ***/
         [Test(Description = "The response can be asynchronously read as a string.")]
         [TestCase("stream content")]
         public async Task AsString(string content)
@@ -227,7 +243,7 @@ namespace Pathoschild.Http.Tests.Client
                 .VerifyTaskResultAsync();
 
             // assert
-            Assert.That(actual, Is.EqualTo('"' + content + '"'));
+            Assert.That(actual, Is.EqualTo($"\"{content}\""));
         }
 
         [Test(Description = "The response can be asynchronously read as a string multiple times.")]
@@ -246,7 +262,7 @@ namespace Pathoschild.Http.Tests.Client
                 .VerifyTaskResultAsync();
 
             // assert
-            Assert.That(actualA, Is.EqualTo('"' + content + '"'), "The content is not equal to the input.");
+            Assert.That(actualA, Is.EqualTo($"\"{content}\""), "The content is not equal to the input.");
             Assert.That(actualA, Is.EqualTo(actualB), "The second read returned a different result.");
         }
 
@@ -263,9 +279,113 @@ namespace Pathoschild.Http.Tests.Client
                 .VerifyTaskResultAsync();
 
             // assert
-            Assert.That(actual, Is.EqualTo("{\"Value\":\"stream content\"}"));
+            Assert.That(actual, Is.EqualTo($"{{\"Value\":\"{content}\"}}"));
         }
 
+        /***
+        ** AsRawJson
+        ***/
+        [Test(Description = "The response can be read as a raw JSON token.")]
+        [TestCase("content")]
+        public async Task AsRawJson(string content)
+        {
+            // arrange
+            IResponse response = this.ConstructResponse(new Model<string>(content));
+
+            // act
+            JToken json = await response
+                .AsRawJson()
+                .VerifyTaskResultAsync();
+
+            // assert
+            Assert.That(json.Value<string>("Value"), Is.EqualTo(content));
+        }
+
+        [Test(Description = "The response can be read as a raw JSON token with dynamic.")]
+        [TestCase("content")]
+        public async Task AsRawJson_Dynamic(string content)
+        {
+            // arrange
+            IResponse response = this.ConstructResponse(new Model<string>(content));
+
+            // act
+            dynamic json = await response
+                .AsRawJsonObject()
+                .VerifyTaskResultAsync();
+
+            // assert
+            Assert.That((string)json.Value, Is.EqualTo(content));
+        }
+
+        /***
+        ** AsRawJsonObject
+        ***/
+        [Test(Description = "The response can be read as a raw JSON object.")]
+        [TestCase("content")]
+        public async Task AsRawJsonObject(string content)
+        {
+            // arrange
+            IResponse response = this.ConstructResponse(new Model<string>(content));
+
+            // act
+            JToken json = await response
+                .AsRawJson()
+                .VerifyTaskResultAsync();
+
+            // assert
+            Assert.That(json.Value<string>("Value"), Is.EqualTo(content));
+        }
+
+        [Test(Description = "The response can be read as a raw JSON object with dynamic.")]
+        [TestCase("content")]
+        public async Task AsRawJsonObject_Dynamic(string content)
+        {
+            // arrange
+            IResponse response = this.ConstructResponse(new Model<string>(content));
+
+            // act
+            dynamic json = await response
+                .AsRawJsonObject()
+                .VerifyTaskResultAsync();
+
+            // assert
+            Assert.That((string)json.Value, Is.EqualTo(content));
+        }
+
+        /***
+        ** AsRawJsonArray
+        ***/
+        [Test(Description = "The response can be read as a raw JSON array.")]
+        [TestCase("content")]
+        public async Task AsRawJsonArray(string content)
+        {
+            // arrange
+            IResponse response = this.ConstructResponse(new[] { new Model<string>(content) });
+
+            // act
+            JToken json = await response
+                .AsRawJsonArray()
+                .VerifyTaskResultAsync();
+
+            // assert
+            Assert.That(json.First.Value<string>("Value"), Is.EqualTo(content));
+        }
+
+        [Test(Description = "The response can be read as a raw JSON array with dynamic.")]
+        [TestCase("content")]
+        public async Task AsRawJsonArray_Dynamic(string content)
+        {
+            // arrange
+            IResponse response = this.ConstructResponse(new[] { new Model<string>(content) });
+
+            // act
+            dynamic json = await response
+                .AsRawJsonArray()
+                .VerifyTaskResultAsync();
+
+            // assert
+            Assert.That((string)json.First.Value, Is.EqualTo(content));
+        }
 
         /*********
         ** Private methods

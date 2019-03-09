@@ -8,6 +8,7 @@
 ## Upcoming release
 See [log](https://github.com/Pathoschild/FluentHttpClient/compare/3.2...develop).
 
+* Added support for reading responses into `JToken`, `JObject`, `JArray`, or `dynamic`.
 * Added `IsSuccessStatusCode` to response.
 * Fixed default web proxy not being used.
 * Updated dependencies.
