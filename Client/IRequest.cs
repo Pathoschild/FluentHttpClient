@@ -30,6 +30,9 @@ namespace Pathoschild.Http.Client
         /// <summary>Middleware classes which can intercept and modify HTTP requests and responses.</summary>
         ICollection<IHttpFilter> Filters { get; }
 
+        /// <summary>The request options.</summary>
+        RequestOptions Options { get; }
+
 
         /*********
         ** Methods
@@ -40,7 +43,13 @@ namespace Pathoschild.Http.Client
         /// <summary>Set the body content of the HTTP request.</summary>
         /// <param name="body">The formatted HTTP body content.</param>
         /// <returns>Returns the request builder for chaining.</returns>
+        [Obsolete("Will be removed in 4.0. Use `" + nameof(WithBody) + "` instead.")]
         IRequest WithBodyContent(HttpContent body);
+
+        /// <summary>Set the body content of the HTTP request.</summary>
+        /// <param name="bodyBuilder">The HTTP body builder.</param>
+        /// <returns>Returns the request builder for chaining.</returns>
+        IRequest WithBody(Func<IBodyBuilder, HttpContent> bodyBuilder);
 
         /// <summary>Set an HTTP header.</summary>
         /// <param name="key">The key of the HTTP header.</param>

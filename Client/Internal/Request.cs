@@ -5,7 +5,6 @@ using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Formatting;
 using System.Net.Http.Headers;
-using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
@@ -23,12 +22,6 @@ namespace Pathoschild.Http.Client.Internal
         *********/
         /// <summary>Dispatcher that executes the request.</summary>
         private readonly Func<IRequest, Task<HttpResponseMessage>> Dispatcher;
-
-        /// <summary>Whether to ignore null arguments when the request is dispatched.</summary>
-        public bool IgnoreNullArguments { get; set; }
-
-        /// <summary>Whether HTTP error responses (e.g. HTTP 404) should be ignored (else raised as exceptions).</summary>
-        public bool IgnoreHttpErrors { get; set; }
 
 
         /*********
@@ -49,6 +42,9 @@ namespace Pathoschild.Http.Client.Internal
         /// <summary>The request coordinator.</summary>
         public IRequestCoordinator RequestCoordinator { get; private set; }
 
+        /// <summary>The request options.</summary>
+        public RequestOptions Options { get; }
+
 
         /*********
         ** Public methods
@@ -66,6 +62,7 @@ namespace Pathoschild.Http.Client.Internal
             this.Filters = filters;
             this.CancellationToken = CancellationToken.None;
             this.RequestCoordinator = null;
+            this.Options = new RequestOptions();
         }
 
         /***
@@ -74,9 +71,19 @@ namespace Pathoschild.Http.Client.Internal
         /// <summary>Set the body content of the HTTP request.</summary>
         /// <param name="body">The formatted HTTP body content.</param>
         /// <returns>Returns the request builder for chaining.</returns>
+        [Obsolete("Will be removed in 4.0. Use `" + nameof(WithBody) + "` instead.")]
         public IRequest WithBodyContent(HttpContent body)
         {
             this.Message.Content = body;
+            return this;
+        }
+
+        /// <summary>Set the body content of the HTTP request.</summary>
+        /// <param name="bodyBuilder">The HTTP body builder.</param>
+        /// <returns>Returns the request builder for chaining.</returns>
+        public IRequest WithBody(Func<IBodyBuilder, HttpContent> bodyBuilder)
+        {
+            this.Message.Content = bodyBuilder(new BodyBuilder(this));
             return this;
         }
 
@@ -105,7 +112,7 @@ namespace Pathoschild.Http.Client.Internal
         /// <returns>Returns the request builder for chaining.</returns>
         public IRequest WithArgument(string key, object value)
         {
-            this.Message.RequestUri = this.Message.RequestUri.WithArguments(this.IgnoreNullArguments, new KeyValuePair<string, object>(key, value));
+            this.Message.RequestUri = this.Message.RequestUri.WithArguments(this.Options.IgnoreNullArguments ?? false, new KeyValuePair<string, object>(key, value));
             return this;
         }
 
@@ -124,7 +131,7 @@ namespace Pathoschild.Http.Client.Internal
                 where !string.IsNullOrWhiteSpace(key)
                 select new KeyValuePair<string, object>(key, arg.Value)
             ).ToArray();
-            this.Message.RequestUri = this.Message.RequestUri.WithArguments(this.IgnoreNullArguments, args);
+            this.Message.RequestUri = this.Message.RequestUri.WithArguments(this.Options.IgnoreNullArguments ?? false, args);
             return this;
         }
 
@@ -137,13 +144,9 @@ namespace Pathoschild.Http.Client.Internal
             if (arguments == null)
                 return this;
 
-            KeyValuePair<string, object>[] args = (
-                from property in arguments.GetType().GetRuntimeProperties()
-                where property.CanRead && property.GetIndexParameters().Any() != true
-                select new KeyValuePair<string, object>(property.Name, property.GetValue(arguments))
-            ).ToArray();
+            KeyValuePair<string, object>[] args = arguments.GetKeyValueArguments().ToArray();
 
-            this.Message.RequestUri = this.Message.RequestUri.WithArguments(this.IgnoreNullArguments, args);
+            this.Message.RequestUri = this.Message.RequestUri.WithArguments(this.Options.IgnoreNullArguments ?? false, args);
             return this;
         }
 
@@ -181,9 +184,9 @@ namespace Pathoschild.Http.Client.Internal
                 throw new ArgumentNullException(nameof(options));
 
             if (options.IgnoreHttpErrors.HasValue)
-                this.IgnoreHttpErrors = options.IgnoreHttpErrors.Value;
+                this.Options.IgnoreHttpErrors = options.IgnoreHttpErrors.Value;
             if (options.IgnoreNullArguments.HasValue)
-                this.IgnoreNullArguments = options.IgnoreNullArguments.Value;
+                this.Options.IgnoreNullArguments = options.IgnoreNullArguments.Value;
 
             return this;
         }
@@ -309,7 +312,7 @@ namespace Pathoschild.Http.Client.Internal
 
             // apply response filters
             foreach (IHttpFilter filter in this.Filters)
-                filter.OnResponse(response, !this.IgnoreHttpErrors);
+                filter.OnResponse(response, !(this.Options.IgnoreHttpErrors ?? false));
 
             return response;
         }
