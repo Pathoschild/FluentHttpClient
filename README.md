@@ -58,7 +58,7 @@ type       | method
 `JObject` | `AsRawJsonObject()`
 `JArray`  | `AsRawJsonArray()`
 
-If you don't need the response content, you can just await the request.
+If you don't need the response content, you can just await the request:
 ```c#
 await client.PostAsync("items", new Item(…));
 ```
@@ -69,11 +69,46 @@ example:
 
 ```c#
 Message[] messages = await client
-    .GetAsync("messages/latest")
-    .WithHeader("Content-Type", "application/json")
-    .WithArguments(new { id = 14, tenant = "acme" })
-    .WithBearerAuthentication(token)
-    .AsArray<Message>();
+   .GetAsync("items")
+   .WithHeader("Content-Type", "application/json")
+   .WithArguments(new
+   {
+      id = 14,
+      category = "tools"
+   })
+   .WithBearerAuthentication(token)
+   .AsArray<Message>();
+```
+
+### HTTP body
+You can add a serialised body as part of the POST method, automatically serialised to the right
+content type (e.g. JSON or XML):
+```c#
+await client.PostAsync("items", new Item(…));
+```
+
+You can optionally add a serialised body to any request though:
+```c#
+await client
+   .GetAsync("items")
+   .WithBody(new SearchOptions(…));
+```
+
+Or use a body builder for more control:
+```c#
+// serialise with a specific content type
+await client
+   .GetAsync("items")
+   .WithBody(builder => builder.Model(new SearchOptions(…), "text/json"));
+
+// send form URL-encoded body
+await client
+   .GetAsync("items")
+   .WithBody(builder => builder.FormUrlEncoded(new
+   {
+      id = 14,
+      category = "tools"
+   });
 ```
 
 ### Get response data
@@ -88,7 +123,8 @@ if (response.IsSuccessStatusCode || response.Status == HttpStatusCode.Found)
 
 ### Raw JSON reading
 If you don't want to create a model class, the `AsRawJson` methods let you fetch the response into
-a JSON structure instead. This lets you read values without mapping them to a model class:
+a JSON structure instead. (This only works for APIs which return JSON, not XML or another format.)
+This lets you read values without mapping them to a model class:
 
 ```c#
 JObject obj = await client
