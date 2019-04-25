@@ -9,6 +9,7 @@ using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
+using Newtonsoft.Json.Linq;
 using Pathoschild.Http.Client.Extensibility;
 using Pathoschild.Http.Client.Retry;
 
@@ -266,6 +267,27 @@ namespace Pathoschild.Http.Client.Internal
         {
             IResponse response = await this.AsResponse().ConfigureAwait(false);
             return await response.AsStream().ConfigureAwait(false);
+        }
+
+        /// <summary>Get a raw JSON representation of the response, which can also be accessed as a <c>dynamic</c> value.</summary>
+        public async Task<JToken> AsRawJson()
+        {
+            IResponse response = await this.AsResponse().ConfigureAwait(false);
+            return await response.AsRawJson().ConfigureAwait(false);
+        }
+
+        /// <summary>Get a raw JSON object representation of the response, which can also be accessed as a <c>dynamic</c> value.</summary>
+        public async Task<JObject> AsRawJsonObject()
+        {
+            IResponse response = await this.AsResponse().ConfigureAwait(false);
+            return await response.AsRawJsonObject().ConfigureAwait(false);
+        }
+
+        /// <summary>Get a raw JSON array representation of the response, which can also be accessed as a <c>dynamic</c> value.</summary>
+        public async Task<JArray> AsRawJsonArray()
+        {
+            IResponse response = await this.AsResponse().ConfigureAwait(false);
+            return await response.AsRawJsonArray().ConfigureAwait(false);
         }
 
 
