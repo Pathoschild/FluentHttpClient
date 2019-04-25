@@ -21,10 +21,15 @@ The client works on any modern platform (including Linux, Mac, and Windows):
 
 | platform                    | min version |
 | :-------------------------- | :---------- |
-| .NET Framework              | 4.5         |
 | .NET Core                   | 1.0         |
+| .NET Framework              | 4.5         |
 | [.NET Standard][]           | 1.3         |
-| Universal Windows Platform  | 10          |
+| Mono                        | 4.6         |
+| Unity                       | 2018.1      |
+| Universal Windows Platform  | 10.0        |
+| Xamarin.Android             | 7.0         |
+| Xamarin.iOS                 | 10.0        |
+| Xamarin.Mac                 | 3.0         |
 
 ## Use
 ### Basic usage
