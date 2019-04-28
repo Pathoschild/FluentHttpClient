@@ -11,7 +11,7 @@ namespace Pathoschild.Http.Client.Internal
     internal class BodyBuilder : IBodyBuilder
     {
         /*********
-        ** Properties
+        ** Fields
         *********/
         /// <summary>The underlying request.</summary>
         private readonly IRequest Request;

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
 using NUnit.Framework;
@@ -11,7 +11,7 @@ namespace Pathoschild.Http.Tests.Integration
     public class IntegrationTests
     {
         /*********
-        ** Properties
+        ** Fields
         *********/
         /// <summary>The metadata expected from the English Wikipedia.</summary>
         private readonly WikipediaMetadata.WikipediaGeneral EnwikiMetadata = new WikipediaMetadata.WikipediaGeneral

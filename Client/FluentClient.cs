@@ -17,7 +17,7 @@ namespace Pathoschild.Http.Client
     public class FluentClient : IClient
     {
         /*********
-        ** Properties
+        ** Fields
         *********/
         /// <summary>Whether the instance has been disposed.</summary>
         private bool IsDisposed;

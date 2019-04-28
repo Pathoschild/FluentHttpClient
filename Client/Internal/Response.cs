@@ -11,7 +11,7 @@ namespace Pathoschild.Http.Client.Internal
     public sealed class Response : IResponse
     {
         /*********
-        ** Properties
+        ** Fields
         *********/
         /// <summary>Whether the HTTP response was successful.</summary>
         public bool IsSuccessStatusCode => this.Message.IsSuccessStatusCode;

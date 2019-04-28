@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
@@ -10,7 +10,7 @@ namespace Pathoschild.Http.Client.Retry
     public class RetryCoordinator : IRequestCoordinator
     {
         /*********
-        ** Properties
+        ** Fields
         *********/
         /// <summary>The retry configuration.</summary>
         private readonly IRetryConfig Config;

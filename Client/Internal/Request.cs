@@ -18,7 +18,7 @@ namespace Pathoschild.Http.Client.Internal
     public sealed class Request : IRequest
     {
         /*********
-        ** Properties
+        ** Fields
         *********/
         /// <summary>Dispatcher that executes the request.</summary>
         private readonly Func<IRequest, Task<HttpResponseMessage>> Dispatcher;

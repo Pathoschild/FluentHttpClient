@@ -15,7 +15,7 @@ namespace Pathoschild.Http.Tests.Client
     public class RetryCoordinatorTests
     {
         /*********
-        ** Properties
+        ** Fields
         *********/
         /// <summary>The status code representing a request timeout.</summary>
         /// <remarks>See remarks on the equivalent <see cref="RetryCoordinator"/> field.</remarks>
