@@ -6,6 +6,7 @@ using System.Net.Http.Formatting;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
+using Newtonsoft.Json.Linq;
 using Pathoschild.Http.Client.Extensibility;
 using Pathoschild.Http.Client.Retry;
 
@@ -29,6 +30,9 @@ namespace Pathoschild.Http.Client
         /// <summary>Middleware classes which can intercept and modify HTTP requests and responses.</summary>
         ICollection<IHttpFilter> Filters { get; }
 
+        /// <summary>The request options.</summary>
+        RequestOptions Options { get; }
+
 
         /*********
         ** Methods
@@ -39,7 +43,13 @@ namespace Pathoschild.Http.Client
         /// <summary>Set the body content of the HTTP request.</summary>
         /// <param name="body">The formatted HTTP body content.</param>
         /// <returns>Returns the request builder for chaining.</returns>
+        [Obsolete("Will be removed in 4.0. Use `" + nameof(WithBody) + "` instead.")]
         IRequest WithBodyContent(HttpContent body);
+
+        /// <summary>Set the body content of the HTTP request.</summary>
+        /// <param name="bodyBuilder">The HTTP body builder.</param>
+        /// <returns>Returns the request builder for chaining.</returns>
+        IRequest WithBody(Func<IBodyBuilder, HttpContent> bodyBuilder);
 
         /// <summary>Set an HTTP header.</summary>
         /// <param name="key">The key of the HTTP header.</param>
@@ -135,5 +145,14 @@ namespace Pathoschild.Http.Client
         /// <returns>Returns the response body, or <c>null</c> if the response has no body.</returns>
         /// <exception cref="ApiException">An error occurred processing the response.</exception>
         Task<Stream> AsStream();
+
+        /// <summary>Get a raw JSON representation of the response, which can also be accessed as a <c>dynamic</c> value.</summary>
+        Task<JToken> AsRawJson();
+
+        /// <summary>Get a raw JSON object representation of the response, which can also be accessed as a <c>dynamic</c> value.</summary>
+        Task<JObject> AsRawJsonObject();
+
+        /// <summary>Get a raw JSON array representation of the response, which can also be accessed as a <c>dynamic</c> value.</summary>
+        Task<JArray> AsRawJsonArray();
     }
 }

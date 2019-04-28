@@ -17,7 +17,7 @@ namespace Pathoschild.Http.Client
     public class FluentClient : IClient
     {
         /*********
-        ** Properties
+        ** Fields
         *********/
         /// <summary>Whether the instance has been disposed.</summary>
         private bool IsDisposed;
@@ -36,13 +36,13 @@ namespace Pathoschild.Http.Client
         ** Accessors
         *********/
         /// <summary>Interceptors which can read and modify HTTP requests and responses.</summary>
-        public ICollection<IHttpFilter> Filters { get; }
+        public ICollection<IHttpFilter> Filters { get; } = new List<IHttpFilter> { new DefaultErrorFilter() };
 
         /// <summary>The underlying HTTP client.</summary>
         public HttpClient BaseClient { get; }
 
         /// <summary>The formatters used for serializing and deserializing message bodies.</summary>
-        public MediaTypeFormatterCollection Formatters { get; }
+        public MediaTypeFormatterCollection Formatters { get; } = new MediaTypeFormatterCollection();
 
         /// <summary>The request coordinator.</summary>
         public IRequestCoordinator RequestCoordinator { get; private set; }
@@ -77,17 +77,12 @@ namespace Pathoschild.Http.Client
         /// <param name="client">The underlying HTTP client.</param>
         public FluentClient(Uri baseUri, HttpClient client = null)
         {
-            // initialise
             this.MustDisposeBaseClient = client == null;
             this.BaseClient = client ?? new HttpClient(GetDefaultHandler());
-            this.Filters = new List<IHttpFilter> { new DefaultErrorFilter() };
-            this.Formatters = new MediaTypeFormatterCollection();
             if (baseUri != null)
                 this.BaseClient.BaseAddress = baseUri;
 
-            // set default user agent
-            Version version = typeof(FluentClient).GetTypeInfo().Assembly.GetName().Version;
-            this.SetUserAgent($"FluentHttpClient/{version} (+http://github.com/Pathoschild/FluentHttpClient)");
+            this.SetDefaultUserAgent();
         }
 
         /// <summary>Create an asynchronous HTTP request message (but don't dispatch it yet).</summary>
@@ -175,6 +170,13 @@ namespace Pathoschild.Http.Client
         /*********
         ** Protected methods
         *********/
+        /// <summary>Set the default user agent header.</summary>
+        private void SetDefaultUserAgent()
+        {
+            Version version = typeof(FluentClient).GetTypeInfo().Assembly.GetName().Version;
+            this.SetUserAgent($"FluentHttpClient/{version} (+http://github.com/Pathoschild/FluentHttpClient)");
+        }
+
         /// <summary>Dispatch an HTTP request message and fetch the response message.</summary>
         /// <param name="request">The request to send.</param>
         /// <exception cref="ObjectDisposedException">The instance has been disposed.</exception>
@@ -213,24 +215,30 @@ namespace Pathoschild.Http.Client
         }
 
         /// <summary>Get a default HTTP client handler.</summary>
-        /// <param name="proxy">The web proxy to use (if any).</param>
-        private static HttpClientHandler GetDefaultHandler(IWebProxy proxy = null)
+        private static HttpClientHandler GetDefaultHandler()
         {
             return new HttpClientHandler
             {
-                // configure proxy
-                Proxy = proxy,
-                UseProxy = proxy != null,
-
                 // don't use cookie container (so we can set cookies directly in request headers)
                 UseCookies = false
             };
         }
 
+        /// <summary>Get a default HTTP client handler.</summary>
+        /// <param name="proxy">The web proxy to use.</param>
+        /// <remarks>Whereas <see cref="GetDefaultHandler()"/> leaves the default proxy unchanged, this method will explicitly override it (e.g. setting a null proxy will disable the default proxy).</remarks>
+        private static HttpClientHandler GetDefaultHandler(IWebProxy proxy)
+        {
+            var handler = FluentClient.GetDefaultHandler();
+            handler.Proxy = proxy;
+            handler.UseProxy = proxy != null;
+            return handler;
+        }
+
         /// <summary>Destruct the instance.</summary>
         ~FluentClient()
         {
-            Dispose(false);
+            this.Dispose(false);
         }
     }
 }

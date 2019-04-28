@@ -3,6 +3,7 @@ using System.Net;
 using System.Net.Http;
 using System.Net.Http.Formatting;
 using System.Threading.Tasks;
+using Newtonsoft.Json.Linq;
 
 namespace Pathoschild.Http.Client
 {
@@ -12,6 +13,9 @@ namespace Pathoschild.Http.Client
         /*********
         ** Accessors
         *********/
+        /// <summary>Whether the HTTP response was successful.</summary>
+        bool IsSuccessStatusCode { get; }
+
         /// <summary>The HTTP status code.</summary>
         HttpStatusCode Status { get; }
 
@@ -49,5 +53,14 @@ namespace Pathoschild.Http.Client
         /// <returns>Returns the response body, or <c>null</c> if the response has no body.</returns>
         /// <exception cref="ApiException">An error occurred processing the response.</exception>
         Task<Stream> AsStream();
+
+        /// <summary>Get a raw JSON representation of the response, which can also be accessed as a <c>dynamic</c> value.</summary>
+        Task<JToken> AsRawJson();
+
+        /// <summary>Get a raw JSON object representation of the response, which can also be accessed as a <c>dynamic</c> value.</summary>
+        Task<JObject> AsRawJsonObject();
+
+        /// <summary>Get a raw JSON array representation of the response, which can also be accessed as a <c>dynamic</c> value.</summary>
+        Task<JArray> AsRawJsonArray();
     }
 }

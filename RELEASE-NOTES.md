@@ -3,10 +3,20 @@
 ## 4.0
 **Breaking changes:**
 * When you specify null arguments like `request.WithArgument("x", null)`, the argument is now ignored instead of sending a blank value. You can use the previous behaviour by setting the `IgnoreNullArguments: false` option.
+* Removed deprecated methods.
 -->
 
+## 3.3
+Released 27 April 2019.
+
+* Added support for reading responses into `JToken`, `JObject`, `JArray`, or `dynamic`.
+* Added fluent HTTP body builders, and deprecated some older body methods to simplify usage.
+* Added `IsSuccessStatusCode` to response.
+* Fixed default web proxy not being used.
+* Updated dependencies.
+
 ## 3.2
-Released 18 April 2018. See [log](https://github.com/Pathoschild/FluentHttpClient/compare/3.1...3.2).
+Released 18 April 2018.
 
 * Added options to finetune behavior (see `client.SetOptions` and `request.WithOptions`).
 * The base URL now behaves more intuitively in many cases.
@@ -24,7 +34,7 @@ Released 18 April 2018. See [log](https://github.com/Pathoschild/FluentHttpClien
   * The base URL is no longer truncated in some cases. For example, a base URL `https://example.org/index.php` with resource `api` now resolves to `https://example.org/index.php/api` instead of `https://example.org/api`.
 
 ## 3.1
-Released 19 September 2017. See [log](https://github.com/Pathoschild/FluentHttpClient/compare/3.0...3.1).
+Released 19 September 2017.
 
 * Added option to set default behaviour for all requests.  
   <small>_For example, when using an API with URL-based authentication, you can do `client.AddDefault(request => request.WithArgument("token", "..."))` to add that argument to all later requests._</small>
@@ -36,7 +46,7 @@ Released 19 September 2017. See [log](https://github.com/Pathoschild/FluentHttpC
   <small>_For example, `maxRetries: 1` never retried. This value now sets the maximum number of retries after the initial request.</small>_
 
 ## 3.0
-Released 08 February 2017. See [log](https://github.com/Pathoschild/FluentHttpClient/compare/2.3...3.0).
+Released 08 February 2017.
 
 * New features:
   * Added built-in retry support.
@@ -61,12 +71,12 @@ Released 08 February 2017. See [log](https://github.com/Pathoschild/FluentHttpCl
 * Relicensed from CC-BY 3.0 to more permissive MIT license.
 
 ## 2.3
-Released 12 December 2016. See [log](https://github.com/Pathoschild/FluentHttpClient/compare/2.2.0..2.3).
+Released 12 December 2016.
 
 * Migrated to .NET Standard 1.3 + .NET Core to improve crossplatform support.
 
 ## 2.2
-Released 30 June 2016. See [log](https://github.com/Pathoschild/FluentHttpClient/compare/2.1.0..2.2.0).
+Released 30 June 2016.
 
 * Updated to latest version of Json.NET.
 * Merged formatters library into client.
@@ -74,7 +84,7 @@ Released 30 June 2016. See [log](https://github.com/Pathoschild/FluentHttpClient
 
 
 ## 2.1
-Released 08 May 2016. See [log](https://github.com/Pathoschild/FluentHttpClient/compare/2.0.0..2.1.0).
+Released 08 May 2016.
 
 * Migrated to PCL for cross-platform compatibility.
 * Removed support for JSONP.  
@@ -84,7 +94,7 @@ Released 08 May 2016. See [log](https://github.com/Pathoschild/FluentHttpClient/
   _(The underlying HttpClient now uses Json.NET by default.)_
 
 ## 2.0
-Released 28 April 2016. See [log](https://github.com/Pathoschild/FluentHttpClient/compare/1.2.1..2.0.0).
+Released 28 April 2016.
 
 * Replace `IFactory` with a new extensibility model using `IHttpFilter`.  
   _(This enables simpler and more powerful extensibility without exposing implementation details.
@@ -94,24 +104,24 @@ Released 28 April 2016. See [log](https://github.com/Pathoschild/FluentHttpClien
 * Updated to the latest version of HttpClient and Json.NET.
 
 ## 1.2.1
-Released 28 October 2015. See [log](https://github.com/Pathoschild/FluentHttpClient/compare/1.2.0..1.2.1).
+Released 28 October 2015.
 
 * The client is now `IDisposable`.
 
 ## 1.2
-Released 30 October 2013. See [log](https://github.com/Pathoschild/FluentHttpClient/compare/1.1.0..1.2.0).
+Released 30 October 2013.
 
 * Updated to latest versions of HttpClient and Json.NET.
 
 ## 1.1
-Released 28 August 2013. See [log](https://github.com/Pathoschild/FluentHttpClient/compare/1.0.0..1.1.0).
+Released 28 August 2013.
 
 * Added request cloning to support use cases like batch queries.
 * Added UTF-8 as a supported encoding by default.
 
 
 ## 1.0
-Released 23 May 2012. See [log](https://github.com/Pathoschild/FluentHttpClient/compare/a316a15a7aaa8b3882fa9111db192a1d962b72ed...1.0.0).
+Released 23 May 2012.
 
 * Initial client release:
   * Wrapped HttpClient with a fluent interface.

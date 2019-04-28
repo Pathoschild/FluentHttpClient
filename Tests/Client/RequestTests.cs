@@ -338,7 +338,7 @@ namespace Pathoschild.Http.Tests.Client
             Assert.That(await request.Message.Content.ReadAsStringAsync(), Is.EqualTo('"' + body.ToString() + '"'), "The message body is invalid.");
         }
 
-        [Test(Description = "Ensure that WithBody sets the request body and does not incorrectly alter request state.")]
+        [Test(Description = "Ensure that WithBody with a model sets the request body and does not incorrectly alter request state.")]
         [TestCase("DELETE", "body value")]
         [TestCase("GET", "body value")]
         [TestCase("HEAD", "body value")]
@@ -346,7 +346,7 @@ namespace Pathoschild.Http.Tests.Client
         [TestCase("OPTIONS", "body value")]
         [TestCase("POST", "body value")]
         [TestCase("TRACE", "body value")]
-        public async Task WithBody(string methodName, object body)
+        public async Task WithBody_Model(string methodName, object body)
         {
             // execute
             IRequest request = this
@@ -378,6 +378,69 @@ namespace Pathoschild.Http.Tests.Client
             Assert.That(await request.Message.Content.ReadAsStringAsync(), Is.EqualTo('"' + body.ToString() + '"'), "The message body is invalid.");
         }
 
+        [Test(Description = "Ensure that WithBody with a custom builder sets the request body and does not incorrectly alter request state.")]
+        [TestCase("DELETE", "body value")]
+        [TestCase("GET", "body value")]
+        [TestCase("HEAD", "body value")]
+        [TestCase("PUT", "body value")]
+        [TestCase("OPTIONS", "body value")]
+        [TestCase("POST", "body value")]
+        [TestCase("TRACE", "body value")]
+        public async Task WithBody_Builder_ForCustom(string methodName, object body)
+        {
+            // set up
+            HttpContent content = new ObjectContent(typeof(string), body, new JsonMediaTypeFormatter());
+
+            // execute
+            IRequest request = this
+                .ConstructRequest(methodName)
+                .WithBody(p => content);
+
+            // verify
+            this.AssertEqual(request.Message, methodName, ignoreArguments: true);
+            Assert.That(await request.Message.Content.ReadAsStringAsync(), Is.EqualTo('"' + body.ToString() + '"'), "The message body is invalid.");
+        }
+
+        [Test(Description = "Ensure that WithBody with a model builder sets the request body and does not incorrectly alter request state.")]
+        [TestCase("DELETE", "body value")]
+        [TestCase("GET", "body value")]
+        [TestCase("HEAD", "body value")]
+        [TestCase("PUT", "body value")]
+        [TestCase("OPTIONS", "body value")]
+        [TestCase("POST", "body value")]
+        [TestCase("TRACE", "body value")]
+        public async Task WithBody_Builder_ForModel(string methodName, object body)
+        {
+            // execute
+            IRequest request = this
+                .ConstructRequest(methodName)
+                .WithBody(p => p.Model(body));
+
+            // verify
+            this.AssertEqual(request.Message, methodName, ignoreArguments: true);
+            Assert.That(await request.Message.Content.ReadAsStringAsync(), Is.EqualTo('"' + body.ToString() + '"'), "The message body is invalid.");
+        }
+
+        [Test(Description = "Ensure that WithBody with a model builder sets the request body and does not incorrectly alter request state.")]
+        [TestCase("DELETE", "body value")]
+        [TestCase("GET", "body value")]
+        [TestCase("HEAD", "body value")]
+        [TestCase("PUT", "body value")]
+        [TestCase("OPTIONS", "body value")]
+        [TestCase("POST", "body value")]
+        [TestCase("TRACE", "body value")]
+        public async Task WithBody_Builder_ForModel_AndFormatter(string methodName, object body)
+        {
+            // execute
+            IRequest request = this
+                .ConstructRequest(methodName)
+                .WithBody(p => p.Model(body, new JsonMediaTypeFormatter()));
+
+            // verify
+            this.AssertEqual(request.Message, methodName, ignoreArguments: true);
+            Assert.That(await request.Message.Content.ReadAsStringAsync(), Is.EqualTo('"' + body.ToString() + '"'), "The message body is invalid.");
+        }
+
         [Test(Description = "Ensure that WithCustom persists the custom changes and does not incorrectly alter request state.")]
         [TestCase("DELETE", "body value")]
         [TestCase("GET", "body value")]
@@ -396,6 +459,29 @@ namespace Pathoschild.Http.Tests.Client
             // verify
             this.AssertEqual(request.Message, methodName, ignoreArguments: true);
             Assert.That(await request.Message.Content.ReadAsStringAsync(), Is.EqualTo('"' + customBody + '"'), "The customized message body is invalid.");
+        }
+
+        [Test(Description = "Ensure that WithBody with a custom builder sets the request body and does not incorrectly alter request state.")]
+        [TestCase("DELETE", "body value", "body+value")]
+        [TestCase("GET", "body value", "body+value")]
+        [TestCase("HEAD", "body value", "body+value")]
+        [TestCase("PUT", "body value", "body+value")]
+        [TestCase("OPTIONS", "body value", "body+value")]
+        [TestCase("POST", "body value", "body+value")]
+        [TestCase("TRACE", "body value", "body+value")]
+        public async Task WithBody_Builder_ForFormUrlEncoded(string methodName, string body, string encodedBody)
+        {
+            // set up
+            object args = new { body };
+
+            // execute
+            IRequest request = this
+                .ConstructRequest(methodName)
+                .WithBody(p => p.FormUrlEncoded(args));
+
+            // verify
+            this.AssertEqual(request.Message, methodName, ignoreArguments: true);
+            Assert.That(await request.Message.Content.ReadAsStringAsync(), Is.EqualTo("body=" + encodedBody), "The message body is invalid.");
         }
 
         [Test(Description = "Ensure that WithHeader sets the expected header and does not incorrectly alter request state.")]

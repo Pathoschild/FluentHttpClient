@@ -213,26 +213,36 @@ namespace Pathoschild.Http.Client
 
         /// <summary>Set the body content of the HTTP request.</summary>
         /// <param name="request">The request.</param>
-        /// <param name="body">The value to serialize into the HTTP body content.</param>
-        /// <param name="contentType">The request body format (or <c>null</c> to use the first supported Content-Type in the <see cref="Formatters"/>).</param>
+        /// <param name="body">The model to serialize into the HTTP body content.</param>
         /// <returns>Returns the request builder for chaining.</returns>
         /// <exception cref="InvalidOperationException">No MediaTypeFormatters are available on the API client for this content type.</exception>
-        public static IRequest WithBody<T>(this IRequest request, T body, MediaTypeHeaderValue contentType = null)
+        public static IRequest WithBody<T>(this IRequest request, T body)
         {
-            MediaTypeFormatter formatter = Factory.GetFormatter(request.Formatters, contentType);
-            string mediaType = contentType?.MediaType;
-            return request.WithBody(body, formatter, mediaType);
+            return request.WithBody(p => p.Model(body));
         }
 
         /// <summary>Set the body content of the HTTP request.</summary>
         /// <param name="request">The request.</param>
-        /// <param name="body">The value to serialize into the HTTP body content.</param>
+        /// <param name="body">The model to serialize into the HTTP body content.</param>
+        /// <param name="contentType">The request body format (or <c>null</c> to use the first supported Content-Type in the <see cref="Formatters"/>).</param>
+        /// <returns>Returns the request builder for chaining.</returns>
+        /// <exception cref="InvalidOperationException">No MediaTypeFormatters are available on the API client for this content type.</exception>
+        [Obsolete("Will be removed in 4.0. Use `" + nameof(WithBody) + "` with a builder instead.")]
+        public static IRequest WithBody<T>(this IRequest request, T body, MediaTypeHeaderValue contentType = null)
+        {
+            return request.WithBody(p => p.Model(body, contentType));
+        }
+
+        /// <summary>Set the body content of the HTTP request.</summary>
+        /// <param name="request">The request.</param>
+        /// <param name="body">The model to serialize into the HTTP body content.</param>
         /// <param name="formatter">The media type formatter with which to format the request body format.</param>
         /// <param name="mediaType">The HTTP media type (or <c>null</c> for the <paramref name="formatter"/>'s default).</param>
         /// <returns>Returns the request builder for chaining.</returns>
+        [Obsolete("Will be removed in 4.0. Use `" + nameof(WithBody) + "` with a builder instead.")]
         public static IRequest WithBody<T>(this IRequest request, T body, MediaTypeFormatter formatter, string mediaType = null)
         {
-            return request.WithBodyContent(new ObjectContent<T>(body, formatter, mediaType));
+            return request.WithBody(p => p.Model(body, formatter, mediaType));
         }
 
         /// <summary>Set the request coordinator for this request</summary>

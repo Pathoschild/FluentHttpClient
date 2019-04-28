@@ -3,6 +3,7 @@ using System.Net;
 using System.Net.Http;
 using System.Net.Http.Formatting;
 using System.Threading.Tasks;
+using Newtonsoft.Json.Linq;
 
 namespace Pathoschild.Http.Client.Internal
 {
@@ -10,8 +11,11 @@ namespace Pathoschild.Http.Client.Internal
     public sealed class Response : IResponse
     {
         /*********
-        ** Properties
+        ** Fields
         *********/
+        /// <summary>Whether the HTTP response was successful.</summary>
+        public bool IsSuccessStatusCode => this.Message.IsSuccessStatusCode;
+
         /// <summary>The underlying HTTP response message.</summary>
         public HttpResponseMessage Message { get; }
 
@@ -74,6 +78,27 @@ namespace Pathoschild.Http.Client.Internal
             Stream stream = await this.Message.Content.ReadAsStreamAsync().ConfigureAwait(false);
             stream.Position = 0;
             return stream;
+        }
+
+        /// <summary>Get a raw JSON representation of the response, which can also be accessed as a <c>dynamic</c> value.</summary>
+        public async Task<JToken> AsRawJson()
+        {
+            string content = await this.AsString();
+            return JToken.Parse(content);
+        }
+
+        /// <summary>Get a raw JSON object representation of the response, which can also be accessed as a <c>dynamic</c> value.</summary>
+        public async Task<JObject> AsRawJsonObject()
+        {
+            string content = await this.AsString();
+            return JObject.Parse(content);
+        }
+
+        /// <summary>Get a raw JSON array representation of the response, which can also be accessed as a <c>dynamic</c> value.</summary>
+        public async Task<JArray> AsRawJsonArray()
+        {
+            string content = await this.AsString();
+            return JArray.Parse(content);
         }
     }
 }

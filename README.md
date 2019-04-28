@@ -21,36 +21,49 @@ The client works on any modern platform (including Linux, Mac, and Windows):
 
 | platform                    | min version |
 | :-------------------------- | :---------- |
-| .NET Framework              | 4.5         |
 | .NET Core                   | 1.0         |
+| .NET Framework              | 4.5         |
 | [.NET Standard][]           | 1.3         |
-| Universal Windows Platform  | 10          |
+| Mono                        | 4.6         |
+| Unity                       | 2018.1      |
+| Universal Windows Platform  | 10.0        |
+| Xamarin.Android             | 7.0         |
+| Xamarin.iOS                 | 10.0        |
+| Xamarin.Mac                 | 3.0         |
 
 ## Use
 ### Basic usage
 You start by creating a client for an API. You can use this client for one request, or reuse it for
-many requests for improved performance using its built-in connection pool.
+many requests (which improves performance using the built-in connection pool).
 
 ```c#
 IClient client = new FluentClient("https://example.org/api/");
 ```
 
-Then you just chain methods to set up the request and get the response. For example, here's a GET
-request which returns an `Item` model (automatically deserialised based on content negotiation):
+Then just chain methods to set up the request and get the response. For example, here's a GET
+request which reads the response content into a custom `Item` class (deserialised based on content
+negotiation):
+
 ```c#
 Item item = await client
     .GetAsync("items/14")
     .As<Item>();
 ```
 
-You can get the response as a model, array of models, bytes, string, or stream:
-```c#
-string content = await client
-    .GetAsync("items/14")
-    .AsString();
-```
+You can read the response into any of these formats:
 
-If you don't need the response content, you can just wait for the request to complete.
+type       | method
+---------- | ------
+`Item`    | `As<Item>()`
+`Item[]`  | `AsArray<Item>()`
+`byte[]`  | `AsByteArray()`
+`string`  | `AsString()`
+`Stream`  | `AsStream()`
+`JToken`  | `AsRawJson()`
+`JObject` | `AsRawJsonObject()`
+`JArray`  | `AsRawJsonArray()`
+
+If you don't need the response content, you can just await the request:
 ```c#
 await client.PostAsync("items", new Item(…));
 ```
@@ -61,11 +74,46 @@ example:
 
 ```c#
 Message[] messages = await client
-    .GetAsync("messages/latest")
-    .WithHeader("Content-Type", "application/json")
-    .WithArguments(new { id = 14, tenant = "acme" })
-    .WithBearerAuthentication(token)
-    .AsArray<Message>();
+   .GetAsync("items")
+   .WithHeader("Content-Type", "application/json")
+   .WithArguments(new
+   {
+      id = 14,
+      category = "tools"
+   })
+   .WithBearerAuthentication(token)
+   .AsArray<Message>();
+```
+
+### HTTP body
+You can add a serialised body as part of the POST method, automatically serialised to the right
+content type (e.g. JSON or XML):
+```c#
+await client.PostAsync("items", new Item(…));
+```
+
+You can optionally add a serialised body to any request though:
+```c#
+await client
+   .GetAsync("items")
+   .WithBody(new SearchOptions(…));
+```
+
+Or use a body builder for more control:
+```c#
+// serialise with a specific content type
+await client
+   .GetAsync("items")
+   .WithBody(builder => builder.Model(new SearchOptions(…), "text/json"));
+
+// send form URL-encoded body
+await client
+   .GetAsync("items")
+   .WithBody(builder => builder.FormUrlEncoded(new
+   {
+      id = 14,
+      category = "tools"
+   });
 ```
 
 ### Get response data
@@ -74,8 +122,32 @@ metadata:
 
 ```c#
 IResponse response = await client.GetAsync("messages/latest");
-if (response.Status == HttpStatusCode.OK)
+if (response.IsSuccessStatusCode || response.Status == HttpStatusCode.Found)
    return response.AsArray<T>();
+```
+
+### Raw JSON reading
+If you don't want to create a model class, the `AsRawJson` methods let you fetch the response into
+a JSON structure instead. (This only works for APIs which return JSON, not XML or another format.)
+This lets you read values without mapping them to a model class:
+
+```c#
+JObject obj = await client
+    .GetAsync("items/14")
+    .AsRawJsonObject();
+
+int count = obj["count"].Value<int>();
+Item item = obj["data"]["items"].First.ToObject<Item>();
+```
+
+You can also read the values using `dynamic`:
+```c#
+dynamic obj = await client
+    .GetAsync("items/14")
+    .AsRawJsonObject();
+
+int count = obj.count;
+Item item = obj.data.items.First.ToObject<Item>();
 ```
 
 ### Error handling
@@ -136,7 +208,7 @@ client
 
 If that's not enough, implementing `IRequestCoordinator` lets you control how the client
 dispatches requests. (You can only have one request coordinator on the client; you should use
-[HTTP filters](#custom-behaviour) instead for most overrides.)
+[HTTP filters](#custom-filters) instead for most overrides.)
 
 For example, here's a simple retry coordinator using [Polly](https://github.com/App-vNext/Polly):
 ```c#
@@ -145,9 +217,9 @@ public class RetryCoordinator : IRequestCoordinator
 {
     /// <summary>Dispatch an HTTP request.</summary>
     /// <param name="request">The response message to validate.</param>
-    /// <param name="dispatcher">Dispatcher that executes the request.</param>
+    /// <param name="send">Dispatcher that executes the request.</param>
     /// <returns>The final HTTP response.</returns>
-    public async Task<HttpResponseMessage> ExecuteAsync(IRequest request, Func<IRequest, Task<HttpResponseMessage>> dispatcher)
+    public async Task<HttpResponseMessage> ExecuteAsync(IRequest request, Func<IRequest, Task<HttpResponseMessage>> send)
     {
         int[] retryCodes = { 408, 500, 502, 503, 504 };
         return Policy
@@ -225,7 +297,7 @@ tokenSource.Cancel();
 
 
 ### Synchronous use
-The client is build around the `async` and `await` keywords, but you can use the client
+The client is built around the `async` and `await` keywords, but you can use the client
 synchronously. That's not recommended — it complicates error-handling (e.g. errors get wrapped
 into [AggregateException][]), and it's very easy to cause thread deadlocks when you do this (see
 _[Parallel Programming with .NET: Await, and UI, and deadlocks! Oh my!][]_ and
@@ -243,20 +315,16 @@ client.PostAsync("items", new Item(…)).AsResponse().Wait();
 ```
 
 [.NET Standard]: https://docs.microsoft.com/en-us/dotnet/articles/standard/library
-[Parallel Programming with .NET: Await, and UI, and deadlocks! Oh my!]: http://blogs.msdn.com/b/pfxteam/archive/2011/01/13/10115163.aspx
-[Don't Block on Async Code]: http://blog.stephencleary.com/2012/07/dont-block-on-async-code.html
+[Parallel Programming with .NET: Await, and UI, and deadlocks! Oh my!]: https://blogs.msdn.microsoft.com/pfxteam/2011/01/13/await-and-ui-and-deadlocks-oh-my/
+[Don't Block on Async Code]: https://blog.stephencleary.com/2012/07/dont-block-on-async-code.html
 [media type formatters]: https://www.nuget.org/packages?q=MediaTypeFormatter
-[circuit breaker]: https://msdn.microsoft.com/en-us/library/dn589784.aspx
 
-[AggregateException]: http://msdn.microsoft.com/en-us/library/system.aggregateexception.aspx
-[HttpClient]: https://msdn.microsoft.com/en-us/library/system.net.http.httpclient.aspx
-[HttpClientHandler]: http://msdn.microsoft.com/en-us/library/system.net.http.httpclienthandler.aspx
-[MediaTypeFormatter]: http://msdn.microsoft.com/en-us/library/system.net.http.formatting.mediatypeformatter.aspx
+[AggregateException]: https://docs.microsoft.com/en-us/dotnet/api/system.aggregateexception
+[HttpClient]: https://docs.microsoft.com/en-us/dotnet/api/system.net.http.httpclient
+[HttpClientHandler]: https://docs.microsoft.com/en-us/dotnet/api/system.net.http.httpclienthandler
+[MediaTypeFormatter]: https://msdn.microsoft.com/en-us/library/system.net.http.formatting.mediatypeformatter.aspx
 
-[Json.NET]: http://james.newtonking.com/projects/json-net.aspx
+[Json.NET]: https://www.newtonsoft.com/json
 [JSON]: https://en.wikipedia.org/wiki/JSON
-
-[IClient]: https://github.com/Pathoschild/Pathoschild.FluentHttpClient/blob/master/Client/IClient.cs#L6
-[IRequest]: https://github.com/Pathoschild/Pathoschild.FluentHttpClient/blob/master/Client/IRequest.cs#L12
 
 [Pathoschild.Http.FluentClient]: https://nuget.org/packages/Pathoschild.Http.FluentClient

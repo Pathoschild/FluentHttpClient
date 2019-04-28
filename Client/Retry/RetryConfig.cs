@@ -1,4 +1,3 @@
-﻿
 using System;
 using System.Net.Http;
 
@@ -8,7 +7,7 @@ namespace Pathoschild.Http.Client.Retry
     public class RetryConfig : IRetryConfig
     {
         /*********
-        ** Properties
+        ** Fields
         *********/
         /// <summary>A method which indicates whether a request should be retried.</summary>
         private Func<HttpResponseMessage, bool> ShouldRetryCallback { get; }
