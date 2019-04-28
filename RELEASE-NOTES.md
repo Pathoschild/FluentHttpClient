@@ -7,7 +7,7 @@
 -->
 
 ## 3.3
-Released 26 April 2019.
+Released 27 April 2019.
 
 * Added support for reading responses into `JToken`, `JObject`, `JArray`, or `dynamic`.
 * Added fluent HTTP body builders, and deprecated some older body methods to simplify usage.
