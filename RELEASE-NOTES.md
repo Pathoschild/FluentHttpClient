@@ -6,6 +6,9 @@
 * Removed deprecated methods.
 -->
 
+## Upcoming release
+* Added support for passing an `HttpContent` to `request.WithBody`.
+
 ## 3.3
 Released 27 April 2019.
 

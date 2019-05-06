@@ -358,6 +358,30 @@ namespace Pathoschild.Http.Tests.Client
             Assert.That(await request.Message.Content.ReadAsStringAsync(), Is.EqualTo('"' + body.ToString() + '"'), "The message body is invalid.");
         }
 
+        [Test(Description = "Ensure that WithBody with an HttpContent sets the request body and headers, and does not incorrectly alter request state.")]
+        [TestCase("DELETE", "body value")]
+        [TestCase("GET", "body value")]
+        [TestCase("HEAD", "body value")]
+        [TestCase("PUT", "body value")]
+        [TestCase("OPTIONS", "body value")]
+        [TestCase("POST", "body value")]
+        [TestCase("TRACE", "body value")]
+        public async Task WithBody_HttpContent(string methodName, string body)
+        {
+            // execute
+            IRequest request = this
+                .ConstructRequest(methodName)
+                .WithBody(new FormUrlEncodedContent(new Dictionary<string, string>
+                {
+                    ["argument"] = body
+                }));
+
+            // verify
+            this.AssertEqual(request.Message, methodName, ignoreArguments: true);
+            Assert.That(request.Message.Content.Headers.ContentType.ToString(), Is.EqualTo("application/x-www-form-urlencoded"), "The message content-type is invalid.");
+            Assert.That(await request.Message.Content.ReadAsStringAsync(), Is.EqualTo($"argument={body.Replace(" ", "+")}"), "The message body is invalid.");
+        }
+
         [Test(Description = "Ensure that WithBody sets the request body and does not incorrectly alter request state.")]
         [TestCase("DELETE", "body value")]
         [TestCase("GET", "body value")]
