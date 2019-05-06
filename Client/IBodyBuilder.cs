@@ -16,6 +16,10 @@ namespace Pathoschild.Http.Client
 
         /// <summary>Get a form URL-encoded body.</summary>
         /// <param name="arguments">An anonymous object containing the property names and values to set.</param>
+        HttpContent FormUrlEncoded(IDictionary<string, string> arguments);
+
+        /// <summary>Get a form URL-encoded body.</summary>
+        /// <param name="arguments">An anonymous object containing the property names and values to set.</param>
         /// <example><code>client.WithArguments(new[] { new KeyValuePair&lt;string, string&gt;("genre", "drama"), new KeyValuePair&lt;string, int&gt;("genre", "comedy") })</code></example>
         HttpContent FormUrlEncoded(IEnumerable<KeyValuePair<string, object>> arguments);
 

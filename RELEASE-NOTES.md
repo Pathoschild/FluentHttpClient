@@ -8,6 +8,7 @@
 
 ## Upcoming release
 * Added support for passing an `HttpContent` to `request.WithBody`.
+* Added support for passing an `IDictionary<string, string>` to `bodyBuilder.FormUrlEncoded`.
 
 ## 3.3
 Released 27 April 2019.

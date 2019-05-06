@@ -37,6 +37,17 @@ namespace Pathoschild.Http.Client.Internal
 
         /// <summary>Get a form URL-encoded body.</summary>
         /// <param name="arguments">An anonymous object containing the property names and values to set.</param>
+        public HttpContent FormUrlEncoded(IDictionary<string, string> arguments)
+        {
+            return new FormUrlEncodedContent(
+                from pair in arguments
+                where pair.Value != null || this.Request.Options.IgnoreNullArguments != true
+                select new KeyValuePair<string, string>(pair.Key, pair.Value)
+            );
+        }
+
+        /// <summary>Get a form URL-encoded body.</summary>
+        /// <param name="arguments">An anonymous object containing the property names and values to set.</param>
         /// <example><code>client.WithArguments(new[] { new KeyValuePair&lt;string, string&gt;("genre", "drama"), new KeyValuePair&lt;string, int&gt;("genre", "comedy") })</code></example>
         public HttpContent FormUrlEncoded(IEnumerable<KeyValuePair<string, object>> arguments)
         {
