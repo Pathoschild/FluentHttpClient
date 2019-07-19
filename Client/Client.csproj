@@ -14,7 +14,7 @@
     <PackageIconUrl>https://s3.amazonaws.com/pathoschild/avatar-64x64.png</PackageIconUrl>
     <RepositoryType>git</RepositoryType>
     <RepositoryUrl>https://github.com/Pathoschild/FluentHttpClient</RepositoryUrl>
-    <PackageReleaseNotes>See release notes at https://github.com/Pathoschild/FluentHttpClient/blob/develop/RELEASE-NOTES.md#33</PackageReleaseNotes>
+    <PackageReleaseNotes>See release notes at https://github.com/Pathoschild/FluentHttpClient/blob/develop/RELEASE-NOTES.md#331</PackageReleaseNotes>
     <PackageTags>wcf;web;webapi;HttpClient;FluentHttp;FluentHttpClient</PackageTags>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>

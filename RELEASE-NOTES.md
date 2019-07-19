@@ -6,9 +6,11 @@
 * Removed deprecated methods.
 -->
 
-## Upcoming release
-* Added support for passing an `HttpContent` to `request.WithBody`.
-* Added support for passing an `IDictionary<string, string>` to `bodyBuilder.FormUrlEncoded`.
+## 3.3.1
+Released 19 July 2019.
+
+* `request.WithBody` now allows `HttpContent` input.
+* `bodyBuilder.FormUrlEncoded` now has an overload for dictionary input.
 * Fixed form-URL-encoded body helper enforcing URL length limits.
 
 ## 3.3
