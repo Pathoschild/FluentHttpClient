@@ -9,6 +9,7 @@
 ## Upcoming release
 * Added support for passing an `HttpContent` to `request.WithBody`.
 * Added support for passing an `IDictionary<string, string>` to `bodyBuilder.FormUrlEncoded`.
+* Fixed form-URL-encoded body helper enforcing URL length limits.
 
 ## 3.3
 Released 27 April 2019.

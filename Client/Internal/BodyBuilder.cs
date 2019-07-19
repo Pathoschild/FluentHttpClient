@@ -1,9 +1,11 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Net.Http;
 using System.Net.Http.Formatting;
 using System.Net.Http.Headers;
+using System.Text;
 
 namespace Pathoschild.Http.Client.Internal
 {
@@ -51,11 +53,14 @@ namespace Pathoschild.Http.Client.Internal
         /// <example><code>client.WithArguments(new[] { new KeyValuePair&lt;string, string&gt;("genre", "drama"), new KeyValuePair&lt;string, int&gt;("genre", "comedy") })</code></example>
         public HttpContent FormUrlEncoded(IEnumerable<KeyValuePair<string, object>> arguments)
         {
-            return new FormUrlEncodedContent(
+            // bypass FormUrlEncodedContent, which restricts the body length to the maximum size of a URL. That's not applicable for a URL-encoded body.
+            IEnumerable<string> pairs =
+            (
                 from pair in arguments
                 where pair.Value != null || this.Request.Options.IgnoreNullArguments != true
-                select new KeyValuePair<string, string>(pair.Key, pair.Value?.ToString())
+                select $"{WebUtility.UrlEncode(pair.Key)}={WebUtility.UrlEncode(pair.Value?.ToString())}"
             );
+            return new StringContent(string.Join("&", pairs), Encoding.UTF8, "application/x-www-form-urlencoded");
         }
 
         /// <summary>Get the serialized model body.</summary>
