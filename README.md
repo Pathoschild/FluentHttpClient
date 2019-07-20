@@ -86,20 +86,27 @@ Message[] messages = await client
 ```
 
 ### HTTP body
-You can add a serialised body as part of the POST method, automatically serialised to the right
-content type (e.g. JSON or XML):
+You can add a body directly in the POST method, automatically serialised to the right content type
+(e.g. JSON or XML):
 ```c#
 await client.PostAsync("items", new Item(…));
 ```
 
-You can optionally add a serialised body to any request though:
+Or add a body to any request:
 ```c#
 await client
    .GetAsync("items")
    .WithBody(new SearchOptions(…));
 ```
 
-Or use a body builder for more control:
+Or take control of the format with a built-in or custom `HttpContent` class:
+```c#
+await client
+   .GetAsync("items")
+   .WithBody(new FormUrlEncodedContent(dictionary));
+```
+
+Or use a body builder for more options:
 ```c#
 // serialise with a specific content type
 await client

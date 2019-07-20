@@ -74,8 +74,7 @@ namespace Pathoschild.Http.Client.Internal
         [Obsolete("Will be removed in 4.0. Use `" + nameof(WithBody) + "` instead.")]
         public IRequest WithBodyContent(HttpContent body)
         {
-            this.Message.Content = body;
-            return this;
+            return this.WithBody(body);
         }
 
         /// <summary>Set the body content of the HTTP request.</summary>

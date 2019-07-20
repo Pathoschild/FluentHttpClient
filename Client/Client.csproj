@@ -6,7 +6,7 @@
     <RootNamespace>Pathoschild.Http.Client</RootNamespace>
     <PackageId>Pathoschild.Http.FluentClient</PackageId>
     <Title>FluentHttpClient</Title>
-    <Version>3.3.0</Version>
+    <Version>3.3.1</Version>
     <Authors>Pathoschild</Authors>
     <Description>A modern async HTTP client for REST APIs. Its fluent interface lets you send an HTTP request and parse the response in one go.</Description>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
@@ -14,7 +14,7 @@
     <PackageIconUrl>https://s3.amazonaws.com/pathoschild/avatar-64x64.png</PackageIconUrl>
     <RepositoryType>git</RepositoryType>
     <RepositoryUrl>https://github.com/Pathoschild/FluentHttpClient</RepositoryUrl>
-    <PackageReleaseNotes>See release notes at https://github.com/Pathoschild/FluentHttpClient/blob/develop/RELEASE-NOTES.md#33</PackageReleaseNotes>
+    <PackageReleaseNotes>See release notes at https://github.com/Pathoschild/FluentHttpClient/blob/develop/RELEASE-NOTES.md#331</PackageReleaseNotes>
     <PackageTags>wcf;web;webapi;HttpClient;FluentHttp;FluentHttpClient</PackageTags>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>

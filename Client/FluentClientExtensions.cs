@@ -5,6 +5,7 @@ using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Formatting;
 using System.Net.Http.Headers;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using Pathoschild.Http.Client.Extensibility;
@@ -213,11 +214,16 @@ namespace Pathoschild.Http.Client
 
         /// <summary>Set the body content of the HTTP request.</summary>
         /// <param name="request">The request.</param>
-        /// <param name="body">The model to serialize into the HTTP body content.</param>
+        /// <param name="body">The model to serialize into the HTTP body content, or an <c>HttpContent</c> instance.</param>
         /// <returns>Returns the request builder for chaining.</returns>
         /// <exception cref="InvalidOperationException">No MediaTypeFormatters are available on the API client for this content type.</exception>
         public static IRequest WithBody<T>(this IRequest request, T body)
         {
+            // HttpContent
+            if (typeof(HttpContent).GetTypeInfo().IsAssignableFrom(typeof(T).GetTypeInfo()))
+                return request.WithBody(p => (HttpContent)(object)body);
+
+            // model
             return request.WithBody(p => p.Model(body));
         }
 

@@ -6,6 +6,13 @@
 * Removed deprecated methods.
 -->
 
+## 3.3.1
+Released 19 July 2019.
+
+* `request.WithBody` now allows `HttpContent` input.
+* `bodyBuilder.FormUrlEncoded` now has an overload for dictionary input.
+* Fixed form-URL-encoded body helper enforcing URL length limits.
+
 ## 3.3
 Released 27 April 2019.
 
