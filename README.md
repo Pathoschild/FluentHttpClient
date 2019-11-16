@@ -201,23 +201,20 @@ The client supports JSON and XML out of the box. If you need more, you can...
 * Create your own by subclassing `MediaTypeFormatter` (optionally using the included
   `MediaTypeFormatterBase` class).
 
-### Custom retry / coordination
+### Simply retry policy
 The client won't retry failed requests by default, but that's easy to configure:
 ```c#
 client
     .SetRequestCoordinator(
         maxRetries: 3,
         shouldRetry: request => request.StatusCode != HttpStatusCode.OK,
-        getDelay: (attempt, response) => return TimeSpan.FromSeconds(attempt), // 1, 2, and 3 seconds
-        retryOnTimeout: true
+        getDelay: (attempt, response) => TimeSpan.FromSeconds(attempt) // 1, 2, and 3 seconds
     );
 ```
 
-If that's not enough, implementing `IRequestCoordinator` lets you control how the client
-dispatches requests. (You can only have one request coordinator on the client; you should use
-[HTTP filters](#custom-filters) instead for most overrides.)
-
-For example, here's a simple retry coordinator using [Polly](https://github.com/App-vNext/Polly):
+### Custom retry / coordination policy
+For more specific logic, you can implement `IRequestCoordinator` to control how requests are
+dispatched. For example, here's a retry coordinator using [Polly](https://github.com/App-vNext/Polly):
 ```c#
 /// <summary>A request coordinator which retries failed requests with a delay between each attempt.</summary>
 public class RetryCoordinator : IRequestCoordinator
@@ -226,12 +223,13 @@ public class RetryCoordinator : IRequestCoordinator
     /// <param name="request">The response message to validate.</param>
     /// <param name="send">Dispatcher that executes the request.</param>
     /// <returns>The final HTTP response.</returns>
-    public async Task<HttpResponseMessage> ExecuteAsync(IRequest request, Func<IRequest, Task<HttpResponseMessage>> send)
+    public Task<HttpResponseMessage> ExecuteAsync(IRequest request, Func<IRequest, Task<HttpResponseMessage>> send)
     {
-        int[] retryCodes = { 408, 500, 502, 503, 504 };
+        HttpStatusCode[] retryCodes = { HttpStatusCode.GatewayTimeout, HttpStatusCode.RequestTimeout };
         return Policy
-            .HandleResult<HttpResponseMessage>(request => retryCodes.Contains((int)request.StatusCode))
-            .Retry(3, async () => await send(request));
+            .HandleResult<HttpResponseMessage>(request => retryCodes.Contains(request.StatusCode)) // should we retry?
+            .WaitAndRetryAsync(3, attempt => TimeSpan.FromSeconds(attempt)) // up to 3 retries with increasing delay
+            .ExecuteAsync(() => send(request)); // begin handling request
     }
 }
 ```
@@ -240,6 +238,9 @@ public class RetryCoordinator : IRequestCoordinator
 ```c#
 client.SetRequestCoordinator(new RetryCoordinator());
 ```
+
+(You can only have one request coordinator on the client; you should use [HTTP filters](#custom-filters)
+instead for most overrides.)
 
 
 ### Custom filters
