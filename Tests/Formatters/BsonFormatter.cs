@@ -21,7 +21,7 @@ namespace Pathoschild.Http.Tests.Formatters
             public int Number { get; set; }
 
             /// <summary>An example string value.</summary>
-            public string Text { get; set; }
+            public string? Text { get; set; }
         }
 
 

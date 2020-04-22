@@ -174,7 +174,7 @@ namespace Pathoschild.Http.Client
         /// <summary>Set the default request coordinator.</summary>
         /// <param name="client">The client.</param>
         /// <param name="config">The retry configuration (or null for the default coordinator).</param>
-        public static IClient SetRequestCoordinator(this IClient client, IRetryConfig config)
+        public static IClient SetRequestCoordinator(this IClient client, IRetryConfig? config)
         {
             return client.SetRequestCoordinator(new RetryCoordinator(config));
         }
@@ -219,6 +219,9 @@ namespace Pathoschild.Http.Client
         /// <exception cref="InvalidOperationException">No MediaTypeFormatters are available on the API client for this content type.</exception>
         public static IRequest WithBody<T>(this IRequest request, T body)
         {
+            if (body == null)
+                throw new ArgumentNullException(nameof(body));
+
             // HttpContent
             if (typeof(HttpContent).GetTypeInfo().IsAssignableFrom(typeof(T).GetTypeInfo()))
                 return request.WithBody(p => (HttpContent)(object)body);
@@ -234,7 +237,7 @@ namespace Pathoschild.Http.Client
         /// <returns>Returns the request builder for chaining.</returns>
         /// <exception cref="InvalidOperationException">No MediaTypeFormatters are available on the API client for this content type.</exception>
         [Obsolete("Will be removed in 4.0. Use `" + nameof(WithBody) + "` with a builder instead.")]
-        public static IRequest WithBody<T>(this IRequest request, T body, MediaTypeHeaderValue contentType = null)
+        public static IRequest WithBody<T>(this IRequest request, T body, MediaTypeHeaderValue? contentType = null)
         {
             return request.WithBody(p => p.Model(body, contentType));
         }
@@ -246,7 +249,7 @@ namespace Pathoschild.Http.Client
         /// <param name="mediaType">The HTTP media type (or <c>null</c> for the <paramref name="formatter"/>'s default).</param>
         /// <returns>Returns the request builder for chaining.</returns>
         [Obsolete("Will be removed in 4.0. Use `" + nameof(WithBody) + "` with a builder instead.")]
-        public static IRequest WithBody<T>(this IRequest request, T body, MediaTypeFormatter formatter, string mediaType = null)
+        public static IRequest WithBody<T>(this IRequest request, T body, MediaTypeFormatter formatter, string? mediaType = null)
         {
             return request.WithBody(p => p.Model(body, formatter, mediaType));
         }
@@ -273,7 +276,7 @@ namespace Pathoschild.Http.Client
         /// <summary>Set the request coordinator for this request</summary>
         /// <param name="request">The request.</param>
         /// <param name="config">The retry config (or null to use the default behaviour).</param>
-        public static IRequest WithRequestCoordinator(this IRequest request, IRetryConfig config)
+        public static IRequest WithRequestCoordinator(this IRequest request, IRetryConfig? config)
         {
             return request.WithRequestCoordinator(new RetryCoordinator(config));
         }
@@ -317,7 +320,7 @@ namespace Pathoschild.Http.Client
         /// <summary>Get a copy of the request content.</summary>
         /// <param name="content">The content to copy.</param>
         /// <remarks>Note that cloning content isn't possible after it's dispatched, because the stream is automatically disposed after the request.</remarks>
-        internal static async Task<HttpContent> CloneAsync(this HttpContent content)
+        internal static async Task<HttpContent?> CloneAsync(this HttpContent? content)
         {
             if (content == null)
                 return null;

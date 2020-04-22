@@ -13,13 +13,12 @@ namespace Pathoschild.Http.Tests.Formatters
         ** Unit tests
         *********/
         [Test(Description = "Ensure that a string value can be read.")]
-        [TestCase(null, ExpectedResult = "")]
         [TestCase("", ExpectedResult = "")]
         [TestCase("   ", ExpectedResult = "   ")]
         [TestCase("example", ExpectedResult = "example")]
         [TestCase("<example />", ExpectedResult = "<example />")]
         [TestCase("exam\r\nple", ExpectedResult = "exam\r\nple")]
-        public object Deserialize_String(string content)
+        public object Deserialize_String(string? content)
         {
             // arrange
             PlainTextFormatter formatter = new PlainTextFormatter();
@@ -30,13 +29,12 @@ namespace Pathoschild.Http.Tests.Formatters
         }
 
         [Test(Description = "Ensure that a string value can be written.")]
-        [TestCase(null, ExpectedResult = "")]
         [TestCase("", ExpectedResult = "")]
         [TestCase("   ", ExpectedResult = "   ")]
         [TestCase("example", ExpectedResult = "example")]
         [TestCase("<example />", ExpectedResult = "<example />")]
         [TestCase("exam\r\nple", ExpectedResult = "exam\r\nple")]
-        public string Serialize_String(string content)
+        public string Serialize_String(string? content)
         {
             // arrange
             PlainTextFormatter formatter = new PlainTextFormatter();

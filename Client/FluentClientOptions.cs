@@ -25,5 +25,13 @@ namespace Pathoschild.Http.Client
                 IgnoreNullArguments = this.IgnoreNullArguments
             };
         }
+
+        /// <summary>Copy the non-null values from the given options.</summary>
+        /// <param name="options">The options to copy.</param>
+        internal void MergeFrom(FluentClientOptions? options)
+        {
+            this.IgnoreNullArguments = options?.IgnoreNullArguments ?? this.IgnoreNullArguments;
+            this.IgnoreHttpErrors = options?.IgnoreHttpErrors ?? this.IgnoreHttpErrors;
+        }
     }
 }

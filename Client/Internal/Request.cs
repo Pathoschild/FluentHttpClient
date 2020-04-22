@@ -40,7 +40,7 @@ namespace Pathoschild.Http.Client.Internal
         public CancellationToken CancellationToken { get; private set; }
 
         /// <summary>The request coordinator.</summary>
-        public IRequestCoordinator RequestCoordinator { get; private set; }
+        public IRequestCoordinator? RequestCoordinator { get; private set; }
 
         /// <summary>The request options.</summary>
         public RequestOptions Options { get; }
@@ -90,7 +90,7 @@ namespace Pathoschild.Http.Client.Internal
         /// <param name="key">The key of the HTTP header.</param>
         /// <param name="value">The value of the HTTP header.</param>
         /// <returns>Returns the request builder for chaining.</returns>
-        public IRequest WithHeader(string key, string value)
+        public IRequest WithHeader(string key, string? value)
         {
             this.Message.Headers.Add(key, value);
             return this;
@@ -109,9 +109,9 @@ namespace Pathoschild.Http.Client.Internal
         /// <param name="key">The key of the query argument.</param>
         /// <param name="value">The value of the query argument.</param>
         /// <returns>Returns the request builder for chaining.</returns>
-        public IRequest WithArgument(string key, object value)
+        public IRequest WithArgument(string key, object? value)
         {
-            this.Message.RequestUri = this.Message.RequestUri.WithArguments(this.Options.IgnoreNullArguments ?? false, new KeyValuePair<string, object>(key, value));
+            this.Message.RequestUri = this.Message.RequestUri.WithArguments(this.Options.IgnoreNullArguments ?? false, new KeyValuePair<string, object?>(key, value));
             return this;
         }
 
@@ -119,16 +119,16 @@ namespace Pathoschild.Http.Client.Internal
         /// <param name="arguments">The arguments to add.</param>
         /// <returns>Returns the request builder for chaining.</returns>
         /// <example><code>client.WithArguments(new[] { new KeyValuePair&lt;string, string&gt;("genre", "drama"), new KeyValuePair&lt;string, int&gt;("genre", "comedy") })</code></example>
-        public IRequest WithArguments<TKey, TValue>(IEnumerable<KeyValuePair<TKey, TValue>> arguments)
+        public IRequest WithArguments<TKey, TValue>(IEnumerable<KeyValuePair<TKey, TValue>>? arguments)
         {
             if (arguments == null)
                 return this;
 
-            KeyValuePair<string, object>[] args = (
+            KeyValuePair<string, object?>[] args = (
                 from arg in arguments
                 let key = arg.Key?.ToString()
                 where !string.IsNullOrWhiteSpace(key)
-                select new KeyValuePair<string, object>(key, arg.Value)
+                select new KeyValuePair<string, object?>(key, arg.Value)
             ).ToArray();
 
             this.Message.RequestUri = this.Message.RequestUri.WithArguments(this.Options.IgnoreNullArguments ?? false, args);
@@ -139,12 +139,12 @@ namespace Pathoschild.Http.Client.Internal
         /// <param name="arguments">An anonymous object where the property names and values are used.</param>
         /// <returns>Returns the request builder for chaining.</returns>
         /// <example><code>client.WithArguments(new { id = 14, name = "Joe" })</code></example>
-        public IRequest WithArguments(object arguments)
+        public IRequest WithArguments(object? arguments)
         {
             if (arguments == null)
                 return this;
 
-            KeyValuePair<string, object>[] args = arguments.GetKeyValueArguments().ToArray();
+            KeyValuePair<string, object?>[] args = arguments.GetKeyValueArguments().ToArray();
 
             this.Message.RequestUri = this.Message.RequestUri.WithArguments(this.Options.IgnoreNullArguments ?? false, args);
             return this;
@@ -193,7 +193,7 @@ namespace Pathoschild.Http.Client.Internal
 
         /// <summary>Specify the request coordinator for this request.</summary>
         /// <param name="requestCoordinator">The request coordinator</param>
-        public IRequest WithRequestCoordinator(IRequestCoordinator requestCoordinator)
+        public IRequest WithRequestCoordinator(IRequestCoordinator? requestCoordinator)
         {
             this.RequestCoordinator = requestCoordinator;
             return this;

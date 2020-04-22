@@ -19,7 +19,7 @@ namespace Pathoschild.Http.Client.Internal
         /// <param name="formatters">The formatters used for serializing and deserializing message bodies.</param>
         /// <param name="contentType">The HTTP content type (or <c>null</c> to automatically select one).</param>
         /// <exception cref="InvalidOperationException">No MediaTypeFormatters are available on the API client for this content type.</exception>
-        public static MediaTypeFormatter GetFormatter(MediaTypeFormatterCollection formatters, MediaTypeHeaderValue contentType = null)
+        public static MediaTypeFormatter GetFormatter(MediaTypeFormatterCollection formatters, MediaTypeHeaderValue? contentType = null)
         {
             if (!formatters.Any())
                 throw new InvalidOperationException("No MediaTypeFormatters are available on the fluent client.");

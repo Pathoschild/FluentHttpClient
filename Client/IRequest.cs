@@ -55,25 +55,25 @@ namespace Pathoschild.Http.Client
         /// <param name="key">The key of the HTTP header.</param>
         /// <param name="value">The value of the HTTP header.</param>
         /// <returns>Returns the request builder for chaining.</returns>
-        IRequest WithHeader(string key, string value);
+        IRequest WithHeader(string key, string? value);
 
         /// <summary>Add an HTTP query string argument.</summary>
         /// <param name="key">The key of the query argument.</param>
         /// <param name="value">The value of the query argument.</param>
         /// <returns>Returns the request builder for chaining.</returns>
-        IRequest WithArgument(string key, object value);
+        IRequest WithArgument(string key, object? value);
 
         /// <summary>Add HTTP query string arguments.</summary>
         /// <param name="arguments">The arguments to add.</param>
         /// <returns>Returns the request builder for chaining.</returns>
         /// <example><code>client.WithArguments(new[] { new KeyValuePair&lt;string, string&gt;("genre", "drama"), new KeyValuePair&lt;string, int&gt;("genre", "comedy") })</code></example>
-        IRequest WithArguments<TKey, TValue>(IEnumerable<KeyValuePair<TKey, TValue>> arguments);
+        IRequest WithArguments<TKey, TValue>(IEnumerable<KeyValuePair<TKey, TValue>>? arguments);
 
         /// <summary>Add HTTP query string arguments.</summary>
         /// <param name="arguments">An anonymous object where the property names and values are used.</param>
         /// <returns>Returns the request builder for chaining.</returns>
         /// <example><code>client.WithArguments(new { id = 14, name = "Joe" })</code></example>
-        IRequest WithArguments(object arguments);
+        IRequest WithArguments(object? arguments);
 
         /// <summary>Customize the underlying HTTP request message.</summary>
         /// <param name="request">The HTTP request message.</param>
@@ -101,7 +101,7 @@ namespace Pathoschild.Http.Client
 
         /// <summary>Set the request coordinator for this request.</summary>
         /// <param name="requestCoordinator">The request coordinator (or null to use the default behaviour).</param>
-        IRequest WithRequestCoordinator(IRequestCoordinator requestCoordinator);
+        IRequest WithRequestCoordinator(IRequestCoordinator? requestCoordinator);
 
         /****
         ** Response shortcuts

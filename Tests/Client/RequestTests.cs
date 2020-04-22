@@ -116,7 +116,7 @@ namespace Pathoschild.Http.Tests.Client
         [TestCase("GET", "param", null, true)]
         [TestCase("GET", "param", "bbb", false)]
         [TestCase("GET", "param", null, false)]
-        public void WithArgument_IgnoresArgumentWithNullValue(string methodName, string key, string value, bool ignoreNullArguments)
+        public void WithArgument_IgnoresArgumentWithNullValue(string methodName, string key, string? value, bool ignoreNullArguments)
         {
             // act
             IRequest request = this
@@ -208,7 +208,7 @@ namespace Pathoschild.Http.Tests.Client
         [TestCase("GET", "paramA", null, "paramB", "bbb", true)]
         [TestCase("GET", "paramA", "aaa", "paramB", null, false)]
         [TestCase("GET", "paramA", null, "paramB", "bbb", false)]
-        public void WithArguments_IgnoresArgumentWithNullValue(string methodName, string keyA, string valueA, string keyB, string valueB, bool ignoreNullArguments)
+        public void WithArguments_IgnoresArgumentWithNullValue(string methodName, string keyA, string? valueA, string keyB, string? valueB, bool ignoreNullArguments)
         {
             // act
             IRequest request = this
@@ -216,8 +216,8 @@ namespace Pathoschild.Http.Tests.Client
                 .WithOptions(ignoreNullArguments: ignoreNullArguments)
                 .WithArguments(new[]
                 {
-                    new KeyValuePair<string, object>(keyA, valueA),
-                    new KeyValuePair<string, object>(keyB, valueB)
+                    new KeyValuePair<string, object?>(keyA, valueA),
+                    new KeyValuePair<string, object?>(keyB, valueB)
                 });
 
             // assert
@@ -233,7 +233,7 @@ namespace Pathoschild.Http.Tests.Client
         [TestCase("GET", null, "bbb", true)]
         [TestCase("GET", "aaa", null, false)]
         [TestCase("GET", null, "bbb", false)]
-        public void WithArguments_Object_IgnoresArgumentWithNullValue(string methodName, string valueA, string valueB, bool ignoreNullArguments)
+        public void WithArguments_Object_IgnoresArgumentWithNullValue(string methodName, string? valueA, string? valueB, bool ignoreNullArguments)
         {
             // act
             IRequest request = this
@@ -301,22 +301,22 @@ namespace Pathoschild.Http.Tests.Client
         }
 
         [Test(Description = "Ensure that the WithArguments core implementation formats URLs correctly.")]
-        [TestCase("https://example.org/", new object[0], false, ExpectedResult = "https://example.org/")]
-        [TestCase("https://example.org/", new object[] { "x", true, "x", false, "x", null }, false, ExpectedResult = "https://example.org/?x=True&x=False&x=")]
-        [TestCase("https://example.org/index.php?x=1#fragment", new object[] { "x", true, "x", false, "x", null }, false, ExpectedResult = "https://example.org/index.php?x=1&x=True&x=False&x=#fragment")]
-        [TestCase("https://example.org/", new object[0], true, ExpectedResult = "https://example.org/")]
-        [TestCase("https://example.org/", new object[] { "x", null }, true, ExpectedResult = "https://example.org/")]
-        [TestCase("https://example.org/index.php?x=1#fragment", new object[] { "x", "2", "x", null }, true, ExpectedResult = "https://example.org/index.php?x=1&x=2#fragment")]
-        public string WithArguments_Impl_AdjustsUrlCorrectly(string url, object[] args, bool ignoreNullArguments)
+        [TestCase("https://example.org/", new object?[0], false, ExpectedResult = "https://example.org/")]
+        [TestCase("https://example.org/", new object?[] { "x", true, "x", false, "x", null }, false, ExpectedResult = "https://example.org/?x=True&x=False&x=")]
+        [TestCase("https://example.org/index.php?x=1#fragment", new object?[] { "x", true, "x", false, "x", null }, false, ExpectedResult = "https://example.org/index.php?x=1&x=True&x=False&x=#fragment")]
+        [TestCase("https://example.org/", new object?[0], true, ExpectedResult = "https://example.org/")]
+        [TestCase("https://example.org/", new object?[] { "x", null }, true, ExpectedResult = "https://example.org/")]
+        [TestCase("https://example.org/index.php?x=1#fragment", new object?[] { "x", "2", "x", null }, true, ExpectedResult = "https://example.org/index.php?x=1&x=2#fragment")]
+        public string WithArguments_Impl_AdjustsUrlCorrectly(string url, object?[] args, bool ignoreNullArguments)
         {
             // validate
             if (args.Length % 2 != 0)
                 Assert.Inconclusive($"The {nameof(args)} arguments needs an even number of values (one key and one value each).");
 
             // arrange
-            var argPairs = new List<KeyValuePair<string, object>>();
+            var argPairs = new List<KeyValuePair<string, object?>>();
             for (int i = 0; i < args.Length; i += 2)
-                argPairs.Add(new KeyValuePair<string, object>(args[i].ToString(), args[i + 1]));
+                argPairs.Add(new KeyValuePair<string, object?>(args[i]!.ToString(), args[i + 1]));
 
             // act
             return new Uri(url).WithArguments(ignoreNullArguments, argPairs.ToArray()).ToString();
@@ -703,7 +703,7 @@ namespace Pathoschild.Http.Tests.Client
         [TestCase("https://example.org/index.php?x=1", "#api", ExpectedResult = "https://example.org/index.php?x=1#api")]
         [TestCase("https://example.org/api#fragment", "api", ExpectedResult = "https://example.org/api#fragmentapi")]
         [TestCase("https://example.org/api/#fragment", "&x=1", ExpectedResult = "https://example.org/api/#fragment&x=1")]
-        public async Task<string> Request_Url(string baseUrl, string url)
+        public async Task<string> Request_Url(string baseUrl, string? url)
         {
             // arrange
             var mockHttp = new MockHttpMessageHandler();
@@ -749,10 +749,10 @@ namespace Pathoschild.Http.Tests.Client
             // arrange
             IRequest request = this.ConstructResponseFromTask(Task
                 .Delay(5000)
-                .ContinueWith<HttpResponseMessage>(task =>
+                .ContinueWith(task =>
                 {
                     Assert.Fail("The response was not invoked asynchronously.");
-                    return null;
+                    return new HttpResponseMessage(HttpStatusCode.OK);
                 })
             );
 
@@ -797,7 +797,7 @@ namespace Pathoschild.Http.Tests.Client
                 HttpRequestMessage message = new HttpRequestMessage(method, uri);
 
                 // act
-                IRequest request = new Request(message, new MediaTypeFormatterCollection(), r => new Task<HttpResponseMessage>(() => null), new IHttpFilter[0]);
+                IRequest request = new Request(message, new MediaTypeFormatterCollection(), r => new Task<HttpResponseMessage>(() => new HttpResponseMessage(HttpStatusCode.OK)), new IHttpFilter[0]);
 
                 // assert
                 this.AssertEqual(request.Message, method, uri);
@@ -855,12 +855,10 @@ namespace Pathoschild.Http.Tests.Client
         /// <param name="key">The key to assert.</param>
         /// <param name="value">The expected value.</param>
         /// <param name="ignoreNullArguments">Whether null argument values should be ignored.</param>
-        private void AssertQuerystringArgument(IDictionary<string, StringValues> arguments, string key, string value, bool ignoreNullArguments)
+        private void AssertQuerystringArgument(IDictionary<string, StringValues> arguments, string key, string? value, bool ignoreNullArguments)
         {
             if (ignoreNullArguments && value == null)
-            {
                 Assert.That(arguments.ContainsKey(key), Is.False, $"Argument {key} with null value should have been ignored");
-            }
             else
             {
                 Assert.That(arguments.ContainsKey(key), Is.True, $"Argument {key} with null value shouldn't have been ignored");

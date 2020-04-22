@@ -45,7 +45,7 @@ namespace Pathoschild.Http.Client
         public MediaTypeFormatterCollection Formatters { get; } = new MediaTypeFormatterCollection();
 
         /// <summary>The request coordinator.</summary>
-        public IRequestCoordinator RequestCoordinator { get; private set; }
+        public IRequestCoordinator? RequestCoordinator { get; private set; }
 
 
         /*********
@@ -54,13 +54,13 @@ namespace Pathoschild.Http.Client
         /// <summary>Construct an instance.</summary>
         /// <param name="baseUri">The base URI prepended to relative request URIs.</param>
         /// <param name="proxy">The web proxy.</param>
-        public FluentClient(string baseUri, IWebProxy proxy)
+        public FluentClient(string baseUri, IWebProxy? proxy)
             : this(new Uri(baseUri), proxy) { }
 
         /// <summary>Construct an instance.</summary>
         /// <param name="baseUri">The base URI prepended to relative request URIs.</param>
         /// <param name="proxy">The web proxy.</param>
-        public FluentClient(Uri baseUri, IWebProxy proxy)
+        public FluentClient(Uri baseUri, IWebProxy? proxy)
             : this(baseUri, new HttpClient(GetDefaultHandler(proxy)))
         {
             this.MustDisposeBaseClient = true;
@@ -69,13 +69,13 @@ namespace Pathoschild.Http.Client
         /// <summary>Construct an instance.</summary>
         /// <param name="baseUri">The base URI prepended to relative request URIs.</param>
         /// <param name="client">The underlying HTTP client.</param>
-        public FluentClient(string baseUri, HttpClient client = null)
+        public FluentClient(string baseUri, HttpClient? client = null)
             : this(new Uri(baseUri), client) { }
 
         /// <summary>Construct an instance.</summary>
         /// <param name="baseUri">The base URI prepended to relative request URIs.</param>
         /// <param name="client">The underlying HTTP client.</param>
-        public FluentClient(Uri baseUri, HttpClient client = null)
+        public FluentClient(Uri? baseUri, HttpClient? client = null)
         {
             this.MustDisposeBaseClient = client == null;
             this.BaseClient = client ?? new HttpClient(GetDefaultHandler());
@@ -125,10 +125,7 @@ namespace Pathoschild.Http.Client
             if (options == null)
                 throw new ArgumentNullException(nameof(options));
 
-            if (options.IgnoreHttpErrors.HasValue)
-                this.Options.IgnoreHttpErrors = options.IgnoreHttpErrors;
-            if (options.IgnoreNullArguments.HasValue)
-                this.Options.IgnoreNullArguments = options.IgnoreNullArguments;
+            this.Options.MergeFrom(options);
 
             return this;
         }
@@ -145,7 +142,7 @@ namespace Pathoschild.Http.Client
         /// <summary>Set the default request coordinator</summary>
         /// <param name="requestCoordinator">The request coordinator.</param>
         /// <remarks>If the request coordinator is null, it will cause requests to be executed once without any retry attempts.</remarks>
-        public IClient SetRequestCoordinator(IRequestCoordinator requestCoordinator)
+        public IClient SetRequestCoordinator(IRequestCoordinator? requestCoordinator)
         {
             this.RequestCoordinator = requestCoordinator;
             return this;
@@ -227,7 +224,7 @@ namespace Pathoschild.Http.Client
         /// <summary>Get a default HTTP client handler.</summary>
         /// <param name="proxy">The web proxy to use.</param>
         /// <remarks>Whereas <see cref="GetDefaultHandler()"/> leaves the default proxy unchanged, this method will explicitly override it (e.g. setting a null proxy will disable the default proxy).</remarks>
-        private static HttpClientHandler GetDefaultHandler(IWebProxy proxy)
+        private static HttpClientHandler GetDefaultHandler(IWebProxy? proxy)
         {
             var handler = FluentClient.GetDefaultHandler();
             handler.Proxy = proxy;

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.IO;
 using System.Net;
 using System.Net.Http;
@@ -40,7 +40,7 @@ namespace Pathoschild.Http.Client.Formatters
         /// <param name="stream">The stream to which to write.</param>
         /// <param name="content">The HTTP content being written.</param>
         /// <param name="transportContext">The <see cref="TransportContext"/>.</param>
-        public override void Serialize(Type type, object value, Stream stream, HttpContent content, TransportContext transportContext)
+        public override void Serialize(Type type, object? value, Stream stream, HttpContent content, TransportContext transportContext)
         {
             JsonSerializer serializer = new JsonSerializer();
             BsonWriter writer = new BsonWriter(stream);

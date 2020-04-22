@@ -61,7 +61,7 @@ namespace Pathoschild.Http.Client.Formatters
         /// <param name="stream">The stream to which to write.</param>
         /// <param name="content">The HTTP content being written.</param>
         /// <param name="transportContext">The <see cref="TransportContext"/>.</param>
-        public override void Serialize(Type type, object value, Stream stream, HttpContent content, TransportContext transportContext)
+        public override void Serialize(Type type, object? value, Stream stream, HttpContent content, TransportContext transportContext)
         {
             var writer = new StreamWriter(stream); // don't dispose (stream disposal is handled elsewhere)
             writer.Write(value != null ? value.ToString() : string.Empty);

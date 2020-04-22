@@ -38,14 +38,14 @@ namespace Pathoschild.Http.Client.Internal
         /// <summary>Get a form URL-encoded body.</summary>
         /// <param name="arguments">An anonymous object containing the property names and values to set.</param>
         /// <example><code>client.WithArguments(new { id = 14, name = "Joe" })</code></example>
-        public HttpContent FormUrlEncoded(object arguments)
+        public HttpContent FormUrlEncoded(object? arguments)
         {
             return this.FormUrlEncodedImpl(arguments.GetKeyValueArguments());
         }
 
         /// <summary>Get a form URL-encoded body.</summary>
         /// <param name="arguments">An anonymous object containing the property names and values to set.</param>
-        public HttpContent FormUrlEncoded(IDictionary<string, string> arguments)
+        public HttpContent FormUrlEncoded(IDictionary<string, string?>? arguments)
         {
             if (arguments == null)
                 return this.FormUrlEncodedImpl(null);
@@ -53,14 +53,14 @@ namespace Pathoschild.Http.Client.Internal
             return this.FormUrlEncodedImpl(
                 from pair in arguments
                 where pair.Value != null || this.Request.Options.IgnoreNullArguments != true
-                select new KeyValuePair<string, object>(pair.Key, pair.Value)
+                select new KeyValuePair<string, object?>(pair.Key, pair.Value)
             );
         }
 
         /// <summary>Get a form URL-encoded body.</summary>
         /// <param name="arguments">An anonymous object containing the property names and values to set.</param>
         /// <example><code>client.WithArguments(new[] { new KeyValuePair&lt;string, string&gt;("genre", "drama"), new KeyValuePair&lt;string, int&gt;("genre", "comedy") })</code></example>
-        public HttpContent FormUrlEncoded(IEnumerable<KeyValuePair<string, object>> arguments)
+        public HttpContent FormUrlEncoded(IEnumerable<KeyValuePair<string, object?>>? arguments)
         {
             return this.FormUrlEncodedImpl(arguments);
         }
@@ -73,10 +73,10 @@ namespace Pathoschild.Http.Client.Internal
         /// <param name="contentType">The request body format (or <c>null</c> to use the first supported Content-Type in the client's formatter).</param>
         /// <returns>Returns the request builder for chaining.</returns>
         /// <exception cref="InvalidOperationException">No MediaTypeFormatters are available on the API client for this content type.</exception>
-        public HttpContent Model<T>(T body, MediaTypeHeaderValue contentType = null)
+        public HttpContent Model<T>(T body, MediaTypeHeaderValue? contentType = null)
         {
             MediaTypeFormatter formatter = Factory.GetFormatter(this.Request.Formatters, contentType);
-            string mediaType = contentType?.MediaType;
+            string? mediaType = contentType?.MediaType;
             return new ObjectContent<T>(body, formatter, mediaType);
         }
 
@@ -85,7 +85,7 @@ namespace Pathoschild.Http.Client.Internal
         /// <param name="formatter">The media type formatter with which to format the request body format.</param>
         /// <param name="mediaType">The HTTP media type (or <c>null</c> for the <paramref name="formatter"/>'s default).</param>
         /// <returns>Returns the request builder for chaining.</returns>
-        public HttpContent Model<T>(T body, MediaTypeFormatter formatter, string mediaType = null)
+        public HttpContent Model<T>(T body, MediaTypeFormatter formatter, string? mediaType = null)
         {
             return new ObjectContent<T>(body, formatter, mediaType);
         }
@@ -97,18 +97,15 @@ namespace Pathoschild.Http.Client.Internal
         /// <summary>Get a form URL-encoded body.</summary>
         /// <param name="arguments">An anonymous object containing the property names and values to set.</param>
         /// <remarks>This bypasses <see cref="FormUrlEncodedContent"/>, which restricts the body length to the maximum size of a URL. That's not applicable for a URL-encoded body.</remarks>
-        private HttpContent FormUrlEncodedImpl(IEnumerable<KeyValuePair<string, object>> arguments)
+        private HttpContent FormUrlEncodedImpl(IEnumerable<KeyValuePair<string, object?>>? arguments)
         {
-            IEnumerable<string> pairs = Enumerable.Empty<string>();
-            if (arguments != null)
-            {
-                pairs =
-                (
+            IEnumerable<string> pairs = arguments != null
+                ? (
                     from pair in arguments
                     where pair.Value != null || this.Request.Options.IgnoreNullArguments != true
                     select $"{WebUtility.UrlEncode(pair.Key)}={WebUtility.UrlEncode(pair.Value?.ToString())}"
-                );
-            }
+                )
+                : Enumerable.Empty<string>();
 
             return new StringContent(string.Join("&", pairs), Encoding.UTF8, "application/x-www-form-urlencoded");
         }

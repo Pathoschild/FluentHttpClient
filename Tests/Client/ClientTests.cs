@@ -36,21 +36,19 @@ namespace Pathoschild.Http.Tests.Client
         [TestCase("http://base-url/")]
         public void Dispose_DoesNotDisposeInjectedClient(string uri)
         {
-            using (HttpClient httpClient = new HttpClient())
-            {
-                // act
-                IClient fluentClient = this.ConstructClient(uri, httpClient: httpClient);
-                fluentClient.Dispose();
+            // act
+            using HttpClient httpClient = new HttpClient();
+            IClient fluentClient = this.ConstructClient(uri, httpClient: httpClient);
+            fluentClient.Dispose();
 
-                // assert
-                try
-                {
-                    httpClient.GetAsync("");
-                }
-                catch (ObjectDisposedException)
-                {
-                    Assert.Fail("The HTTP client was incorrectly disposed by the client.");
-                }
+            // assert
+            try
+            {
+                httpClient.GetAsync("");
+            }
+            catch (ObjectDisposedException)
+            {
+                Assert.Fail("The HTTP client was incorrectly disposed by the client.");
             }
         }
 
@@ -227,7 +225,7 @@ namespace Pathoschild.Http.Tests.Client
         /// <param name="httpClient">The underlying HTTP client.</param>
         /// <exception cref="InconclusiveException">The initial state of the constructed client is invalid, and <paramref name="inconclusiveOnFailure"/> is <c>true</c>.</exception>
         /// <exception cref="AssertionException">The initial state of the constructed client is invalid, and <paramref name="inconclusiveOnFailure"/> is <c>false</c>.</exception>
-        private IClient ConstructClient(string baseUri = "http://example.com/", bool inconclusiveOnFailure = true, HttpClient httpClient = null)
+        private IClient ConstructClient(string baseUri = "http://example.com/", bool inconclusiveOnFailure = true, HttpClient? httpClient = null)
         {
             try
             {

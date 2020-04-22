@@ -7,6 +7,7 @@
 -->
 
 ## Upcoming release
+* Enabled nullable reference types.
 * Fixed `FormUrlEncoded` body from a dictionary restricted to URL length and not allowing null.
 * Improved code documentation.
 

@@ -66,7 +66,7 @@ namespace Pathoschild.Http.Client.Formatters
         /// <returns>A task which writes the object to the stream asynchronously.</returns>
         public override Task WriteToStreamAsync(Type type, object value, Stream stream, HttpContent content, TransportContext transportContext)
         {
-            var completionSource = new TaskCompletionSource<object>();
+            var completionSource = new TaskCompletionSource<object?>();
             try
             {
                 this.Serialize(type, value, stream, content, transportContext);
@@ -109,7 +109,7 @@ namespace Pathoschild.Http.Client.Formatters
         /// <param name="stream">The stream to which to write.</param>
         /// <param name="content">The HTTP content being written.</param>
         /// <param name="transportContext">The <see cref="TransportContext"/>.</param>
-        public abstract void Serialize(Type type, object value, Stream stream, HttpContent content, TransportContext transportContext);
+        public abstract void Serialize(Type type, object? value, Stream stream, HttpContent content, TransportContext transportContext);
 
 
         /*********
