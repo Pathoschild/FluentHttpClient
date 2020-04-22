@@ -527,7 +527,7 @@ namespace Pathoschild.Http.Tests.Client
             // verify
             this.AssertEqual(request.Message, methodName, ignoreArguments: true);
             Assert.That(header, Is.Not.Null, "The header is invalid.");
-            Assert.That(header.Value, Is.Not.Null.Or.Empty, "The header value is invalid.");
+            Assert.That(header.Value, Is.Not.Null.And.Not.Empty, "The header value is invalid.");
             Assert.That(header.Value.First(), Is.EqualTo(value), "The header value is invalid.");
         }
 
@@ -553,7 +553,7 @@ namespace Pathoschild.Http.Tests.Client
             // verify
             this.AssertEqual(request.Message, methodName, ignoreArguments: true);
             Assert.That(header, Is.Not.Null, "The header is invalid.");
-            Assert.That(header.Value, Is.Not.Null.Or.Empty, "The header value is invalid.");
+            Assert.That(header.Value, Is.Not.Null.And.Not.Empty, "The header value is invalid.");
             Assert.That(header.Value.First(), Is.EqualTo(expectedValue), "The header value is invalid.");
         }
 
