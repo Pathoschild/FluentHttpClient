@@ -2,7 +2,6 @@
 <!--
 ## 4.0
 **Breaking changes:**
-* When you specify null arguments like `request.WithArgument("x", null)`, the argument is now ignored instead of sending a blank value. You can use the previous behaviour by setting the `IgnoreNullArguments: false` option.
 * Removed deprecated methods.
 -->
 
@@ -10,6 +9,8 @@
 * Enabled nullable reference types.
 * Fixed `FormUrlEncoded` body from a dictionary restricted to URL length and not allowing null.
 * Improved code documentation.
+* **Breaking changes:**
+  * When you specify null arguments like `request.WithArgument("x", null)`, the argument is now ignored instead of sending a blank value. You can use the previous behaviour by setting the `IgnoreNullArguments: false` option.
 
 ## 3.3.1
 Released 19 July 2019.

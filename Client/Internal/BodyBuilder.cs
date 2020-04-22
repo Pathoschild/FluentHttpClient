@@ -52,7 +52,7 @@ namespace Pathoschild.Http.Client.Internal
 
             return this.FormUrlEncodedImpl(
                 from pair in arguments
-                where pair.Value != null || this.Request.Options.IgnoreNullArguments != true
+                where pair.Value != null || this.Request.Options.IgnoreNullArguments == false
                 select new KeyValuePair<string, object?>(pair.Key, pair.Value)
             );
         }
@@ -102,7 +102,7 @@ namespace Pathoschild.Http.Client.Internal
             IEnumerable<string> pairs = arguments != null
                 ? (
                     from pair in arguments
-                    where pair.Value != null || this.Request.Options.IgnoreNullArguments != true
+                    where pair.Value != null || this.Request.Options.IgnoreNullArguments == false
                     select $"{WebUtility.UrlEncode(pair.Key)}={WebUtility.UrlEncode(pair.Value?.ToString())}"
                 )
                 : Enumerable.Empty<string>();

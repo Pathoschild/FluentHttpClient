@@ -116,7 +116,9 @@ namespace Pathoschild.Http.Tests.Client
         [TestCase("GET", "param", null, true)]
         [TestCase("GET", "param", "bbb", false)]
         [TestCase("GET", "param", null, false)]
-        public void WithArgument_IgnoresArgumentWithNullValue(string methodName, string key, string? value, bool ignoreNullArguments)
+        [TestCase("GET", "param", "ccc", null)]
+        [TestCase("GET", "param", null, null)]
+        public void WithArgument_IgnoresArgumentWithNullValue(string methodName, string key, string? value, bool? ignoreNullArguments)
         {
             // act
             IRequest request = this
@@ -128,7 +130,7 @@ namespace Pathoschild.Http.Tests.Client
             this.AssertEqual(request.Message, methodName, ignoreArguments: true);
             var arguments = QueryHelpers.ParseQuery(request.Message.RequestUri.Query);
 
-            this.AssertQuerystringArgument(arguments, key, value, ignoreNullArguments);
+            this.AssertQuerystringArgument(arguments, key, value, ignoreNullArguments ?? true);
         }
 
         /****

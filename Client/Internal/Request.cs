@@ -111,7 +111,7 @@ namespace Pathoschild.Http.Client.Internal
         /// <returns>Returns the request builder for chaining.</returns>
         public IRequest WithArgument(string key, object? value)
         {
-            this.Message.RequestUri = this.Message.RequestUri.WithArguments(this.Options.IgnoreNullArguments ?? false, new KeyValuePair<string, object?>(key, value));
+            this.Message.RequestUri = this.Message.RequestUri.WithArguments(this.Options.IgnoreNullArguments ?? true, new KeyValuePair<string, object?>(key, value));
             return this;
         }
 
@@ -131,7 +131,7 @@ namespace Pathoschild.Http.Client.Internal
                 select new KeyValuePair<string, object?>(key, arg.Value)
             ).ToArray();
 
-            this.Message.RequestUri = this.Message.RequestUri.WithArguments(this.Options.IgnoreNullArguments ?? false, args);
+            this.Message.RequestUri = this.Message.RequestUri.WithArguments(this.Options.IgnoreNullArguments ?? true, args);
             return this;
         }
 
@@ -146,7 +146,7 @@ namespace Pathoschild.Http.Client.Internal
 
             KeyValuePair<string, object?>[] args = arguments.GetKeyValueArguments().ToArray();
 
-            this.Message.RequestUri = this.Message.RequestUri.WithArguments(this.Options.IgnoreNullArguments ?? false, args);
+            this.Message.RequestUri = this.Message.RequestUri.WithArguments(this.Options.IgnoreNullArguments ?? true, args);
             return this;
         }
 
@@ -183,10 +183,7 @@ namespace Pathoschild.Http.Client.Internal
             if (options == null)
                 throw new ArgumentNullException(nameof(options));
 
-            if (options.IgnoreHttpErrors.HasValue)
-                this.Options.IgnoreHttpErrors = options.IgnoreHttpErrors.Value;
-            if (options.IgnoreNullArguments.HasValue)
-                this.Options.IgnoreNullArguments = options.IgnoreNullArguments.Value;
+            this.Options.MergeFrom(options);
 
             return this;
         }
