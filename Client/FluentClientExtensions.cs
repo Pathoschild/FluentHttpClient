@@ -321,6 +321,10 @@ namespace Pathoschild.Http.Client
             if (Uri.TryCreate(resource, UriKind.Absolute, out Uri absoluteUrl))
                 return absoluteUrl;
 
+            // can't combine if no base URL
+            if (baseUrl == null)
+                throw new FormatException($"Can't use relative URL '{resource}' because no base URL was specified.");
+
             // parse URLs
             resource = resource.Trim();
             UriBuilder builder = new UriBuilder(baseUrl);

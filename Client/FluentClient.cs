@@ -51,34 +51,37 @@ namespace Pathoschild.Http.Client
         /*********
         ** Public methods
         *********/
+        /// <summary>Construct an instance with no base URL.</summary>
+        public FluentClient()
+            : this(null, GetDefaultClient(), manageBaseClient: true) { }
+
         /// <summary>Construct an instance.</summary>
         /// <param name="baseUri">The base URI prepended to relative request URIs.</param>
-        /// <param name="proxy">The web proxy.</param>
-        public FluentClient(string baseUri, IWebProxy? proxy)
-            : this(new Uri(baseUri), proxy) { }
+        public FluentClient(string? baseUri)
+            : this(baseUri != null ? new Uri(baseUri) : null, GetDefaultClient(), manageBaseClient: true) { }
+
+        /// <summary>Construct an instance.</summary>
+        /// <param name="baseUri">The base URI prepended to relative request URIs.</param>
+        public FluentClient(Uri? baseUri)
+            : this(baseUri, GetDefaultClient(), manageBaseClient: true) { }
 
         /// <summary>Construct an instance.</summary>
         /// <param name="baseUri">The base URI prepended to relative request URIs.</param>
         /// <param name="proxy">The web proxy.</param>
-        public FluentClient(Uri baseUri, IWebProxy? proxy)
-            : this(baseUri, new HttpClient(GetDefaultHandler(proxy)))
+        public FluentClient(Uri? baseUri, IWebProxy? proxy)
+            : this(baseUri, new HttpClient(GetDefaultHandler(proxy)), manageBaseClient: true)
         {
             this.MustDisposeBaseClient = true;
         }
 
         /// <summary>Construct an instance.</summary>
         /// <param name="baseUri">The base URI prepended to relative request URIs.</param>
-        /// <param name="client">The underlying HTTP client.</param>
-        public FluentClient(string baseUri, HttpClient? client = null)
-            : this(new Uri(baseUri), client) { }
-
-        /// <summary>Construct an instance.</summary>
-        /// <param name="baseUri">The base URI prepended to relative request URIs.</param>
-        /// <param name="client">The underlying HTTP client.</param>
-        public FluentClient(Uri? baseUri, HttpClient? client = null)
+        /// <param name="baseClient">The underlying HTTP client.</param>
+        /// <param name="manageBaseClient">Whether to dispose the <paramref name="baseClient"/> when the instance is disposed.</param>
+        public FluentClient(Uri? baseUri, HttpClient? baseClient, bool manageBaseClient = false)
         {
-            this.MustDisposeBaseClient = client == null;
-            this.BaseClient = client ?? new HttpClient(GetDefaultHandler());
+            this.MustDisposeBaseClient = baseClient == null || manageBaseClient;
+            this.BaseClient = baseClient ?? new HttpClient(GetDefaultHandler());
             if (baseUri != null)
                 this.BaseClient.BaseAddress = baseUri;
 
@@ -201,6 +204,12 @@ namespace Pathoschild.Http.Client
                 this.BaseClient.Dispose();
 
             this.IsDisposed = true;
+        }
+
+        /// <summary>Get a default HTTP client.</summary>
+        private static HttpClient GetDefaultClient()
+        {
+            return new HttpClient(GetDefaultHandler());
         }
 
         /// <summary>Get a default HTTP client handler.</summary>

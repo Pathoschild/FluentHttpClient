@@ -595,7 +595,7 @@ namespace Pathoschild.Http.Tests.Client
             // arrange
             var mockHttp = new MockHttpMessageHandler();
             mockHttp.When(HttpMethod.Get, "https://example.org").Respond(HttpStatusCode.NotFound);
-            var client = new FluentClient("https://example.org", new HttpClient(mockHttp));
+            var client = new FluentClient(new Uri("https://example.org"), new HttpClient(mockHttp));
 
             // assert
             ApiException ex = Assert.ThrowsAsync<ApiException>(async () => await client.GetAsync("/"), "The client didn't throw an exception for a non-success code");
@@ -610,7 +610,7 @@ namespace Pathoschild.Http.Tests.Client
             // arrange
             var mockHttp = new MockHttpMessageHandler();
             mockHttp.When(HttpMethod.Get, "https://example.org").Respond(HttpStatusCode.NotFound);
-            var client = new FluentClient("https://example.org", new HttpClient(mockHttp));
+            var client = new FluentClient(new Uri("https://example.org"), new HttpClient(mockHttp));
 
             // assert
             IResponse response = await client.GetAsync("/").WithOptions(ignoreHttpErrors: true);
@@ -631,7 +631,7 @@ namespace Pathoschild.Http.Tests.Client
             mockHttp.When(HttpMethod.Get, "https://api.fictitious-vendor.com/v1/endpoint").Respond(HttpStatusCode.OK, testRequest => new StringContent($"This is request #{++counter}"));
 
             var httpClient = new HttpClient(mockHttp);
-            var fluentClient = new FluentClient("https://api.fictitious-vendor.com/v1/", httpClient);
+            var fluentClient = new FluentClient(new Uri("https://api.fictitious-vendor.com/v1/"), httpClient);
 
             // act
             var request = fluentClient.GetAsync("endpoint");
@@ -652,7 +652,7 @@ namespace Pathoschild.Http.Tests.Client
             mockHttp.When(HttpMethod.Post, "https://api.fictitious-vendor.com/v1/endpoint").Respond(HttpStatusCode.OK, testRequest => new StringContent($"This is request #{++counter}"));
 
             var httpClient = new HttpClient(mockHttp);
-            var fluentClient = new FluentClient("https://api.fictitious-vendor.com/v1/", httpClient);
+            var fluentClient = new FluentClient(new Uri("https://api.fictitious-vendor.com/v1/"), httpClient);
 
             // act
             var request = fluentClient.PostAsync("endpoint");
@@ -712,7 +712,7 @@ namespace Pathoschild.Http.Tests.Client
             // arrange
             var mockHttp = new MockHttpMessageHandler();
             mockHttp.When(HttpMethod.Get, "*").Respond(HttpStatusCode.OK, req => new StringContent(req.RequestUri.ToString()));
-            var fluentClient = new FluentClient(baseUrl, new HttpClient(mockHttp));
+            var fluentClient = new FluentClient(new Uri(baseUrl), new HttpClient(mockHttp));
 
             // act
             return await fluentClient.GetAsync(url).AsString();
@@ -726,7 +726,7 @@ namespace Pathoschild.Http.Tests.Client
             // arrange
             var mockHttp = new MockHttpMessageHandler();
             mockHttp.When(HttpMethod.Get, "*").Respond(HttpStatusCode.OK, req => new StringContent(req.RequestUri.ToString()));
-            var fluentClient = new FluentClient(baseUrl, new HttpClient(mockHttp));
+            var fluentClient = new FluentClient(new Uri(baseUrl), new HttpClient(mockHttp));
 
             // assert
             Assert.ThrowsAsync<FormatException>(async () => await fluentClient.GetAsync(url).AsString());

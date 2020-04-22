@@ -34,7 +34,7 @@ namespace Pathoschild.Http.Tests.Client
             var mockHandler = new MockHttpMessageHandler();
             mockHandler.When(HttpMethod.Get, "*").With(req => ++attempts == maxAttempts).Respond(HttpStatusCode.OK); // succeed on last attempt
             mockHandler.When(HttpMethod.Get, "*").Respond(HttpStatusCode.NotFound);
-            var client = new FluentClient("https://example.org", new HttpClient(mockHandler))
+            var client = new FluentClient(new Uri("https://example.org"), new HttpClient(mockHandler))
                 .SetRequestCoordinator(this.GetRetryConfig(maxAttempts - 1));
 
             // act
@@ -60,7 +60,7 @@ namespace Pathoschild.Http.Tests.Client
                 return null;
             });
 
-            IClient client = new FluentClient("https://example.org", new HttpClient(mockHandler))
+            IClient client = new FluentClient(new Uri("https://example.org"), new HttpClient(mockHandler))
                 .SetRequestCoordinator(this.GetRetryConfig(maxAttempts - 1, retryOnTimeout));
             client.BaseClient.Timeout = TimeSpan.FromMilliseconds(500);
 
@@ -96,7 +96,7 @@ namespace Pathoschild.Http.Tests.Client
                 return null;
             });
 
-            IClient client = new FluentClient("http://example.org", new HttpClient(mockHandler))
+            IClient client = new FluentClient(new Uri("http://example.org"), new HttpClient(mockHandler))
                 .SetRequestCoordinator(this.GetRetryConfig(maxAttempts - 1));
 
             // act & assert
@@ -113,7 +113,7 @@ namespace Pathoschild.Http.Tests.Client
             const int maxAttempts = 2;
             var mockHttp = new MockHttpMessageHandler();
             var mockRequest = mockHttp.When(HttpMethod.Get, "*").Respond(HttpStatusCode.NotFound);
-            var client = new FluentClient("http://example.org", new HttpClient(mockHttp))
+            var client = new FluentClient(new Uri("http://example.org"), new HttpClient(mockHttp))
                 .SetRequestCoordinator(this.GetRetryConfig(maxAttempts - 1));
 
             // act & assert
