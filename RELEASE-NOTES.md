@@ -3,6 +3,7 @@
 * Enabled nullable reference types.
 * Fixed `FormUrlEncoded` body from a dictionary restricted to URL length and not allowing null.
 * Improved code documentation.
+* Updated dependencies in .NET Standard 1.3 package.
 * **Breaking changes:**
   * When you specify null arguments like `request.WithArgument("x", null)`, the argument is now ignored instead of sending a blank value. You can use the previous behaviour by setting the `IgnoreNullArguments: false` option.
   * Removed deprecated code:
