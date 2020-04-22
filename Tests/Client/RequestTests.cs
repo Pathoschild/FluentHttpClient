@@ -464,6 +464,54 @@ namespace Pathoschild.Http.Tests.Client
         }
 
         /****
+        ** WithBody (file upload)
+        ****/
+        [Test(Description = "Ensure that WithBody with a file upload sets the request body and does not incorrectly alter request state.")]
+        public async Task WithBody_Builder_ForFileUpload([Values("DELETE", "GET", "HEAD", "PUT", "OPTIONS", "POST", "TRACE")] string methodName, [Values("raw test data")] string content, [Values("path", "file", "files", "stream")] string type)
+        {
+            // arrange
+            string path = Path.GetTempFileName();
+            File.WriteAllText(path, content);
+            FileInfo file = new FileInfo(path);
+
+            // act
+            IRequest request = this.ConstructRequest(methodName);
+            switch (type)
+            {
+                case "path":
+                    request = request.WithBody(p => p.FileUpload(file.FullName));
+                    break;
+
+                case "file":
+                    request = request.WithBody(p => p.FileUpload(file));
+                    break;
+
+                case "files":
+                    request = request.WithBody(p => p.FileUpload(new[] { file }));
+                    break;
+
+                case "stream":
+                    request = request.WithBody(p => p.FileUpload(new[]
+                    {
+                        new KeyValuePair<string, Stream>(file.Name, file.OpenRead())
+                    }));
+                    break;
+
+                default:
+                    Assert.Fail($"Unsupported type '{type}'.");
+                    return;
+            }
+            string rawBody = await request.Message.Content.ReadAsStringAsync();
+            string boundary = rawBody.Substring(2, 36);
+
+            // assert
+            this.AssertEqual(request.Message, methodName, ignoreArguments: true);
+            Assert.That(boundary, Is.Not.Null.And.Not.Empty);
+            Assert.That(request.Message.Content.Headers.ContentType.ToString(), Is.EqualTo($@"multipart/form-data; boundary=""{boundary}"""), "The Content-Type header is invalid.");
+            Assert.That(rawBody, Is.EqualTo($"--{boundary}\r\nContent-Disposition: form-data; name={file.Name}; filename={file.Name}; filename*=utf-8''{file.Name}\r\n\r\n{content}\r\n--{boundary}--\r\n"), "The message body is invalid.");
+        }
+
+        /****
         ** WithCustom
         ****/
         [Test(Description = "Ensure that WithCustom persists the custom changes and does not incorrectly alter request state.")]

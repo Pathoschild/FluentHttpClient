@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
@@ -63,6 +64,53 @@ namespace Pathoschild.Http.Client.Internal
         public HttpContent FormUrlEncoded(IEnumerable<KeyValuePair<string, object?>>? arguments)
         {
             return this.FormUrlEncodedImpl(arguments);
+        }
+
+        /****
+        ** File upload
+        ****/
+        /// <summary>Get a file upload body (using multi-part form data).</summary>
+        /// <param name="fullPath">The absolute path to the file to upload.</param>
+        /// <exception cref="KeyNotFoundException">The given path doesn't match a file.</exception>
+        public HttpContent FileUpload(string fullPath)
+        {
+            return this.FileUpload(new FileInfo(fullPath));
+        }
+
+        /// <summary>Get a file upload body (using multi-part form data).</summary>
+        /// <param name="file">The file to upload.</param>
+        /// <exception cref="KeyNotFoundException">The given file doesn't exist.</exception>
+        public HttpContent FileUpload(FileInfo file)
+        {
+            return this.FileUpload(new[] { file });
+        }
+
+        /// <summary>Get a file upload body (using multi-part form data).</summary>
+        /// <param name="files">The files to upload.</param>
+        /// <exception cref="KeyNotFoundException">A given file doesn't exist.</exception>
+        public HttpContent FileUpload(IEnumerable<FileInfo> files)
+        {
+            return this.FileUpload(
+                files.Select(file => file.Exists
+                    ? new KeyValuePair<string, Stream>(file.Name, file.OpenRead())
+                    : throw new FileNotFoundException($"There's no file matching path '{file.FullName}'.")
+                )
+            );
+        }
+
+        /// <summary>Get a file upload body (using multi-part form data).</summary>
+        /// <param name="files">The file streams and file names to upload.</param>
+        public HttpContent FileUpload(IEnumerable<KeyValuePair<string, Stream>> files)
+        {
+            var content = new MultipartFormDataContent();
+
+            foreach (var file in files)
+            {
+                StreamContent streamContent = new StreamContent(file.Value);
+                content.Add(streamContent, file.Key, file.Key);
+            }
+
+            return content;
         }
 
         /****
