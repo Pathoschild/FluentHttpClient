@@ -34,17 +34,20 @@ namespace Pathoschild.Http.Client.Internal
         /// <example><code>client.WithArguments(new { id = 14, name = "Joe" })</code></example>
         public HttpContent FormUrlEncoded(object arguments)
         {
-            return this.FormUrlEncoded(arguments.GetKeyValueArguments());
+            return this.FormUrlEncodedImpl(arguments.GetKeyValueArguments());
         }
 
         /// <summary>Get a form URL-encoded body.</summary>
         /// <param name="arguments">An anonymous object containing the property names and values to set.</param>
         public HttpContent FormUrlEncoded(IDictionary<string, string> arguments)
         {
-            return new FormUrlEncodedContent(
+            if (arguments == null)
+                return this.FormUrlEncodedImpl(null);
+
+            return this.FormUrlEncodedImpl(
                 from pair in arguments
                 where pair.Value != null || this.Request.Options.IgnoreNullArguments != true
-                select new KeyValuePair<string, string>(pair.Key, pair.Value)
+                select new KeyValuePair<string, object>(pair.Key, pair.Value)
             );
         }
 
@@ -53,14 +56,7 @@ namespace Pathoschild.Http.Client.Internal
         /// <example><code>client.WithArguments(new[] { new KeyValuePair&lt;string, string&gt;("genre", "drama"), new KeyValuePair&lt;string, int&gt;("genre", "comedy") })</code></example>
         public HttpContent FormUrlEncoded(IEnumerable<KeyValuePair<string, object>> arguments)
         {
-            // bypass FormUrlEncodedContent, which restricts the body length to the maximum size of a URL. That's not applicable for a URL-encoded body.
-            IEnumerable<string> pairs =
-            (
-                from pair in arguments
-                where pair.Value != null || this.Request.Options.IgnoreNullArguments != true
-                select $"{WebUtility.UrlEncode(pair.Key)}={WebUtility.UrlEncode(pair.Value?.ToString())}"
-            );
-            return new StringContent(string.Join("&", pairs), Encoding.UTF8, "application/x-www-form-urlencoded");
+            return this.FormUrlEncodedImpl(arguments);
         }
 
         /// <summary>Get the serialized model body.</summary>
@@ -75,7 +71,7 @@ namespace Pathoschild.Http.Client.Internal
             return new ObjectContent<T>(body, formatter, mediaType);
         }
 
-        /// <summary>Get a serialised model body.</summary>
+        /// <summary>Get a serialized model body.</summary>
         /// <param name="body">The value to serialize into the HTTP body content.</param>
         /// <param name="formatter">The media type formatter with which to format the request body format.</param>
         /// <param name="mediaType">The HTTP media type (or <c>null</c> for the <paramref name="formatter"/>'s default).</param>
@@ -83,6 +79,29 @@ namespace Pathoschild.Http.Client.Internal
         public HttpContent Model<T>(T body, MediaTypeFormatter formatter, string mediaType = null)
         {
             return new ObjectContent<T>(body, formatter, mediaType);
+        }
+
+
+        /*********
+        ** Private methods
+        *********/
+        /// <summary>Get a form URL-encoded body.</summary>
+        /// <param name="arguments">An anonymous object containing the property names and values to set.</param>
+        /// <remarks>This bypasses <see cref="FormUrlEncodedContent"/>, which restricts the body length to the maximum size of a URL. That's not applicable for a URL-encoded body.</remarks>
+        private HttpContent FormUrlEncodedImpl(IEnumerable<KeyValuePair<string, object>> arguments)
+        {
+            IEnumerable<string> pairs = Enumerable.Empty<string>();
+            if (arguments != null)
+            {
+                pairs =
+                (
+                    from pair in arguments
+                    where pair.Value != null || this.Request.Options.IgnoreNullArguments != true
+                    select $"{WebUtility.UrlEncode(pair.Key)}={WebUtility.UrlEncode(pair.Value?.ToString())}"
+                );
+            }
+
+            return new StringContent(string.Join("&", pairs), Encoding.UTF8, "application/x-www-form-urlencoded");
         }
     }
 }
