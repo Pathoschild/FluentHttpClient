@@ -325,32 +325,6 @@ namespace Pathoschild.Http.Tests.Client
         }
 
         /****
-        ** WithBodyContent
-        ****/
-        [Test(Description = "Ensure that WithBodyContent sets the request body and does not incorrectly alter request state.")]
-        [TestCase("DELETE", "body value")]
-        [TestCase("GET", "body value")]
-        [TestCase("HEAD", "body value")]
-        [TestCase("PUT", "body value")]
-        [TestCase("OPTIONS", "body value")]
-        [TestCase("POST", "body value")]
-        [TestCase("TRACE", "body value")]
-        public async Task WithBodyContent(string methodName, object body)
-        {
-            // arrange
-            HttpContent content = new ObjectContent(typeof(string), body, new JsonMediaTypeFormatter());
-
-            // act
-            IRequest request = this
-                .ConstructRequest(methodName)
-                .WithBodyContent(content);
-
-            // assert
-            this.AssertEqual(request.Message, methodName, ignoreArguments: true);
-            Assert.That(await request.Message.Content.ReadAsStringAsync(), Is.EqualTo('"' + body.ToString() + '"'), "The message body is invalid.");
-        }
-
-        /****
         ** WithBody (model)
         ****/
         [Test(Description = "Ensure that WithBody with a model sets the request body and does not incorrectly alter request state.")]
@@ -369,26 +343,6 @@ namespace Pathoschild.Http.Tests.Client
                 .WithBody(body);
 
             // assert
-            this.AssertEqual(request.Message, methodName, ignoreArguments: true);
-            Assert.That(await request.Message.Content.ReadAsStringAsync(), Is.EqualTo('"' + body.ToString() + '"'), "The message body is invalid.");
-        }
-
-        [Test(Description = "Ensure that WithBody sets the request body and does not incorrectly alter request state.")]
-        [TestCase("DELETE", "body value")]
-        [TestCase("GET", "body value")]
-        [TestCase("HEAD", "body value")]
-        [TestCase("PUT", "body value")]
-        [TestCase("OPTIONS", "body value")]
-        [TestCase("POST", "body value")]
-        [TestCase("TRACE", "body value")]
-        public async Task WithBody_AndFormatter(string methodName, object body)
-        {
-            // execute
-            IRequest request = this
-                .ConstructRequest(methodName)
-                .WithBody(body, new JsonMediaTypeFormatter());
-
-            // verify
             this.AssertEqual(request.Message, methodName, ignoreArguments: true);
             Assert.That(await request.Message.Content.ReadAsStringAsync(), Is.EqualTo('"' + body.ToString() + '"'), "The message body is invalid.");
         }
@@ -657,12 +611,12 @@ namespace Pathoschild.Http.Tests.Client
             switch (contentType)
             {
                 case "string":
-                    request = request.WithBodyContent(new StringContent("example string"));
+                    request = request.WithBody(new StringContent("example string"));
                     break;
 
                 case "stream":
                     Stream stream = new MemoryStream(Encoding.UTF8.GetBytes("Example stream content"));
-                    request = request.WithBodyContent(new StreamContent(stream));
+                    request = request.WithBody(new StreamContent(stream));
                     break;
 
                 default:

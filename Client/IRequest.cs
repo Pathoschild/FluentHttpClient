@@ -41,12 +41,6 @@ namespace Pathoschild.Http.Client
         ** Build request
         ***/
         /// <summary>Set the body content of the HTTP request.</summary>
-        /// <param name="body">The formatted HTTP body content.</param>
-        /// <returns>Returns the request builder for chaining.</returns>
-        [Obsolete("Will be removed in 4.0. Use `" + nameof(WithBody) + "` instead.")]
-        IRequest WithBodyContent(HttpContent body);
-
-        /// <summary>Set the body content of the HTTP request.</summary>
         /// <param name="bodyBuilder">The HTTP body builder.</param>
         /// <returns>Returns the request builder for chaining.</returns>
         IRequest WithBody(Func<IBodyBuilder, HttpContent> bodyBuilder);
@@ -89,11 +83,6 @@ namespace Pathoschild.Http.Client
         /// <param name="scheme">The authentication header scheme to use for authorization (like 'basic' or 'bearer').</param>
         /// <param name="parameter">The authentication header value (e.g. the bearer token).</param>
         IRequest WithAuthentication(string scheme, string parameter);
-
-        /// <summary>Set whether HTTP error responses (e.g. HTTP 404) should be raised as exceptions for this request.</summary>
-        /// <param name="enabled">Whether to raise HTTP errors as exceptions.</param>
-        [Obsolete("Will be removed in 4.0. Use `" + nameof(WithOptions) + "` instead.")]
-        IRequest WithHttpErrorAsException(bool enabled);
 
         /// <summary>Set options for this request.</summary>
         /// <param name="options">The options to set. (Fields set to <c>null</c> won't change the current value.)</param>

@@ -69,15 +69,6 @@ namespace Pathoschild.Http.Client.Internal
         ** Build request
         ***/
         /// <summary>Set the body content of the HTTP request.</summary>
-        /// <param name="body">The formatted HTTP body content.</param>
-        /// <returns>Returns the request builder for chaining.</returns>
-        [Obsolete("Will be removed in 4.0. Use `" + nameof(WithBody) + "` instead.")]
-        public IRequest WithBodyContent(HttpContent body)
-        {
-            return this.WithBody(body);
-        }
-
-        /// <summary>Set the body content of the HTTP request.</summary>
         /// <param name="bodyBuilder">The HTTP body builder.</param>
         /// <returns>Returns the request builder for chaining.</returns>
         public IRequest WithBody(Func<IBodyBuilder, HttpContent> bodyBuilder)
@@ -166,14 +157,6 @@ namespace Pathoschild.Http.Client.Internal
         {
             this.CancellationToken = cancellationToken;
             return this;
-        }
-
-        /// <summary>Set whether HTTP errors (e.g. HTTP 500) should be raised an exceptions for this request.</summary>
-        /// <param name="enabled">Whether to raise HTTP errors as exceptions.</param>
-        [Obsolete("Will be removed in 4.0. Use `" + nameof(WithOptions) + "` instead.")]
-        public IRequest WithHttpErrorAsException(bool enabled)
-        {
-            return this.WithOptions(ignoreHttpErrors: !enabled);
         }
 
         /// <summary>Set options for this request.</summary>

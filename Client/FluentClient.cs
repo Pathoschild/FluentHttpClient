@@ -110,14 +110,6 @@ namespace Pathoschild.Http.Client
             return this;
         }
 
-        /// <summary>Set whether HTTP error responses (e.g. HTTP 404) should be raised as exceptions by default.</summary>
-        /// <param name="enabled">Whether to raise HTTP errors as exceptions by default.</param>
-        [Obsolete("Will be removed in 4.0. Use `" + nameof(SetOptions) + "` instead.")]
-        public IClient SetHttpErrorAsException(bool enabled)
-        {
-            return this.SetOptions(ignoreHttpErrors: !enabled);
-        }
-
         /// <summary>Set default options for all requests.</summary>
         /// <param name="options">The options to set. (Fields set to <c>null</c> won't change the current value.)</param>
         public IClient SetOptions(FluentClientOptions options)
