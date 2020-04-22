@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Net.Http;
 using NUnit.Framework;
 using Pathoschild.Http.Client.Formatters;
@@ -21,11 +21,11 @@ namespace Pathoschild.Http.Tests.Formatters
         [TestCase("exam\r\nple", ExpectedResult = "exam\r\nple")]
         public object Deserialize_String(string content)
         {
-            // set up
+            // arrange
             PlainTextFormatter formatter = new PlainTextFormatter();
             HttpRequestMessage request = this.GetRequest(content, formatter);
 
-            // verify
+            // assert
             return this.GetDeserialized(typeof(string), content, request, formatter);
         }
 
@@ -38,11 +38,11 @@ namespace Pathoschild.Http.Tests.Formatters
         [TestCase("exam\r\nple", ExpectedResult = "exam\r\nple")]
         public string Serialize_String(string content)
         {
-            // set up
+            // arrange
             PlainTextFormatter formatter = new PlainTextFormatter();
             HttpRequestMessage request = this.GetRequest(content, formatter);
 
-            // verify
+            // assert
             return this.GetSerialized(content, request, formatter);
         }
 
@@ -53,11 +53,11 @@ namespace Pathoschild.Http.Tests.Formatters
         [TestCase(typeof(int), 42, ExpectedResult = "42")]
         public string Serialize_IFormattable(Type type, object content)
         {
-            // set up
+            // arrange
             PlainTextFormatter formatter = new PlainTextFormatter { AllowIrreversibleSerialization = true };
             HttpRequestMessage request = this.GetRequest(content, formatter, type);
 
-            // verify
+            // assert
             return this.GetSerialized(content, request, formatter);
         }
 
@@ -68,10 +68,10 @@ namespace Pathoschild.Http.Tests.Formatters
         [TestCase(typeof(int), 42)]
         public void Serialize_IFormattable_WithoutIrreversibleSerialization(Type type, object content)
         {
-            // set up
+            // arrange
             PlainTextFormatter formatter = new PlainTextFormatter();
 
-            // verify
+            // assert
             Assert.Throws<InvalidOperationException>(() => this.GetRequest(content, formatter, type));
         }
     }

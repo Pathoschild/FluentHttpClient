@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Formatting;
@@ -28,7 +28,7 @@ namespace Pathoschild.Http.Client.Internal
                 ? formatters.FirstOrDefault(f => f.SupportedMediaTypes.Any(m => m.MediaType == contentType.MediaType))
                 : formatters.FirstOrDefault();
             if (formatter == null)
-                throw new InvalidOperationException(String.Format("No MediaTypeFormatters are available on the fluent client for the '{0}' content-type.", contentType));
+                throw new InvalidOperationException($"No MediaTypeFormatters are available on the fluent client for the '{contentType}' content-type.");
 
             return formatter;
         }

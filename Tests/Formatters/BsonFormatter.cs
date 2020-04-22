@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Net.Http;
 using NUnit.Framework;
 using Pathoschild.Http.Client.Formatters;
@@ -29,33 +29,35 @@ namespace Pathoschild.Http.Tests.Formatters
         ** Unit tests
         *********/
         [Test(Description = "Ensure that a string value can be read.")]
-        [TestCase("&\0\0\0Number\0*\0\0\0Text\0\v\0\0\0fourty-two\0\0")]
+        [TestCase("%\0\0\0Number\0*\0\0\0Text\0\n\0\0\0forty-two\0\0")]
         public void Deserialize_Object(string content)
         {
-            // set up
+            // arrange
             BsonFormatter formatter = new BsonFormatter();
-            ExampleObject expected = new ExampleObject { Number = 42, Text = "fourty-two" };
+            ExampleObject expected = new ExampleObject { Number = 42, Text = "forty-two" };
             HttpRequestMessage request = this.GetRequest(content, formatter);
 
-            // execute
+            // act
             ExampleObject result = (ExampleObject)this.GetDeserialized(typeof(ExampleObject), content, request, formatter);
 
-            // verify
+            // assert
             Assert.That(result, Is.Not.Null);
             Assert.That(result.Number, Is.EqualTo(expected.Number));
             Assert.That(result.Text, Is.EqualTo(expected.Text));
         }
 
         [Test(Description = "Ensure that an object value can be written.")]
-        [TestCase(ExpectedResult = "&\0\0\0Number\0*\0\0\0Text\0\v\0\0\0fourty-two\0\0")]
+        [TestCase(ExpectedResult = "%\0\0\0Number\0*\0\0\0Text\0\n\0\0\0forty-two\0\0")]
         public string Serialize_Object()
         {
-            // set up
+            // arrange
             BsonFormatter formatter = new BsonFormatter();
-            ExampleObject expected = new ExampleObject { Number = 42, Text = "fourty-two" };
+            ExampleObject expected = new ExampleObject { Number = 42, Text = "forty-two" };
+
+            // act
             HttpRequestMessage request = this.GetRequest(expected, formatter);
 
-            // verify
+            // asset
             return this.GetSerialized(expected, request, formatter);
         }
     }

@@ -22,6 +22,9 @@ namespace Pathoschild.Http.Client.Internal
         /*********
         ** Public methods
         *********/
+        /****
+        ** Constructors
+        ****/
         /// <summary>Construct an instance.</summary>
         /// <param name="request">The underlying request.</param>
         public BodyBuilder(IRequest request)
@@ -29,6 +32,9 @@ namespace Pathoschild.Http.Client.Internal
             this.Request = request;
         }
 
+        /****
+        ** Form URL encoded
+        ****/
         /// <summary>Get a form URL-encoded body.</summary>
         /// <param name="arguments">An anonymous object containing the property names and values to set.</param>
         /// <example><code>client.WithArguments(new { id = 14, name = "Joe" })</code></example>
@@ -59,6 +65,9 @@ namespace Pathoschild.Http.Client.Internal
             return this.FormUrlEncodedImpl(arguments);
         }
 
+        /****
+        ** Model
+        ****/
         /// <summary>Get the serialized model body.</summary>
         /// <param name="body">The value to serialize into the HTTP body content.</param>
         /// <param name="contentType">The request body format (or <c>null</c> to use the first supported Content-Type in the client's formatter).</param>

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.IO;
 using System.Net;
 using System.Net.Http;
@@ -64,7 +64,7 @@ namespace Pathoschild.Http.Client.Formatters
         public override void Serialize(Type type, object value, Stream stream, HttpContent content, TransportContext transportContext)
         {
             var writer = new StreamWriter(stream); // don't dispose (stream disposal is handled elsewhere)
-            writer.Write(value != null ? value.ToString() : String.Empty);
+            writer.Write(value != null ? value.ToString() : string.Empty);
             writer.Flush();
         }
     }

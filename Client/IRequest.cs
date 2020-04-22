@@ -81,7 +81,7 @@ namespace Pathoschild.Http.Client
         IRequest WithCustom(Action<HttpRequestMessage> request);
 
         /// <summary>Specify the token that can be used to cancel the async operation.</summary>
-        /// <param name="cancellationToken">The cancellationtoken.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>Returns the request builder for chaining.</returns>
         IRequest WithCancellationToken(CancellationToken cancellationToken);
 

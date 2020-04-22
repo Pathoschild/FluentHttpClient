@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Net.Http;
 using System.Threading.Tasks;
 using NUnit.Framework;
@@ -24,11 +24,11 @@ namespace Pathoschild.Http.Tests.Client
         [TestCase("http://base-url/")]
         public void Dispose_DisposesOwnClient(string uri)
         {
-            // execute
+            // act
             IClient client = this.ConstructClient(uri);
             client.Dispose();
 
-            // verify
+            // assert
             Assert.Throws<ObjectDisposedException>(() => client.BaseClient.GetAsync(""));
         }
 
@@ -38,11 +38,11 @@ namespace Pathoschild.Http.Tests.Client
         {
             using (HttpClient httpClient = new HttpClient())
             {
-                // execute
+                // act
                 IClient fluentClient = this.ConstructClient(uri, httpClient: httpClient);
                 fluentClient.Dispose();
 
-                // verify
+                // assert
                 try
                 {
                     httpClient.GetAsync("");
@@ -57,10 +57,10 @@ namespace Pathoschild.Http.Tests.Client
         [Test(Description = "Ensure the user agent header is populated by default.")]
         public void SetUserAgent_HasDefaultValue()
         {
-            // execute
+            // act
             IClient client = this.ConstructClient();
 
-            // verify
+            // assert
             string userAgent = client.BaseClient.DefaultRequestHeaders.UserAgent.ToString();
             Console.WriteLine("user agent: " + userAgent);
             if (string.IsNullOrWhiteSpace(userAgent))
@@ -70,13 +70,14 @@ namespace Pathoschild.Http.Tests.Client
         [Test(Description = "Ensure the user agent header is populated with the given value.")]
         public void SetUserAgent_UsesValue()
         {
+            // arrange
             const string sampleValue = "example user agent";
 
-            // execute
+            // act
             IClient client = this.ConstructClient();
             client.SetUserAgent(sampleValue);
 
-            // verify
+            // assert
             string userAgent = client.BaseClient.DefaultRequestHeaders.UserAgent.ToString();
             Assert.AreEqual(sampleValue, userAgent);
         }
@@ -87,13 +88,13 @@ namespace Pathoschild.Http.Tests.Client
             // arrange
             const string expectedUserAgent = "boop";
 
-            // execute
+            // act
             IClient client = this.ConstructClient()
                 .AddDefault(req => req.WithHeader("User-Agent", expectedUserAgent))
                 .AddDefault(req => req.WithArgument("boop", 1));
             IRequest request = client.GetAsync("example");
 
-            // verify
+            // assert
             string userAgent = request.Message.Headers.UserAgent.ToString();
             Assert.AreEqual(expectedUserAgent, userAgent, "The user agent header does not match the specified default.");
             Assert.AreEqual("/example?boop=1", request.Message.RequestUri.PathAndQuery, "The URL arguments don't match the specified default.");
@@ -103,10 +104,10 @@ namespace Pathoschild.Http.Tests.Client
         [TestCase("resource")]
         public void Delete(string resource)
         {
-            // execute
+            // act
             IRequest request = this.ConstructClient().DeleteAsync("resource");
 
-            // verify
+            // assert
             this.AssertEqual(request, HttpMethod.Delete, resource);
         }
 
@@ -114,10 +115,10 @@ namespace Pathoschild.Http.Tests.Client
         [TestCase("resource")]
         public void Get(string resource)
         {
-            // execute
+            // act
             IRequest request = this.ConstructClient().GetAsync("resource");
 
-            // verify
+            // assert
             this.AssertEqual(request, HttpMethod.Get, resource);
         }
 
@@ -125,10 +126,10 @@ namespace Pathoschild.Http.Tests.Client
         [TestCase("resource")]
         public void Post(string resource)
         {
-            // execute
+            // act
             IRequest request = this.ConstructClient().PostAsync("resource");
 
-            // verify
+            // assert
             this.AssertEqual(request, HttpMethod.Post, resource);
         }
 
@@ -136,10 +137,10 @@ namespace Pathoschild.Http.Tests.Client
         [TestCase("resource", "value")]
         public async Task Post_WithBody(string resource, string value)
         {
-            // execute
+            // act
             IRequest request = this.ConstructClient().PostAsync("resource", value);
 
-            // verify
+            // assert
             this.AssertEqual(request, HttpMethod.Post, resource);
             Assert.That(await request.Message.Content.ReadAsStringAsync(), Is.EqualTo('"' + value + '"'), "The message request body is invalid.");
         }
@@ -148,10 +149,10 @@ namespace Pathoschild.Http.Tests.Client
         [TestCase("resource")]
         public void Put(string resource)
         {
-            // execute
+            // act
             IRequest request = this.ConstructClient().PutAsync("resource");
 
-            // verify
+            // assert
             this.AssertEqual(request, HttpMethod.Put, resource);
         }
 
@@ -159,10 +160,10 @@ namespace Pathoschild.Http.Tests.Client
         [TestCase("resource", "value")]
         public async Task Put_WithBody(string resource, string value)
         {
-            // execute
+            // act
             IRequest request = this.ConstructClient().PutAsync("resource", value);
 
-            // verify
+            // assert
             this.AssertEqual(request, HttpMethod.Put, resource);
             Assert.That(await request.Message.Content.ReadAsStringAsync(), Is.EqualTo('"' + value + '"'), "The message request body is invalid.");
         }
@@ -177,13 +178,13 @@ namespace Pathoschild.Http.Tests.Client
         [TestCase("TRACE", "resource")]
         public void Send(string methodName, string resource)
         {
-            // set up
+            // arrange
             HttpMethod method = this.ConstructMethod(methodName);
 
-            // execute
+            // act
             IRequest request = this.ConstructClient().SendAsync(method, "resource");
 
-            // verify
+            // assert
             this.AssertEqual(request, method, resource);
         }
 
@@ -197,14 +198,14 @@ namespace Pathoschild.Http.Tests.Client
         [TestCase("TRACE", "resource")]
         public void Send_WithMessage(string methodName, string resource)
         {
-            // set up
+            // arrange
             HttpMethod method = this.ConstructMethod(methodName);
             HttpRequestMessage message = new HttpRequestMessage(method, resource);
 
-            // execute
+            // act
             IRequest request = this.ConstructClient().SendAsync(message);
 
-            // verify
+            // assert
             this.AssertEqual(request, method, resource, baseUri: "");
         }
 
@@ -230,10 +231,10 @@ namespace Pathoschild.Http.Tests.Client
         {
             try
             {
-                // execute
+                // act
                 IClient client = new FluentClient(baseUri, httpClient);
 
-                // verify
+                // assert
                 Assert.NotNull(client.BaseClient, "The base client is null.");
                 Assert.AreEqual(baseUri, client.BaseClient.BaseAddress.ToString(), "The base path is invalid.");
 

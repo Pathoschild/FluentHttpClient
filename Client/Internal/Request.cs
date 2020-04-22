@@ -130,6 +130,7 @@ namespace Pathoschild.Http.Client.Internal
                 where !string.IsNullOrWhiteSpace(key)
                 select new KeyValuePair<string, object>(key, arg.Value)
             ).ToArray();
+
             this.Message.RequestUri = this.Message.RequestUri.WithArguments(this.Options.IgnoreNullArguments ?? false, args);
             return this;
         }
@@ -159,7 +160,7 @@ namespace Pathoschild.Http.Client.Internal
         }
 
         /// <summary>Specify the token that can be used to cancel the async operation.</summary>
-        /// <param name="cancellationToken">The cancellationtoken.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>Returns the request builder for chaining.</returns>
         public IRequest WithCancellationToken(CancellationToken cancellationToken)
         {

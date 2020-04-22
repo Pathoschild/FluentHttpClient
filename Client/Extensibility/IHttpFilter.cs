@@ -1,4 +1,4 @@
-﻿namespace Pathoschild.Http.Client.Extensibility
+namespace Pathoschild.Http.Client.Extensibility
 {
     /// <summary>A middleware class which can intercept and modify HTTP requests and responses. This can be used to implement common authentication, error-handling, etc.</summary>
     public interface IHttpFilter

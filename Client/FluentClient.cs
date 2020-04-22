@@ -25,7 +25,7 @@ namespace Pathoschild.Http.Client
         /// <summary>Whether to dispose the <see cref="BaseClient"/> when disposing.</summary>
         private readonly bool MustDisposeBaseClient;
 
-        /// <summary>The default behaviours to apply to all requests.</summary>
+        /// <summary>The default behaviors to apply to all requests.</summary>
         private readonly IList<Func<IRequest, IRequest>> Defaults = new List<Func<IRequest, IRequest>>();
 
         /// <summary>Options for the fluent client.</summary>
