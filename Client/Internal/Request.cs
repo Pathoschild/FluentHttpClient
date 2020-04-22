@@ -246,7 +246,6 @@ namespace Pathoschild.Http.Client.Internal
         }
 
         /// <summary>Asynchronously retrieve the response body as an array of <see cref="byte"/>.</summary>
-        /// <returns>Returns the response body, or <c>null</c> if the response has no body.</returns>
         /// <exception cref="ApiException">An error occurred processing the response.</exception>
         public async Task<byte[]> AsByteArray()
         {
@@ -255,7 +254,6 @@ namespace Pathoschild.Http.Client.Internal
         }
 
         /// <summary>Asynchronously retrieve the response body as a <see cref="string"/>.</summary>
-        /// <returns>Returns the response body, or <c>null</c> if the response has no body.</returns>
         /// <exception cref="ApiException">An error occurred processing the response.</exception>
         public async Task<string> AsString()
         {
@@ -264,7 +262,6 @@ namespace Pathoschild.Http.Client.Internal
         }
 
         /// <summary>Asynchronously retrieve the response body as a <see cref="Stream"/>.</summary>
-        /// <returns>Returns the response body, or <c>null</c> if the response has no body.</returns>
         /// <exception cref="ApiException">An error occurred processing the response.</exception>
         public async Task<Stream> AsStream()
         {
@@ -273,6 +270,7 @@ namespace Pathoschild.Http.Client.Internal
         }
 
         /// <summary>Get a raw JSON representation of the response, which can also be accessed as a <c>dynamic</c> value.</summary>
+        /// <exception cref="ApiException">An error occurred processing the response.</exception>
         public async Task<JToken> AsRawJson()
         {
             IResponse response = await this.AsResponse().ConfigureAwait(false);
@@ -280,6 +278,7 @@ namespace Pathoschild.Http.Client.Internal
         }
 
         /// <summary>Get a raw JSON object representation of the response, which can also be accessed as a <c>dynamic</c> value.</summary>
+        /// <exception cref="ApiException">An error occurred processing the response.</exception>
         public async Task<JObject> AsRawJsonObject()
         {
             IResponse response = await this.AsResponse().ConfigureAwait(false);
@@ -287,6 +286,7 @@ namespace Pathoschild.Http.Client.Internal
         }
 
         /// <summary>Get a raw JSON array representation of the response, which can also be accessed as a <c>dynamic</c> value.</summary>
+        /// <exception cref="ApiException">An error occurred processing the response.</exception>
         public async Task<JArray> AsRawJsonArray()
         {
             IResponse response = await this.AsResponse().ConfigureAwait(false);

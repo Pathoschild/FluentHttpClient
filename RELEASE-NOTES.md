@@ -8,6 +8,7 @@
 
 ## Upcoming release
 * Fixed `FormUrlEncoded` body from a dictionary restricted to URL length and not allowing null.
+* Improved code documentation.
 
 ## 3.3.1
 Released 19 July 2019.
