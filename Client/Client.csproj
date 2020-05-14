@@ -11,9 +11,9 @@
     <Description>A modern async HTTP client for REST APIs. Its fluent interface lets you send an HTTP request and parse the response in one go.</Description>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageProjectUrl>https://github.com/Pathoschild/FluentHttpClient#readme</PackageProjectUrl>
-    <PackageIconUrl>https://s3.amazonaws.com/pathoschild/avatar-64x64.png</PackageIconUrl>
+    <PackageIcon>images/package-icon.png</PackageIcon>
     <RepositoryType>git</RepositoryType>
-    <RepositoryUrl>https://github.com/Pathoschild/FluentHttpClient</RepositoryUrl>
+    <RepositoryUrl>https://github.com/Pathoschild/FluentHttpClient.git</RepositoryUrl>
     <PackageReleaseNotes>See release notes at https://github.com/Pathoschild/FluentHttpClient/blob/develop/RELEASE-NOTES.md#331</PackageReleaseNotes>
     <PackageTags>wcf;web;webapi;HttpClient;FluentHttp;FluentHttpClient</PackageTags>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
@@ -31,6 +31,10 @@
     <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
     <PackageReference Include="System.Net.Http" Version="4.3.4" />
     <PackageReference Include="WinInsider.System.Net.Http.Formatting" Version="1.0.14" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="package-icon.png" Pack="true" PackagePath="images/" />
   </ItemGroup>
 
 </Project>
