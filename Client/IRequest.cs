@@ -41,12 +41,6 @@ namespace Pathoschild.Http.Client
         ** Build request
         ***/
         /// <summary>Set the body content of the HTTP request.</summary>
-        /// <param name="body">The formatted HTTP body content.</param>
-        /// <returns>Returns the request builder for chaining.</returns>
-        [Obsolete("Will be removed in 4.0. Use `" + nameof(WithBody) + "` instead.")]
-        IRequest WithBodyContent(HttpContent body);
-
-        /// <summary>Set the body content of the HTTP request.</summary>
         /// <param name="bodyBuilder">The HTTP body builder.</param>
         /// <returns>Returns the request builder for chaining.</returns>
         IRequest WithBody(Func<IBodyBuilder, HttpContent> bodyBuilder);
@@ -55,25 +49,25 @@ namespace Pathoschild.Http.Client
         /// <param name="key">The key of the HTTP header.</param>
         /// <param name="value">The value of the HTTP header.</param>
         /// <returns>Returns the request builder for chaining.</returns>
-        IRequest WithHeader(string key, string value);
+        IRequest WithHeader(string key, string? value);
 
         /// <summary>Add an HTTP query string argument.</summary>
         /// <param name="key">The key of the query argument.</param>
         /// <param name="value">The value of the query argument.</param>
         /// <returns>Returns the request builder for chaining.</returns>
-        IRequest WithArgument(string key, object value);
+        IRequest WithArgument(string key, object? value);
 
         /// <summary>Add HTTP query string arguments.</summary>
         /// <param name="arguments">The arguments to add.</param>
         /// <returns>Returns the request builder for chaining.</returns>
         /// <example><code>client.WithArguments(new[] { new KeyValuePair&lt;string, string&gt;("genre", "drama"), new KeyValuePair&lt;string, int&gt;("genre", "comedy") })</code></example>
-        IRequest WithArguments<TKey, TValue>(IEnumerable<KeyValuePair<TKey, TValue>> arguments);
+        IRequest WithArguments<TKey, TValue>(IEnumerable<KeyValuePair<TKey, TValue>>? arguments);
 
         /// <summary>Add HTTP query string arguments.</summary>
         /// <param name="arguments">An anonymous object where the property names and values are used.</param>
         /// <returns>Returns the request builder for chaining.</returns>
         /// <example><code>client.WithArguments(new { id = 14, name = "Joe" })</code></example>
-        IRequest WithArguments(object arguments);
+        IRequest WithArguments(object? arguments);
 
         /// <summary>Customize the underlying HTTP request message.</summary>
         /// <param name="request">The HTTP request message.</param>
@@ -81,7 +75,7 @@ namespace Pathoschild.Http.Client
         IRequest WithCustom(Action<HttpRequestMessage> request);
 
         /// <summary>Specify the token that can be used to cancel the async operation.</summary>
-        /// <param name="cancellationToken">The cancellationtoken.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>Returns the request builder for chaining.</returns>
         IRequest WithCancellationToken(CancellationToken cancellationToken);
 
@@ -90,18 +84,13 @@ namespace Pathoschild.Http.Client
         /// <param name="parameter">The authentication header value (e.g. the bearer token).</param>
         IRequest WithAuthentication(string scheme, string parameter);
 
-        /// <summary>Set whether HTTP error responses (e.g. HTTP 404) should be raised as exceptions for this request.</summary>
-        /// <param name="enabled">Whether to raise HTTP errors as exceptions.</param>
-        [Obsolete("Will be removed in 4.0. Use `" + nameof(WithOptions) + "` instead.")]
-        IRequest WithHttpErrorAsException(bool enabled);
-
         /// <summary>Set options for this request.</summary>
         /// <param name="options">The options to set. (Fields set to <c>null</c> won't change the current value.)</param>
         IRequest WithOptions(RequestOptions options);
 
         /// <summary>Set the request coordinator for this request.</summary>
         /// <param name="requestCoordinator">The request coordinator (or null to use the default behaviour).</param>
-        IRequest WithRequestCoordinator(IRequestCoordinator requestCoordinator);
+        IRequest WithRequestCoordinator(IRequestCoordinator? requestCoordinator);
 
         /****
         ** Response shortcuts
@@ -132,27 +121,27 @@ namespace Pathoschild.Http.Client
         Task<T[]> AsArray<T>();
 
         /// <summary>Asynchronously retrieve the response body as an array of <see cref="byte"/>.</summary>
-        /// <returns>Returns the response body, or <c>null</c> if the response has no body.</returns>
         /// <exception cref="ApiException">An error occurred processing the response.</exception>
         Task<byte[]> AsByteArray();
 
         /// <summary>Asynchronously retrieve the response body as a <see cref="string"/>.</summary>
-        /// <returns>Returns the response body, or <c>null</c> if the response has no body.</returns>
         /// <exception cref="ApiException">An error occurred processing the response.</exception>
         Task<string> AsString();
 
         /// <summary>Asynchronously retrieve the response body as a <see cref="Stream"/>.</summary>
-        /// <returns>Returns the response body, or <c>null</c> if the response has no body.</returns>
         /// <exception cref="ApiException">An error occurred processing the response.</exception>
         Task<Stream> AsStream();
 
         /// <summary>Get a raw JSON representation of the response, which can also be accessed as a <c>dynamic</c> value.</summary>
+        /// <exception cref="ApiException">An error occurred processing the response.</exception>
         Task<JToken> AsRawJson();
 
         /// <summary>Get a raw JSON object representation of the response, which can also be accessed as a <c>dynamic</c> value.</summary>
+        /// <exception cref="ApiException">An error occurred processing the response.</exception>
         Task<JObject> AsRawJsonObject();
 
         /// <summary>Get a raw JSON array representation of the response, which can also be accessed as a <c>dynamic</c> value.</summary>
+        /// <exception cref="ApiException">An error occurred processing the response.</exception>
         Task<JArray> AsRawJsonArray();
     }
 }

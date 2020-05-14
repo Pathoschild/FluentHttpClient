@@ -6,18 +6,21 @@
     <RootNamespace>Pathoschild.Http.Client</RootNamespace>
     <PackageId>Pathoschild.Http.FluentClient</PackageId>
     <Title>FluentHttpClient</Title>
-    <Version>3.3.1</Version>
+    <Version>4.0.0</Version>
     <Authors>Pathoschild</Authors>
     <Description>A modern async HTTP client for REST APIs. Its fluent interface lets you send an HTTP request and parse the response in one go.</Description>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageProjectUrl>https://github.com/Pathoschild/FluentHttpClient#readme</PackageProjectUrl>
-    <PackageIconUrl>https://s3.amazonaws.com/pathoschild/avatar-64x64.png</PackageIconUrl>
+    <PackageIcon>images/package-icon.png</PackageIcon>
     <RepositoryType>git</RepositoryType>
-    <RepositoryUrl>https://github.com/Pathoschild/FluentHttpClient</RepositoryUrl>
-    <PackageReleaseNotes>See release notes at https://github.com/Pathoschild/FluentHttpClient/blob/develop/RELEASE-NOTES.md#331</PackageReleaseNotes>
+    <RepositoryUrl>https://github.com/Pathoschild/FluentHttpClient.git</RepositoryUrl>
+    <PackageReleaseNotes>See release notes at https://github.com/Pathoschild/FluentHttpClient/blob/develop/RELEASE-NOTES.md#40</PackageReleaseNotes>
     <PackageTags>wcf;web;webapi;HttpClient;FluentHttp;FluentHttpClient</PackageTags>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+
+    <LangVersion>latest</LangVersion>
+    <Nullable>enable</Nullable>
   </PropertyGroup>
 
   <ItemGroup Condition=" '$(TargetFramework)' == 'netstandard2.0' OR '$(TargetFramework)' == 'net45' ">
@@ -25,9 +28,13 @@
   </ItemGroup>
 
   <ItemGroup Condition=" '$(TargetFramework)' == 'netstandard1.3' ">
-    <PackageReference Include="Newtonsoft.Json" Version="11.0.1" />
+    <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
     <PackageReference Include="System.Net.Http" Version="4.3.4" />
-    <PackageReference Include="WinInsider.System.Net.Http.Formatting" Version="1.0.5" />
+    <PackageReference Include="WinInsider.System.Net.Http.Formatting" Version="1.0.14" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="package-icon.png" Pack="true" PackagePath="images/" />
   </ItemGroup>
 
 </Project>

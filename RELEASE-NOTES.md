@@ -1,10 +1,24 @@
 # Release notes
-<!--
 ## 4.0
-**Breaking changes:**
-* When you specify null arguments like `request.WithArgument("x", null)`, the argument is now ignored instead of sending a blank value. You can use the previous behaviour by setting the `IgnoreNullArguments: false` option.
-* Removed deprecated methods.
--->
+Released 13 May 2020.
+
+* Added nullable reference type annotations.
+* Added support for creating a client without a base URL.
+* Improved documentation.
+* Updated dependencies in .NET Standard 1.3 package.
+* Fixed `FormUrlEncoded` body created from a dictionary being restricted to URL length and not allowing null.
+* **Breaking changes:**
+  * Null arguments like `request.WithArgument("x", null)` are now ignored instead of sending a blank value. You can use the previous behaviour using `client.SetOptions(ignoreNullArguments: false)`.
+  * Simplified constructors to make usage more intuitive.
+  * Removed deprecated code:
+
+    old code | migration
+    -------- | ---------
+    `client.SetHttpErrorAsException` | use `client.SetOptions`.
+    `request.WithBodyContent` | use `request.WithBody`.
+    some `request.WithBody` model overloads | use `request.WithBody(builder => builder.Model(...))`.
+    `request.WithHttpErrorAsException` | use `request.WithOptions`.
+    `BsonFormatter` | use a BSON `MediaTypeFormatter` package like [WebApiContrib.Core.Formatter.Bson](https://www.nuget.org/packages/WebApiContrib.Core.Formatter.Bson).
 
 ## 3.3.1
 Released 19 July 2019.

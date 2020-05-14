@@ -28,9 +28,9 @@ namespace Pathoschild.Http.Tests.Client
         /*********
         ** Unit tests
         *********/
-        /**
-        ** Request configuration
-        ***/
+        /****
+        ** Constructor
+        ****/
         [Test(Description = "Ensure that the request builder is constructed with the expected initial state.")]
         [TestCase("DELETE", "resource")]
         [TestCase("GET", "resource")]
@@ -41,9 +41,13 @@ namespace Pathoschild.Http.Tests.Client
         [TestCase("TRACE", "resource")]
         public void Construct(string methodName, string uri)
         {
+            // act
             this.ConstructRequest(methodName, uri, false);
         }
 
+        /****
+        ** WithArgument
+        ****/
         [Test(Description = "Ensure that WithArgument appends the query arguments to the request message and does not incorrectly alter request state.")]
         [TestCase("DELETE", "keyA", "24", "key:!@#$%^&*()_+-=?'\"", "value:!@#$%^&*()_+-=?'\"")]
         [TestCase("GET", "keyA", "24", "key:!@#$%^&*()_+-=?'\"", "value:!@#$%^&*()_+-=?'\"")]
@@ -54,13 +58,13 @@ namespace Pathoschild.Http.Tests.Client
         [TestCase("TRACE", "keyA", "24", "key:!@#$%^&*()_+-=?'\"", "value:!@#$%^&*()_+-=?'\"")]
         public void WithArgument(string methodName, string keyA, string valueA, string keyB, string valueB)
         {
-            // execute
+            // act
             IRequest request = this
                 .ConstructRequest(methodName)
                 .WithArgument(keyA, valueA)
                 .WithArgument(keyB, valueB);
 
-            // verify
+            // assert
             this.AssertEqual(request.Message, methodName, ignoreArguments: true);
             var arguments = QueryHelpers.ParseQuery(request.Message.RequestUri.Query);
             Assert.That(arguments[keyA], Is.Not.Null.And.EqualTo(valueA), "The first argument doesn't match the input.");
@@ -77,13 +81,13 @@ namespace Pathoschild.Http.Tests.Client
         [TestCase("TRACE", "keyA", "value A", "value B")]
         public void WithArgument_AllowsDuplicateKeys(string methodName, string keyA, string valueA, string valueB)
         {
-            // execute
+            // act
             IRequest request = this
                 .ConstructRequest(methodName)
                 .WithArgument(keyA, valueA)
                 .WithArgument(keyA, valueB);
 
-            // verify
+            // assert
             this.AssertEqual(request.Message, methodName, ignoreArguments: true);
             var arguments = QueryHelpers.ParseQuery(request.Message.RequestUri.Query);
             Assert.That(arguments[keyA], Is.Not.Null.And.EqualTo(new[] { valueA, valueB }), "The values don't match.");
@@ -96,12 +100,12 @@ namespace Pathoschild.Http.Tests.Client
         [TestCase("GET", "param", "value")]
         public void WithArgument_AcceptsVariousValueTypes(string methodName, string key, object value)
         {
-            // execute
+            // act
             IRequest request = this
                 .ConstructRequest(methodName)
                 .WithArgument(key, value);
 
-            // verify
+            // assert
             this.AssertEqual(request.Message, methodName, ignoreArguments: true);
             var arguments = QueryHelpers.ParseQuery(request.Message.RequestUri.Query);
             Assert.That(arguments[key], Is.Not.Null.And.EqualTo(value.ToString()), "The arguments don't match the input.");
@@ -112,21 +116,26 @@ namespace Pathoschild.Http.Tests.Client
         [TestCase("GET", "param", null, true)]
         [TestCase("GET", "param", "bbb", false)]
         [TestCase("GET", "param", null, false)]
-        public void WithArgument_IgnoresArgumentWithNullValue(string methodName, string key, string value, bool ignoreNullArguments)
+        [TestCase("GET", "param", "ccc", null)]
+        [TestCase("GET", "param", null, null)]
+        public void WithArgument_IgnoresArgumentWithNullValue(string methodName, string key, string? value, bool? ignoreNullArguments)
         {
-            // execute
+            // act
             IRequest request = this
                 .ConstructRequest(methodName)
                 .WithOptions(ignoreNullArguments: ignoreNullArguments)
                 .WithArgument(key, value);
 
-            // verify
+            // assert
             this.AssertEqual(request.Message, methodName, ignoreArguments: true);
             var arguments = QueryHelpers.ParseQuery(request.Message.RequestUri.Query);
 
-            this.AssertQuerystringArgument(arguments, key, value, ignoreNullArguments);
+            this.AssertQuerystringArgument(arguments, key, value, ignoreNullArguments ?? true);
         }
 
+        /****
+        ** WithArguments
+        ****/
         [Test(Description = "Ensure that WithArguments (with a dictionary) appends the query arguments to the request message and does not incorrectly alter request state.")]
         [TestCase("DELETE", "keyA", "24", "key:!@#$%^&*()_+-=?'\"", "value:!@#$%^&*()_+-=?'\"")]
         [TestCase("GET", "keyA", "24", "key:!@#$%^&*()_+-=?'\"", "value:!@#$%^&*()_+-=?'\"")]
@@ -137,12 +146,12 @@ namespace Pathoschild.Http.Tests.Client
         [TestCase("TRACE", "keyA", "24", "key:!@#$%^&*()_+-=?'\"", "value:!@#$%^&*()_+-=?'\"")]
         public void WithArguments_Dictionary(string methodName, string keyA, string valueA, string keyB, string valueB)
         {
-            // execute
+            // act
             IRequest request = this
                 .ConstructRequest(methodName)
                 .WithArguments(new Dictionary<string, object> { { keyA, valueA }, { keyB, valueB } });
 
-            // verify
+            // assert
             this.AssertEqual(request.Message, methodName, ignoreArguments: true);
             var arguments = QueryHelpers.ParseQuery(request.Message.RequestUri.Query);
             Assert.That(arguments[keyA], Is.Not.Null.And.EqualTo(valueA), "The first argument doesn't match the input.");
@@ -159,12 +168,12 @@ namespace Pathoschild.Http.Tests.Client
         [TestCase("TRACE", "24", "!@#$%^&*()_+-=?'\"")]
         public void WithArguments_Object(string methodName, string valueA, string valueB)
         {
-            // execute
+            // act
             IRequest request = this
                 .ConstructRequest(methodName)
                 .WithArguments(new { keyA = valueA, keyB = valueB });
 
-            // verify
+            // assert
             this.AssertEqual(request.Message, methodName, ignoreArguments: true);
             var arguments = QueryHelpers.ParseQuery(request.Message.RequestUri.Query);
             Assert.That(arguments["keyA"], Is.Not.Null.And.EqualTo(valueA), "The 'keyA' argument doesn't match the input.");
@@ -181,7 +190,7 @@ namespace Pathoschild.Http.Tests.Client
         [TestCase("TRACE", "keyA", "value A", "value B")]
         public void WithArguments_AllowsDuplicateKeys(string methodName, string keyA, string valueA, string valueB)
         {
-            // execute
+            // act
             IRequest request = this
                 .ConstructRequest(methodName)
                 .WithArguments(new[]
@@ -190,7 +199,7 @@ namespace Pathoschild.Http.Tests.Client
                     new KeyValuePair<string, object>(keyA, valueB)
                 });
 
-            // verify
+            // assert
             this.AssertEqual(request.Message, methodName, ignoreArguments: true);
             var arguments = QueryHelpers.ParseQuery(request.Message.RequestUri.Query);
             Assert.That(arguments[keyA], Is.Not.Null.And.EqualTo(new[] { valueA, valueB }), "The values don't match.");
@@ -201,19 +210,19 @@ namespace Pathoschild.Http.Tests.Client
         [TestCase("GET", "paramA", null, "paramB", "bbb", true)]
         [TestCase("GET", "paramA", "aaa", "paramB", null, false)]
         [TestCase("GET", "paramA", null, "paramB", "bbb", false)]
-        public void WithArguments_IgnoresArgumentWithNullValue(string methodName, string keyA, string valueA, string keyB, string valueB, bool ignoreNullArguments)
+        public void WithArguments_IgnoresArgumentWithNullValue(string methodName, string keyA, string? valueA, string keyB, string? valueB, bool ignoreNullArguments)
         {
-            // execute
+            // act
             IRequest request = this
                 .ConstructRequest(methodName)
                 .WithOptions(ignoreNullArguments: ignoreNullArguments)
                 .WithArguments(new[]
                 {
-                    new KeyValuePair<string, object>(keyA, valueA),
-                    new KeyValuePair<string, object>(keyB, valueB)
+                    new KeyValuePair<string, object?>(keyA, valueA),
+                    new KeyValuePair<string, object?>(keyB, valueB)
                 });
 
-            // verify
+            // assert
             this.AssertEqual(request.Message, methodName, ignoreArguments: true);
             var arguments = QueryHelpers.ParseQuery(request.Message.RequestUri.Query);
 
@@ -226,15 +235,15 @@ namespace Pathoschild.Http.Tests.Client
         [TestCase("GET", null, "bbb", true)]
         [TestCase("GET", "aaa", null, false)]
         [TestCase("GET", null, "bbb", false)]
-        public void WithArguments_Object_IgnoresArgumentWithNullValue(string methodName, string valueA, string valueB, bool ignoreNullArguments)
+        public void WithArguments_Object_IgnoresArgumentWithNullValue(string methodName, string? valueA, string? valueB, bool ignoreNullArguments)
         {
-            // execute
+            // act
             IRequest request = this
                 .ConstructRequest(methodName)
                 .WithOptions(ignoreNullArguments: ignoreNullArguments)
                 .WithArguments(new { keyA = valueA, keyB = valueB });
 
-            // verify
+            // assert
             this.AssertEqual(request.Message, methodName, ignoreArguments: true);
             var arguments = QueryHelpers.ParseQuery(request.Message.RequestUri.Query);
 
@@ -249,12 +258,12 @@ namespace Pathoschild.Http.Tests.Client
         [TestCase("GET", "param", "value")]
         public void WithArguments_Dictionary_AcceptsDictionaryOfObject(string methodName, string key, object value)
         {
-            // execute
+            // act
             IRequest request = this
                 .ConstructRequest(methodName)
                 .WithArguments(new Dictionary<string, object> { { key, value } });
 
-            // verify
+            // assert
             this.AssertEqual(request.Message, methodName, ignoreArguments: true);
             var arguments = QueryHelpers.ParseQuery(request.Message.RequestUri.Query);
             Assert.That(arguments[key], Is.Not.Null.And.EqualTo(value.ToString()), "The dictionary values don't match the input.");
@@ -264,12 +273,12 @@ namespace Pathoschild.Http.Tests.Client
         [TestCase("GET", "param", 42)]
         public void WithArguments_Dictionary_AcceptsDictionaryOfInt(string methodName, string key, int value)
         {
-            // execute
+            // act
             IRequest request = this
                 .ConstructRequest(methodName)
                 .WithArguments(new Dictionary<string, int> { { key, value } });
 
-            // verify
+            // assert
             this.AssertEqual(request.Message, methodName, ignoreArguments: true);
             var arguments = QueryHelpers.ParseQuery(request.Message.RequestUri.Query);
             Assert.That(arguments[key], Is.Not.Null.And.EqualTo(value.ToString()), "The dictionary values don't match the input.");
@@ -279,7 +288,7 @@ namespace Pathoschild.Http.Tests.Client
         [TestCase("GET", "param", 42)]
         public void WithArguments_KeyValuePairs_AcceptsIntValues(string methodName, string key, int value)
         {
-            // execute
+            // act
             IRequest request = this
                 .ConstructRequest(methodName)
                 .WithArguments(new[]
@@ -287,57 +296,37 @@ namespace Pathoschild.Http.Tests.Client
                     new KeyValuePair<string, int>(key, value )
                 });
 
-            // verify
+            // assert
             this.AssertEqual(request.Message, methodName, ignoreArguments: true);
             var arguments = QueryHelpers.ParseQuery(request.Message.RequestUri.Query);
             Assert.That(arguments[key], Is.Not.Null.And.EqualTo(value.ToString()), "The dictionary values don't match the input.");
         }
 
         [Test(Description = "Ensure that the WithArguments core implementation formats URLs correctly.")]
-        [TestCase("https://example.org/", new object[0], false, ExpectedResult = "https://example.org/")]
-        [TestCase("https://example.org/", new object[] { "x", true, "x", false, "x", null }, false, ExpectedResult = "https://example.org/?x=True&x=False&x=")]
-        [TestCase("https://example.org/index.php?x=1#fragment", new object[] { "x", true, "x", false, "x", null }, false, ExpectedResult = "https://example.org/index.php?x=1&x=True&x=False&x=#fragment")]
-        [TestCase("https://example.org/", new object[0], true, ExpectedResult = "https://example.org/")]
-        [TestCase("https://example.org/", new object[] { "x", null }, true, ExpectedResult = "https://example.org/")]
-        [TestCase("https://example.org/index.php?x=1#fragment", new object[] { "x", "2", "x", null }, true, ExpectedResult = "https://example.org/index.php?x=1&x=2#fragment")]
-        public string WithArguments_Impl_AdjustsUrlCorrectly(string url, object[] args, bool ignoreNullArguments)
+        [TestCase("https://example.org/", new object?[0], false, ExpectedResult = "https://example.org/")]
+        [TestCase("https://example.org/", new object?[] { "x", true, "x", false, "x", null }, false, ExpectedResult = "https://example.org/?x=True&x=False&x=")]
+        [TestCase("https://example.org/index.php?x=1#fragment", new object?[] { "x", true, "x", false, "x", null }, false, ExpectedResult = "https://example.org/index.php?x=1&x=True&x=False&x=#fragment")]
+        [TestCase("https://example.org/", new object?[0], true, ExpectedResult = "https://example.org/")]
+        [TestCase("https://example.org/", new object?[] { "x", null }, true, ExpectedResult = "https://example.org/")]
+        [TestCase("https://example.org/index.php?x=1#fragment", new object?[] { "x", "2", "x", null }, true, ExpectedResult = "https://example.org/index.php?x=1&x=2#fragment")]
+        public string WithArguments_Impl_AdjustsUrlCorrectly(string url, object?[] args, bool ignoreNullArguments)
         {
             // validate
             if (args.Length % 2 != 0)
                 Assert.Inconclusive($"The {nameof(args)} arguments needs an even number of values (one key and one value each).");
 
             // arrange
-            var argPairs = new List<KeyValuePair<string, object>>();
+            var argPairs = new List<KeyValuePair<string, object?>>();
             for (int i = 0; i < args.Length; i += 2)
-                argPairs.Add(new KeyValuePair<string, object>(args[i].ToString(), args[i + 1]));
+                argPairs.Add(new KeyValuePair<string, object?>(args[i]!.ToString(), args[i + 1]));
 
             // act
             return new Uri(url).WithArguments(ignoreNullArguments, argPairs.ToArray()).ToString();
         }
 
-        [Test(Description = "Ensure that WithBodyContent sets the request body and does not incorrectly alter request state.")]
-        [TestCase("DELETE", "body value")]
-        [TestCase("GET", "body value")]
-        [TestCase("HEAD", "body value")]
-        [TestCase("PUT", "body value")]
-        [TestCase("OPTIONS", "body value")]
-        [TestCase("POST", "body value")]
-        [TestCase("TRACE", "body value")]
-        public async Task WithBodyContent(string methodName, object body)
-        {
-            // set up
-            HttpContent content = new ObjectContent(typeof(string), body, new JsonMediaTypeFormatter());
-
-            // execute
-            IRequest request = this
-                .ConstructRequest(methodName)
-                .WithBodyContent(content);
-
-            // verify
-            this.AssertEqual(request.Message, methodName, ignoreArguments: true);
-            Assert.That(await request.Message.Content.ReadAsStringAsync(), Is.EqualTo('"' + body.ToString() + '"'), "The message body is invalid.");
-        }
-
+        /****
+        ** WithBody (model)
+        ****/
         [Test(Description = "Ensure that WithBody with a model sets the request body and does not incorrectly alter request state.")]
         [TestCase("DELETE", "body value")]
         [TestCase("GET", "body value")]
@@ -348,79 +337,12 @@ namespace Pathoschild.Http.Tests.Client
         [TestCase("TRACE", "body value")]
         public async Task WithBody_Model(string methodName, object body)
         {
-            // execute
+            // act
             IRequest request = this
                 .ConstructRequest(methodName)
                 .WithBody(body);
 
-            // verify
-            this.AssertEqual(request.Message, methodName, ignoreArguments: true);
-            Assert.That(await request.Message.Content.ReadAsStringAsync(), Is.EqualTo('"' + body.ToString() + '"'), "The message body is invalid.");
-        }
-
-        [Test(Description = "Ensure that WithBody with an HttpContent sets the request body and headers, and does not incorrectly alter request state.")]
-        [TestCase("DELETE", "body value")]
-        [TestCase("GET", "body value")]
-        [TestCase("HEAD", "body value")]
-        [TestCase("PUT", "body value")]
-        [TestCase("OPTIONS", "body value")]
-        [TestCase("POST", "body value")]
-        [TestCase("TRACE", "body value")]
-        public async Task WithBody_HttpContent(string methodName, string body)
-        {
-            // execute
-            IRequest request = this
-                .ConstructRequest(methodName)
-                .WithBody(new FormUrlEncodedContent(new Dictionary<string, string>
-                {
-                    ["argument"] = body
-                }));
-
-            // verify
-            this.AssertEqual(request.Message, methodName, ignoreArguments: true);
-            Assert.That(request.Message.Content.Headers.ContentType.ToString(), Is.EqualTo("application/x-www-form-urlencoded"), "The message content-type is invalid.");
-            Assert.That(await request.Message.Content.ReadAsStringAsync(), Is.EqualTo($"argument={body.Replace(" ", "+")}"), "The message body is invalid.");
-        }
-
-        [Test(Description = "Ensure that WithBody sets the request body and does not incorrectly alter request state.")]
-        [TestCase("DELETE", "body value")]
-        [TestCase("GET", "body value")]
-        [TestCase("HEAD", "body value")]
-        [TestCase("PUT", "body value")]
-        [TestCase("OPTIONS", "body value")]
-        [TestCase("POST", "body value")]
-        [TestCase("TRACE", "body value")]
-        public async Task WithBody_AndFormatter(string methodName, object body)
-        {
-            // execute
-            IRequest request = this
-                .ConstructRequest(methodName)
-                .WithBody(body, new JsonMediaTypeFormatter());
-
-            // verify
-            this.AssertEqual(request.Message, methodName, ignoreArguments: true);
-            Assert.That(await request.Message.Content.ReadAsStringAsync(), Is.EqualTo('"' + body.ToString() + '"'), "The message body is invalid.");
-        }
-
-        [Test(Description = "Ensure that WithBody with a custom builder sets the request body and does not incorrectly alter request state.")]
-        [TestCase("DELETE", "body value")]
-        [TestCase("GET", "body value")]
-        [TestCase("HEAD", "body value")]
-        [TestCase("PUT", "body value")]
-        [TestCase("OPTIONS", "body value")]
-        [TestCase("POST", "body value")]
-        [TestCase("TRACE", "body value")]
-        public async Task WithBody_Builder_ForCustom(string methodName, object body)
-        {
-            // set up
-            HttpContent content = new ObjectContent(typeof(string), body, new JsonMediaTypeFormatter());
-
-            // execute
-            IRequest request = this
-                .ConstructRequest(methodName)
-                .WithBody(p => content);
-
-            // verify
+            // assert
             this.AssertEqual(request.Message, methodName, ignoreArguments: true);
             Assert.That(await request.Message.Content.ReadAsStringAsync(), Is.EqualTo('"' + body.ToString() + '"'), "The message body is invalid.");
         }
@@ -435,12 +357,12 @@ namespace Pathoschild.Http.Tests.Client
         [TestCase("TRACE", "body value")]
         public async Task WithBody_Builder_ForModel(string methodName, object body)
         {
-            // execute
+            // act
             IRequest request = this
                 .ConstructRequest(methodName)
                 .WithBody(p => p.Model(body));
 
-            // verify
+            // assert
             this.AssertEqual(request.Message, methodName, ignoreArguments: true);
             Assert.That(await request.Message.Content.ReadAsStringAsync(), Is.EqualTo('"' + body.ToString() + '"'), "The message body is invalid.");
         }
@@ -455,16 +377,143 @@ namespace Pathoschild.Http.Tests.Client
         [TestCase("TRACE", "body value")]
         public async Task WithBody_Builder_ForModel_AndFormatter(string methodName, object body)
         {
-            // execute
+            // act
             IRequest request = this
                 .ConstructRequest(methodName)
                 .WithBody(p => p.Model(body, new JsonMediaTypeFormatter()));
 
-            // verify
+            // assert
             this.AssertEqual(request.Message, methodName, ignoreArguments: true);
             Assert.That(await request.Message.Content.ReadAsStringAsync(), Is.EqualTo('"' + body.ToString() + '"'), "The message body is invalid.");
         }
 
+        /****
+        ** WithBody (HTTP content)
+        ****/
+        [Test(Description = "Ensure that WithBody with an HttpContent sets the request body and headers, and does not incorrectly alter request state.")]
+        [TestCase("DELETE", "body value")]
+        [TestCase("GET", "body value")]
+        [TestCase("HEAD", "body value")]
+        [TestCase("PUT", "body value")]
+        [TestCase("OPTIONS", "body value")]
+        [TestCase("POST", "body value")]
+        [TestCase("TRACE", "body value")]
+        public async Task WithBody_HttpContent(string methodName, string body)
+        {
+            // act
+            IRequest request = this
+                .ConstructRequest(methodName)
+                .WithBody(new FormUrlEncodedContent(new Dictionary<string, string>
+                {
+                    ["argument"] = body
+                }));
+
+            // assert
+            this.AssertEqual(request.Message, methodName, ignoreArguments: true);
+            Assert.That(request.Message.Content.Headers.ContentType.ToString(), Is.EqualTo("application/x-www-form-urlencoded"), "The message content-type is invalid.");
+            Assert.That(await request.Message.Content.ReadAsStringAsync(), Is.EqualTo($"argument={body.Replace(" ", "+")}"), "The message body is invalid.");
+        }
+
+        [Test(Description = "Ensure that WithBody with a custom builder sets the request body and does not incorrectly alter request state.")]
+        [TestCase("DELETE", "body value")]
+        [TestCase("GET", "body value")]
+        [TestCase("HEAD", "body value")]
+        [TestCase("PUT", "body value")]
+        [TestCase("OPTIONS", "body value")]
+        [TestCase("POST", "body value")]
+        [TestCase("TRACE", "body value")]
+        public async Task WithBody_Builder_HttpContent(string methodName, object body)
+        {
+            // arrange
+            HttpContent content = new ObjectContent(typeof(string), body, new JsonMediaTypeFormatter());
+
+            // act
+            IRequest request = this
+                .ConstructRequest(methodName)
+                .WithBody(p => content);
+
+            // assert
+            this.AssertEqual(request.Message, methodName, ignoreArguments: true);
+            Assert.That(await request.Message.Content.ReadAsStringAsync(), Is.EqualTo('"' + body.ToString() + '"'), "The message body is invalid.");
+        }
+
+        /****
+        ** WithBody (form URL encoded)
+        ****/
+        [Test(Description = "Ensure that WithBody with a form URL encoded builder sets the request body and does not incorrectly alter request state.")]
+        [TestCase("DELETE", "body value", "body+value")]
+        [TestCase("GET", "body value", "body+value")]
+        [TestCase("HEAD", "body value", "body+value")]
+        [TestCase("PUT", "body value", "body+value")]
+        [TestCase("OPTIONS", "body value", "body+value")]
+        [TestCase("POST", "body value", "body+value")]
+        [TestCase("TRACE", "body value", "body+value")]
+        public async Task WithBody_Builder_ForFormUrlEncoded(string methodName, string body, string encodedBody)
+        {
+            // arrange
+            object args = new { body };
+
+            // act
+            IRequest request = this
+                .ConstructRequest(methodName)
+                .WithBody(p => p.FormUrlEncoded(args));
+
+            // assert
+            this.AssertEqual(request.Message, methodName, ignoreArguments: true);
+            Assert.That(await request.Message.Content.ReadAsStringAsync(), Is.EqualTo("body=" + encodedBody), "The message body is invalid.");
+        }
+
+        /****
+        ** WithBody (file upload)
+        ****/
+        [Test(Description = "Ensure that WithBody with a file upload sets the request body and does not incorrectly alter request state.")]
+        public async Task WithBody_Builder_ForFileUpload([Values("DELETE", "GET", "HEAD", "PUT", "OPTIONS", "POST", "TRACE")] string methodName, [Values("raw test data")] string content, [Values("path", "file", "files", "stream")] string type)
+        {
+            // arrange
+            string path = Path.GetTempFileName();
+            File.WriteAllText(path, content);
+            FileInfo file = new FileInfo(path);
+
+            // act
+            IRequest request = this.ConstructRequest(methodName);
+            switch (type)
+            {
+                case "path":
+                    request = request.WithBody(p => p.FileUpload(file.FullName));
+                    break;
+
+                case "file":
+                    request = request.WithBody(p => p.FileUpload(file));
+                    break;
+
+                case "files":
+                    request = request.WithBody(p => p.FileUpload(new[] { file }));
+                    break;
+
+                case "stream":
+                    request = request.WithBody(p => p.FileUpload(new[]
+                    {
+                        new KeyValuePair<string, Stream>(file.Name, file.OpenRead())
+                    }));
+                    break;
+
+                default:
+                    Assert.Fail($"Unsupported type '{type}'.");
+                    return;
+            }
+            string rawBody = await request.Message.Content.ReadAsStringAsync();
+            string boundary = rawBody.Substring(2, 36);
+
+            // assert
+            this.AssertEqual(request.Message, methodName, ignoreArguments: true);
+            Assert.That(boundary, Is.Not.Null.And.Not.Empty);
+            Assert.That(request.Message.Content.Headers.ContentType.ToString(), Is.EqualTo($@"multipart/form-data; boundary=""{boundary}"""), "The Content-Type header is invalid.");
+            Assert.That(rawBody, Is.EqualTo($"--{boundary}\r\nContent-Disposition: form-data; name={file.Name}; filename={file.Name}; filename*=utf-8''{file.Name}\r\n\r\n{content}\r\n--{boundary}--\r\n"), "The message body is invalid.");
+        }
+
+        /****
+        ** WithCustom
+        ****/
         [Test(Description = "Ensure that WithCustom persists the custom changes and does not incorrectly alter request state.")]
         [TestCase("DELETE", "body value")]
         [TestCase("GET", "body value")]
@@ -475,39 +524,19 @@ namespace Pathoschild.Http.Tests.Client
         [TestCase("TRACE", "body value")]
         public async Task WithCustom(string methodName, string customBody)
         {
-            // execute
+            // act
             IRequest request = this
                 .ConstructRequest(methodName)
                 .WithCustom(r => r.Content = new ObjectContent<string>(customBody, new JsonMediaTypeFormatter()));
 
-            // verify
+            // assert
             this.AssertEqual(request.Message, methodName, ignoreArguments: true);
             Assert.That(await request.Message.Content.ReadAsStringAsync(), Is.EqualTo('"' + customBody + '"'), "The customized message body is invalid.");
         }
 
-        [Test(Description = "Ensure that WithBody with a custom builder sets the request body and does not incorrectly alter request state.")]
-        [TestCase("DELETE", "body value", "body+value")]
-        [TestCase("GET", "body value", "body+value")]
-        [TestCase("HEAD", "body value", "body+value")]
-        [TestCase("PUT", "body value", "body+value")]
-        [TestCase("OPTIONS", "body value", "body+value")]
-        [TestCase("POST", "body value", "body+value")]
-        [TestCase("TRACE", "body value", "body+value")]
-        public async Task WithBody_Builder_ForFormUrlEncoded(string methodName, string body, string encodedBody)
-        {
-            // set up
-            object args = new { body };
-
-            // execute
-            IRequest request = this
-                .ConstructRequest(methodName)
-                .WithBody(p => p.FormUrlEncoded(args));
-
-            // verify
-            this.AssertEqual(request.Message, methodName, ignoreArguments: true);
-            Assert.That(await request.Message.Content.ReadAsStringAsync(), Is.EqualTo("body=" + encodedBody), "The message body is invalid.");
-        }
-
+        /****
+        ** WithHeader
+        ****/
         [Test(Description = "Ensure that WithHeader sets the expected header and does not incorrectly alter request state.")]
         [TestCase("DELETE", "VIA", "header value")]
         [TestCase("GET", "VIA", "header value")]
@@ -518,16 +547,16 @@ namespace Pathoschild.Http.Tests.Client
         [TestCase("TRACE", "VIA", "header value")]
         public void WithHeader(string methodName, string key, string value)
         {
-            // execute
+            // act
             IRequest request = this
                 .ConstructRequest(methodName)
                 .WithHeader(key, value);
             var header = request.Message.Headers.FirstOrDefault(p => p.Key == key);
 
-            // verify
+            // assert
             this.AssertEqual(request.Message, methodName, ignoreArguments: true);
             Assert.That(header, Is.Not.Null, "The header is invalid.");
-            Assert.That(header.Value, Is.Not.Null.Or.Empty, "The header value is invalid.");
+            Assert.That(header.Value, Is.Not.Null.And.Not.Empty, "The header value is invalid.");
             Assert.That(header.Value.First(), Is.EqualTo(value), "The header value is invalid.");
         }
 
@@ -544,28 +573,31 @@ namespace Pathoschild.Http.Tests.Client
             // arrange
             string expectedValue = $"{key}={value}";
 
-            // execute
+            // act
             IRequest request = this
                 .ConstructRequest(methodName)
                 .WithHeader("Cookie", expectedValue);
             var header = request.Message.Headers.FirstOrDefault(p => p.Key == "Cookie");
 
-            // verify
+            // assert
             this.AssertEqual(request.Message, methodName, ignoreArguments: true);
             Assert.That(header, Is.Not.Null, "The header is invalid.");
-            Assert.That(header.Value, Is.Not.Null.Or.Empty, "The header value is invalid.");
+            Assert.That(header.Value, Is.Not.Null.And.Not.Empty, "The header value is invalid.");
             Assert.That(header.Value.First(), Is.EqualTo(expectedValue), "The header value is invalid.");
         }
 
+        /****
+        ** WithOptions (ignore HTTP errors)
+        ****/
         [Test(Description = "Ensure that WithHttpErrorAsException throws an exception by default.")]
-        public void WithHttpErrorAsException_ThrowsExceptionByDefault()
+        public void WithOptions_Default_ThrowsExceptionForError()
         {
             // arrange
             var mockHttp = new MockHttpMessageHandler();
             mockHttp.When(HttpMethod.Get, "https://example.org").Respond(HttpStatusCode.NotFound);
-            var client = new FluentClient("https://example.org", new HttpClient(mockHttp));
+            var client = new FluentClient(new Uri("https://example.org"), new HttpClient(mockHttp));
 
-            // verify
+            // assert
             ApiException ex = Assert.ThrowsAsync<ApiException>(async () => await client.GetAsync("/"), "The client didn't throw an exception for a non-success code");
             Assert.AreEqual(HttpStatusCode.NotFound, ex.Status, "The HTTP status on the exception doesn't match the response.");
             Assert.NotNull(ex.ResponseMessage, "The HTTP response message on the exception is null.");
@@ -578,15 +610,18 @@ namespace Pathoschild.Http.Tests.Client
             // arrange
             var mockHttp = new MockHttpMessageHandler();
             mockHttp.When(HttpMethod.Get, "https://example.org").Respond(HttpStatusCode.NotFound);
-            var client = new FluentClient("https://example.org", new HttpClient(mockHttp));
+            var client = new FluentClient(new Uri("https://example.org"), new HttpClient(mockHttp));
 
-            // verify
+            // assert
             IResponse response = await client.GetAsync("/").WithOptions(ignoreHttpErrors: true);
             Assert.NotNull(response, "The HTTP response is null.");
             Assert.NotNull(response.Message, "The HTTP response message is null.");
             Assert.AreEqual(HttpStatusCode.NotFound, response.Status, "The HTTP status doesn't match the response.");
         }
 
+        /****
+        ** Resubmit requests
+        ****/
         [Test(Description = "A GET request can be executed multiple times.")]
         public async Task Request_CanResubmit_Get()
         {
@@ -596,7 +631,7 @@ namespace Pathoschild.Http.Tests.Client
             mockHttp.When(HttpMethod.Get, "https://api.fictitious-vendor.com/v1/endpoint").Respond(HttpStatusCode.OK, testRequest => new StringContent($"This is request #{++counter}"));
 
             var httpClient = new HttpClient(mockHttp);
-            var fluentClient = new FluentClient("https://api.fictitious-vendor.com/v1/", httpClient);
+            var fluentClient = new FluentClient(new Uri("https://api.fictitious-vendor.com/v1/"), httpClient);
 
             // act
             var request = fluentClient.GetAsync("endpoint");
@@ -617,19 +652,19 @@ namespace Pathoschild.Http.Tests.Client
             mockHttp.When(HttpMethod.Post, "https://api.fictitious-vendor.com/v1/endpoint").Respond(HttpStatusCode.OK, testRequest => new StringContent($"This is request #{++counter}"));
 
             var httpClient = new HttpClient(mockHttp);
-            var fluentClient = new FluentClient("https://api.fictitious-vendor.com/v1/", httpClient);
+            var fluentClient = new FluentClient(new Uri("https://api.fictitious-vendor.com/v1/"), httpClient);
 
             // act
             var request = fluentClient.PostAsync("endpoint");
             switch (contentType)
             {
                 case "string":
-                    request = request.WithBodyContent(new StringContent("example string"));
+                    request = request.WithBody(new StringContent("example string"));
                     break;
 
                 case "stream":
                     Stream stream = new MemoryStream(Encoding.UTF8.GetBytes("Example stream content"));
-                    request = request.WithBodyContent(new StreamContent(stream));
+                    request = request.WithBody(new StreamContent(stream));
                     break;
 
                 default:
@@ -644,6 +679,9 @@ namespace Pathoschild.Http.Tests.Client
             Assert.AreEqual("This is request #2", valueB, "The second request got an unexpected value.");
         }
 
+        /****
+        ** Request URL
+        ****/
         [Test(Description = "A dispatched request is sent to the expected URL.")]
         // empty resource
         [TestCase("https://example.org/index.php", null, ExpectedResult = "https://example.org/index.php")]
@@ -669,12 +707,12 @@ namespace Pathoschild.Http.Tests.Client
         [TestCase("https://example.org/index.php?x=1", "#api", ExpectedResult = "https://example.org/index.php?x=1#api")]
         [TestCase("https://example.org/api#fragment", "api", ExpectedResult = "https://example.org/api#fragmentapi")]
         [TestCase("https://example.org/api/#fragment", "&x=1", ExpectedResult = "https://example.org/api/#fragment&x=1")]
-        public async Task<string> Request_Url(string baseUrl, string url)
+        public async Task<string> Request_Url(string baseUrl, string? url)
         {
             // arrange
             var mockHttp = new MockHttpMessageHandler();
             mockHttp.When(HttpMethod.Get, "*").Respond(HttpStatusCode.OK, req => new StringContent(req.RequestUri.ToString()));
-            var fluentClient = new FluentClient(baseUrl, new HttpClient(mockHttp));
+            var fluentClient = new FluentClient(new Uri(baseUrl), new HttpClient(mockHttp));
 
             // act
             return await fluentClient.GetAsync(url).AsString();
@@ -688,7 +726,7 @@ namespace Pathoschild.Http.Tests.Client
             // arrange
             var mockHttp = new MockHttpMessageHandler();
             mockHttp.When(HttpMethod.Get, "*").Respond(HttpStatusCode.OK, req => new StringContent(req.RequestUri.ToString()));
-            var fluentClient = new FluentClient(baseUrl, new HttpClient(mockHttp));
+            var fluentClient = new FluentClient(new Uri(baseUrl), new HttpClient(mockHttp));
 
             // assert
             Assert.ThrowsAsync<FormatException>(async () => await fluentClient.GetAsync(url).AsString());
@@ -715,10 +753,10 @@ namespace Pathoschild.Http.Tests.Client
             // arrange
             IRequest request = this.ConstructResponseFromTask(Task
                 .Delay(5000)
-                .ContinueWith<HttpResponseMessage>(task =>
+                .ContinueWith(task =>
                 {
                     Assert.Fail("The response was not invoked asynchronously.");
-                    return null;
+                    return new HttpResponseMessage(HttpStatusCode.OK);
                 })
             );
 
@@ -758,14 +796,14 @@ namespace Pathoschild.Http.Tests.Client
         {
             try
             {
-                // set up
+                // arrange
                 HttpMethod method = new HttpMethod(methodName);
                 HttpRequestMessage message = new HttpRequestMessage(method, uri);
 
-                // execute
-                IRequest request = new Request(message, new MediaTypeFormatterCollection(), r => new Task<HttpResponseMessage>(() => null), new IHttpFilter[0]);
+                // act
+                IRequest request = new Request(message, new MediaTypeFormatterCollection(), r => new Task<HttpResponseMessage>(() => new HttpResponseMessage(HttpStatusCode.OK)), new IHttpFilter[0]);
 
-                // verify
+                // assert
                 this.AssertEqual(request.Message, method, uri);
 
                 return request;
@@ -821,12 +859,10 @@ namespace Pathoschild.Http.Tests.Client
         /// <param name="key">The key to assert.</param>
         /// <param name="value">The expected value.</param>
         /// <param name="ignoreNullArguments">Whether null argument values should be ignored.</param>
-        private void AssertQuerystringArgument(IDictionary<string, StringValues> arguments, string key, string value, bool ignoreNullArguments)
+        private void AssertQuerystringArgument(IDictionary<string, StringValues> arguments, string key, string? value, bool ignoreNullArguments)
         {
             if (ignoreNullArguments && value == null)
-            {
                 Assert.That(arguments.ContainsKey(key), Is.False, $"Argument {key} with null value should have been ignored");
-            }
             else
             {
                 Assert.That(arguments.ContainsKey(key), Is.True, $"Argument {key} with null value shouldn't have been ignored");

@@ -28,21 +28,19 @@ namespace Pathoschild.Http.Tests.Client
         [Test(Description = "Ensure that the retry coordinator retries failed requests.")]
         public async Task RetriesFailedRequests()
         {
-            // configure
+            // arrange
             const int maxAttempts = 2;
-
-            // set up
             int attempts = 0;
             var mockHandler = new MockHttpMessageHandler();
             mockHandler.When(HttpMethod.Get, "*").With(req => ++attempts == maxAttempts).Respond(HttpStatusCode.OK); // succeed on last attempt
             mockHandler.When(HttpMethod.Get, "*").Respond(HttpStatusCode.NotFound);
-            var client = new FluentClient("https://example.org", new HttpClient(mockHandler))
+            var client = new FluentClient(new Uri("https://example.org"), new HttpClient(mockHandler))
                 .SetRequestCoordinator(this.GetRetryConfig(maxAttempts - 1));
 
-            // execute
+            // act
             IResponse response = await client.GetAsync("");
 
-            // verify
+            // assert
             Assert.AreEqual(maxAttempts, attempts, "The client did not retry the expected number of times.");
             Assert.AreEqual(response.Status, HttpStatusCode.OK, "The response is unexpectedly not successful.");
         }
@@ -50,10 +48,8 @@ namespace Pathoschild.Http.Tests.Client
         [Test(Description = "Ensure that the retry coordinator retries (or does not retry) timed-out requests.")]
         public async Task RetriesOnTimeout([Values(true, false)] bool retryOnTimeout)
         {
-            // configure
+            // arrange
             const int maxAttempts = 3; // two test requests in non-retry mode
-
-            // set up
             int attempts = 0;
             var mockHandler = new MockHttpMessageHandler();
             mockHandler.When(HttpMethod.Get, "*").With(req => ++attempts == maxAttempts).Respond(HttpStatusCode.OK); // succeed on last attempt
@@ -64,11 +60,11 @@ namespace Pathoschild.Http.Tests.Client
                 return null;
             });
 
-            IClient client = new FluentClient("https://example.org", new HttpClient(mockHandler))
+            IClient client = new FluentClient(new Uri("https://example.org"), new HttpClient(mockHandler))
                 .SetRequestCoordinator(this.GetRetryConfig(maxAttempts - 1, retryOnTimeout));
             client.BaseClient.Timeout = TimeSpan.FromMilliseconds(500);
 
-            // execute & verify
+            // act & assert
             if (retryOnTimeout)
             {
                 IResponse response = await client.GetAsync("");
@@ -90,10 +86,8 @@ namespace Pathoschild.Http.Tests.Client
         [Test(Description = "Ensure that the retry coordinator doesn't retry requests aborted by a cancellation token.")]
         public void RespectsTaskCancellationToken()
         {
-            // configure
+            // arrange
             const int maxAttempts = 2;
-
-            // set up
             var mockHandler = new MockHttpMessageHandler();
             var mockRequest = mockHandler.When(HttpMethod.Get, "*").Respond(async request =>
             {
@@ -102,10 +96,10 @@ namespace Pathoschild.Http.Tests.Client
                 return null;
             });
 
-            IClient client = new FluentClient("http://example.org", new HttpClient(mockHandler))
+            IClient client = new FluentClient(new Uri("http://example.org"), new HttpClient(mockHandler))
                 .SetRequestCoordinator(this.GetRetryConfig(maxAttempts - 1));
 
-            // execute & verify
+            // act & assert
             CancellationTokenSource tokenSource = new CancellationTokenSource(TimeSpan.FromSeconds(1));
             Assert.ThrowsAsync<TaskCanceledException>(async () => await client.GetAsync("").WithCancellationToken(tokenSource.Token));
             Assert.AreEqual(1, mockHandler.GetMatchCount(mockRequest), "The client unexpectedly retried.");
@@ -115,16 +109,14 @@ namespace Pathoschild.Http.Tests.Client
         [Test(Description = "Ensure that the retry coordinator gives up after too many failed requests.")]
         public void AbandonsOnTooManyFailures()
         {
-            // configure
+            // arrange
             const int maxAttempts = 2;
-
-            // set up
             var mockHttp = new MockHttpMessageHandler();
             var mockRequest = mockHttp.When(HttpMethod.Get, "*").Respond(HttpStatusCode.NotFound);
-            var client = new FluentClient("http://example.org", new HttpClient(mockHttp))
+            var client = new FluentClient(new Uri("http://example.org"), new HttpClient(mockHttp))
                 .SetRequestCoordinator(this.GetRetryConfig(maxAttempts - 1));
 
-            // execute & assert
+            // act & assert
             Assert.ThrowsAsync<ApiException>(async () => await client.GetAsync(""));
             Assert.AreEqual(maxAttempts, mockHttp.GetMatchCount(mockRequest), "The client did not retry the expected number of times.");
         }

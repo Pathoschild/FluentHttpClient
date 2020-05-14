@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Net.Http;
 using System.Threading.Tasks;
 using NUnit.Framework;
@@ -13,6 +13,9 @@ namespace Pathoschild.Http.Tests.Client
         /*********
         ** Unit tests
         *********/
+        /****
+        ** Constructor
+        ****/
         [Test(Description = "Ensure that the client is constructed with the expected initial state.")]
         [TestCase("http://base-url/")]
         public void Construct(string uri)
@@ -20,15 +23,18 @@ namespace Pathoschild.Http.Tests.Client
             this.ConstructClient(uri, false);
         }
 
+        /****
+        ** Dispose
+        ****/
         [Test(Description = "Ensure that the fluent client disposes its own HTTP client.")]
         [TestCase("http://base-url/")]
         public void Dispose_DisposesOwnClient(string uri)
         {
-            // execute
+            // act
             IClient client = this.ConstructClient(uri);
             client.Dispose();
 
-            // verify
+            // assert
             Assert.Throws<ObjectDisposedException>(() => client.BaseClient.GetAsync(""));
         }
 
@@ -36,31 +42,32 @@ namespace Pathoschild.Http.Tests.Client
         [TestCase("http://base-url/")]
         public void Dispose_DoesNotDisposeInjectedClient(string uri)
         {
-            using (HttpClient httpClient = new HttpClient())
-            {
-                // execute
-                IClient fluentClient = this.ConstructClient(uri, httpClient: httpClient);
-                fluentClient.Dispose();
+            // act
+            using HttpClient httpClient = new HttpClient();
+            IClient fluentClient = this.ConstructClient(uri, httpClient: httpClient);
+            fluentClient.Dispose();
 
-                // verify
-                try
-                {
-                    httpClient.GetAsync("");
-                }
-                catch (ObjectDisposedException)
-                {
-                    Assert.Fail("The HTTP client was incorrectly disposed by the client.");
-                }
+            // assert
+            try
+            {
+                httpClient.GetAsync("");
+            }
+            catch (ObjectDisposedException)
+            {
+                Assert.Fail("The HTTP client was incorrectly disposed by the client.");
             }
         }
 
+        /****
+        ** SetUserAgent
+        ****/
         [Test(Description = "Ensure the user agent header is populated by default.")]
         public void SetUserAgent_HasDefaultValue()
         {
-            // execute
+            // act
             IClient client = this.ConstructClient();
 
-            // verify
+            // assert
             string userAgent = client.BaseClient.DefaultRequestHeaders.UserAgent.ToString();
             Console.WriteLine("user agent: " + userAgent);
             if (string.IsNullOrWhiteSpace(userAgent))
@@ -70,104 +77,43 @@ namespace Pathoschild.Http.Tests.Client
         [Test(Description = "Ensure the user agent header is populated with the given value.")]
         public void SetUserAgent_UsesValue()
         {
+            // arrange
             const string sampleValue = "example user agent";
 
-            // execute
+            // act
             IClient client = this.ConstructClient();
             client.SetUserAgent(sampleValue);
 
-            // verify
+            // assert
             string userAgent = client.BaseClient.DefaultRequestHeaders.UserAgent.ToString();
             Assert.AreEqual(sampleValue, userAgent);
         }
 
+        /****
+        ** AddDefault
+        ****/
         [Test(Description = "Ensure that all specified defaults are correctly applied.")]
         public void AddDefault()
         {
             // arrange
             const string expectedUserAgent = "boop";
 
-            // execute
+            // act
             IClient client = this.ConstructClient()
                 .AddDefault(req => req.WithHeader("User-Agent", expectedUserAgent))
                 .AddDefault(req => req.WithArgument("boop", 1));
             IRequest request = client.GetAsync("example");
 
-            // verify
+            // assert
             string userAgent = request.Message.Headers.UserAgent.ToString();
             Assert.AreEqual(expectedUserAgent, userAgent, "The user agent header does not match the specified default.");
             Assert.AreEqual("/example?boop=1", request.Message.RequestUri.PathAndQuery, "The URL arguments don't match the specified default.");
         }
 
-        [Test(Description = "Ensure that the HTTP DELETE method constructs a request message with the expected initial state.")]
-        [TestCase("resource")]
-        public void Delete(string resource)
-        {
-            // execute
-            IRequest request = this.ConstructClient().DeleteAsync("resource");
-
-            // verify
-            this.AssertEqual(request, HttpMethod.Delete, resource);
-        }
-
-        [Test(Description = "Ensure that the HTTP GET method constructs a request message with the expected initial state.")]
-        [TestCase("resource")]
-        public void Get(string resource)
-        {
-            // execute
-            IRequest request = this.ConstructClient().GetAsync("resource");
-
-            // verify
-            this.AssertEqual(request, HttpMethod.Get, resource);
-        }
-
-        [Test(Description = "Ensure that the HTTP POST method constructs a request message with the expected initial state.")]
-        [TestCase("resource")]
-        public void Post(string resource)
-        {
-            // execute
-            IRequest request = this.ConstructClient().PostAsync("resource");
-
-            // verify
-            this.AssertEqual(request, HttpMethod.Post, resource);
-        }
-
-        [Test(Description = "Ensure that the HTTP POST method with a body constructs a request message with the expected initial state.")]
-        [TestCase("resource", "value")]
-        public async Task Post_WithBody(string resource, string value)
-        {
-            // execute
-            IRequest request = this.ConstructClient().PostAsync("resource", value);
-
-            // verify
-            this.AssertEqual(request, HttpMethod.Post, resource);
-            Assert.That(await request.Message.Content.ReadAsStringAsync(), Is.EqualTo('"' + value + '"'), "The message request body is invalid.");
-        }
-
-        [Test(Description = "Ensure that the HTTP PUT method constructs a request message with the expected initial state.")]
-        [TestCase("resource")]
-        public void Put(string resource)
-        {
-            // execute
-            IRequest request = this.ConstructClient().PutAsync("resource");
-
-            // verify
-            this.AssertEqual(request, HttpMethod.Put, resource);
-        }
-
-        [Test(Description = "Ensure that the HTTP PUT method with a body constructs a request message with the expected initial state.")]
-        [TestCase("resource", "value")]
-        public async Task Put_WithBody(string resource, string value)
-        {
-            // execute
-            IRequest request = this.ConstructClient().PutAsync("resource", value);
-
-            // verify
-            this.AssertEqual(request, HttpMethod.Put, resource);
-            Assert.That(await request.Message.Content.ReadAsStringAsync(), Is.EqualTo('"' + value + '"'), "The message request body is invalid.");
-        }
-
-        [Test(Description = "Ensure that an arbitrary HTTP request message is passed on with the expected initial state.")]
+        /****
+        ** SendAsync
+        ****/
+        [Test(Description = "Ensure that SendAsync passes on an arbitrary HTTP request message with the expected initial state.")]
         [TestCase("DELETE", "resource")]
         [TestCase("GET", "resource")]
         [TestCase("HEAD", "resource")]
@@ -177,14 +123,93 @@ namespace Pathoschild.Http.Tests.Client
         [TestCase("TRACE", "resource")]
         public void Send(string methodName, string resource)
         {
-            // set up
+            // arrange
             HttpMethod method = this.ConstructMethod(methodName);
 
-            // execute
-            IRequest request = this.ConstructClient().SendAsync(method, "resource");
+            // act
+            IRequest request = this.ConstructClient().SendAsync(method, resource);
 
-            // verify
+            // assert
             this.AssertEqual(request, method, resource);
+        }
+
+        [Test(Description = "Ensure that SendAsync uses the base URL if given.")]
+        [TestCase("DELETE", "http://example.org", "resource", ExpectedResult = "http://example.org/resource")]
+        [TestCase("DELETE", "http://example.org", "/resources/", ExpectedResult = "http://example.org/resources/")]
+        [TestCase("DELETE", "http://example.org", "/resources/test", ExpectedResult = "http://example.org/resources/test")]
+        [TestCase("DELETE", "http://example.org", "http://example.com/test", ExpectedResult = "http://example.com/test")]
+        [TestCase("DELETE", "http://example.org/?a=1", "&b=2", ExpectedResult = "http://example.org/?a=1&b=2")]
+        [TestCase("DELETE", "http://example.org/?a=1", "#b", ExpectedResult = "http://example.org/?a=1#b")]
+
+        [TestCase("GET", "http://example.org", "resource", ExpectedResult = "http://example.org/resource")]
+        [TestCase("GET", "http://example.org", "/resources/", ExpectedResult = "http://example.org/resources/")]
+        [TestCase("GET", "http://example.org", "/resources/test", ExpectedResult = "http://example.org/resources/test")]
+        [TestCase("GET", "http://example.org", "http://example.com/test", ExpectedResult = "http://example.com/test")]
+        [TestCase("GET", "http://example.org/?a=1", "&b=2", ExpectedResult = "http://example.org/?a=1&b=2")]
+        [TestCase("GET", "http://example.org/?a=1", "#b", ExpectedResult = "http://example.org/?a=1#b")]
+
+        [TestCase("POST", "http://example.org", "resource", ExpectedResult = "http://example.org/resource")]
+        [TestCase("POST", "http://example.org", "/resources/", ExpectedResult = "http://example.org/resources/")]
+        [TestCase("POST", "http://example.org", "/resources/test", ExpectedResult = "http://example.org/resources/test")]
+        [TestCase("POST", "http://example.org", "http://example.com/test", ExpectedResult = "http://example.com/test")]
+        [TestCase("POST", "http://example.org/?a=1", "&b=2", ExpectedResult = "http://example.org/?a=1&b=2")]
+        [TestCase("POST", "http://example.org/?a=1", "#b", ExpectedResult = "http://example.org/?a=1#b")]
+
+        [TestCase("PUT", "http://example.org", "resource", ExpectedResult = "http://example.org/resource")]
+        [TestCase("PUT", "http://example.org", "/resources/", ExpectedResult = "http://example.org/resources/")]
+        [TestCase("PUT", "http://example.org", "/resources/test", ExpectedResult = "http://example.org/resources/test")]
+        [TestCase("PUT", "http://example.org", "http://example.com/test", ExpectedResult = "http://example.com/test")]
+        [TestCase("PUT", "http://example.org/?a=1", "&b=2", ExpectedResult = "http://example.org/?a=1&b=2")]
+        [TestCase("PUT", "http://example.org/?a=1", "#b", ExpectedResult = "http://example.org/?a=1#b")]
+        public string Send_WithBaseUrl(string methodName, string baseUrl, string resource)
+        {
+            // arrange
+            HttpMethod method = this.ConstructMethod(methodName);
+
+            // act
+            IRequest request = this.ConstructClient(baseUrl).SendAsync(method, resource);
+
+            // assert
+            return request.Message.RequestUri.ToString();
+        }
+
+        [Test(Description = "Ensure that SendAsync allows sending a request with no base URL.")]
+        [TestCase("DELETE", "http://example.org", ExpectedResult = "http://example.org/")]
+        [TestCase("DELETE", "http://example.org/resources", ExpectedResult = "http://example.org/resources")]
+        [TestCase("DELETE", "http://example/", ExpectedResult = "http://example/")]
+
+        [TestCase("GET", "http://example.org", ExpectedResult = "http://example.org/")]
+        [TestCase("GET", "http://example.org/resources", ExpectedResult = "http://example.org/resources")]
+        [TestCase("GET", "http://example/", ExpectedResult = "http://example/")]
+
+        [TestCase("POST", "http://example.org", ExpectedResult = "http://example.org/")]
+        [TestCase("POST", "http://example.org/resources", ExpectedResult = "http://example.org/resources")]
+        [TestCase("POST", "http://example/", ExpectedResult = "http://example/")]
+
+        [TestCase("PUT", "http://example.org", ExpectedResult = "http://example.org/")]
+        [TestCase("PUT", "http://example.org/resources", ExpectedResult = "http://example.org/resources")]
+        [TestCase("PUT", "http://example/", ExpectedResult = "http://example/")]
+        public string Send_WithoutBaseUrl(string methodName, string resource)
+        {
+            // arrange
+            HttpMethod method = this.ConstructMethod(methodName);
+
+            // act
+            IRequest request = this.ConstructClient(baseUri: null).SendAsync(method, resource);
+
+            // assert
+            return request.Message.RequestUri.ToString();
+        }
+
+        [Test(Description = "Ensure that SendAsync allows sending a request with no base URL.")]
+        [TestCase("DELETE", "test")]
+        public void Send_WithoutBaseUrl_AndRelativeUrl_ThrowsError(string methodName, string resource)
+        {
+            // arrange
+            HttpMethod method = this.ConstructMethod(methodName);
+
+            // act & assert
+            Assert.ThrowsAsync<FormatException>(async () => await this.ConstructClient(baseUri: null).SendAsync(method, resource));
         }
 
         [Test(Description = "Ensure that an arbitrary HTTP request message is passed on with the expected initial state.")]
@@ -197,15 +222,60 @@ namespace Pathoschild.Http.Tests.Client
         [TestCase("TRACE", "resource")]
         public void Send_WithMessage(string methodName, string resource)
         {
-            // set up
+            // arrange
             HttpMethod method = this.ConstructMethod(methodName);
             HttpRequestMessage message = new HttpRequestMessage(method, resource);
 
-            // execute
+            // act
             IRequest request = this.ConstructClient().SendAsync(message);
 
-            // verify
+            // assert
             this.AssertEqual(request, method, resource, baseUri: "");
+        }
+
+        /****
+        ** Verb wrappers
+        ****/
+        [Test(Description = "Ensure that the HTTP methods construct a request message with the expected initial state.")]
+        public void VerbMethods([Values("DELETE", "GET", "POST", "PUT")] string method, [Values("resource")] string resource)
+        {
+            // act
+            var client = this.ConstructClient();
+            IRequest request = method switch
+            {
+                "DELETE" => client.DeleteAsync(resource),
+                "GET" => client.GetAsync(resource),
+                "POST" => client.PostAsync(resource),
+                "PUT" => client.PutAsync(resource),
+                _ => throw new AssertionException($"Method '{method}' is not implemented for this unit test.")
+            };
+
+            // assert
+            this.AssertEqual(request, new HttpMethod(method), resource);
+        }
+
+        [Test(Description = "Ensure that the HTTP POST method with a body constructs a request message with the expected initial state.")]
+        [TestCase("resource", "value")]
+        public async Task Post_WithBody(string resource, string value)
+        {
+            // act
+            IRequest request = this.ConstructClient().PostAsync("resource", value);
+
+            // assert
+            this.AssertEqual(request, HttpMethod.Post, resource);
+            Assert.That(await request.Message.Content.ReadAsStringAsync(), Is.EqualTo('"' + value + '"'), "The message request body is invalid.");
+        }
+
+        [Test(Description = "Ensure that the HTTP PUT method with a body constructs a request message with the expected initial state.")]
+        [TestCase("resource", "value")]
+        public async Task Put_WithBody(string resource, string value)
+        {
+            // act
+            IRequest request = this.ConstructClient().PutAsync("resource", value);
+
+            // assert
+            this.AssertEqual(request, HttpMethod.Put, resource);
+            Assert.That(await request.Message.Content.ReadAsStringAsync(), Is.EqualTo('"' + value + '"'), "The message request body is invalid.");
         }
 
 
@@ -226,16 +296,16 @@ namespace Pathoschild.Http.Tests.Client
         /// <param name="httpClient">The underlying HTTP client.</param>
         /// <exception cref="InconclusiveException">The initial state of the constructed client is invalid, and <paramref name="inconclusiveOnFailure"/> is <c>true</c>.</exception>
         /// <exception cref="AssertionException">The initial state of the constructed client is invalid, and <paramref name="inconclusiveOnFailure"/> is <c>false</c>.</exception>
-        private IClient ConstructClient(string baseUri = "http://example.com/", bool inconclusiveOnFailure = true, HttpClient httpClient = null)
+        private IClient ConstructClient(string? baseUri = "http://example.com/", bool inconclusiveOnFailure = true, HttpClient? httpClient = null)
         {
             try
             {
-                // execute
-                IClient client = new FluentClient(baseUri, httpClient);
+                // act
+                IClient client = new FluentClient(baseUri != null ? new Uri(baseUri) : null, httpClient);
 
-                // verify
+                // assert
                 Assert.NotNull(client.BaseClient, "The base client is null.");
-                Assert.AreEqual(baseUri, client.BaseClient.BaseAddress.ToString(), "The base path is invalid.");
+                Assert.AreEqual(baseUri?.TrimEnd('/'), client.BaseClient.BaseAddress?.ToString()?.TrimEnd('/'), "The base path is invalid.");
 
                 return client;
             }

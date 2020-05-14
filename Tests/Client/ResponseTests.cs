@@ -169,7 +169,7 @@ namespace Pathoschild.Http.Tests.Client
                 .VerifyTaskResultAsync();
 
             // assert
-            Assert.That(actual, Is.Not.Null.Or.Empty, "byte array");
+            Assert.That(actual, Is.Not.Null.And.Not.Empty, "byte array");
             return Encoding.UTF8.GetString(actual);
         }
 
@@ -186,7 +186,7 @@ namespace Pathoschild.Http.Tests.Client
                 .VerifyTaskResultAsync();
 
             // assert
-            Assert.That(actual, Is.Not.Null.Or.Empty, "byte array");
+            Assert.That(actual, Is.Not.Null.And.Not.Empty, "byte array");
             return Encoding.UTF8.GetString(actual);
         }
 
@@ -204,7 +204,7 @@ namespace Pathoschild.Http.Tests.Client
             // act
             using (Stream stream = await response.AsStream().VerifyTaskResultAsync())
             using (StreamReader reader = new StreamReader(stream))
-                actual = reader.ReadToEnd();
+                actual = await reader.ReadToEndAsync();
 
             // assert
             Assert.That(actual, Is.EqualTo($"\"{content}\""));
@@ -221,7 +221,7 @@ namespace Pathoschild.Http.Tests.Client
             // act
             using (Stream stream = await response.AsStream().VerifyTaskResultAsync())
             using (StreamReader reader = new StreamReader(stream))
-                actual = reader.ReadToEnd();
+                actual = await reader.ReadToEndAsync();
 
             // assert
             Assert.That(actual, Is.EqualTo($"{{\"Value\":\"{content}\"}}"));

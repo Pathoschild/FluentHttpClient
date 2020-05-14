@@ -13,7 +13,7 @@ namespace Pathoschild.Http.Client.Internal
         /// <param name="arguments">The raw arguments to add.</param>
         /// <param name="ignoreNullArguments">Whether to ignore arguments with a null value.</param>
         /// <remarks>This method can't use <see cref="System.Net.Http.UriExtensions.ParseQueryString" /> because it isn't compatible with portable class libraries.</remarks>
-        public static Uri WithArguments(this Uri uri, bool ignoreNullArguments, params KeyValuePair<string, object>[] arguments)
+        public static Uri WithArguments(this Uri uri, bool ignoreNullArguments, params KeyValuePair<string, object?>[] arguments)
         {
             // concat new arguments
             string newQueryString = string.Join("&",

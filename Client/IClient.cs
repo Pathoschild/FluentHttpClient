@@ -36,11 +36,6 @@ namespace Pathoschild.Http.Client
         /// <param name="parameter">The credentials containing the authentication information.</param>
         IClient SetAuthentication(string scheme, string parameter);
 
-        /// <summary>Set whether HTTP error responses (e.g. HTTP 404) should be raised as exceptions by default.</summary>
-        /// <param name="enabled">Whether to raise HTTP errors as exceptions by default.</param>
-        [Obsolete("Will be removed in 4.0. Use `" + nameof(SetOptions) + "` instead.")]
-        IClient SetHttpErrorAsException(bool enabled);
-
         /// <summary>Set default options for all requests.</summary>
         /// <param name="options">The options to set. (Fields set to <c>null</c> won't change the current value.)</param>
         IClient SetOptions(FluentClientOptions options);
@@ -51,7 +46,7 @@ namespace Pathoschild.Http.Client
 
         /// <summary>Set the default request coordinator.</summary>
         /// <param name="requestCoordinator">The request coordinator (or null to use the default behaviour).</param>
-        IClient SetRequestCoordinator(IRequestCoordinator requestCoordinator);
+        IClient SetRequestCoordinator(IRequestCoordinator? requestCoordinator);
 
         /// <summary>Add a default behaviour for all subsequent HTTP requests.</summary>
         /// <param name="apply">The default behaviour to apply.</param>

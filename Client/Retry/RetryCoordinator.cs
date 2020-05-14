@@ -38,7 +38,7 @@ namespace Pathoschild.Http.Client.Retry
 
         /// <summary>Construct an instance.</summary>
         /// <param name="config">The retry configuration.</param>
-        public RetryCoordinator(IRetryConfig config)
+        public RetryCoordinator(IRetryConfig? config)
         {
             this.Config = config ?? RetryConfig.None();
         }

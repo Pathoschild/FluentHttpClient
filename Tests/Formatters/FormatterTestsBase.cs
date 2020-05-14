@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using System.Net;
 using System.Net.Http;
 using System.Net.Http.Formatting;
 using System.Net.Http.Headers;
@@ -11,6 +12,18 @@ namespace Pathoschild.Http.Tests.Formatters
     public abstract class FormatterTestsBase
     {
         /*********
+        ** Fields
+        *********/
+        /// <summary>A null transport context.</summary>
+        /// <remarks><see cref="MediaTypeFormatterBase.Serialize"/> has the transport context marked as non-nullable, but we know the default implementations tested here allow null values. Since we can't easily construct a transport context, this field returns a null transport context marked as non-nullable.</remarks>
+        private readonly TransportContext NullTransportContext = null!;
+
+        /// <summary>A null formatter logger.</summary>
+        /// <remarks>See remarks on <see cref="NullTransportContext"/>.</remarks>
+        private readonly IFormatterLogger FormatterLogger = null!;
+
+
+        /*********
         ** Protected methods
         *********/
         /// <summary>Construct an HTTP request message.</summary>
@@ -18,8 +31,11 @@ namespace Pathoschild.Http.Tests.Formatters
         /// <param name="content">The request body content.</param>
         /// <param name="formatter">The formatter with which the content can be serialized.</param>
         /// <param name="contentType">The HTTP Accept and Content-Type header values.</param>
-        protected HttpRequestMessage GetRequest<T>(T content, MediaTypeFormatter formatter, string contentType = null)
+        protected HttpRequestMessage GetRequest<T>(T content, MediaTypeFormatter formatter, string? contentType = null)
         {
+            if (content == null)
+                throw new ArgumentNullException(nameof(content));
+
             return this.GetRequest(content, formatter, typeof(T), contentType);
         }
 
@@ -28,7 +44,7 @@ namespace Pathoschild.Http.Tests.Formatters
         /// <param name="formatter">The formatter with which the content can be serialized.</param>
         /// <param name="type">The object type of the <paramref name="content"/>.</param>
         /// <param name="contentType">The HTTP Accept and Content-Type header values.</param>
-        protected HttpRequestMessage GetRequest(object content, MediaTypeFormatter formatter, Type type, string contentType = null)
+        protected HttpRequestMessage GetRequest(object content, MediaTypeFormatter formatter, Type type, string? contentType = null)
         {
             HttpRequestMessage message = new HttpRequestMessage(HttpMethod.Get, "http://example.org")
             {
@@ -50,13 +66,11 @@ namespace Pathoschild.Http.Tests.Formatters
         /// <param name="formatter">The media type formatter which will serialize the request body.</param>
         protected string GetSerialized<T>(T content, HttpRequestMessage request, MediaTypeFormatterBase formatter)
         {
-            using (MemoryStream stream = new MemoryStream())
-            using (StreamReader reader = new StreamReader(stream))
-            {
-                formatter.Serialize(typeof(string), content, stream, request.Content, null);
-                stream.Position = 0;
-                return reader.ReadToEnd();
-            }
+            using MemoryStream stream = new MemoryStream();
+            using StreamReader reader = new StreamReader(stream);
+            formatter.Serialize(typeof(string), content, stream, request.Content, this.NullTransportContext);
+            stream.Position = 0;
+            return reader.ReadToEnd();
         }
 
         /// <summary>Get the serialized representation of the request body.</summary>
@@ -64,7 +78,7 @@ namespace Pathoschild.Http.Tests.Formatters
         /// <param name="content">The request body content.</param>
         /// <param name="request">The HTTP request to handle.</param>
         /// <param name="formatter">The media type formatter which will serialize the request body.</param>
-        protected object GetDeserialized(Type type, string content, HttpRequestMessage request, MediaTypeFormatterBase formatter)
+        protected object GetDeserialized(Type type, string? content, HttpRequestMessage request, MediaTypeFormatterBase formatter)
         {
             using (MemoryStream stream = new MemoryStream())
             using (StreamWriter writer = new StreamWriter(stream))
@@ -75,7 +89,7 @@ namespace Pathoschild.Http.Tests.Formatters
                 stream.Position = 0;
 
                 // deserialize
-                return formatter.Deserialize(type, stream, request.Content, null);
+                return formatter.Deserialize(type, stream, request.Content, this.FormatterLogger);
             }
         }
     }

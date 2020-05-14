@@ -27,7 +27,7 @@ namespace Pathoschild.Http.Client
         /// <param name="response">The HTTP response which caused the exception.</param>
         /// <param name="message">The error message that explains the reason for the exception.</param>
         /// <param name="innerException">The exception that is the cause of the current exception (or <c>null</c> for no inner exception).</param>
-        public ApiException(IResponse response, string message, Exception innerException = null)
+        public ApiException(IResponse response, string message, Exception? innerException = null)
             : base(message, innerException)
         {
             this.Response = response;
