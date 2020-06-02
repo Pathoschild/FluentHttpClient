@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
-using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using Pathoschild.Http.Client.Extensibility;
@@ -217,15 +216,12 @@ namespace Pathoschild.Http.Client
         /// <exception cref="InvalidOperationException">No MediaTypeFormatters are available on the API client for this content type.</exception>
         public static IRequest WithBody<T>(this IRequest request, T body)
         {
-            if (body == null)
-                throw new ArgumentNullException(nameof(body));
-
-            // HttpContent
-            if (typeof(HttpContent).GetTypeInfo().IsAssignableFrom(typeof(T).GetTypeInfo()))
-                return request.WithBody(p => (HttpContent)(object)body);
-
-            // model
-            return request.WithBody(p => p.Model(body));
+            return request.WithBody(builder => body switch
+            {
+                null => null,
+                HttpContent content => content,
+                _ => builder.Model(body)
+            });
         }
 
         /// <summary>Set the request coordinator for this request</summary>

@@ -71,7 +71,7 @@ namespace Pathoschild.Http.Client.Internal
         /// <summary>Set the body content of the HTTP request.</summary>
         /// <param name="bodyBuilder">The HTTP body builder.</param>
         /// <returns>Returns the request builder for chaining.</returns>
-        public IRequest WithBody(Func<IBodyBuilder, HttpContent> bodyBuilder)
+        public IRequest WithBody(Func<IBodyBuilder, HttpContent?> bodyBuilder)
         {
             this.Message.Content = bodyBuilder(new BodyBuilder(this));
             return this;

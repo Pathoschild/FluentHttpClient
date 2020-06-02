@@ -1,4 +1,7 @@
 # Release notes
+## Upcoming release
+* Fixed `WithBody(null)` no longer allowed in 4.0.
+
 ## 4.0
 Released 13 May 2020.
 
