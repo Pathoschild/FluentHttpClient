@@ -176,6 +176,14 @@ namespace Pathoschild.Http.Client
             return client.SetRequestCoordinator(new RetryCoordinator(config));
         }
 
+        /// <summary>Set the default request coordinator.</summary>
+        /// <param name="client">The client.</param>
+        /// <param name="config">The retry configuration.</param>
+        public static IClient SetRequestCoordinator(this IClient client, IEnumerable<IRetryConfig> config)
+        {
+            return client.SetRequestCoordinator(new RetryCoordinator(config));
+        }
+
         /// <summary>Set default options for all requests.</summary>
         /// <param name="client">The client.</param>
         /// <param name="ignoreHttpErrors">Whether to ignore null arguments when the request is dispatched (or <c>null</c> to leave the option unchanged).</param>
