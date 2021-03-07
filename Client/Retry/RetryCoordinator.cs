@@ -14,8 +14,8 @@ namespace Pathoschild.Http.Client.Retry
         /*********
         ** Fields
         *********/
-        /// <summary>The retry configuration.</summary>
-        private readonly List<IRetryConfig> Config = new List<IRetryConfig>();
+        /// <summary>The retry configurations to apply.</summary>
+        private readonly IRetryConfig[] Configs;
 
         /// <summary>The status code representing a request timeout.</summary>
         /// <remarks>HTTP 598 Network Read Timeout is the closest match, though it's non-standard so there's no <see cref="HttpStatusCode"/> constant. This is needed to avoid passing <c>null</c> into <see cref="IRetryConfig.ShouldRetry"/>, which isn't intuitive and would cause errors.</remarks>
@@ -39,17 +39,18 @@ namespace Pathoschild.Http.Client.Retry
            : this(new RetryConfig(maxRetries, shouldRetry, getDelay)) { }
 
         /// <summary>Construct an instance.</summary>
-        /// <param name="config">The retry configuration.</param>
+        /// <param name="config">The retry configuration to apply.</param>
         public RetryCoordinator(IRetryConfig? config)
-        {
-            if (config != null) this.Config.Add(config);
-        }
+            : this(new[] { config }) { }
 
         /// <summary>Construct an instance.</summary>
-        /// <param name="config">The retry configuration.</param>
-        public RetryCoordinator(IEnumerable<IRetryConfig> config)
+        /// <param name="configs">The retry configurations to apply. Each config will be given the opportunity to retry a request.</param>
+        public RetryCoordinator(IEnumerable<IRetryConfig?>? configs)
         {
-            if (config != null) this.Config.AddRange(config.Where(c => c != null));
+            this.Configs = configs
+                ?.Where(config => config != null)
+                .Select(config => config!)
+                .ToArray() ?? new IRetryConfig[0];
         }
 
         /// <summary>Dispatch an HTTP request.</summary>
@@ -73,24 +74,22 @@ namespace Pathoschild.Http.Client.Retry
                     response = request.Message.CreateResponse(this.TimeoutStatusCode);
                 }
 
-                // find the applicable retry configuration, if any
-                IRetryConfig retryConfig = RetryConfig.None();
-                bool shouldRetry = false;
-                foreach (var config in this.Config)
+                // find the applicable retry configuration
+                IRetryConfig? retryConfig = null;
+                foreach (var config in this.Configs)
                 {
                     if (config.ShouldRetry(response))
                     {
                         retryConfig = config;
-                        shouldRetry = true;
                         break;
                     }
                 }
 
-                // exit if there is no need to retry the request
-                if (!shouldRetry)
+                // exit if we can't retry
+                if (retryConfig == null)
                     return response;
 
-                // throw an exception if we have reached the maximum number of retries
+                // throw exception if we've exceeded max retries
                 int maxAttempt = 1 + retryConfig.MaxRetries;
                 if (attempt >= maxAttempt)
                     throw new ApiException(new Response(response, request.Formatters), $"The HTTP request {(response != null ? "failed" : "timed out")}, and the retry coordinator gave up after the maximum {retryConfig.MaxRetries} retries");

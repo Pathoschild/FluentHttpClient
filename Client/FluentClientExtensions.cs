@@ -178,8 +178,8 @@ namespace Pathoschild.Http.Client
 
         /// <summary>Set the default request coordinator.</summary>
         /// <param name="client">The client.</param>
-        /// <param name="configs">The retry configurations to apply. Each configuration will have the opportunity to retry a request.</param>
-        public static IClient SetRequestCoordinator(this IClient client, IEnumerable<IRetryConfig> configs)
+        /// <param name="configs">The retry configurations to apply (or null for the default behavior). Each configuration will have the opportunity to retry a request.</param>
+        public static IClient SetRequestCoordinator(this IClient client, IEnumerable<IRetryConfig?>? configs)
         {
             return client.SetRequestCoordinator(new RetryCoordinator(configs));
         }
@@ -261,8 +261,8 @@ namespace Pathoschild.Http.Client
 
         /// <summary>Set the request coordinator for this request.</summary>
         /// <param name="request">The request.</param>
-        /// <param name="configs">The retry configurations to apply. Each configuration will have the opportunity to retry a request.</param>
-        public static IRequest WithRequestCoordinator(this IRequest request, IEnumerable<IRetryConfig> configs)
+        /// <param name="configs">The retry configurations to apply (or null for the default behavior). Each configuration will have the opportunity to retry a request.</param>
+        public static IRequest WithRequestCoordinator(this IRequest request, IEnumerable<IRetryConfig?>? configs)
         {
             return request.WithRequestCoordinator(new RetryCoordinator(configs));
         }
