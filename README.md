@@ -264,7 +264,10 @@ client
    });
 ```
 
-For more complex cases, see [_custom retry/coordination policy_](#custom-retrycoordination-policy).
+Note that there's one retry count across all retry policies. For example, if
+`TokenExpiredRetryConfig` retries once before falling back to `RetryWithBackoffConfig`, the latter
+will receive `2` as its first retry count. If you need more granular control, see [_custom
+retry/coordination policy_](#custom-retrycoordination-policy).
 
 ### Cancellation tokens
 The client fully supports [.NET cancellation tokens](https://msdn.microsoft.com/en-us/library/dd997364.aspx)
