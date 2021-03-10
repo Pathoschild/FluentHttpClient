@@ -1,5 +1,6 @@
 # Release notes
 ## Upcoming release
+* Added support for [chained retry policies](README.md#chained-retry-policies) (thanks to Jericho!).
 * Fixed `WithBody(null)` no longer allowed in 4.0.
 
 ## 4.0
