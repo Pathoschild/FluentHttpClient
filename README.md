@@ -224,6 +224,51 @@ client
    );
 ```
 
+### Chained retry policies
+You can also wrap retry logic into `IRetryConfig` implementations:
+
+```c#
+/// <summary>A retry policy which retries with incremental backoff.</summary>
+public class RetryWithBackoffConfig : IRetryConfig
+{
+    /// <summary>The maximum number of times to retry a request before failing.</summary>
+    public int MaxRetries => 3;
+
+    /// <summary>Get whether a request should be retried.</summary>
+    /// <param name="response">The last HTTP response received.</param>
+    public bool ShouldRetry(HttpResponseMessage response)
+    {
+        return request.StatusCode != HttpStatusCode.OK;
+    }
+
+    /// <summary>Get the time to wait until the next retry.</summary>
+    /// <param name="attempt">The retry index (starting at 1).</param>
+    /// <param name="response">The last HTTP response received.</param>
+    public TimeSpan GetDelay(int attempt, HttpResponseMessage response)
+    {
+        return TimeSpan.FromSeconds(attempt * 5); // wait 5, 10, and 15 seconds
+    }
+}
+```
+
+Then you can add one or more retry policies, and they'll each be given the opportunity to retry
+a request:
+
+```c#
+client
+   .SetRequestCoordinator(new[]
+   {
+      new TokenExpiredRetryConfig(),
+      new DatabaseTimeoutRetryConfig(),
+      new RetryWithBackoffConfig()
+   });
+```
+
+Note that there's one retry count across all retry policies. For example, if
+`TokenExpiredRetryConfig` retries once before falling back to `RetryWithBackoffConfig`, the latter
+will receive `2` as its first retry count. If you need more granular control, see [_custom
+retry/coordination policy_](#custom-retrycoordination-policy).
+
 ### Cancellation tokens
 The client fully supports [.NET cancellation tokens](https://msdn.microsoft.com/en-us/library/dd997364.aspx)
 if you need to abort requests:
