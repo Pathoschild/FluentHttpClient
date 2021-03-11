@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
-using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using Pathoschild.Http.Client.Extensibility;
@@ -171,10 +170,18 @@ namespace Pathoschild.Http.Client
 
         /// <summary>Set the default request coordinator.</summary>
         /// <param name="client">The client.</param>
-        /// <param name="config">The retry configuration (or null for the default coordinator).</param>
+        /// <param name="config">The retry configuration to apply (or null for the default coordinator).</param>
         public static IClient SetRequestCoordinator(this IClient client, IRetryConfig? config)
         {
             return client.SetRequestCoordinator(new RetryCoordinator(config));
+        }
+
+        /// <summary>Set the default request coordinator.</summary>
+        /// <param name="client">The client.</param>
+        /// <param name="configs">The retry configurations to apply (or null for the default behavior). Each configuration will have the opportunity to retry a request.</param>
+        public static IClient SetRequestCoordinator(this IClient client, IEnumerable<IRetryConfig?>? configs)
+        {
+            return client.SetRequestCoordinator(new RetryCoordinator(configs));
         }
 
         /// <summary>Set default options for all requests.</summary>
@@ -217,18 +224,15 @@ namespace Pathoschild.Http.Client
         /// <exception cref="InvalidOperationException">No MediaTypeFormatters are available on the API client for this content type.</exception>
         public static IRequest WithBody<T>(this IRequest request, T body)
         {
-            if (body == null)
-                throw new ArgumentNullException(nameof(body));
-
-            // HttpContent
-            if (typeof(HttpContent).GetTypeInfo().IsAssignableFrom(typeof(T).GetTypeInfo()))
-                return request.WithBody(p => (HttpContent)(object)body);
-
-            // model
-            return request.WithBody(p => p.Model(body));
+            return request.WithBody(builder => body switch
+            {
+                null => null,
+                HttpContent content => content,
+                _ => builder.Model(body)
+            });
         }
 
-        /// <summary>Set the request coordinator for this request</summary>
+        /// <summary>Set the request coordinator for this request.</summary>
         /// <param name="request">The request.</param>
         /// <param name="shouldRetry">A lambda which returns whether a request should be retried.</param>
         /// <param name="intervals">The intervals between each retry attempt.</param>
@@ -237,7 +241,7 @@ namespace Pathoschild.Http.Client
             return request.WithRequestCoordinator(new RetryCoordinator(shouldRetry, intervals));
         }
 
-        /// <summary>Set the request coordinator for this request</summary>
+        /// <summary>Set the request coordinator for this request.</summary>
         /// <param name="request">The request.</param>
         /// <param name="maxRetries">The maximum number of times to retry a request before failing.</param>
         /// <param name="shouldRetry">A method which returns whether a request should be retried.</param>
@@ -247,12 +251,20 @@ namespace Pathoschild.Http.Client
             return request.WithRequestCoordinator(new RetryCoordinator(maxRetries, shouldRetry, getDelay));
         }
 
-        /// <summary>Set the request coordinator for this request</summary>
+        /// <summary>Set the request coordinator for this request.</summary>
         /// <param name="request">The request.</param>
-        /// <param name="config">The retry config (or null to use the default behaviour).</param>
+        /// <param name="config">The retry config (or null for the default behavior).</param>
         public static IRequest WithRequestCoordinator(this IRequest request, IRetryConfig? config)
         {
             return request.WithRequestCoordinator(new RetryCoordinator(config));
+        }
+
+        /// <summary>Set the request coordinator for this request.</summary>
+        /// <param name="request">The request.</param>
+        /// <param name="configs">The retry configurations to apply (or null for the default behavior). Each configuration will have the opportunity to retry a request.</param>
+        public static IRequest WithRequestCoordinator(this IRequest request, IEnumerable<IRetryConfig?>? configs)
+        {
+            return request.WithRequestCoordinator(new RetryCoordinator(configs));
         }
 
         /// <summary>Set options for this request.</summary>

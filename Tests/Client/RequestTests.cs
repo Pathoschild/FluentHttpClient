@@ -551,7 +551,7 @@ namespace Pathoschild.Http.Tests.Client
             IRequest request = this
                 .ConstructRequest(methodName)
                 .WithHeader(key, value);
-            var header = request.Message.Headers.FirstOrDefault(p => p.Key == key);
+            var header = request.Message.Headers.FirstOrDefault(p => string.Equals(p.Key, key, StringComparison.OrdinalIgnoreCase));
 
             // assert
             this.AssertEqual(request.Message, methodName, ignoreArguments: true);

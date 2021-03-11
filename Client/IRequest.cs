@@ -43,7 +43,7 @@ namespace Pathoschild.Http.Client
         /// <summary>Set the body content of the HTTP request.</summary>
         /// <param name="bodyBuilder">The HTTP body builder.</param>
         /// <returns>Returns the request builder for chaining.</returns>
-        IRequest WithBody(Func<IBodyBuilder, HttpContent> bodyBuilder);
+        IRequest WithBody(Func<IBodyBuilder, HttpContent?> bodyBuilder);
 
         /// <summary>Set an HTTP header.</summary>
         /// <param name="key">The key of the HTTP header.</param>
