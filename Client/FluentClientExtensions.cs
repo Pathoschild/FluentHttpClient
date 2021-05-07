@@ -186,8 +186,8 @@ namespace Pathoschild.Http.Client
 
         /// <summary>Set default options for all requests.</summary>
         /// <param name="client">The client.</param>
-        /// <param name="ignoreHttpErrors">Whether to ignore null arguments when the request is dispatched (or <c>null</c> to leave the option unchanged).</param>
-        /// <param name="ignoreNullArguments">Whether HTTP error responses like HTTP 404 should be ignored; else raised as exceptions (or <c>null</c> to leave the option unchanged).</param>
+        /// <param name="ignoreHttpErrors">Whether HTTP error responses like HTTP 404 should be ignored; else raised as exceptions (or <c>null</c> to leave the option unchanged).</param>
+        /// <param name="ignoreNullArguments">Whether to ignore null arguments when the request is dispatched (or <c>null</c> to leave the option unchanged).</param>
         public static IClient SetOptions(this IClient client, bool? ignoreHttpErrors = null, bool? ignoreNullArguments = null)
         {
             return client.SetOptions(new FluentClientOptions
@@ -269,8 +269,8 @@ namespace Pathoschild.Http.Client
 
         /// <summary>Set options for this request.</summary>
         /// <param name="request">The request.</param>
-        /// <param name="ignoreHttpErrors">Whether to ignore null arguments when the request is dispatched (or <c>null</c> to leave the option unchanged).</param>
-        /// <param name="ignoreNullArguments">Whether HTTP error responses like HTTP 404 should be ignored; else raised as exceptions (or <c>null</c> to leave the option unchanged).</param>
+        /// <param name="ignoreHttpErrors">Whether HTTP error responses like HTTP 404 should be ignored; else raised as exceptions (or <c>null</c> to leave the option unchanged).</param>
+        /// <param name="ignoreNullArguments">Whether to ignore null arguments when the request is dispatched (or <c>null</c> to leave the option unchanged).</param>
         public static IRequest WithOptions(this IRequest request, bool? ignoreHttpErrors = null, bool? ignoreNullArguments = null)
         {
             return request.WithOptions(new RequestOptions
