@@ -1,4 +1,8 @@
 # Release notes
+## Upcoming release
+* Updated to Json.Net 13.0.1.
+* Fixed IntelliSense docs for `With`/`SetOptions` (thanks to Jericho!).
+
 ## 4.1
 Released 11 March 2021.
 
