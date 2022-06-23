@@ -1,6 +1,8 @@
 # Release notes
-## Upcoming release
-* Bumped minimum .NET Framework version from 4.5 to 4.5.2.
+## 4.1.1
+Released 22 June 2022.
+
+* Bumped min .NET Framework version from 4.5 to 4.5.2.
 * Updated to Json.Net 13.0.1.
 * Fixed IntelliSense docs for `With`/`SetOptions` (thanks to Jericho!).
 
