@@ -46,7 +46,7 @@ The client works on most platforms (including Linux, Mac, and Windows):
 | :-------------------------- | :---------- |
 | .NET                        | 5.0         |
 | .NET Core                   | 1.0         |
-| .NET Framework              | 4.5         |
+| .NET Framework              | 4.5.2       |
 | [.NET Standard][]           | 1.3         |
 | Mono                        | 4.6         |
 | Unity                       | 2018.1      |
