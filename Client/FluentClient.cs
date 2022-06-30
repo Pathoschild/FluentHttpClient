@@ -88,6 +88,17 @@ namespace Pathoschild.Http.Client
             this.SetDefaultUserAgent();
         }
 
+        /// <summary>Construct an instance.</summary>
+        /// <param name="baseClient">The underlying HTTP client.</param>
+        /// <param name="manageBaseClient">Whether to dispose the <paramref name="baseClient"/> when the instance is disposed.</param>
+        public FluentClient(HttpClient? baseClient, bool manageBaseClient = false)
+        {
+            this.MustDisposeBaseClient = baseClient == null || manageBaseClient;
+            this.BaseClient = baseClient ?? new HttpClient(GetDefaultHandler());
+
+            this.SetDefaultUserAgent();
+        }
+
         /// <summary>Create an asynchronous HTTP request message (but don't dispatch it yet).</summary>
         /// <param name="message">The HTTP request message to send.</param>
         /// <returns>Returns a request builder.</returns>
