@@ -69,10 +69,7 @@ namespace Pathoschild.Http.Client
         /// <param name="baseUri">The base URI prepended to relative request URIs.</param>
         /// <param name="proxy">The web proxy.</param>
         public FluentClient(Uri? baseUri, IWebProxy? proxy)
-            : this(baseUri, new HttpClient(GetDefaultHandler(proxy)), manageBaseClient: true)
-        {
-            this.MustDisposeBaseClient = true;
-        }
+            : this(baseUri, new HttpClient(GetDefaultHandler(proxy)), manageBaseClient: true) { }
 
         /// <summary>Construct an instance.</summary>
         /// <param name="baseUri">The base URI prepended to relative request URIs.</param>
