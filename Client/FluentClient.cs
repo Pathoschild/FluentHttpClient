@@ -69,10 +69,7 @@ namespace Pathoschild.Http.Client
         /// <param name="baseUri">The base URI prepended to relative request URIs.</param>
         /// <param name="proxy">The web proxy.</param>
         public FluentClient(Uri? baseUri, IWebProxy? proxy)
-            : this(baseUri, new HttpClient(GetDefaultHandler(proxy)), manageBaseClient: true)
-        {
-            this.MustDisposeBaseClient = true;
-        }
+            : this(baseUri, new HttpClient(GetDefaultHandler(proxy)), manageBaseClient: true) { }
 
         /// <summary>Construct an instance.</summary>
         /// <param name="baseUri">The base URI prepended to relative request URIs.</param>
@@ -92,12 +89,7 @@ namespace Pathoschild.Http.Client
         /// <param name="baseClient">The underlying HTTP client.</param>
         /// <param name="manageBaseClient">Whether to dispose the <paramref name="baseClient"/> when the instance is disposed.</param>
         public FluentClient(HttpClient? baseClient, bool manageBaseClient = false)
-        {
-            this.MustDisposeBaseClient = baseClient == null || manageBaseClient;
-            this.BaseClient = baseClient ?? new HttpClient(GetDefaultHandler());
-
-            this.SetDefaultUserAgent();
-        }
+            : this(null, baseClient, manageBaseClient) { }
 
         /// <summary>Create an asynchronous HTTP request message (but don't dispatch it yet).</summary>
         /// <param name="message">The HTTP request message to send.</param>
