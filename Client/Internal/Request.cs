@@ -45,6 +45,8 @@ namespace Pathoschild.Http.Client.Internal
         /// <summary>The request options.</summary>
         public RequestOptions Options { get; }
 
+        /// <summary>The maximum size of the request.</summary>
+        public long MaxSize { get; private set; }
 
         /*********
         ** Public methods
@@ -63,6 +65,7 @@ namespace Pathoschild.Http.Client.Internal
             this.CancellationToken = CancellationToken.None;
             this.RequestCoordinator = null;
             this.Options = new RequestOptions();
+            this.MaxSize = long.MaxValue;
         }
 
         /***
@@ -176,6 +179,14 @@ namespace Pathoschild.Http.Client.Internal
         public IRequest WithRequestCoordinator(IRequestCoordinator? requestCoordinator)
         {
             this.RequestCoordinator = requestCoordinator;
+            return this;
+        }
+
+        /// <inheritdoc/>
+        public IRequest WithMaxSize(long maxSize)
+        {
+            this.MaxSize = maxSize;
+
             return this;
         }
 
