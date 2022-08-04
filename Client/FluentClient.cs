@@ -182,6 +182,19 @@ namespace Pathoschild.Http.Client
             // clone request (to avoid issues when resending messages)
             HttpRequestMessage requestMessage = await request.Message.CloneAsync().ConfigureAwait(false);
 
+            // ensure the size of the request does not exceed the max size
+            if (request.MaxSize < long.MaxValue)
+            {
+                string headers = requestMessage.Headers.ToString();
+                byte[] content = await requestMessage.Content.ReadAsByteArrayAsync().ConfigureAwait(false);
+                long requestSizeInBytes = (headers.Length * sizeof(char)) + content.Length;
+
+                if (requestSizeInBytes > request.MaxSize)
+                {
+                    throw new InvalidOperationException($"The request size ({requestSizeInBytes} bytes) exceeds the maximum size ({request.MaxSize} bytes).");
+                }
+            }
+
             // dispatch request
             return await this.BaseClient
                 .SendAsync(requestMessage, request.CancellationToken)
