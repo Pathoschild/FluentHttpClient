@@ -34,7 +34,7 @@ namespace Pathoschild.Http.Client
         RequestOptions Options { get; }
 
         /// <summary>The maximum size of the request.</summary>
-        long MaxSize { get; }
+        ulong MaxSize { get; }
 
 
         /*********
@@ -98,7 +98,7 @@ namespace Pathoschild.Http.Client
         /// <summary>Set the maximum allowed size (in bytes) for this request.</summary>
         /// <param name="maxSize">The maximum size (in bytes) for this request.</param>
         /// <remarks>Please note that the size of a given request is calculated by adding the bytes in the headers with the bytes in the content.</remarks>
-        IRequest WithMaxSize(long maxSize);
+        IRequest WithMaxSize(ulong maxSize);
 
         /****
         ** Response shortcuts

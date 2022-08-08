@@ -786,9 +786,11 @@ namespace Pathoschild.Http.Tests.Client
         ** WithMaxSize
         ****/
         [Test(Description = "Ensure that request do not exceed a given maximum size.")]
-        [TestCase("This is a small body", 275, false)]
-        [TestCase("This string simulates a large large large large large large large large large large body", 275, true)]
-        public async Task WithMaxSize(string body, long maxSize, bool shouldThrow)
+        [TestCase("This is a small body", (ulong)275, false)]
+        [TestCase("This string simulates a large large large large large large large large large large body", (ulong)275, true)]
+        [TestCase("Zero means no limit", (ulong)0, false)]
+        [TestCase("MaxValue means no limit", ulong.MaxValue, false)]
+        public async Task WithMaxSize(string body, ulong maxSize, bool shouldThrow)
         {
             // arrange
             var mockHttp = new MockHttpMessageHandler();

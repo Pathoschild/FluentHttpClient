@@ -182,12 +182,13 @@ namespace Pathoschild.Http.Client
             // clone request (to avoid issues when resending messages)
             HttpRequestMessage requestMessage = await request.Message.CloneAsync().ConfigureAwait(false);
 
-            // ensure the size of the request does not exceed the max size
-            if (request.MaxSize < long.MaxValue)
+            // MaxSize = 0 or MaxSize = ulong.MaxValue means no limit.
+            if (request.MaxSize > 0 && request.MaxSize < ulong.MaxValue)
             {
+                // ensure the size of the request does not exceed the max size
                 string headers = requestMessage.Headers.ToString();
                 byte[] content = await requestMessage.Content.ReadAsByteArrayAsync().ConfigureAwait(false);
-                long requestSizeInBytes = (headers.Length * sizeof(char)) + content.Length;
+                ulong requestSizeInBytes = (ulong)((headers.Length * sizeof(char)) + content.Length);
 
                 if (requestSizeInBytes > request.MaxSize)
                 {

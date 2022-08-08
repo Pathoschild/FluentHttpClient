@@ -46,7 +46,7 @@ namespace Pathoschild.Http.Client.Internal
         public RequestOptions Options { get; }
 
         /// <summary>The maximum size of the request.</summary>
-        public long MaxSize { get; private set; }
+        public ulong MaxSize { get; private set; }
 
         /*********
         ** Public methods
@@ -65,7 +65,7 @@ namespace Pathoschild.Http.Client.Internal
             this.CancellationToken = CancellationToken.None;
             this.RequestCoordinator = null;
             this.Options = new RequestOptions();
-            this.MaxSize = long.MaxValue;
+            this.MaxSize = ulong.MaxValue;
         }
 
         /***
@@ -183,7 +183,7 @@ namespace Pathoschild.Http.Client.Internal
         }
 
         /// <inheritdoc/>
-        public IRequest WithMaxSize(long maxSize)
+        public IRequest WithMaxSize(ulong maxSize)
         {
             this.MaxSize = maxSize;
 
