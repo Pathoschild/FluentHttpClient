@@ -180,9 +180,9 @@ namespace Pathoschild.Http.Client.Internal
         }
 
         /// <inheritdoc/>
-        public IRequest WithFilter<TFilter>(TFilter filter) where TFilter : IHttpFilter
+        public IRequest WithFilter<TFilter>(TFilter filter, bool removeExisting = true) where TFilter : IHttpFilter
         {
-            this.Filters.Remove<TFilter>();
+            if (removeExisting) this.Filters.Remove<TFilter>();
             this.Filters.Add(filter);
             return this;
         }

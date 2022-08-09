@@ -95,7 +95,8 @@ namespace Pathoschild.Http.Client
         /// <summary>Add a filter for this request.</summary>
         /// <typeparam name="TFilter">The type of the filter.</typeparam>
         /// <param name="filter">The filter.</param>
-        IRequest WithFilter<TFilter>(TFilter filter) where TFilter : IHttpFilter;
+        /// <param name="removeExisting">Indicates whether existing filters of type TFilter should be removed before adding the filter.</param>
+        IRequest WithFilter<TFilter>(TFilter filter, bool removeExisting = true) where TFilter : IHttpFilter;
 
         /****
         ** Response shortcuts
