@@ -179,6 +179,14 @@ namespace Pathoschild.Http.Client.Internal
             return this;
         }
 
+        /// <inheritdoc/>
+        public IRequest WithFilter<T>(T filter) where T : IHttpFilter
+        {
+            this.Filters.Remove<T>();
+            this.Filters.Add(filter);
+            return this;
+        }
+
         /***
         ** Retrieve response
         ***/
