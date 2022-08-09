@@ -93,9 +93,9 @@ namespace Pathoschild.Http.Client
         IRequest WithRequestCoordinator(IRequestCoordinator? requestCoordinator);
 
         /// <summary>Add a filter for this request.</summary>
-        /// <typeparam name="T">The type of the filter.</typeparam>
+        /// <typeparam name="TFilter">The type of the filter.</typeparam>
         /// <param name="filter">The filter.</param>
-        IRequest WithFilter<T>(T filter) where T : IHttpFilter;
+        IRequest WithFilter<TFilter>(TFilter filter) where TFilter : IHttpFilter;
 
         /****
         ** Response shortcuts
