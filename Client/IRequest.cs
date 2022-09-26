@@ -98,6 +98,10 @@ namespace Pathoschild.Http.Client
         /// <param name="removeExisting">Indicates whether existing filters of type TFilter should be removed before adding the filter.</param>
         IRequest WithFilter<TFilter>(TFilter filter, bool removeExisting = true) where TFilter : IHttpFilter;
 
+        /// <summary>Remove filter of matching type from this request.</summary>
+        /// <typeparam name="TFilter">The type of the filter to remove.</typeparam>
+        IRequest WithoutFilter<TFilter>() where TFilter : IHttpFilter;
+
         /****
         ** Response shortcuts
         ****/
