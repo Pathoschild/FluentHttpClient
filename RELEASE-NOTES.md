@@ -1,7 +1,8 @@
 # Release notes
-## Upcoming release
-* Added .NET 5.0+ as a target framework.  
-  _.NET 5.0+ was already supported, this just makes that clearer._
+## 4.2.0
+Released 07 October 2022.
+
+* Added .NET 5.0+ as a target framework. (It was already supported, this just makes that clearer.)
 * Added constructor which takes an `HttpClient` without a base URI (thanks to TimothyMakkison!).
 * Added fluent `request.WithFilter` and `WithoutFilter` methods (thanks to Jericho!).
 * Fixed `resource` parameters for methods like `GetAsync` marked non-nullable.
@@ -14,13 +15,13 @@ Released 22 June 2022.
 * Updated to Json.Net 13.0.1.
 * Fixed IntelliSense docs for `With`/`SetOptions` (thanks to Jericho!).
 
-## 4.1
+## 4.1.0
 Released 11 March 2021.
 
 * Added support for [chained retry policies](README.md#chained-retry-policies) (thanks to Jericho!).
 * Fixed `WithBody(null)` no longer allowed in 4.0.
 
-## 4.0
+## 4.0.0
 Released 13 May 2020.
 
 * Added nullable reference type annotations.
@@ -48,7 +49,7 @@ Released 19 July 2019.
 * `bodyBuilder.FormUrlEncoded` now has an overload for dictionary input.
 * Fixed form-URL-encoded body helper enforcing URL length limits.
 
-## 3.3
+## 3.3.0
 Released 27 April 2019.
 
 * Added support for reading responses into `JToken`, `JObject`, `JArray`, or `dynamic`.
@@ -57,7 +58,7 @@ Released 27 April 2019.
 * Fixed default web proxy not being used.
 * Updated dependencies.
 
-## 3.2
+## 3.2.0
 Released 18 April 2018.
 
 * Added options to finetune behavior (see `client.SetOptions` and `request.WithOptions`).
@@ -75,7 +76,7 @@ Released 18 April 2018.
 **Possible impacting changes:**
   * The base URL is no longer truncated in some cases. For example, a base URL `https://example.org/index.php` with resource `api` now resolves to `https://example.org/index.php/api` instead of `https://example.org/api`.
 
-## 3.1
+## 3.1.0
 Released 19 September 2017.
 
 * Added option to set default behaviour for all requests.  
@@ -87,7 +88,7 @@ Released 19 September 2017.
 * Fixed `IRetryConfig.MaxRetries` counting the initial request as a retry.  
   <small>_For example, `maxRetries: 1` never retried. This value now sets the maximum number of retries after the initial request.</small>_
 
-## 3.0
+## 3.0.0
 Released 08 February 2017.
 
 * New features:
@@ -112,12 +113,12 @@ Released 08 February 2017.
   * Fixed unintuitive behaviour when the base URL doesn't end in a slash.
 * Relicensed from CC-BY 3.0 to more permissive MIT license.
 
-## 2.3
+## 2.3.0
 Released 12 December 2016.
 
 * Migrated to .NET Standard 1.3 + .NET Core to improve crossplatform support.
 
-## 2.2
+## 2.2.0
 Released 30 June 2016.
 
 * Updated to latest version of Json.NET.
@@ -125,7 +126,7 @@ Released 30 June 2016.
 * Prepared for migration to .NET Core.
 
 
-## 2.1
+## 2.1.0
 Released 08 May 2016.
 
 * Migrated to PCL for cross-platform compatibility.
@@ -135,7 +136,7 @@ Released 08 May 2016.
 * Deprecated `JsonNetFormatter`.  
   _(The underlying HttpClient now uses Json.NET by default.)_
 
-## 2.0
+## 2.0.0
 Released 28 April 2016.
 
 * Replace `IFactory` with a new extensibility model using `IHttpFilter`.  
@@ -150,19 +151,19 @@ Released 28 October 2015.
 
 * The client is now `IDisposable`.
 
-## 1.2
+## 1.2.0
 Released 30 October 2013.
 
 * Updated to latest versions of HttpClient and Json.NET.
 
-## 1.1
+## 1.1.0
 Released 28 August 2013.
 
 * Added request cloning to support use cases like batch queries.
 * Added UTF-8 as a supported encoding by default.
 
 
-## 1.0
+## 1.0.0
 Released 23 May 2012.
 
 * Initial client release:
