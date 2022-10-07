@@ -1,4 +1,8 @@
 # Release notes
+## Upcoming release
+* Added constructor which takes an `HttpClient` without a base URI (thanks to TimothyMakkison!).
+* Added fluent `request.WithFilter` and `WithoutFilter` methods (thanks to Jericho!).
+
 ## 4.1.1
 Released 22 June 2022.
 
