@@ -29,7 +29,7 @@ namespace Pathoschild.Http.Client.Retry
         /// <param name="shouldRetry">A method which returns whether a request should be retried.</param>
         /// <param name="intervals">The intervals between each retry attempt.</param>
         public RetryCoordinator(Func<HttpResponseMessage, bool> shouldRetry, params TimeSpan[] intervals)
-            : this(new RetryConfig(intervals.Length, shouldRetry, (attempts, response) => intervals[attempts - 1])) { }
+            : this(new RetryConfig(intervals.Length, shouldRetry, (attempts, _) => intervals[attempts - 1])) { }
 
         /// <summary>Construct an instance.</summary>
         /// <param name="maxRetries">The maximum number of times to retry a request before failing.</param>
@@ -50,7 +50,12 @@ namespace Pathoschild.Http.Client.Retry
             this.Configs = configs
                 ?.Where(config => config != null)
                 .Select(config => config!)
-                .ToArray() ?? new IRetryConfig[0];
+                .ToArray() ??
+#if NET452
+                    LegacyShims.EmptyArray<IRetryConfig>();
+#else
+                    Array.Empty<IRetryConfig>();
+#endif
         }
 
         /// <inheritdoc />
