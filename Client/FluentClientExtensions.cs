@@ -342,22 +342,22 @@ namespace Pathoschild.Http.Client
             UriBuilder builder = new UriBuilder(baseUrl);
 
             // special case: combine if either side is a fragment
-            if (!string.IsNullOrWhiteSpace(builder.Fragment) || resource.StartsWith("#"))
+            if (!string.IsNullOrWhiteSpace(builder.Fragment) || resource.StartsWith('#'))
                 return new Uri(baseUrl + resource);
 
             // special case: if resource is a query string, validate and append it
-            if (resource.StartsWith("?") || resource.StartsWith("&"))
+            if (resource.StartsWith('?') || resource.StartsWith('&'))
             {
                 bool baseHasQuery = !string.IsNullOrWhiteSpace(builder.Query);
-                if (baseHasQuery && resource.StartsWith("?"))
+                if (baseHasQuery && resource.StartsWith('?'))
                     throw new FormatException($"Can't add resource name '{resource}' to base URL '{baseUrl}' because the latter already has a query string.");
-                if (!baseHasQuery && resource.StartsWith("&"))
+                if (!baseHasQuery && resource.StartsWith('&'))
                     throw new FormatException($"Can't add resource name '{resource}' to base URL '{baseUrl}' because the latter doesn't have a query string.");
                 return new Uri(baseUrl + resource);
             }
 
             // else make absolute URL
-            if (!builder.Path.EndsWith("/"))
+            if (!builder.Path.EndsWith('/'))
             {
                 builder.Path += "/";
                 baseUrl = builder.Uri;
