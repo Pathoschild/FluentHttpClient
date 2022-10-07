@@ -53,10 +53,7 @@ namespace Pathoschild.Http.Client.Retry
                 .ToArray() ?? new IRetryConfig[0];
         }
 
-        /// <summary>Dispatch an HTTP request.</summary>
-        /// <param name="request">The response message to validate.</param>
-        /// <param name="dispatcher">A method which executes the request.</param>
-        /// <returns>The final HTTP response.</returns>
+        /// <inheritdoc />
         public async Task<HttpResponseMessage> ExecuteAsync(IRequest request, Func<IRequest, Task<HttpResponseMessage>> dispatcher)
         {
             int attempt = 0;

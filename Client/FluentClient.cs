@@ -13,7 +13,7 @@ using Pathoschild.Http.Client.Retry;
 
 namespace Pathoschild.Http.Client
 {
-    /// <summary>Sends HTTP requests and receives responses from REST URIs.</summary>
+    /// <inheritdoc cref="IClient" />
     public class FluentClient : IClient
     {
         /*********
@@ -35,13 +35,13 @@ namespace Pathoschild.Http.Client
         /*********
         ** Accessors
         *********/
-        /// <summary>Interceptors which can read and modify HTTP requests and responses.</summary>
+        /// <inheritdoc />
         public ICollection<IHttpFilter> Filters { get; } = new List<IHttpFilter> { new DefaultErrorFilter() };
 
-        /// <summary>The underlying HTTP client.</summary>
+        /// <inheritdoc />
         public HttpClient BaseClient { get; }
 
-        /// <summary>The formatters used for serializing and deserializing message bodies.</summary>
+        /// <inheritdoc />
         public MediaTypeFormatterCollection Formatters { get; } = new MediaTypeFormatterCollection();
 
         /// <summary>The request coordinator.</summary>
@@ -91,10 +91,7 @@ namespace Pathoschild.Http.Client
         public FluentClient(HttpClient? baseClient, bool manageBaseClient = false)
             : this(null, baseClient, manageBaseClient) { }
 
-        /// <summary>Create an asynchronous HTTP request message (but don't dispatch it yet).</summary>
-        /// <param name="message">The HTTP request message to send.</param>
-        /// <returns>Returns a request builder.</returns>
-        /// <exception cref="ObjectDisposedException">The instance has been disposed.</exception>
+        /// <inheritdoc />
         public virtual IRequest SendAsync(HttpRequestMessage message)
         {
             this.AssertNotDisposed();
@@ -107,17 +104,14 @@ namespace Pathoschild.Http.Client
             return request;
         }
 
-        /// <summary>Specify the authentication that will be used with every request.</summary>
-        /// <param name="scheme">The scheme to use for authorization. e.g.: "Basic", "Bearer".</param>
-        /// <param name="parameter">The credentials containing the authentication information.</param>
+        /// <inheritdoc />
         public IClient SetAuthentication(string scheme, string parameter)
         {
             this.BaseClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue(scheme, parameter);
             return this;
         }
 
-        /// <summary>Set default options for all requests.</summary>
-        /// <param name="options">The options to set. (Fields set to <c>null</c> won't change the current value.)</param>
+        /// <inheritdoc />
         public IClient SetOptions(FluentClientOptions options)
         {
             if (options == null)
@@ -128,8 +122,7 @@ namespace Pathoschild.Http.Client
             return this;
         }
 
-        /// <summary>Set the default user agent header.</summary>
-        /// <param name="userAgent">The user agent header value.</param>
+        /// <inheritdoc />
         public IClient SetUserAgent(string userAgent)
         {
             this.BaseClient.DefaultRequestHeaders.Remove("User-Agent");
@@ -137,24 +130,21 @@ namespace Pathoschild.Http.Client
             return this;
         }
 
-        /// <summary>Set the default request coordinator</summary>
-        /// <param name="requestCoordinator">The request coordinator.</param>
-        /// <remarks>If the request coordinator is null, it will cause requests to be executed once without any retry attempts.</remarks>
+        /// <inheritdoc />
         public IClient SetRequestCoordinator(IRequestCoordinator? requestCoordinator)
         {
             this.RequestCoordinator = requestCoordinator;
             return this;
         }
 
-        /// <summary>Add a default behaviour for all subsequent HTTP requests.</summary>
-        /// <param name="apply">The default behaviour to apply.</param>
+        /// <inheritdoc />
         public IClient AddDefault(Func<IRequest, IRequest> apply)
         {
             this.Defaults.Add(apply);
             return this;
         }
 
-        /// <summary>Free resources used by the client.</summary>
+        /// <inheritdoc />
         public virtual void Dispose()
         {
             this.Dispose(true);

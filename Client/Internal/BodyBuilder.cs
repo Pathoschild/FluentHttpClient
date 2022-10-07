@@ -10,7 +10,7 @@ using System.Text;
 
 namespace Pathoschild.Http.Client.Internal
 {
-    /// <summary>Constructs HTTP request bodies.</summary>
+    /// <inheritdoc cref="IBodyBuilder" />
     internal class BodyBuilder : IBodyBuilder
     {
         /*********
@@ -36,16 +36,13 @@ namespace Pathoschild.Http.Client.Internal
         /****
         ** Form URL encoded
         ****/
-        /// <summary>Get a form URL-encoded body.</summary>
-        /// <param name="arguments">An anonymous object containing the property names and values to set.</param>
-        /// <example><code>client.WithArguments(new { id = 14, name = "Joe" })</code></example>
+        /// <inheritdoc />
         public HttpContent FormUrlEncoded(object? arguments)
         {
             return this.FormUrlEncodedImpl(arguments.GetKeyValueArguments());
         }
 
-        /// <summary>Get a form URL-encoded body.</summary>
-        /// <param name="arguments">An anonymous object containing the property names and values to set.</param>
+        /// <inheritdoc />
         public HttpContent FormUrlEncoded(IDictionary<string, string?>? arguments)
         {
             if (arguments == null)
@@ -58,9 +55,7 @@ namespace Pathoschild.Http.Client.Internal
             );
         }
 
-        /// <summary>Get a form URL-encoded body.</summary>
-        /// <param name="arguments">An anonymous object containing the property names and values to set.</param>
-        /// <example><code>client.WithArguments(new[] { new KeyValuePair&lt;string, string&gt;("genre", "drama"), new KeyValuePair&lt;string, int&gt;("genre", "comedy") })</code></example>
+        /// <inheritdoc />
         public HttpContent FormUrlEncoded(IEnumerable<KeyValuePair<string, object?>>? arguments)
         {
             return this.FormUrlEncodedImpl(arguments);
@@ -69,25 +64,19 @@ namespace Pathoschild.Http.Client.Internal
         /****
         ** File upload
         ****/
-        /// <summary>Get a file upload body (using multi-part form data).</summary>
-        /// <param name="fullPath">The absolute path to the file to upload.</param>
-        /// <exception cref="KeyNotFoundException">The given path doesn't match a file.</exception>
+        /// <inheritdoc />
         public HttpContent FileUpload(string fullPath)
         {
             return this.FileUpload(new FileInfo(fullPath));
         }
 
-        /// <summary>Get a file upload body (using multi-part form data).</summary>
-        /// <param name="file">The file to upload.</param>
-        /// <exception cref="KeyNotFoundException">The given file doesn't exist.</exception>
+        /// <inheritdoc />
         public HttpContent FileUpload(FileInfo file)
         {
             return this.FileUpload(new[] { file });
         }
 
-        /// <summary>Get a file upload body (using multi-part form data).</summary>
-        /// <param name="files">The files to upload.</param>
-        /// <exception cref="KeyNotFoundException">A given file doesn't exist.</exception>
+        /// <inheritdoc />
         public HttpContent FileUpload(IEnumerable<FileInfo> files)
         {
             return this.FileUpload(
@@ -98,8 +87,7 @@ namespace Pathoschild.Http.Client.Internal
             );
         }
 
-        /// <summary>Get a file upload body (using multi-part form data).</summary>
-        /// <param name="files">The file streams and file names to upload.</param>
+        /// <inheritdoc />
         public HttpContent FileUpload(IEnumerable<KeyValuePair<string, Stream>> files)
         {
             var content = new MultipartFormDataContent();
@@ -116,11 +104,7 @@ namespace Pathoschild.Http.Client.Internal
         /****
         ** Model
         ****/
-        /// <summary>Get the serialized model body.</summary>
-        /// <param name="body">The value to serialize into the HTTP body content.</param>
-        /// <param name="contentType">The request body format (or <c>null</c> to use the first supported Content-Type in the client's formatter).</param>
-        /// <returns>Returns the request builder for chaining.</returns>
-        /// <exception cref="InvalidOperationException">No MediaTypeFormatters are available on the API client for this content type.</exception>
+        /// <inheritdoc />
         public HttpContent Model<T>(T body, MediaTypeHeaderValue? contentType = null)
         {
             MediaTypeFormatter formatter = Factory.GetFormatter(this.Request.Formatters, contentType);
@@ -128,11 +112,7 @@ namespace Pathoschild.Http.Client.Internal
             return new ObjectContent<T>(body, formatter, mediaType);
         }
 
-        /// <summary>Get a serialized model body.</summary>
-        /// <param name="body">The value to serialize into the HTTP body content.</param>
-        /// <param name="formatter">The media type formatter with which to format the request body format.</param>
-        /// <param name="mediaType">The HTTP media type (or <c>null</c> for the <paramref name="formatter"/>'s default).</param>
-        /// <returns>Returns the request builder for chaining.</returns>
+        /// <inheritdoc />
         public HttpContent Model<T>(T body, MediaTypeFormatter formatter, string? mediaType = null)
         {
             return new ObjectContent<T>(body, formatter, mediaType);
