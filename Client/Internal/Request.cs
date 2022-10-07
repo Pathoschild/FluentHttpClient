@@ -179,15 +179,23 @@ namespace Pathoschild.Http.Client.Internal
             return this;
         }
 
-        /// <inheritdoc/>
-        public IRequest WithFilter<TFilter>(TFilter filter) where TFilter : IHttpFilter
+        /// <inheritdoc />
+        public IRequest WithFilter(IHttpFilter filter)
         {
             this.Filters.Add(filter);
             return this;
         }
 
-        /// <inheritdoc/>
-        public IRequest WithoutFilter<TFilter>() where TFilter : IHttpFilter
+        /// <inheritdoc />
+        public IRequest WithoutFilter(IHttpFilter filter)
+        {
+            this.Filters.Remove(filter);
+            return this;
+        }
+
+        /// <inheritdoc />
+        public IRequest WithoutFilter<TFilter>()
+            where TFilter : IHttpFilter
         {
             this.Filters.Remove<TFilter>();
             return this;
