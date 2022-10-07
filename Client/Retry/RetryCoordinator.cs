@@ -19,7 +19,7 @@ namespace Pathoschild.Http.Client.Retry
 
         /// <summary>The status code representing a request timeout.</summary>
         /// <remarks>HTTP 598 Network Read Timeout is the closest match, though it's non-standard so there's no <see cref="HttpStatusCode"/> constant. This is needed to avoid passing <c>null</c> into <see cref="IRetryConfig.ShouldRetry"/>, which isn't intuitive and would cause errors.</remarks>
-        private readonly HttpStatusCode TimeoutStatusCode = (HttpStatusCode)589;
+        private const HttpStatusCode TimeoutStatusCode = (HttpStatusCode)589;
 
 
         /*********
@@ -68,7 +68,7 @@ namespace Pathoschild.Http.Client.Retry
                 }
                 catch (TaskCanceledException) when (!request.CancellationToken.IsCancellationRequested)
                 {
-                    response = request.Message.CreateResponse(this.TimeoutStatusCode);
+                    response = request.Message.CreateResponse(RetryCoordinator.TimeoutStatusCode);
                 }
 
                 // find the applicable retry configuration
