@@ -19,7 +19,7 @@ namespace Pathoschild.Http.Client.Retry
 
         /// <summary>The status code representing a request timeout.</summary>
         /// <remarks>HTTP 598 Network Read Timeout is the closest match, though it's non-standard so there's no <see cref="HttpStatusCode"/> constant. This is needed to avoid passing <c>null</c> into <see cref="IRetryConfig.ShouldRetry"/>, which isn't intuitive and would cause errors.</remarks>
-        private readonly HttpStatusCode TimeoutStatusCode = (HttpStatusCode)589;
+        private const HttpStatusCode TimeoutStatusCode = (HttpStatusCode)589;
 
 
         /*********
@@ -29,7 +29,7 @@ namespace Pathoschild.Http.Client.Retry
         /// <param name="shouldRetry">A method which returns whether a request should be retried.</param>
         /// <param name="intervals">The intervals between each retry attempt.</param>
         public RetryCoordinator(Func<HttpResponseMessage, bool> shouldRetry, params TimeSpan[] intervals)
-            : this(new RetryConfig(intervals.Length, shouldRetry, (attempts, response) => intervals[attempts - 1])) { }
+            : this(new RetryConfig(intervals.Length, shouldRetry, (attempts, _) => intervals[attempts - 1])) { }
 
         /// <summary>Construct an instance.</summary>
         /// <param name="maxRetries">The maximum number of times to retry a request before failing.</param>
@@ -50,13 +50,15 @@ namespace Pathoschild.Http.Client.Retry
             this.Configs = configs
                 ?.Where(config => config != null)
                 .Select(config => config!)
-                .ToArray() ?? new IRetryConfig[0];
+                .ToArray() ??
+#if NET452
+                    LegacyShims.EmptyArray<IRetryConfig>();
+#else
+                    Array.Empty<IRetryConfig>();
+#endif
         }
 
-        /// <summary>Dispatch an HTTP request.</summary>
-        /// <param name="request">The response message to validate.</param>
-        /// <param name="dispatcher">A method which executes the request.</param>
-        /// <returns>The final HTTP response.</returns>
+        /// <inheritdoc />
         public async Task<HttpResponseMessage> ExecuteAsync(IRequest request, Func<IRequest, Task<HttpResponseMessage>> dispatcher)
         {
             int attempt = 0;
@@ -71,7 +73,7 @@ namespace Pathoschild.Http.Client.Retry
                 }
                 catch (TaskCanceledException) when (!request.CancellationToken.IsCancellationRequested)
                 {
-                    response = request.Message.CreateResponse(this.TimeoutStatusCode);
+                    response = request.Message.CreateResponse(RetryCoordinator.TimeoutStatusCode);
                 }
 
                 // find the applicable retry configuration

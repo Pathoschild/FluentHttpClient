@@ -82,15 +82,34 @@ namespace Pathoschild.Http.Client
         /// <summary>Add an authentication header for this request.</summary>
         /// <param name="scheme">The authentication header scheme to use for authorization (like 'basic' or 'bearer').</param>
         /// <param name="parameter">The authentication header value (e.g. the bearer token).</param>
+        /// <returns>Returns the request builder for chaining.</returns>
         IRequest WithAuthentication(string scheme, string parameter);
 
         /// <summary>Set options for this request.</summary>
         /// <param name="options">The options to set. (Fields set to <c>null</c> won't change the current value.)</param>
+        /// <returns>Returns the request builder for chaining.</returns>
         IRequest WithOptions(RequestOptions options);
 
         /// <summary>Set the request coordinator for this request.</summary>
         /// <param name="requestCoordinator">The request coordinator (or null to use the default behaviour).</param>
+        /// <returns>Returns the request builder for chaining.</returns>
         IRequest WithRequestCoordinator(IRequestCoordinator? requestCoordinator);
+
+        /// <summary>Add a filter for this request, which can intercept and modify the HTTP request and response.</summary>
+        /// <param name="filter">The filter instance to add.</param>
+        /// <returns>Returns the request builder for chaining.</returns>
+        IRequest WithFilter(IHttpFilter filter);
+
+        /// <summary>Remove a filter from this request, so it won't intercept and modify the HTTP request and response.</summary>
+        /// <param name="filter">The filter instance to remove.</param>
+        /// <returns>Returns the request builder for chaining.</returns>
+        IRequest WithoutFilter(IHttpFilter filter);
+
+        /// <summary>Remove all filters of a given type from this request, so they won't intercept and modify the HTTP request and response.</summary>
+        /// <typeparam name="TFilter">The filter type to remove.</typeparam>
+        /// <returns>Returns the request builder for chaining.</returns>
+        IRequest WithoutFilter<TFilter>()
+            where TFilter : IHttpFilter;
 
         /****
         ** Response shortcuts

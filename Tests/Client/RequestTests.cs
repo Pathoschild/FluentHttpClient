@@ -801,7 +801,7 @@ namespace Pathoschild.Http.Tests.Client
                 HttpRequestMessage message = new HttpRequestMessage(method, uri);
 
                 // act
-                IRequest request = new Request(message, new MediaTypeFormatterCollection(), r => new Task<HttpResponseMessage>(() => new HttpResponseMessage(HttpStatusCode.OK)), new IHttpFilter[0]);
+                IRequest request = new Request(message, new MediaTypeFormatterCollection(), r => new Task<HttpResponseMessage>(() => new HttpResponseMessage(HttpStatusCode.OK)), LegacyShims.EmptyArray<IHttpFilter>());
 
                 // assert
                 this.AssertEqual(request.Message, method, uri);
@@ -821,7 +821,7 @@ namespace Pathoschild.Http.Tests.Client
         private IRequest ConstructResponseFromTask(Task<HttpResponseMessage> task)
         {
             HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Get, "http://example.org/");
-            return new Request(request, new MediaTypeFormatterCollection(), p => task, new IHttpFilter[0]);
+            return new Request(request, new MediaTypeFormatterCollection(), p => task, LegacyShims.EmptyArray<IHttpFilter>());
         }
 
         /// <summary>Construct an <see cref="IResponse"/> instance around an asynchronous task.</summary>
@@ -829,7 +829,7 @@ namespace Pathoschild.Http.Tests.Client
         private IRequest ConstructResponseFromTask(Func<HttpResponseMessage> task)
         {
             HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Get, "http://example.org/");
-            return new Request(request, new MediaTypeFormatterCollection(), p => Task<HttpResponseMessage>.Factory.StartNew(task), new IHttpFilter[0]);
+            return new Request(request, new MediaTypeFormatterCollection(), p => Task<HttpResponseMessage>.Factory.StartNew(task), LegacyShims.EmptyArray<IHttpFilter>());
         }
 
         /// <summary>Assert that an HTTP request's state matches the expected values.</summary>
