@@ -35,30 +35,30 @@ namespace Pathoschild.Http.Client
 
         /// <summary>Create an asynchronous HTTP DELETE request message (but don't dispatch it yet).</summary>
         /// <param name="client">The client.</param>
-        /// <param name="resource">The URI to send the request to.</param>
+        /// <param name="resource">The URI to send the request to, or <c>null</c> to use the client's base URL (if set).</param>
         /// <returns>Returns a request builder.</returns>
         /// <exception cref="ObjectDisposedException">The instance has been disposed.</exception>
-        public static IRequest DeleteAsync(this IClient client, string resource)
+        public static IRequest DeleteAsync(this IClient client, string? resource)
         {
             return client.SendAsync(HttpMethod.Delete, resource);
         }
 
         /// <summary>Create an asynchronous HTTP GET request message (but don't dispatch it yet).</summary>
         /// <param name="client">The client.</param>
-        /// <param name="resource">The URI to send the request to.</param>
+        /// <param name="resource">The URI to send the request to, or <c>null</c> to use the client's base URL (if set).</param>
         /// <returns>Returns a request builder.</returns>
         /// <exception cref="ObjectDisposedException">The instance has been disposed.</exception>
-        public static IRequest GetAsync(this IClient client, string resource)
+        public static IRequest GetAsync(this IClient client, string? resource)
         {
             return client.SendAsync(HttpMethod.Get, resource);
         }
 
         /// <summary>Create an asynchronous HTTP POST request message (but don't dispatch it yet).</summary>
         /// <param name="client">The client.</param>
-        /// <param name="resource">The URI to send the request to.</param>
+        /// <param name="resource">The URI to send the request to, or <c>null</c> to use the client's base URL (if set).</param>
         /// <returns>Returns a request builder.</returns>
         /// <exception cref="ObjectDisposedException">The instance has been disposed.</exception>
-        public static IRequest PostAsync(this IClient client, string resource)
+        public static IRequest PostAsync(this IClient client, string? resource)
         {
             return client.SendAsync(HttpMethod.Post, resource);
         }
@@ -66,21 +66,21 @@ namespace Pathoschild.Http.Client
         /// <summary>Create an asynchronous HTTP POST request message (but don't dispatch it yet).</summary>
         /// <param name="client">The client.</param>
         /// <typeparam name="TBody">The request body type.</typeparam>
-        /// <param name="resource">The URI to send the request to.</param>
+        /// <param name="resource">The URI to send the request to, or <c>null</c> to use the client's base URL (if set).</param>
         /// <param name="body">The request body.</param>
         /// <returns>Returns a request builder.</returns>
         /// <exception cref="ObjectDisposedException">The instance has been disposed.</exception>
-        public static IRequest PostAsync<TBody>(this IClient client, string resource, TBody body)
+        public static IRequest PostAsync<TBody>(this IClient client, string? resource, TBody body)
         {
             return client.PostAsync(resource).WithBody(body);
         }
 
         /// <summary>Create an asynchronous HTTP PUT request message (but don't dispatch it yet).</summary>
         /// <param name="client">The client.</param>
-        /// <param name="resource">The URI to send the request to.</param>
+        /// <param name="resource">The URI to send the request to, or <c>null</c> to use the client's base URL (if set).</param>
         /// <returns>Returns a request builder.</returns>
         /// <exception cref="ObjectDisposedException">The instance has been disposed.</exception>
-        public static IRequest PutAsync(this IClient client, string resource)
+        public static IRequest PutAsync(this IClient client, string? resource)
         {
             return client.SendAsync(HttpMethod.Put, resource);
         }
@@ -88,21 +88,21 @@ namespace Pathoschild.Http.Client
         /// <summary>Create an asynchronous HTTP PUT request message (but don't dispatch it yet).</summary>
         /// <param name="client">The client.</param>
         /// <typeparam name="TBody">The request body type.</typeparam>
-        /// <param name="resource">The URI to send the request to.</param>
+        /// <param name="resource">The URI to send the request to, or <c>null</c> to use the client's base URL (if set).</param>
         /// <param name="body">The request body.</param>
         /// <returns>Returns a request builder.</returns>
         /// <exception cref="ObjectDisposedException">The instance has been disposed.</exception>
-        public static IRequest PutAsync<TBody>(this IClient client, string resource, TBody body)
+        public static IRequest PutAsync<TBody>(this IClient client, string? resource, TBody body)
         {
             return client.PutAsync(resource).WithBody(body);
         }
 
         /// <summary>Create an asynchronous HTTP PATCH request message (but don't dispatch it yet).</summary>
         /// <param name="client">The client.</param>
-        /// <param name="resource">The URI to send the request to.</param>
+        /// <param name="resource">The URI to send the request to, or <c>null</c> to use the client's base URL (if set).</param>
         /// <returns>Returns a request builder.</returns>
         /// <exception cref="ObjectDisposedException">The instance has been disposed.</exception>
-        public static IRequest PatchAsync(this IClient client, string resource)
+        public static IRequest PatchAsync(this IClient client, string? resource)
         {
             return client.SendAsync(new HttpMethod("PATCH"), resource);
         }
@@ -110,11 +110,11 @@ namespace Pathoschild.Http.Client
         /// <summary>Create an asynchronous HTTP PATCH request message (but don't dispatch it yet).</summary>
         /// <param name="client">The client.</param>
         /// <typeparam name="TBody">The request body type.</typeparam>
-        /// <param name="resource">The URI to send the request to.</param>
+        /// <param name="resource">The URI to send the request to, or <c>null</c> to use the client's base URL (if set).</param>
         /// <param name="body">The request body.</param>
         /// <returns>Returns a request builder.</returns>
         /// <exception cref="ObjectDisposedException">The instance has been disposed.</exception>
-        public static IRequest PatchAsync<TBody>(this IClient client, string resource, TBody body)
+        public static IRequest PatchAsync<TBody>(this IClient client, string? resource, TBody body)
         {
             return client.PatchAsync(resource).WithBody(body);
         }
@@ -122,10 +122,10 @@ namespace Pathoschild.Http.Client
         /// <summary>Create an asynchronous HTTP request message (but don't dispatch it yet).</summary>
         /// <param name="client">The client.</param>
         /// <param name="method">The HTTP method.</param>
-        /// <param name="resource">The URI to send the request to.</param>
+        /// <param name="resource">The URI to send the request to, or <c>null</c> to use the client's base URL (if set).</param>
         /// <returns>Returns a request builder.</returns>
         /// <exception cref="ObjectDisposedException">The instance has been disposed.</exception>
-        public static IRequest SendAsync(this IClient client, HttpMethod method, string resource)
+        public static IRequest SendAsync(this IClient client, HttpMethod method, string? resource)
         {
             var uri = FluentClientExtensions.ResolveFinalUrl(client.BaseClient.BaseAddress, resource);
             var message = Factory.GetRequestMessage(method, uri, client.Formatters);
@@ -324,8 +324,8 @@ namespace Pathoschild.Http.Client
 
         /// <summary>Resolve the final URL for a request.</summary>
         /// <param name="baseUrl">The base URL.</param>
-        /// <param name="resource">The requested resource.</param>
-        private static Uri ResolveFinalUrl(Uri baseUrl, string resource)
+        /// <param name="resource">The requested resource, or <c>null</c> to use the base URL (if set).</param>
+        private static Uri ResolveFinalUrl(Uri baseUrl, string? resource)
         {
             // ignore if empty or already absolute
             if (string.IsNullOrWhiteSpace(resource))
@@ -338,7 +338,7 @@ namespace Pathoschild.Http.Client
                 throw new FormatException($"Can't use relative URL '{resource}' because no base URL was specified.");
 
             // parse URLs
-            resource = resource.Trim();
+            resource = resource!.Trim();
             UriBuilder builder = new UriBuilder(baseUrl);
 
             // special case: combine if either side is a fragment

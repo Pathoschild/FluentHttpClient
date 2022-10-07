@@ -4,6 +4,7 @@
   _.NET 5.0+ was already supported, this just makes that clearer._
 * Added constructor which takes an `HttpClient` without a base URI (thanks to TimothyMakkison!).
 * Added fluent `request.WithFilter` and `WithoutFilter` methods (thanks to Jericho!).
+* Fixed `resource` parameters for methods like `GetAsync` marked non-nullable.
 
 ## 4.1.1
 Released 22 June 2022.
