@@ -2,6 +2,7 @@ using System.IO;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Formatting;
+using System.Threading;
 using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
 
@@ -31,36 +32,44 @@ namespace Pathoschild.Http.Client
         *********/
         /// <summary>Asynchronously retrieve the response body as a deserialized model.</summary>
         /// <typeparam name="T">The response model to deserialize into.</typeparam>
+        /// <param name="cancellationToken">The cancellation token.</param>
         /// <exception cref="ApiException">An error occurred processing the response.</exception>
-        Task<T> As<T>();
+        Task<T> As<T>(CancellationToken cancellationToken = default);
 
         /// <summary>Asynchronously retrieve the response body as a list of deserialized models.</summary>
         /// <typeparam name="T">The response model to deserialize into.</typeparam>
+        /// <param name="cancellationToken">The cancellation token.</param>
         /// <exception cref="ApiException">An error occurred processing the response.</exception>
-        Task<T[]> AsArray<T>();
+        Task<T[]> AsArray<T>(CancellationToken cancellationToken = default);
 
         /// <summary>Asynchronously retrieve the response body as an array of <see cref="byte"/>.</summary>
+        /// <param name="cancellationToken">The cancellation token.</param>
         /// <exception cref="ApiException">An error occurred processing the response.</exception>
-        Task<byte[]> AsByteArray();
+        Task<byte[]> AsByteArray(CancellationToken cancellationToken = default);
 
         /// <summary>Asynchronously retrieve the response body as a <see cref="string"/>.</summary>
+        /// <param name="cancellationToken">The cancellation token.</param>
         /// <exception cref="ApiException">An error occurred processing the response.</exception>
-        Task<string> AsString();
+        Task<string> AsString(CancellationToken cancellationToken = default);
 
         /// <summary>Asynchronously retrieve the response body as a <see cref="Stream"/>.</summary>
+        /// <param name="cancellationToken">The cancellation token.</param>
         /// <exception cref="ApiException">An error occurred processing the response.</exception>
-        Task<Stream> AsStream();
+        Task<Stream> AsStream(CancellationToken cancellationToken = default);
 
         /// <summary>Get a raw JSON representation of the response, which can also be accessed as a <c>dynamic</c> value.</summary>
+        /// <param name="cancellationToken">The cancellation token.</param>
         /// <exception cref="ApiException">An error occurred processing the response.</exception>
-        Task<JToken> AsRawJson();
+        Task<JToken> AsRawJson(CancellationToken cancellationToken = default);
 
         /// <summary>Get a raw JSON object representation of the response, which can also be accessed as a <c>dynamic</c> value.</summary>
+        /// <param name="cancellationToken">The cancellation token.</param>
         /// <exception cref="ApiException">An error occurred processing the response.</exception>
-        Task<JObject> AsRawJsonObject();
+        Task<JObject> AsRawJsonObject(CancellationToken cancellationToken = default);
 
         /// <summary>Get a raw JSON array representation of the response, which can also be accessed as a <c>dynamic</c> value.</summary>
+        /// <param name="cancellationToken">The cancellation token.</param>
         /// <exception cref="ApiException">An error occurred processing the response.</exception>
-        Task<JArray> AsRawJsonArray();
+        Task<JArray> AsRawJsonArray(CancellationToken cancellationToken = default);
     }
 }

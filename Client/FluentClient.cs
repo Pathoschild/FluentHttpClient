@@ -170,7 +170,7 @@ namespace Pathoschild.Http.Client
             this.AssertNotDisposed();
 
             // clone request (to avoid issues when resending messages)
-            HttpRequestMessage requestMessage = await request.Message.CloneAsync().ConfigureAwait(false);
+            HttpRequestMessage requestMessage = await request.Message.CloneAsync(request.CancellationToken).ConfigureAwait(false);
 
             // dispatch request
             return await this.BaseClient

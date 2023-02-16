@@ -3,6 +3,7 @@ using System.IO;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Formatting;
+using System.Threading;
 using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
 
@@ -40,55 +41,55 @@ namespace Pathoschild.Http.Client.Internal
         }
 
         /// <inheritdoc />
-        public Task<T> As<T>()
+        public Task<T> As<T>(CancellationToken cancellationToken = default)
         {
-            return this.Message.Content.ReadAsAsync<T>(this.Formatters);
+            return this.Message.Content.ReadAsAsync<T>(this.Formatters, cancellationToken);
         }
 
         /// <inheritdoc />
-        public Task<T[]> AsArray<T>()
+        public Task<T[]> AsArray<T>(CancellationToken cancellationToken = default)
         {
-            return this.As<T[]>();
+            return this.As<T[]>(cancellationToken);
         }
 
         /// <inheritdoc />
-        public Task<byte[]> AsByteArray()
+        public Task<byte[]> AsByteArray(CancellationToken cancellationToken = default)
         {
-            return this.AssertContent().ReadAsByteArrayAsync();
+            return this.AssertContent().ReadAsByteArrayAsync(cancellationToken);
         }
 
         /// <inheritdoc />
-        public Task<string> AsString()
+        public Task<string> AsString(CancellationToken cancellationToken = default)
         {
-            return this.AssertContent().ReadAsStringAsync();
+            return this.AssertContent().ReadAsStringAsync(cancellationToken);
         }
 
         /// <inheritdoc />
-        public async Task<Stream> AsStream()
+        public async Task<Stream> AsStream(CancellationToken cancellationToken = default)
         {
-            Stream stream = await this.AssertContent().ReadAsStreamAsync().ConfigureAwait(false);
+            Stream stream = await this.AssertContent().ReadAsStreamAsync(cancellationToken).ConfigureAwait(false);
             stream.Position = 0;
             return stream;
         }
 
         /// <inheritdoc />
-        public async Task<JToken> AsRawJson()
+        public async Task<JToken> AsRawJson(CancellationToken cancellationToken = default)
         {
-            string content = await this.AsString();
+            string content = await this.AsString(cancellationToken);
             return JToken.Parse(content);
         }
 
         /// <inheritdoc />
-        public async Task<JObject> AsRawJsonObject()
+        public async Task<JObject> AsRawJsonObject(CancellationToken cancellationToken = default)
         {
-            string content = await this.AsString();
+            string content = await this.AsString(cancellationToken);
             return JObject.Parse(content);
         }
 
         /// <inheritdoc />
-        public async Task<JArray> AsRawJsonArray()
+        public async Task<JArray> AsRawJsonArray(CancellationToken cancellationToken = default)
         {
-            string content = await this.AsString();
+            string content = await this.AsString(cancellationToken);
             return JArray.Parse(content);
         }
 
