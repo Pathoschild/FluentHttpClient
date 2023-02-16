@@ -99,7 +99,7 @@ namespace Pathoschild.Http.Client.Retry
                 // set up retry
                 TimeSpan delay = retryConfig.GetDelay(attempt, response);
                 if (delay.TotalMilliseconds > 0)
-                    await Task.Delay(delay).ConfigureAwait(false);
+                    await Task.Delay(delay, request.CancellationToken).ConfigureAwait(false);
             }
         }
     }
