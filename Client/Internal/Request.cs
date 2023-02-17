@@ -206,7 +206,7 @@ namespace Pathoschild.Http.Client.Internal
         public async Task<T> As<T>()
         {
             IResponse response = await this.AsResponse().ConfigureAwait(false);
-            return await response.As<T>(this.CancellationToken).ConfigureAwait(false);
+            return await response.As<T>().ConfigureAwait(false);
         }
 
         /// <inheritdoc />
@@ -219,42 +219,42 @@ namespace Pathoschild.Http.Client.Internal
         public async Task<byte[]> AsByteArray()
         {
             IResponse response = await this.AsResponse().ConfigureAwait(false);
-            return await response.AsByteArray(this.CancellationToken).ConfigureAwait(false);
+            return await response.AsByteArray().ConfigureAwait(false);
         }
 
         /// <inheritdoc />
         public async Task<string> AsString()
         {
             IResponse response = await this.AsResponse().ConfigureAwait(false);
-            return await response.AsString(this.CancellationToken).ConfigureAwait(false);
+            return await response.AsString().ConfigureAwait(false);
         }
 
         /// <inheritdoc />
         public async Task<Stream> AsStream()
         {
             IResponse response = await this.AsResponse().ConfigureAwait(false);
-            return await response.AsStream(this.CancellationToken).ConfigureAwait(false);
+            return await response.AsStream().ConfigureAwait(false);
         }
 
         /// <inheritdoc />
         public async Task<JToken> AsRawJson()
         {
             IResponse response = await this.AsResponse().ConfigureAwait(false);
-            return await response.AsRawJson(this.CancellationToken).ConfigureAwait(false);
+            return await response.AsRawJson().ConfigureAwait(false);
         }
 
         /// <inheritdoc />
         public async Task<JObject> AsRawJsonObject()
         {
             IResponse response = await this.AsResponse().ConfigureAwait(false);
-            return await response.AsRawJsonObject(this.CancellationToken).ConfigureAwait(false);
+            return await response.AsRawJsonObject().ConfigureAwait(false);
         }
 
         /// <inheritdoc />
         public async Task<JArray> AsRawJsonArray()
         {
             IResponse response = await this.AsResponse().ConfigureAwait(false);
-            return await response.AsRawJsonArray(this.CancellationToken).ConfigureAwait(false);
+            return await response.AsRawJsonArray().ConfigureAwait(false);
         }
 
 
@@ -272,7 +272,7 @@ namespace Pathoschild.Http.Client.Internal
             HttpResponseMessage responseMessage = this.RequestCoordinator != null
                 ? await this.RequestCoordinator.ExecuteAsync(this, this.Dispatcher).ConfigureAwait(false)
                 : await this.Dispatcher(this).ConfigureAwait(false);
-            IResponse response = new Response(responseMessage, this.Formatters);
+            IResponse response = new Response(responseMessage, this.Formatters, this.CancellationToken);
 
             // apply response filters
             foreach (IHttpFilter filter in this.Filters)

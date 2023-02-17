@@ -27,6 +27,9 @@ namespace Pathoschild.Http.Client.Internal
         /// <inheritdoc />
         public HttpStatusCode Status => this.Message.StatusCode;
 
+        /// <inheritdoc />
+        public CancellationToken CancellationToken { get; private set; }
+
 
         /*********
         ** Public methods
@@ -34,62 +37,71 @@ namespace Pathoschild.Http.Client.Internal
         /// <summary>Construct an instance.</summary>
         /// <param name="message">The underlying HTTP request message.</param>
         /// <param name="formatters">The formatters used for serializing and deserializing message bodies.</param>
-        public Response(HttpResponseMessage message, MediaTypeFormatterCollection formatters)
+        /// <param name="cancellationToken">The cancellation token.</param>
+        public Response(HttpResponseMessage message, MediaTypeFormatterCollection formatters, CancellationToken cancellationToken = default)
         {
             this.Message = message;
             this.Formatters = formatters;
+            this.CancellationToken = cancellationToken;
         }
 
         /// <inheritdoc />
-        public Task<T> As<T>(CancellationToken cancellationToken = default)
+        public IResponse WithCancellationToken(CancellationToken cancellationToken)
         {
-            return this.Message.Content.ReadAsAsync<T>(this.Formatters, cancellationToken);
+            this.CancellationToken = cancellationToken;
+            return this;
         }
 
         /// <inheritdoc />
-        public Task<T[]> AsArray<T>(CancellationToken cancellationToken = default)
+        public Task<T> As<T>()
         {
-            return this.As<T[]>(cancellationToken);
+            return this.Message.Content.ReadAsAsync<T>(this.Formatters);
         }
 
         /// <inheritdoc />
-        public Task<byte[]> AsByteArray(CancellationToken cancellationToken = default)
+        public Task<T[]> AsArray<T>()
         {
-            return this.AssertContent().ReadAsByteArrayAsync(cancellationToken);
+            return this.As<T[]>();
         }
 
         /// <inheritdoc />
-        public Task<string> AsString(CancellationToken cancellationToken = default)
+        public Task<byte[]> AsByteArray()
         {
-            return this.AssertContent().ReadAsStringAsync(cancellationToken);
+            return this.AssertContent().ReadAsByteArrayAsync(this.CancellationToken);
         }
 
         /// <inheritdoc />
-        public async Task<Stream> AsStream(CancellationToken cancellationToken = default)
+        public Task<string> AsString()
         {
-            Stream stream = await this.AssertContent().ReadAsStreamAsync(cancellationToken).ConfigureAwait(false);
+            return this.AssertContent().ReadAsStringAsync(this.CancellationToken);
+        }
+
+        /// <inheritdoc />
+        public async Task<Stream> AsStream()
+        {
+            Stream stream = await this.AssertContent().ReadAsStreamAsync(this.CancellationToken).ConfigureAwait(false);
             stream.Position = 0;
             return stream;
         }
 
         /// <inheritdoc />
-        public async Task<JToken> AsRawJson(CancellationToken cancellationToken = default)
+        public async Task<JToken> AsRawJson()
         {
-            string content = await this.AsString(cancellationToken);
+            string content = await this.AsString().ConfigureAwait(false);
             return JToken.Parse(content);
         }
 
         /// <inheritdoc />
-        public async Task<JObject> AsRawJsonObject(CancellationToken cancellationToken = default)
+        public async Task<JObject> AsRawJsonObject()
         {
-            string content = await this.AsString(cancellationToken);
+            string content = await this.AsString().ConfigureAwait(false);
             return JObject.Parse(content);
         }
 
         /// <inheritdoc />
-        public async Task<JArray> AsRawJsonArray(CancellationToken cancellationToken = default)
+        public async Task<JArray> AsRawJsonArray()
         {
-            string content = await this.AsString(cancellationToken);
+            string content = await this.AsString().ConfigureAwait(false);
             return JArray.Parse(content);
         }
 
