@@ -55,7 +55,7 @@ namespace Pathoschild.Http.Client.Internal
         /// <inheritdoc />
         public Task<T> As<T>()
         {
-            return this.Message.Content.ReadAsAsync<T>(this.Formatters);
+            return this.Message.Content.ReadAsAsync<T>(this.Formatters, this.CancellationToken);
         }
 
         /// <inheritdoc />
