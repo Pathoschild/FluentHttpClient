@@ -44,7 +44,7 @@ namespace Pathoschild.Http.Client
         /// <inheritdoc />
         public MediaTypeFormatterCollection Formatters { get; } = new MediaTypeFormatterCollection();
 
-        /// <summary>The request coordinator.</summary>
+        /// <inheritdoc />
         public IRequestCoordinator? RequestCoordinator { get; private set; }
 
 
