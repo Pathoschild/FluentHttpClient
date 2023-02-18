@@ -1,5 +1,8 @@
 using System;
 using System.Linq.Expressions;
+#if NET452
+using System.Net;
+#endif
 using System.Threading.Tasks;
 using NUnit.Framework;
 using Pathoschild.Http.Client;
@@ -52,6 +55,10 @@ namespace Pathoschild.Http.Tests.Integration
         [Test(Description = "The client can fetch a resource from the English Wikipedia's API.")]
         public async Task EnglishWikipedia()
         {
+#if NET452
+            ServicePointManager.SecurityProtocol |= SecurityProtocolType.Tls12;
+#endif
+
             // arrange
             IClient client = this.ConstructClient("https://en.wikipedia.org/");
 
@@ -68,6 +75,10 @@ namespace Pathoschild.Http.Tests.Integration
         [Test(Description = "The client can fetch a resource from the Chinese Wikipedia's API, including proper Unicode handling.")]
         public async Task ChineseWikipedia()
         {
+#if NET452
+            ServicePointManager.SecurityProtocol |= SecurityProtocolType.Tls12;
+#endif
+
             // arrange
             IClient client = this.ConstructClient("https://zh.wikipedia.org/");
 
