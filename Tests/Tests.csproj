@@ -13,22 +13,30 @@
     <CheckEolTargetFramework>false</CheckEolTargetFramework>
   </PropertyGroup>
 
+  <PropertyGroup>
+    <NetCore2OrNewer>false</NetCore2OrNewer>
+    <NetCore2OrNewer Condition="'$(TargetFramework)' != 'net452' AND '$(TargetFramework)' != 'netcoreapp1.1'">true</NetCore2OrNewer>
+  </PropertyGroup>
+
   <ItemGroup>
     <ProjectReference Include="..\Client\Client.csproj" />
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.6.0" />
+    <!-- main versions -->
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.4.1" Condition="'$(NetCore2OrNewer)' == 'true'" />
     <PackageReference Include="dotnet-test-nunit" Version="3.4.0-beta-3" />
-    <PackageReference Include="Microsoft.AspNet.WebUtilities" Version="1.0.0-rc1-final" Condition="'$(TargetFramework)' != 'netcoreapp2.0'" />
-    <PackageReference Include="Microsoft.AspNetCore.WebUtilities" Version="2.2.0" Condition="'$(TargetFramework)' == 'netcoreapp2.0'" />
-    <PackageReference Include="Moq" Version="4.10.1" />
-    <PackageReference Include="NUnit" Version="3.12.0" />
-    <PackageReference Include="NUnit3TestAdapter" Version="3.16.1">
-      <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-    </PackageReference>
+    <PackageReference Include="Microsoft.AspNetCore.WebUtilities" Version="2.2.0" Condition="'$(NetCore2OrNewer)' == 'true'" />
+    <PackageReference Include="Moq" Version="4.18.4" Condition="'$(NetCore2OrNewer)' == 'true'" />
+    <PackageReference Include="NUnit" Version="3.13.3" Condition="'$(NetCore2OrNewer)' == 'true'" />
+    <PackageReference Include="NUnit3TestAdapter" Version="4.3.1" PrivateAssets="all" IncludeAssets="runtime; build; native; contentfiles; analyzers; buildtransitive" />
     <PackageReference Include="RichardSzalay.MockHttp" Version="6.0.0" />
+
+    <!-- legacy versions for older platforms -->
+    <PackageReference Include="Microsoft.AspNet.WebUtilities" Version="1.0.0-rc1-final" Condition="'$(NetCore2OrNewer)' == 'false'" />
+    <PackageReference Include="Moq" Version="4.10.1" Condition="'$(NetCore2OrNewer)' == 'false'" />
+    <PackageReference Include="NUnit" Version="3.12.0" Condition="'$(NetCore2OrNewer)' == 'false'" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.3.2" Condition="'$(NetCore2OrNewer)' == 'false'" />
   </ItemGroup>
 
   <ItemGroup>

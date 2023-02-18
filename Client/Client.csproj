@@ -26,11 +26,11 @@
   </PropertyGroup>
 
   <ItemGroup Condition=" '$(TargetFramework)' != 'netstandard1.3' ">
-    <PackageReference Include="Microsoft.AspNet.WebApi.Client" Version="5.2.7" />
+    <PackageReference Include="Microsoft.AspNet.WebApi.Client" Version="5.2.9" />
   </ItemGroup>
 
   <ItemGroup Condition=" '$(TargetFramework)' == 'netstandard1.3' ">
-    <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.2" />
     <PackageReference Include="System.Net.Http" Version="4.3.4" />
     <PackageReference Include="WinInsider.System.Net.Http.Formatting" Version="1.0.14" />
   </ItemGroup>

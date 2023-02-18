@@ -7,7 +7,7 @@ using System.Net.Http;
 using System.Net.Http.Formatting;
 using System.Text;
 using System.Threading.Tasks;
-#if NETCOREAPP2_0
+#if NETCOREAPP2_0 || NET5_0_OR_GREATER
 using Microsoft.AspNetCore.WebUtilities;
 #else
 using Microsoft.AspNet.WebUtilities;

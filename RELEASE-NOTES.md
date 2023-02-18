@@ -2,6 +2,7 @@
 ## Upcoming release
 * Added cancellation token to responses (thanks to Jericho!).
 * Added request coordinator field to `IClient` interface (thanks to Jericho!).
+* Updated dependencies.
 * Fixed some async operations not using the cancellation token (thanks to Jericho!).
 
 ## 4.2.0
