@@ -28,7 +28,12 @@ namespace Pathoschild.Http.Tests.Integration
             Server = "//en.wikipedia.org",
             SiteName = "Wikipedia",
             Time = DateTime.UtcNow,
-            VariantArticlePath = "false",
+            VariantArticlePath =
+#if NET452
+                "False",
+#else
+                "false",
+#endif
             WikiID = "enwiki"
         };
 
