@@ -272,7 +272,7 @@ namespace Pathoschild.Http.Client.Internal
             HttpResponseMessage responseMessage = this.RequestCoordinator != null
                 ? await this.RequestCoordinator.ExecuteAsync(this, this.Dispatcher).ConfigureAwait(false)
                 : await this.Dispatcher(this).ConfigureAwait(false);
-            IResponse response = new Response(responseMessage, this.Formatters);
+            IResponse response = new Response(responseMessage, this.Formatters, this.CancellationToken);
 
             // apply response filters
             foreach (IHttpFilter filter in this.Filters)

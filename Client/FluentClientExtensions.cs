@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Net.Http;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using Pathoschild.Http.Client.Extensibility;
 using Pathoschild.Http.Client.Internal;
@@ -286,12 +287,13 @@ namespace Pathoschild.Http.Client
         *********/
         /// <summary>Get a copy of the request.</summary>
         /// <param name="request">The request to copy.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
         /// <remarks>Note that cloning a request isn't possible after it's dispatched, because the content stream is automatically disposed after the request.</remarks>
-        internal static async Task<HttpRequestMessage> CloneAsync(this HttpRequestMessage request)
+        internal static async Task<HttpRequestMessage> CloneAsync(this HttpRequestMessage request, CancellationToken cancellationToken = default)
         {
             HttpRequestMessage clone = new HttpRequestMessage(request.Method, request.RequestUri)
             {
-                Content = await request.Content.CloneAsync().ConfigureAwait(false),
+                Content = await request.Content.CloneAsync(cancellationToken).ConfigureAwait(false),
                 Version = request.Version
             };
 
@@ -305,14 +307,15 @@ namespace Pathoschild.Http.Client
 
         /// <summary>Get a copy of the request content.</summary>
         /// <param name="content">The content to copy.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
         /// <remarks>Note that cloning content isn't possible after it's dispatched, because the stream is automatically disposed after the request.</remarks>
-        internal static async Task<HttpContent?> CloneAsync(this HttpContent? content)
+        internal static async Task<HttpContent?> CloneAsync(this HttpContent? content, CancellationToken cancellationToken = default)
         {
             if (content == null)
                 return null;
 
             Stream stream = new MemoryStream();
-            await content.CopyToAsync(stream).ConfigureAwait(false);
+            await content.CopyToAsync(stream, cancellationToken).ConfigureAwait(false);
             stream.Position = 0;
 
             StreamContent clone = new StreamContent(stream);
