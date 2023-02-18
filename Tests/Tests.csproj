@@ -8,6 +8,9 @@
 
     <LangVersion>latest</LangVersion>
     <Nullable>enable</Nullable>
+
+    <!-- suppress framework out of support warnings (deliberate to test legacy framework support) -->
+    <CheckEolTargetFramework>false</CheckEolTargetFramework>
   </PropertyGroup>
 
   <ItemGroup>

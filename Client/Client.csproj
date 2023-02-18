@@ -20,6 +20,9 @@
 
     <LangVersion>latest</LangVersion>
     <Nullable>enable</Nullable>
+
+    <!-- suppress framework out of support warning (deliberate for compatibility with users' target frameworks, since .NET 5 is forward-compatible) -->
+    <CheckEolTargetFramework>false</CheckEolTargetFramework>
   </PropertyGroup>
 
   <ItemGroup Condition=" '$(TargetFramework)' != 'netstandard1.3' ">
