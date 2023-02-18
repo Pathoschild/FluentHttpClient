@@ -112,9 +112,9 @@ namespace Pathoschild.Http.Tests.Integration
             // assert
             Assert.IsNotNull(response, prefix + " metadata is null");
             Assert.IsNotNull(response.Query, prefix + " metadata.Query is null.");
-            Assert.IsNotNull(response.Query.General, prefix + " metadata.Query.General is null.");
+            Assert.IsNotNull(response.Query!.General, prefix + " metadata.Query.General is null.");
 
-            response.Query.General
+            response.Query.General!
                 .AssertValue(p => p.ArticlePath, expected.ArticlePath)
                 .AssertValue(p => p.Base, expected.Base)
                 .AssertValue(p => p.Language, expected.Language)

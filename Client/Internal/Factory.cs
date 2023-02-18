@@ -24,7 +24,7 @@ namespace Pathoschild.Http.Client.Internal
             if (!formatters.Any())
                 throw new InvalidOperationException("No MediaTypeFormatters are available on the fluent client.");
 
-            MediaTypeFormatter formatter = contentType != null
+            MediaTypeFormatter? formatter = contentType != null
                 ? formatters.FirstOrDefault(f => f.SupportedMediaTypes.Any(m => m.MediaType == contentType.MediaType))
                 : formatters.FirstOrDefault();
             if (formatter == null)

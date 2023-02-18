@@ -59,13 +59,16 @@ namespace Pathoschild.Http.Tests.Formatters
             return message;
         }
 
-        /// <summary>Get the serialized representation of the request body.</summary>
+        /// <summary>Get the serialized representation of a request body.</summary>
         /// <typeparam name="T">The request body type.</typeparam>
         /// <param name="content">The request body content.</param>
         /// <param name="request">The HTTP request to handle.</param>
         /// <param name="formatter">The media type formatter which will serialize the request body.</param>
         protected string GetSerialized<T>(T content, HttpRequestMessage request, MediaTypeFormatterBase formatter)
         {
+            if (request.Content is null)
+                throw new InvalidOperationException("Can't get the serialized representation for a null message body.");
+
             using MemoryStream stream = new MemoryStream();
             using StreamReader reader = new StreamReader(stream);
             formatter.Serialize(typeof(string), content, stream, request.Content, this.NullTransportContext);
@@ -73,13 +76,16 @@ namespace Pathoschild.Http.Tests.Formatters
             return reader.ReadToEnd();
         }
 
-        /// <summary>Get the serialized representation of the request body.</summary>
+        /// <summary>Get the deserialized representation of a request body.</summary>
         /// <param name="type">The request body type.</param>
         /// <param name="content">The request body content.</param>
         /// <param name="request">The HTTP request to handle.</param>
         /// <param name="formatter">The media type formatter which will serialize the request body.</param>
         protected object GetDeserialized(Type type, string? content, HttpRequestMessage request, MediaTypeFormatterBase formatter)
         {
+            if (request.Content is null)
+                throw new InvalidOperationException("Can't get the deserialized representation for a null message body.");
+
             using (MemoryStream stream = new MemoryStream())
             using (StreamWriter writer = new StreamWriter(stream))
             {

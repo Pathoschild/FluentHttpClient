@@ -158,7 +158,7 @@ namespace Pathoschild.Http.Client
         /// <summary>Set the default user agent header.</summary>
         private void SetDefaultUserAgent()
         {
-            Version version = typeof(FluentClient).GetTypeInfo().Assembly.GetName().Version;
+            Version version = typeof(FluentClient).GetTypeInfo().Assembly.GetName().Version!;
             this.SetUserAgent($"FluentHttpClient/{version} (+http://github.com/Pathoschild/FluentHttpClient)");
         }
 

@@ -10,45 +10,45 @@ namespace Pathoschild.Http.Tests.Integration
     public class WikipediaMetadata
     {
         /// <summary>The query response.</summary>
-        public WikipediaQuery Query { get; set; }
+        public WikipediaQuery? Query { get; set; }
 
         /// <summary>The query response object.</summary>
         public class WikipediaQuery
         {
             /// <summary>The general metadata about the English Wikipedia.</summary>
-            public WikipediaGeneral General { get; set; }
+            public WikipediaGeneral? General { get; set; }
         }
 
         /// <summary>The general metadata object about the English Wikipedia.</summary>
         public class WikipediaGeneral
         {
             /// <summary>The name of the default article.</summary>
-            public string MainPage { get; set; }
+            public string? MainPage { get; set; }
 
             /// <summary>The URL of the default article.</summary>
-            public string Base { get; set; }
+            public string? Base { get; set; }
 
             /// <summary>The friendly name of the project.</summary>
-            public string SiteName { get; set; }
+            public string? SiteName { get; set; }
 
             /// <summary>The ISO-639 2 language code which covers content on this wiki.</summary>
             [JsonProperty("lang")]
-            public string Language { get; set; }
+            public string? Language { get; set; }
 
             /// <summary>The URI format for articles relative to the domain (where $1 is the article title).</summary>
-            public string ArticlePath { get; set; }
+            public string? ArticlePath { get; set; }
 
             /// <summary>The base URI for MediaWiki scripts relative to the domain.</summary>
-            public string ScriptPath { get; set; }
+            public string? ScriptPath { get; set; }
 
             /// <summary>The protocol-relative domain portion of the site URL.</summary>
-            public string Server { get; set; }
+            public string? Server { get; set; }
 
             /// <summary>The internal identifier for this wiki which is unique within the wiki farm.</summary>
-            public string WikiID { get; set; }
+            public string? WikiID { get; set; }
 
             /// <summary>The article path for language variants.</summary>
-            public string VariantArticlePath { get; set; }
+            public string? VariantArticlePath { get; set; }
 
             /// <summary>The current time when the API response was generated.</summary>
             public DateTime Time { get; set; }

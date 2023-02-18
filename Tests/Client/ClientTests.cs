@@ -107,7 +107,8 @@ namespace Pathoschild.Http.Tests.Client
             // assert
             string userAgent = request.Message.Headers.UserAgent.ToString();
             Assert.AreEqual(expectedUserAgent, userAgent, "The user agent header does not match the specified default.");
-            Assert.AreEqual("/example?boop=1", request.Message.RequestUri.PathAndQuery, "The URL arguments don't match the specified default.");
+            Assert.IsNotNull(request.Message.RequestUri, "The request URL is null.");
+            Assert.AreEqual("/example?boop=1", request.Message.RequestUri!.PathAndQuery, "The URL arguments don't match the specified default.");
         }
 
         /****
@@ -161,7 +162,7 @@ namespace Pathoschild.Http.Tests.Client
         [TestCase("PUT", "http://example.org", "http://example.com/test", ExpectedResult = "http://example.com/test")]
         [TestCase("PUT", "http://example.org/?a=1", "&b=2", ExpectedResult = "http://example.org/?a=1&b=2")]
         [TestCase("PUT", "http://example.org/?a=1", "#b", ExpectedResult = "http://example.org/?a=1#b")]
-        public string Send_WithBaseUrl(string methodName, string baseUrl, string resource)
+        public string? Send_WithBaseUrl(string methodName, string baseUrl, string resource)
         {
             // arrange
             HttpMethod method = this.ConstructMethod(methodName);
@@ -170,7 +171,7 @@ namespace Pathoschild.Http.Tests.Client
             IRequest request = this.ConstructClient(baseUrl).SendAsync(method, resource);
 
             // assert
-            return request.Message.RequestUri.ToString();
+            return request.Message.RequestUri?.ToString();
         }
 
         [Test(Description = "Ensure that SendAsync allows sending a request with no base URL.")]
@@ -189,7 +190,7 @@ namespace Pathoschild.Http.Tests.Client
         [TestCase("PUT", "http://example.org", ExpectedResult = "http://example.org/")]
         [TestCase("PUT", "http://example.org/resources", ExpectedResult = "http://example.org/resources")]
         [TestCase("PUT", "http://example/", ExpectedResult = "http://example/")]
-        public string Send_WithoutBaseUrl(string methodName, string resource)
+        public string? Send_WithoutBaseUrl(string methodName, string resource)
         {
             // arrange
             HttpMethod method = this.ConstructMethod(methodName);
@@ -198,7 +199,7 @@ namespace Pathoschild.Http.Tests.Client
             IRequest request = this.ConstructClient(baseUri: null).SendAsync(method, resource);
 
             // assert
-            return request.Message.RequestUri.ToString();
+            return request.Message.RequestUri?.ToString();
         }
 
         [Test(Description = "Ensure that SendAsync allows sending a request with no base URL.")]
@@ -263,7 +264,8 @@ namespace Pathoschild.Http.Tests.Client
 
             // assert
             this.AssertEqual(request, HttpMethod.Post, resource);
-            Assert.That(await request.Message.Content.ReadAsStringAsync(), Is.EqualTo('"' + value + '"'), "The message request body is invalid.");
+            Assert.IsNotNull(request.Message.Content, "The request body is null.");
+            Assert.That(await request.Message.Content!.ReadAsStringAsync(), Is.EqualTo('"' + value + '"'), "The message request body is invalid.");
         }
 
         [Test(Description = "Ensure that the HTTP PUT method with a body constructs a request message with the expected initial state.")]
@@ -275,7 +277,8 @@ namespace Pathoschild.Http.Tests.Client
 
             // assert
             this.AssertEqual(request, HttpMethod.Put, resource);
-            Assert.That(await request.Message.Content.ReadAsStringAsync(), Is.EqualTo('"' + value + '"'), "The message request body is invalid.");
+            Assert.IsNotNull(request.Message.Content, "The request body is null.");
+            Assert.That(await request.Message.Content!.ReadAsStringAsync(), Is.EqualTo('"' + value + '"'), "The message request body is invalid.");
         }
 
 
@@ -305,7 +308,7 @@ namespace Pathoschild.Http.Tests.Client
 
                 // assert
                 Assert.NotNull(client.BaseClient, "The base client is null.");
-                Assert.AreEqual(baseUri?.TrimEnd('/'), client.BaseClient.BaseAddress?.ToString()?.TrimEnd('/'), "The base path is invalid.");
+                Assert.AreEqual(baseUri?.TrimEnd('/'), client.BaseClient.BaseAddress?.ToString().TrimEnd('/'), "The base path is invalid.");
 
                 return client;
             }
@@ -331,7 +334,8 @@ namespace Pathoschild.Http.Tests.Client
             // message state
             HttpRequestMessage message = request.Message;
             Assert.That(message.Method, Is.EqualTo(method), "The request method is invalid.");
-            Assert.That(message.RequestUri.ToString(), Is.EqualTo(baseUri + resource), "The message URI is invalid.");
+            Assert.IsNotNull(request.Message.RequestUri, "The message URI is null.");
+            Assert.That(message.RequestUri!.ToString(), Is.EqualTo(baseUri + resource), "The message URI is invalid.");
         }
     }
 }

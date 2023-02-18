@@ -128,8 +128,8 @@ namespace Pathoschild.Http.Client
         /// <exception cref="ObjectDisposedException">The instance has been disposed.</exception>
         public static IRequest SendAsync(this IClient client, HttpMethod method, string? resource)
         {
-            var uri = FluentClientExtensions.ResolveFinalUrl(client.BaseClient.BaseAddress, resource);
-            var message = Factory.GetRequestMessage(method, uri, client.Formatters);
+            Uri uri = FluentClientExtensions.ResolveFinalUrl(client.BaseClient.BaseAddress, resource) ?? throw new InvalidOperationException("Can't send a request with a null URL.");
+            HttpRequestMessage message = Factory.GetRequestMessage(method, uri, client.Formatters);
             return client.SendAsync(message);
         }
 
@@ -334,12 +334,12 @@ namespace Pathoschild.Http.Client
         /// <summary>Resolve the final URL for a request.</summary>
         /// <param name="baseUrl">The base URL.</param>
         /// <param name="resource">The requested resource, or <c>null</c> to use the base URL (if set).</param>
-        private static Uri ResolveFinalUrl(Uri baseUrl, string? resource)
+        private static Uri? ResolveFinalUrl(Uri? baseUrl, string? resource)
         {
             // ignore if empty or already absolute
             if (string.IsNullOrWhiteSpace(resource))
                 return baseUrl;
-            if (Uri.TryCreate(resource, UriKind.Absolute, out Uri absoluteUrl))
+            if (Uri.TryCreate(resource, UriKind.Absolute, out Uri? absoluteUrl))
                 return absoluteUrl;
 
             // can't combine if no base URL

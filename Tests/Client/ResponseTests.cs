@@ -26,7 +26,7 @@ namespace Pathoschild.Http.Tests.Client
             ** Accessors
             *********/
             /// <summary>An example property value.</summary>
-            public T Value { get; set; }
+            public T? Value { get; set; }
 
 
             /*********
@@ -118,7 +118,7 @@ namespace Pathoschild.Http.Tests.Client
         ****/
         [Test(Description = "The response can be asynchronously read as a deserialized model.")]
         [TestCase("model value", ExpectedResult = "model value")]
-        public async Task<string> As(string content)
+        public async Task<string?> As(string content)
         {
             // arrange
             IResponse response = this.ConstructResponseForModel(content);
@@ -368,7 +368,7 @@ namespace Pathoschild.Http.Tests.Client
                 .VerifyTaskResultAsync();
 
             // assert
-            Assert.That(json.First.Value<string>("Value"), Is.EqualTo(content));
+            Assert.That(json.First?.Value<string>("Value"), Is.EqualTo(content));
         }
 
         [Test(Description = "The response can be read as a raw JSON array with dynamic.")]
@@ -467,11 +467,12 @@ namespace Pathoschild.Http.Tests.Client
         /// <param name="method">The expected HTTP method.</param>
         /// <param name="uri">The expected URI.</param>
         /// <param name="ignoreArguments">Whether to ignore query string arguments when validating the request URI.</param>
-        private void AssertEqual(HttpRequestMessage request, HttpMethod method, string uri = "http://example.org/", bool ignoreArguments = false)
+        private void AssertEqual(HttpRequestMessage? request, HttpMethod method, string uri = "http://example.org/", bool ignoreArguments = false)
         {
             Assert.That(request, Is.Not.Null, "The request message is null.");
-            Assert.That(request.Method, Is.EqualTo(method), "The request method is invalid.");
-            Assert.That(ignoreArguments ? $"{request.RequestUri.Scheme}://{request.RequestUri.Authority}{request.RequestUri.AbsolutePath}" : request.RequestUri.ToString(), Is.EqualTo(uri), "The request URI is invalid.");
+            Assert.That(request!.Method, Is.EqualTo(method), "The request method is invalid.");
+            Assert.That(request.RequestUri, Is.Not.Null, "The request URI is null.");
+            Assert.That(ignoreArguments ? $"{request.RequestUri!.Scheme}://{request.RequestUri.Authority}{request.RequestUri.AbsolutePath}" : request.RequestUri!.ToString(), Is.EqualTo(uri), "The request URI is invalid.");
         }
 
         /// <summary>Assert that an HTTP request's state matches the expected values.</summary>
@@ -479,7 +480,7 @@ namespace Pathoschild.Http.Tests.Client
         /// <param name="method">The expected HTTP method.</param>
         /// <param name="uri">The expected URI.</param>
         /// <param name="ignoreArguments">Whether to ignore query string arguments when validating the request URI.</param>
-        private void AssertEqual(HttpRequestMessage request, string method, string uri = "http://example.org/", bool ignoreArguments = false)
+        private void AssertEqual(HttpRequestMessage? request, string method, string uri = "http://example.org/", bool ignoreArguments = false)
         {
             this.AssertEqual(request, new HttpMethod(method), uri, ignoreArguments);
         }
@@ -491,10 +492,10 @@ namespace Pathoschild.Http.Tests.Client
         /// <summary>Assert that a task isn't broken and return its result.</summary>
         /// <typeparam name="T">The task result type.</typeparam>
         /// <param name="task">The task to verify.</param>
-        public static async Task<T> VerifyTaskResultAsync<T>(this Task<T> task)
+        public static async Task<T> VerifyTaskResultAsync<T>(this Task<T>? task)
         {
             Assert.That(task, Is.Not.Null, "The asynchronous task is invalid.");
-            Assert.That(task.IsCanceled, Is.False, "The asynchronous task was cancelled.");
+            Assert.That(task!.IsCanceled, Is.False, "The asynchronous task was cancelled.");
             Assert.That(task.IsFaulted, Is.False, "The asynchronous task is faulted.");
 
             task.Wait();

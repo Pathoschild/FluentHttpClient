@@ -66,7 +66,7 @@ namespace Pathoschild.Http.Tests.Client
 
             // assert
             this.AssertEqual(request.Message, methodName, ignoreArguments: true);
-            var arguments = QueryHelpers.ParseQuery(request.Message.RequestUri.Query);
+            var arguments = QueryHelpers.ParseQuery(request.Message.RequestUri?.Query);
             Assert.That(arguments[keyA], Is.Not.Null.And.EqualTo(valueA), "The first argument doesn't match the input.");
             Assert.That(arguments[keyB], Is.Not.Null.And.EqualTo(valueB), "The second argument doesn't match the input.");
         }
@@ -89,7 +89,7 @@ namespace Pathoschild.Http.Tests.Client
 
             // assert
             this.AssertEqual(request.Message, methodName, ignoreArguments: true);
-            var arguments = QueryHelpers.ParseQuery(request.Message.RequestUri.Query);
+            var arguments = QueryHelpers.ParseQuery(request.Message.RequestUri?.Query);
             Assert.That(arguments[keyA], Is.Not.Null.And.EqualTo(new[] { valueA, valueB }), "The values don't match.");
         }
 
@@ -107,7 +107,7 @@ namespace Pathoschild.Http.Tests.Client
 
             // assert
             this.AssertEqual(request.Message, methodName, ignoreArguments: true);
-            var arguments = QueryHelpers.ParseQuery(request.Message.RequestUri.Query);
+            var arguments = QueryHelpers.ParseQuery(request.Message.RequestUri?.Query);
             Assert.That(arguments[key], Is.Not.Null.And.EqualTo(value.ToString()), "The arguments don't match the input.");
         }
 
@@ -128,7 +128,7 @@ namespace Pathoschild.Http.Tests.Client
 
             // assert
             this.AssertEqual(request.Message, methodName, ignoreArguments: true);
-            var arguments = QueryHelpers.ParseQuery(request.Message.RequestUri.Query);
+            var arguments = QueryHelpers.ParseQuery(request.Message.RequestUri?.Query);
 
             this.AssertQuerystringArgument(arguments, key, value, ignoreNullArguments ?? true);
         }
@@ -153,7 +153,7 @@ namespace Pathoschild.Http.Tests.Client
 
             // assert
             this.AssertEqual(request.Message, methodName, ignoreArguments: true);
-            var arguments = QueryHelpers.ParseQuery(request.Message.RequestUri.Query);
+            var arguments = QueryHelpers.ParseQuery(request.Message.RequestUri?.Query);
             Assert.That(arguments[keyA], Is.Not.Null.And.EqualTo(valueA), "The first argument doesn't match the input.");
             Assert.That(arguments[keyB], Is.Not.Null.And.EqualTo(valueB), "The second argument doesn't match the input.");
         }
@@ -175,7 +175,7 @@ namespace Pathoschild.Http.Tests.Client
 
             // assert
             this.AssertEqual(request.Message, methodName, ignoreArguments: true);
-            var arguments = QueryHelpers.ParseQuery(request.Message.RequestUri.Query);
+            var arguments = QueryHelpers.ParseQuery(request.Message.RequestUri?.Query);
             Assert.That(arguments["keyA"], Is.Not.Null.And.EqualTo(valueA), "The 'keyA' argument doesn't match the input.");
             Assert.That(arguments["keyB"], Is.Not.Null.And.EqualTo(valueB), "The 'keyB' argument doesn't match the input.");
         }
@@ -201,7 +201,7 @@ namespace Pathoschild.Http.Tests.Client
 
             // assert
             this.AssertEqual(request.Message, methodName, ignoreArguments: true);
-            var arguments = QueryHelpers.ParseQuery(request.Message.RequestUri.Query);
+            var arguments = QueryHelpers.ParseQuery(request.Message.RequestUri?.Query);
             Assert.That(arguments[keyA], Is.Not.Null.And.EqualTo(new[] { valueA, valueB }), "The values don't match.");
         }
 
@@ -224,7 +224,7 @@ namespace Pathoschild.Http.Tests.Client
 
             // assert
             this.AssertEqual(request.Message, methodName, ignoreArguments: true);
-            var arguments = QueryHelpers.ParseQuery(request.Message.RequestUri.Query);
+            var arguments = QueryHelpers.ParseQuery(request.Message.RequestUri?.Query);
 
             this.AssertQuerystringArgument(arguments, keyA, valueA, ignoreNullArguments);
             this.AssertQuerystringArgument(arguments, keyB, valueB, ignoreNullArguments);
@@ -245,7 +245,7 @@ namespace Pathoschild.Http.Tests.Client
 
             // assert
             this.AssertEqual(request.Message, methodName, ignoreArguments: true);
-            var arguments = QueryHelpers.ParseQuery(request.Message.RequestUri.Query);
+            var arguments = QueryHelpers.ParseQuery(request.Message.RequestUri?.Query);
 
             this.AssertQuerystringArgument(arguments, "keyA", valueA, ignoreNullArguments);
             this.AssertQuerystringArgument(arguments, "keyB", valueB, ignoreNullArguments);
@@ -265,7 +265,7 @@ namespace Pathoschild.Http.Tests.Client
 
             // assert
             this.AssertEqual(request.Message, methodName, ignoreArguments: true);
-            var arguments = QueryHelpers.ParseQuery(request.Message.RequestUri.Query);
+            var arguments = QueryHelpers.ParseQuery(request.Message.RequestUri?.Query);
             Assert.That(arguments[key], Is.Not.Null.And.EqualTo(value.ToString()), "The dictionary values don't match the input.");
         }
 
@@ -280,7 +280,7 @@ namespace Pathoschild.Http.Tests.Client
 
             // assert
             this.AssertEqual(request.Message, methodName, ignoreArguments: true);
-            var arguments = QueryHelpers.ParseQuery(request.Message.RequestUri.Query);
+            var arguments = QueryHelpers.ParseQuery(request.Message.RequestUri?.Query);
             Assert.That(arguments[key], Is.Not.Null.And.EqualTo(value.ToString()), "The dictionary values don't match the input.");
         }
 
@@ -298,7 +298,7 @@ namespace Pathoschild.Http.Tests.Client
 
             // assert
             this.AssertEqual(request.Message, methodName, ignoreArguments: true);
-            var arguments = QueryHelpers.ParseQuery(request.Message.RequestUri.Query);
+            var arguments = QueryHelpers.ParseQuery(request.Message.RequestUri?.Query);
             Assert.That(arguments[key], Is.Not.Null.And.EqualTo(value.ToString()), "The dictionary values don't match the input.");
         }
 
@@ -318,7 +318,12 @@ namespace Pathoschild.Http.Tests.Client
             // arrange
             var argPairs = new List<KeyValuePair<string, object?>>();
             for (int i = 0; i < args.Length; i += 2)
-                argPairs.Add(new KeyValuePair<string, object?>(args[i]!.ToString(), args[i + 1]));
+            {
+                string key = args[i]?.ToString() ?? throw new InvalidOperationException($"Invalid test case: {nameof(args)} index {i} must be a non-null value to use as an argument key.");
+                object? value = args[i + 1];
+
+                argPairs.Add(new KeyValuePair<string, object?>(key, value));
+            }
 
             // act
             return new Uri(url).WithArguments(ignoreNullArguments, argPairs.ToArray()).ToString();
@@ -344,7 +349,8 @@ namespace Pathoschild.Http.Tests.Client
 
             // assert
             this.AssertEqual(request.Message, methodName, ignoreArguments: true);
-            Assert.That(await request.Message.Content.ReadAsStringAsync(), Is.EqualTo('"' + body.ToString() + '"'), "The message body is invalid.");
+            Assert.IsNotNull(request.Message.Content, "The message body is null.");
+            Assert.That(await request.Message.Content!.ReadAsStringAsync(), Is.EqualTo('"' + body.ToString() + '"'), "The message body is invalid.");
         }
 
         [Test(Description = "Ensure that WithBody with a model builder sets the request body and does not incorrectly alter request state.")]
@@ -364,7 +370,8 @@ namespace Pathoschild.Http.Tests.Client
 
             // assert
             this.AssertEqual(request.Message, methodName, ignoreArguments: true);
-            Assert.That(await request.Message.Content.ReadAsStringAsync(), Is.EqualTo('"' + body.ToString() + '"'), "The message body is invalid.");
+            Assert.IsNotNull(request.Message.Content, "The message body is null.");
+            Assert.That(await request.Message.Content!.ReadAsStringAsync(), Is.EqualTo('"' + body.ToString() + '"'), "The message body is invalid.");
         }
 
         [Test(Description = "Ensure that WithBody with a model builder sets the request body and does not incorrectly alter request state.")]
@@ -384,7 +391,8 @@ namespace Pathoschild.Http.Tests.Client
 
             // assert
             this.AssertEqual(request.Message, methodName, ignoreArguments: true);
-            Assert.That(await request.Message.Content.ReadAsStringAsync(), Is.EqualTo('"' + body.ToString() + '"'), "The message body is invalid.");
+            Assert.IsNotNull(request.Message.Content, "The message body is null.");
+            Assert.That(await request.Message.Content!.ReadAsStringAsync(), Is.EqualTo('"' + body.ToString() + '"'), "The message body is invalid.");
         }
 
         /****
@@ -403,14 +411,19 @@ namespace Pathoschild.Http.Tests.Client
             // act
             IRequest request = this
                 .ConstructRequest(methodName)
-                .WithBody(new FormUrlEncodedContent(new Dictionary<string, string>
+                .WithBody(new FormUrlEncodedContent(new[]
                 {
-                    ["argument"] = body
+#if NET5_0_OR_GREATER
+                    new KeyValuePair<string?, string?>("argument", body)
+#else
+                    new KeyValuePair<string, string>("argument", body)
+#endif
                 }));
 
             // assert
             this.AssertEqual(request.Message, methodName, ignoreArguments: true);
-            Assert.That(request.Message.Content.Headers.ContentType.ToString(), Is.EqualTo("application/x-www-form-urlencoded"), "The message content-type is invalid.");
+            Assert.IsNotNull(request.Message.Content, "The message body is null.");
+            Assert.That(request.Message.Content!.Headers.ContentType?.ToString(), Is.EqualTo("application/x-www-form-urlencoded"), "The message content-type is invalid.");
             Assert.That(await request.Message.Content.ReadAsStringAsync(), Is.EqualTo($"argument={body.Replace(" ", "+")}"), "The message body is invalid.");
         }
 
@@ -434,7 +447,8 @@ namespace Pathoschild.Http.Tests.Client
 
             // assert
             this.AssertEqual(request.Message, methodName, ignoreArguments: true);
-            Assert.That(await request.Message.Content.ReadAsStringAsync(), Is.EqualTo('"' + body.ToString() + '"'), "The message body is invalid.");
+            Assert.IsNotNull(request.Message.Content, "The message body is null.");
+            Assert.That(await request.Message.Content!.ReadAsStringAsync(), Is.EqualTo('"' + body.ToString() + '"'), "The message body is invalid.");
         }
 
         /****
@@ -460,7 +474,8 @@ namespace Pathoschild.Http.Tests.Client
 
             // assert
             this.AssertEqual(request.Message, methodName, ignoreArguments: true);
-            Assert.That(await request.Message.Content.ReadAsStringAsync(), Is.EqualTo("body=" + encodedBody), "The message body is invalid.");
+            Assert.IsNotNull(request.Message.Content, "The message body is null.");
+            Assert.That(await request.Message.Content!.ReadAsStringAsync(), Is.EqualTo("body=" + encodedBody), "The message body is invalid.");
         }
 
         /****
@@ -501,13 +516,15 @@ namespace Pathoschild.Http.Tests.Client
                     Assert.Fail($"Unsupported type '{type}'.");
                     return;
             }
-            string rawBody = await request.Message.Content.ReadAsStringAsync();
+
+            Assert.IsNotNull(request.Message.Content, "The message body is null.");
+            string rawBody = await request.Message.Content!.ReadAsStringAsync();
             string boundary = rawBody.Substring(2, 36);
 
             // assert
             this.AssertEqual(request.Message, methodName, ignoreArguments: true);
             Assert.That(boundary, Is.Not.Null.And.Not.Empty);
-            Assert.That(request.Message.Content.Headers.ContentType.ToString(), Is.EqualTo($@"multipart/form-data; boundary=""{boundary}"""), "The Content-Type header is invalid.");
+            Assert.That(request.Message.Content!.Headers.ContentType?.ToString(), Is.EqualTo($@"multipart/form-data; boundary=""{boundary}"""), "The Content-Type header is invalid.");
             Assert.That(rawBody, Is.EqualTo($"--{boundary}\r\nContent-Disposition: form-data; name={file.Name}; filename={file.Name}; filename*=utf-8''{file.Name}\r\n\r\n{content}\r\n--{boundary}--\r\n"), "The message body is invalid.");
         }
 
@@ -531,7 +548,8 @@ namespace Pathoschild.Http.Tests.Client
 
             // assert
             this.AssertEqual(request.Message, methodName, ignoreArguments: true);
-            Assert.That(await request.Message.Content.ReadAsStringAsync(), Is.EqualTo('"' + customBody + '"'), "The customized message body is invalid.");
+            Assert.IsNotNull(request.Message.Content, "The message body is null.");
+            Assert.That(await request.Message.Content!.ReadAsStringAsync(), Is.EqualTo('"' + customBody + '"'), "The customized message body is invalid.");
         }
 
         /****
@@ -598,7 +616,7 @@ namespace Pathoschild.Http.Tests.Client
             var client = new FluentClient(new Uri("https://example.org"), new HttpClient(mockHttp));
 
             // assert
-            ApiException ex = Assert.ThrowsAsync<ApiException>(async () => await client.GetAsync("/"), "The client didn't throw an exception for a non-success code");
+            ApiException ex = Assert.ThrowsAsync<ApiException>(async () => await client.GetAsync("/"), "The client didn't throw an exception for a non-success code")!;
             Assert.AreEqual(HttpStatusCode.NotFound, ex.Status, "The HTTP status on the exception doesn't match the response.");
             Assert.NotNull(ex.ResponseMessage, "The HTTP response message on the exception is null.");
             Assert.NotNull(ex.Response, "The HTTP response on the exception is null.");
@@ -711,7 +729,7 @@ namespace Pathoschild.Http.Tests.Client
         {
             // arrange
             var mockHttp = new MockHttpMessageHandler();
-            mockHttp.When(HttpMethod.Get, "*").Respond(HttpStatusCode.OK, req => new StringContent(req.RequestUri.ToString()));
+            mockHttp.When(HttpMethod.Get, "*").Respond(HttpStatusCode.OK, req => new StringContent(req.RequestUri?.ToString() ?? "<null>"));
             var fluentClient = new FluentClient(new Uri(baseUrl), new HttpClient(mockHttp));
 
             // act
@@ -725,7 +743,7 @@ namespace Pathoschild.Http.Tests.Client
         {
             // arrange
             var mockHttp = new MockHttpMessageHandler();
-            mockHttp.When(HttpMethod.Get, "*").Respond(HttpStatusCode.OK, req => new StringContent(req.RequestUri.ToString()));
+            mockHttp.When(HttpMethod.Get, "*").Respond(HttpStatusCode.OK, req => new StringContent(req.RequestUri?.ToString() ?? "<null>"));
             var fluentClient = new FluentClient(new Uri(baseUrl), new HttpClient(mockHttp));
 
             // assert
@@ -741,7 +759,7 @@ namespace Pathoschild.Http.Tests.Client
         public void Task_Async_FaultHandled(bool throwError, Type exceptionType)
         {
             // arrange
-            IRequest response = this.ConstructResponseFromTask(() => throw (Exception)Activator.CreateInstance(exceptionType));
+            IRequest response = this.ConstructResponseFromTask(() => throw (Exception)Activator.CreateInstance(exceptionType)!);
 
             // act
             Assert.ThrowsAsync<NotSupportedException>(async () => await response);
@@ -841,7 +859,7 @@ namespace Pathoschild.Http.Tests.Client
         {
             Assert.That(request, Is.Not.Null, "The request message is null.");
             Assert.That(request.Method, Is.EqualTo(method), "The request method is invalid.");
-            Assert.That(ignoreArguments ? $"{request.RequestUri.Scheme}://{request.RequestUri.Authority}{request.RequestUri.AbsolutePath}" : request.RequestUri.ToString(), Is.EqualTo(uri), "The request URI is invalid.");
+            Assert.That(ignoreArguments ? $"{request.RequestUri?.Scheme}://{request.RequestUri?.Authority}{request.RequestUri?.AbsolutePath}" : request.RequestUri?.ToString(), Is.EqualTo(uri), "The request URI is invalid.");
         }
 
         /// <summary>Assert that an HTTP request's state matches the expected values.</summary>

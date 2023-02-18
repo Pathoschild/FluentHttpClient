@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Net;
 using System.Net.Http;
@@ -125,6 +126,9 @@ namespace Pathoschild.Http.Client.Internal
         *********/
         /// <summary>Assert that the response has a body.</summary>
         /// <exception cref="NullReferenceException">The response has no response body to read.</exception>
+#if NET5_0_OR_GREATER
+        [MemberNotNull(nameof(Message))]
+#endif
         private HttpContent AssertContent()
         {
             return this.Message?.Content ?? throw new NullReferenceException("The response has no body to read.");
