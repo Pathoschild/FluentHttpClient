@@ -1,4 +1,9 @@
 # Release notes
+## Upcoming release
+* Added cancellation token to responses (thanks to Jericho!).
+* Added request coordinator field to `IClient` interface (thanks to Jericho!).
+* Fixed some async operations not using the cancellation token (thanks to Jericho!).
+
 ## 4.2.0
 Released 07 October 2022.
 

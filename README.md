@@ -271,16 +271,21 @@ will receive `2` as its first retry count. If you need more granular control, se
 retry/coordination policy_](#custom-retrycoordination-policy).
 
 ### Cancellation tokens
-The client fully supports [.NET cancellation tokens](https://msdn.microsoft.com/en-us/library/dd997364.aspx)
-if you need to abort requests:
+The client fully supports [.NET cancellation tokens][] if you need to cancel requests:
 
 ```c#
-var tokenSource = new CancellationTokenSource();
+using var tokenSource = new CancellationTokenSource();
+
 await client
    .PostAsync(…)
    .WithCancellationToken(tokenSource.Token);
+
 tokenSource.Cancel();
 ```
+
+The cancellation token is used for the whole process, from sending the request to reading the
+response. You can change the cancellation token on the response if needed, by awaiting the request
+and calling `WithCancellationToken` on the response.
 
 ### Custom requests
 You can make changes directly to the HTTP request before it's sent:
@@ -410,6 +415,7 @@ var client = new FluentClient("https://example.org/api", new HttpClient(mockHand
 [Parallel Programming with .NET: Await, and UI, and deadlocks! Oh my!]: https://blogs.msdn.microsoft.com/pfxteam/2011/01/13/await-and-ui-and-deadlocks-oh-my/
 [Don't Block on Async Code]: https://blog.stephencleary.com/2012/07/dont-block-on-async-code.html
 [media type formatters]: https://www.nuget.org/packages?q=MediaTypeFormatter
+[.NET cancellation tokens]: https://learn.microsoft.com/en-us/dotnet/standard/threading/cancellation-in-managed-threads
 
 [AggregateException]: https://docs.microsoft.com/en-us/dotnet/api/system.aggregateexception
 [HttpClient]: https://docs.microsoft.com/en-us/dotnet/api/system.net.http.httpclient

@@ -33,7 +33,6 @@ namespace Pathoschild.Http.Client
         /*********
         ** Methods
         *********/
-
         /// <summary>Specify the token that can be used to cancel the async operation.</summary>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>Returns the response builder for chaining.</returns>
