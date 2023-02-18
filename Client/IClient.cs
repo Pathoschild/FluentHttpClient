@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Net.Http;
 using System.Net.Http.Formatting;
 using Pathoschild.Http.Client.Extensibility;
@@ -8,6 +9,7 @@ using Pathoschild.Http.Client.Retry;
 namespace Pathoschild.Http.Client
 {
     /// <summary>Sends HTTP requests and receives responses from REST URIs.</summary>
+    [SuppressMessage("ReSharper", "UnusedMemberInSuper.Global", Justification = "This is a public API.")]
     public interface IClient : IDisposable
     {
         /*********

@@ -39,7 +39,7 @@ namespace Pathoschild.Http.Client.Internal
         /// <param name="formatters">The formatters used for serializing and deserializing message bodies.</param>
         public static HttpRequestMessage GetRequestMessage(HttpMethod method, Uri resource, MediaTypeFormatterCollection formatters)
         {
-            HttpRequestMessage request = new HttpRequestMessage(method, resource);
+            HttpRequestMessage request = new(method, resource);
 
             // add default headers
             request.Headers.Add("accept", formatters.SelectMany(p => p.SupportedMediaTypes).Select(p => p.MediaType));

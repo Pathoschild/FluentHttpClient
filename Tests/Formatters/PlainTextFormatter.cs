@@ -21,7 +21,7 @@ namespace Pathoschild.Http.Tests.Formatters
         public object Deserialize_String(string? content)
         {
             // arrange
-            PlainTextFormatter formatter = new PlainTextFormatter();
+            PlainTextFormatter formatter = new();
             HttpRequestMessage request = this.GetRequest(content, formatter);
 
             // assert
@@ -37,7 +37,7 @@ namespace Pathoschild.Http.Tests.Formatters
         public string Serialize_String(string? content)
         {
             // arrange
-            PlainTextFormatter formatter = new PlainTextFormatter();
+            PlainTextFormatter formatter = new();
             HttpRequestMessage request = this.GetRequest(content, formatter);
 
             // assert
@@ -52,7 +52,7 @@ namespace Pathoschild.Http.Tests.Formatters
         public string Serialize_IFormattable(Type type, object content)
         {
             // arrange
-            PlainTextFormatter formatter = new PlainTextFormatter { AllowIrreversibleSerialization = true };
+            PlainTextFormatter formatter = new() { AllowIrreversibleSerialization = true };
             HttpRequestMessage request = this.GetRequest(content, formatter, type);
 
             // assert
@@ -67,7 +67,7 @@ namespace Pathoschild.Http.Tests.Formatters
         public void Serialize_IFormattable_WithoutIrreversibleSerialization(Type type, object content)
         {
             // arrange
-            PlainTextFormatter formatter = new PlainTextFormatter();
+            PlainTextFormatter formatter = new();
 
             // assert
             Assert.Throws<InvalidOperationException>(() => this.GetRequest(content, formatter, type));

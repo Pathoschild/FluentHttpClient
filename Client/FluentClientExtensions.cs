@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
@@ -13,6 +14,7 @@ using Pathoschild.Http.Client.Retry;
 namespace Pathoschild.Http.Client
 {
     /// <summary>Provides convenience methods for configuring the HTTP client.</summary>
+    [SuppressMessage("ReSharper", "UnusedMember.Global", Justification = "This is a public API.")]
     public static class FluentClientExtensions
     {
         /*********
@@ -291,15 +293,15 @@ namespace Pathoschild.Http.Client
         /// <remarks>Note that cloning a request isn't possible after it's dispatched, because the content stream is automatically disposed after the request.</remarks>
         internal static async Task<HttpRequestMessage> CloneAsync(this HttpRequestMessage request, CancellationToken cancellationToken = default)
         {
-            HttpRequestMessage clone = new HttpRequestMessage(request.Method, request.RequestUri)
+            HttpRequestMessage clone = new(request.Method, request.RequestUri)
             {
                 Content = await request.Content.CloneAsync(cancellationToken).ConfigureAwait(false),
                 Version = request.Version
             };
 
 #if NET5_0_OR_GREATER
-            foreach (var option in request.Options)
-                clone.Options.Set(new HttpRequestOptionsKey<object?>(option.Key), option.Value);
+            foreach ((string key, object? value) in request.Options)
+                clone.Options.Set(new HttpRequestOptionsKey<object?>(key), value);
 #else
             foreach (var prop in request.Properties)
                 clone.Properties.Add(prop);
@@ -329,7 +331,7 @@ namespace Pathoschild.Http.Client
                 .ConfigureAwait(false);
             stream.Position = 0;
 
-            StreamContent clone = new StreamContent(stream);
+            StreamContent clone = new(stream);
             foreach (var header in content.Headers)
                 clone.Headers.Add(header.Key, header.Value);
 
@@ -353,7 +355,7 @@ namespace Pathoschild.Http.Client
 
             // parse URLs
             resource = resource!.Trim();
-            UriBuilder builder = new UriBuilder(baseUrl);
+            UriBuilder builder = new(baseUrl);
 
             // special case: combine if either side is a fragment
             if (!string.IsNullOrWhiteSpace(builder.Fragment) || resource.StartsWith('#'))
@@ -363,11 +365,12 @@ namespace Pathoschild.Http.Client
             if (resource.StartsWith('?') || resource.StartsWith('&'))
             {
                 bool baseHasQuery = !string.IsNullOrWhiteSpace(builder.Query);
-                if (baseHasQuery && resource.StartsWith('?'))
-                    throw new FormatException($"Can't add resource name '{resource}' to base URL '{baseUrl}' because the latter already has a query string.");
-                if (!baseHasQuery && resource.StartsWith('&'))
-                    throw new FormatException($"Can't add resource name '{resource}' to base URL '{baseUrl}' because the latter doesn't have a query string.");
-                return new Uri(baseUrl + resource);
+                return baseHasQuery switch
+                {
+                    true when resource.StartsWith('?') => throw new FormatException($"Can't add resource name '{resource}' to base URL '{baseUrl}' because the latter already has a query string."),
+                    false when resource.StartsWith('&') => throw new FormatException($"Can't add resource name '{resource}' to base URL '{baseUrl}' because the latter doesn't have a query string."),
+                    _ => new Uri(baseUrl + resource)
+                };
             }
 
             // else make absolute URL

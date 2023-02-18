@@ -46,7 +46,7 @@ namespace Pathoschild.Http.Tests.Formatters
         /// <param name="contentType">The HTTP Accept and Content-Type header values.</param>
         protected HttpRequestMessage GetRequest(object content, MediaTypeFormatter formatter, Type type, string? contentType = null)
         {
-            HttpRequestMessage message = new HttpRequestMessage(HttpMethod.Get, "http://example.org")
+            HttpRequestMessage message = new(HttpMethod.Get, "http://example.org")
             {
                 Content = new ObjectContent(type, content, formatter)
             };
@@ -69,8 +69,8 @@ namespace Pathoschild.Http.Tests.Formatters
             if (request.Content is null)
                 throw new InvalidOperationException("Can't get the serialized representation for a null message body.");
 
-            using MemoryStream stream = new MemoryStream();
-            using StreamReader reader = new StreamReader(stream);
+            using MemoryStream stream = new();
+            using StreamReader reader = new(stream);
             formatter.Serialize(typeof(string), content, stream, request.Content, this.NullTransportContext);
             stream.Position = 0;
             return reader.ReadToEnd();
@@ -86,17 +86,16 @@ namespace Pathoschild.Http.Tests.Formatters
             if (request.Content is null)
                 throw new InvalidOperationException("Can't get the deserialized representation for a null message body.");
 
-            using (MemoryStream stream = new MemoryStream())
-            using (StreamWriter writer = new StreamWriter(stream))
-            {
-                // write content
-                writer.Write(content);
-                writer.Flush();
-                stream.Position = 0;
+            using MemoryStream stream = new();
+            using StreamWriter writer = new(stream);
 
-                // deserialize
-                return formatter.Deserialize(type, stream, request.Content, this.FormatterLogger);
-            }
+            // write content
+            writer.Write(content);
+            writer.Flush();
+            stream.Position = 0;
+
+            // deserialize
+            return formatter.Deserialize(type, stream, request.Content, this.FormatterLogger);
         }
     }
 }

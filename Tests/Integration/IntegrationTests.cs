@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq.Expressions;
 #if NET452
 using System.Net;
@@ -17,7 +18,7 @@ namespace Pathoschild.Http.Tests.Integration
         ** Fields
         *********/
         /// <summary>The metadata expected from the English Wikipedia.</summary>
-        private readonly WikipediaMetadata.WikipediaGeneral EnwikiMetadata = new WikipediaMetadata.WikipediaGeneral
+        private readonly WikipediaMetadata.WikipediaGeneral EnwikiMetadata = new()
         {
             ArticlePath = "/wiki/$1",
             Base = "https://en.wikipedia.org/wiki/Main_Page",
@@ -38,7 +39,7 @@ namespace Pathoschild.Http.Tests.Integration
         };
 
         /// <summary>The metadata expected from the Chinese Wikipedia.</summary>
-        private readonly WikipediaMetadata.WikipediaGeneral ZhwikiMetadata = new WikipediaMetadata.WikipediaGeneral
+        private readonly WikipediaMetadata.WikipediaGeneral ZhwikiMetadata = new()
         {
             ArticlePath = "/wiki/$1",
             Base = "https://zh.wikipedia.org/wiki/Wikipedia:%E9%A6%96%E9%A1%B5",
@@ -112,6 +113,7 @@ namespace Pathoschild.Http.Tests.Integration
         /// <param name="response">The metadata to assert.</param>
         /// <param name="expected">The expected metadata.</param>
         /// <param name="prefix">The property name prefix to use within assertion exceptions.</param>
+        [SuppressMessage("ReSharper", "ParameterOnlyUsedForPreconditionCheck.Local", Justification = "This is an integration test, not a method meant to be called directly.")]
         private void AssertResponse(WikipediaMetadata response, WikipediaMetadata.WikipediaGeneral expected, string prefix)
         {
             // assert

@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Net;
 using System.Net.Http;
@@ -9,6 +10,8 @@ using Newtonsoft.Json.Linq;
 namespace Pathoschild.Http.Client
 {
     /// <summary>Asynchronously parses an HTTP response.</summary>
+    [SuppressMessage("ReSharper", "UnusedMember.Global", Justification = "This is a public API.")]
+    [SuppressMessage("ReSharper", "UnusedMemberInSuper.Global", Justification = "This is a public API.")]
     public interface IResponse
     {
         /*********

@@ -43,7 +43,7 @@ namespace Pathoschild.Http.Tests.Client
         public void Dispose_DoesNotDisposeInjectedClient(string uri)
         {
             // act
-            using HttpClient httpClient = new HttpClient();
+            using HttpClient httpClient = new();
             IClient fluentClient = this.ConstructClient(uri, httpClient: httpClient);
             fluentClient.Dispose();
 
@@ -225,7 +225,7 @@ namespace Pathoschild.Http.Tests.Client
         {
             // arrange
             HttpMethod method = this.ConstructMethod(methodName);
-            HttpRequestMessage message = new HttpRequestMessage(method, resource);
+            HttpRequestMessage message = new(method, resource);
 
             // act
             IRequest request = this.ConstructClient().SendAsync(message);
@@ -241,7 +241,7 @@ namespace Pathoschild.Http.Tests.Client
         public void VerbMethods([Values("DELETE", "GET", "POST", "PUT")] string method, [Values("resource")] string resource)
         {
             // act
-            var client = this.ConstructClient();
+            IClient client = this.ConstructClient();
             IRequest request = method switch
             {
                 "DELETE" => client.DeleteAsync(resource),
