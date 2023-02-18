@@ -13,6 +13,7 @@
     <PackageIcon>images/package-icon.png</PackageIcon>
     <RepositoryType>git</RepositoryType>
     <RepositoryUrl>https://github.com/Pathoschild/FluentHttpClient.git</RepositoryUrl>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageReleaseNotes>See release notes at https://github.com/Pathoschild/FluentHttpClient/blob/develop/RELEASE-NOTES.md</PackageReleaseNotes>
     <PackageTags>wcf;web;webapi;HttpClient;FluentHttp;FluentHttpClient</PackageTags>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
@@ -36,6 +37,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Include="../README.md" Pack="true" PackagePath="/" />
     <None Include="package-icon.png" Pack="true" PackagePath="images/" />
   </ItemGroup>
 </Project>

@@ -1,7 +1,8 @@
 # Release notes
 ## Upcoming release
 * Added cancellation token to responses (thanks to Jericho!).
-* Added request coordinator field to `IClient` interface (thanks to Jericho!).
+* Added request coordinator property to `IClient` interface (thanks to Jericho!).
+* Added README to NuGet package.
 * Updated dependencies.
 * Fixed some async operations not using the cancellation token (thanks to Jericho!).
 
