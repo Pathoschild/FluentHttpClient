@@ -22,6 +22,9 @@ namespace Pathoschild.Http.Client
         /// <summary>Interceptors which can read and modify HTTP requests and responses.</summary>
         ICollection<IHttpFilter> Filters { get; }
 
+        /// <summary>The request coordinator.</summary>
+        IRequestCoordinator? RequestCoordinator { get; }
+
 
         /*********
         ** Methods
