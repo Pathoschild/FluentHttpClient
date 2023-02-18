@@ -297,8 +297,13 @@ namespace Pathoschild.Http.Client
                 Version = request.Version
             };
 
+#if NET5_0_OR_GREATER
+            foreach (var option in request.Options)
+                clone.Options.Set(new HttpRequestOptionsKey<object?>(option.Key), option.Value);
+#else
             foreach (var prop in request.Properties)
                 clone.Properties.Add(prop);
+#endif
             foreach (var header in request.Headers)
                 clone.Headers.TryAddWithoutValidation(header.Key, header.Value);
 
