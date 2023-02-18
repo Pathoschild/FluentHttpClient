@@ -67,19 +67,33 @@ namespace Pathoschild.Http.Client.Internal
         /// <inheritdoc />
         public Task<byte[]> AsByteArray()
         {
-            return this.AssertContent().ReadAsByteArrayAsync(this.CancellationToken);
+            return this.AssertContent().ReadAsByteArrayAsync(
+#if NET5_0_OR_GREATER
+                this.CancellationToken
+#endif
+            );
         }
 
         /// <inheritdoc />
         public Task<string> AsString()
         {
-            return this.AssertContent().ReadAsStringAsync(this.CancellationToken);
+            return this.AssertContent().ReadAsStringAsync(
+#if NET5_0_OR_GREATER
+                this.CancellationToken
+#endif
+            );
         }
 
         /// <inheritdoc />
         public async Task<Stream> AsStream()
         {
-            Stream stream = await this.AssertContent().ReadAsStreamAsync(this.CancellationToken).ConfigureAwait(false);
+            Stream stream = await this.AssertContent()
+                .ReadAsStreamAsync(
+#if NET5_0_OR_GREATER
+                this.CancellationToken
+#endif
+                )
+                .ConfigureAwait(false);
             stream.Position = 0;
             return stream;
         }

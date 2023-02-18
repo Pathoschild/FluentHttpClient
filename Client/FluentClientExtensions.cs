@@ -315,7 +315,13 @@ namespace Pathoschild.Http.Client
                 return null;
 
             Stream stream = new MemoryStream();
-            await content.CopyToAsync(stream, cancellationToken).ConfigureAwait(false);
+            await content
+                .CopyToAsync(stream
+#if NET5_0_OR_GREATER
+                    , cancellationToken
+#endif
+                )
+                .ConfigureAwait(false);
             stream.Position = 0;
 
             StreamContent clone = new StreamContent(stream);
