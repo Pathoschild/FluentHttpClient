@@ -1,5 +1,7 @@
 # Release notes
-## Upcoming release
+## 4.3.0
+Released 14 March 2023.
+
 * Added cancellation token to responses (thanks to Jericho!).
 * Added request coordinator property to `IClient` interface (thanks to Jericho!).
 * Added README to NuGet package.
