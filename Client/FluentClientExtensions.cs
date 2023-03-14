@@ -1,9 +1,11 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using Pathoschild.Http.Client.Extensibility;
 using Pathoschild.Http.Client.Internal;
@@ -12,6 +14,7 @@ using Pathoschild.Http.Client.Retry;
 namespace Pathoschild.Http.Client
 {
     /// <summary>Provides convenience methods for configuring the HTTP client.</summary>
+    [SuppressMessage("ReSharper", "UnusedMember.Global", Justification = "This is a public API.")]
     public static class FluentClientExtensions
     {
         /*********
@@ -127,8 +130,8 @@ namespace Pathoschild.Http.Client
         /// <exception cref="ObjectDisposedException">The instance has been disposed.</exception>
         public static IRequest SendAsync(this IClient client, HttpMethod method, string? resource)
         {
-            var uri = FluentClientExtensions.ResolveFinalUrl(client.BaseClient.BaseAddress, resource);
-            var message = Factory.GetRequestMessage(method, uri, client.Formatters);
+            Uri uri = FluentClientExtensions.ResolveFinalUrl(client.BaseClient.BaseAddress, resource) ?? throw new InvalidOperationException("Can't send a request with a null URL.");
+            HttpRequestMessage message = Factory.GetRequestMessage(method, uri, client.Formatters);
             return client.SendAsync(message);
         }
 
@@ -286,17 +289,23 @@ namespace Pathoschild.Http.Client
         *********/
         /// <summary>Get a copy of the request.</summary>
         /// <param name="request">The request to copy.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
         /// <remarks>Note that cloning a request isn't possible after it's dispatched, because the content stream is automatically disposed after the request.</remarks>
-        internal static async Task<HttpRequestMessage> CloneAsync(this HttpRequestMessage request)
+        internal static async Task<HttpRequestMessage> CloneAsync(this HttpRequestMessage request, CancellationToken cancellationToken = default)
         {
-            HttpRequestMessage clone = new HttpRequestMessage(request.Method, request.RequestUri)
+            HttpRequestMessage clone = new(request.Method, request.RequestUri)
             {
-                Content = await request.Content.CloneAsync().ConfigureAwait(false),
+                Content = await request.Content.CloneAsync(cancellationToken).ConfigureAwait(false),
                 Version = request.Version
             };
 
+#if NET5_0_OR_GREATER
+            foreach ((string key, object? value) in request.Options)
+                clone.Options.Set(new HttpRequestOptionsKey<object?>(key), value);
+#else
             foreach (var prop in request.Properties)
                 clone.Properties.Add(prop);
+#endif
             foreach (var header in request.Headers)
                 clone.Headers.TryAddWithoutValidation(header.Key, header.Value);
 
@@ -305,17 +314,24 @@ namespace Pathoschild.Http.Client
 
         /// <summary>Get a copy of the request content.</summary>
         /// <param name="content">The content to copy.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
         /// <remarks>Note that cloning content isn't possible after it's dispatched, because the stream is automatically disposed after the request.</remarks>
-        internal static async Task<HttpContent?> CloneAsync(this HttpContent? content)
+        internal static async Task<HttpContent?> CloneAsync(this HttpContent? content, CancellationToken cancellationToken = default)
         {
             if (content == null)
                 return null;
 
             Stream stream = new MemoryStream();
-            await content.CopyToAsync(stream).ConfigureAwait(false);
+            await content
+                .CopyToAsync(stream
+#if NET5_0_OR_GREATER
+                    , cancellationToken
+#endif
+                )
+                .ConfigureAwait(false);
             stream.Position = 0;
 
-            StreamContent clone = new StreamContent(stream);
+            StreamContent clone = new(stream);
             foreach (var header in content.Headers)
                 clone.Headers.Add(header.Key, header.Value);
 
@@ -325,12 +341,12 @@ namespace Pathoschild.Http.Client
         /// <summary>Resolve the final URL for a request.</summary>
         /// <param name="baseUrl">The base URL.</param>
         /// <param name="resource">The requested resource, or <c>null</c> to use the base URL (if set).</param>
-        private static Uri ResolveFinalUrl(Uri baseUrl, string? resource)
+        private static Uri? ResolveFinalUrl(Uri? baseUrl, string? resource)
         {
             // ignore if empty or already absolute
             if (string.IsNullOrWhiteSpace(resource))
                 return baseUrl;
-            if (Uri.TryCreate(resource, UriKind.Absolute, out Uri absoluteUrl))
+            if (Uri.TryCreate(resource, UriKind.Absolute, out Uri? absoluteUrl))
                 return absoluteUrl;
 
             // can't combine if no base URL
@@ -339,7 +355,7 @@ namespace Pathoschild.Http.Client
 
             // parse URLs
             resource = resource!.Trim();
-            UriBuilder builder = new UriBuilder(baseUrl);
+            UriBuilder builder = new(baseUrl);
 
             // special case: combine if either side is a fragment
             if (!string.IsNullOrWhiteSpace(builder.Fragment) || resource.StartsWith('#'))
@@ -349,11 +365,12 @@ namespace Pathoschild.Http.Client
             if (resource.StartsWith('?') || resource.StartsWith('&'))
             {
                 bool baseHasQuery = !string.IsNullOrWhiteSpace(builder.Query);
-                if (baseHasQuery && resource.StartsWith('?'))
-                    throw new FormatException($"Can't add resource name '{resource}' to base URL '{baseUrl}' because the latter already has a query string.");
-                if (!baseHasQuery && resource.StartsWith('&'))
-                    throw new FormatException($"Can't add resource name '{resource}' to base URL '{baseUrl}' because the latter doesn't have a query string.");
-                return new Uri(baseUrl + resource);
+                return baseHasQuery switch
+                {
+                    true when resource.StartsWith('?') => throw new FormatException($"Can't add resource name '{resource}' to base URL '{baseUrl}' because the latter already has a query string."),
+                    false when resource.StartsWith('&') => throw new FormatException($"Can't add resource name '{resource}' to base URL '{baseUrl}' because the latter doesn't have a query string."),
+                    _ => new Uri(baseUrl + resource)
+                };
             }
 
             // else make absolute URL

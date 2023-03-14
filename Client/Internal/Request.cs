@@ -56,6 +56,9 @@ namespace Pathoschild.Http.Client.Internal
         /// <param name="filters">Middleware classes which can intercept and modify HTTP requests and responses.</param>
         public Request(HttpRequestMessage message, MediaTypeFormatterCollection formatters, Func<IRequest, Task<HttpResponseMessage>> dispatcher, ICollection<IHttpFilter> filters)
         {
+            if (message.RequestUri is null)
+                throw new ArgumentException("The message URI must not be null");
+
             this.Message = message;
             this.Formatters = formatters;
             this.Dispatcher = dispatcher;
@@ -92,6 +95,9 @@ namespace Pathoschild.Http.Client.Internal
         /// <inheritdoc />
         public IRequest WithArgument(string key, object? value)
         {
+            if (this.Message.RequestUri is null)
+                throw new InvalidOperationException("Can't add query arguments to a request with a null URL.");
+
             this.Message.RequestUri = this.Message.RequestUri.WithArguments(this.Options.IgnoreNullArguments ?? true, new KeyValuePair<string, object?>(key, value));
             return this;
         }
@@ -101,6 +107,9 @@ namespace Pathoschild.Http.Client.Internal
         {
             if (arguments == null)
                 return this;
+
+            if (this.Message.RequestUri is null)
+                throw new InvalidOperationException("Can't add query arguments to a request with a null URL.");
 
             KeyValuePair<string, object?>[] args = (
                 from arg in arguments
@@ -118,6 +127,9 @@ namespace Pathoschild.Http.Client.Internal
         {
             if (arguments == null)
                 return this;
+
+            if (this.Message.RequestUri is null)
+                throw new InvalidOperationException("Can't add query arguments to a request with a null URL.");
 
             KeyValuePair<string, object?>[] args = arguments.GetKeyValueArguments().ToArray();
 
@@ -272,7 +284,7 @@ namespace Pathoschild.Http.Client.Internal
             HttpResponseMessage responseMessage = this.RequestCoordinator != null
                 ? await this.RequestCoordinator.ExecuteAsync(this, this.Dispatcher).ConfigureAwait(false)
                 : await this.Dispatcher(this).ConfigureAwait(false);
-            IResponse response = new Response(responseMessage, this.Formatters);
+            IResponse response = new Response(responseMessage, this.Formatters, this.CancellationToken);
 
             // apply response filters
             foreach (IHttpFilter filter in this.Filters)

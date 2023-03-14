@@ -1,5 +1,9 @@
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq.Expressions;
+#if NET452
+using System.Net;
+#endif
 using System.Threading.Tasks;
 using NUnit.Framework;
 using Pathoschild.Http.Client;
@@ -14,7 +18,7 @@ namespace Pathoschild.Http.Tests.Integration
         ** Fields
         *********/
         /// <summary>The metadata expected from the English Wikipedia.</summary>
-        private readonly WikipediaMetadata.WikipediaGeneral EnwikiMetadata = new WikipediaMetadata.WikipediaGeneral
+        private readonly WikipediaMetadata.WikipediaGeneral EnwikiMetadata = new()
         {
             ArticlePath = "/wiki/$1",
             Base = "https://en.wikipedia.org/wiki/Main_Page",
@@ -25,12 +29,17 @@ namespace Pathoschild.Http.Tests.Integration
             Server = "//en.wikipedia.org",
             SiteName = "Wikipedia",
             Time = DateTime.UtcNow,
-            VariantArticlePath = "false",
+            VariantArticlePath =
+#if NET452
+                "False",
+#else
+                "false",
+#endif
             WikiID = "enwiki"
         };
 
         /// <summary>The metadata expected from the Chinese Wikipedia.</summary>
-        private readonly WikipediaMetadata.WikipediaGeneral ZhwikiMetadata = new WikipediaMetadata.WikipediaGeneral
+        private readonly WikipediaMetadata.WikipediaGeneral ZhwikiMetadata = new()
         {
             ArticlePath = "/wiki/$1",
             Base = "https://zh.wikipedia.org/wiki/Wikipedia:%E9%A6%96%E9%A1%B5",
@@ -52,6 +61,10 @@ namespace Pathoschild.Http.Tests.Integration
         [Test(Description = "The client can fetch a resource from the English Wikipedia's API.")]
         public async Task EnglishWikipedia()
         {
+#if NET452
+            ServicePointManager.SecurityProtocol |= SecurityProtocolType.Tls12;
+#endif
+
             // arrange
             IClient client = this.ConstructClient("https://en.wikipedia.org/");
 
@@ -68,6 +81,10 @@ namespace Pathoschild.Http.Tests.Integration
         [Test(Description = "The client can fetch a resource from the Chinese Wikipedia's API, including proper Unicode handling.")]
         public async Task ChineseWikipedia()
         {
+#if NET452
+            ServicePointManager.SecurityProtocol |= SecurityProtocolType.Tls12;
+#endif
+
             // arrange
             IClient client = this.ConstructClient("https://zh.wikipedia.org/");
 
@@ -96,14 +113,15 @@ namespace Pathoschild.Http.Tests.Integration
         /// <param name="response">The metadata to assert.</param>
         /// <param name="expected">The expected metadata.</param>
         /// <param name="prefix">The property name prefix to use within assertion exceptions.</param>
+        [SuppressMessage("ReSharper", "ParameterOnlyUsedForPreconditionCheck.Local", Justification = "This is an integration test, not a method meant to be called directly.")]
         private void AssertResponse(WikipediaMetadata response, WikipediaMetadata.WikipediaGeneral expected, string prefix)
         {
             // assert
             Assert.IsNotNull(response, prefix + " metadata is null");
             Assert.IsNotNull(response.Query, prefix + " metadata.Query is null.");
-            Assert.IsNotNull(response.Query.General, prefix + " metadata.Query.General is null.");
+            Assert.IsNotNull(response.Query!.General, prefix + " metadata.Query.General is null.");
 
-            response.Query.General
+            response.Query.General!
                 .AssertValue(p => p.ArticlePath, expected.ArticlePath)
                 .AssertValue(p => p.Base, expected.Base)
                 .AssertValue(p => p.Language, expected.Language)

@@ -24,7 +24,7 @@ namespace Pathoschild.Http.Client.Internal
             if (!formatters.Any())
                 throw new InvalidOperationException("No MediaTypeFormatters are available on the fluent client.");
 
-            MediaTypeFormatter formatter = contentType != null
+            MediaTypeFormatter? formatter = contentType != null
                 ? formatters.FirstOrDefault(f => f.SupportedMediaTypes.Any(m => m.MediaType == contentType.MediaType))
                 : formatters.FirstOrDefault();
             if (formatter == null)
@@ -39,7 +39,7 @@ namespace Pathoschild.Http.Client.Internal
         /// <param name="formatters">The formatters used for serializing and deserializing message bodies.</param>
         public static HttpRequestMessage GetRequestMessage(HttpMethod method, Uri resource, MediaTypeFormatterCollection formatters)
         {
-            HttpRequestMessage request = new HttpRequestMessage(method, resource);
+            HttpRequestMessage request = new(method, resource);
 
             // add default headers
             request.Headers.Add("accept", formatters.SelectMany(p => p.SupportedMediaTypes).Select(p => p.MediaType));

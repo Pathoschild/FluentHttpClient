@@ -27,7 +27,7 @@ namespace Pathoschild.Http.Client.Internal
                 return uri;
 
             // adjust URL
-            UriBuilder builder = new UriBuilder(uri);
+            UriBuilder builder = new(uri);
             builder.Query = !string.IsNullOrWhiteSpace(builder.Query)
                 ? builder.Query.TrimStart('?') + "&" + newQueryString
                 : newQueryString;

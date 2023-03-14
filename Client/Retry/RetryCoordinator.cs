@@ -77,19 +77,9 @@ namespace Pathoschild.Http.Client.Retry
                 }
 
                 // find the applicable retry configuration
-                IRetryConfig? retryConfig = null;
-                foreach (var config in this.Configs)
-                {
-                    if (config.ShouldRetry(response))
-                    {
-                        retryConfig = config;
-                        break;
-                    }
-                }
-
-                // exit if we can't retry
+                IRetryConfig? retryConfig = this.Configs.FirstOrDefault(config => config.ShouldRetry(response));
                 if (retryConfig == null)
-                    return response;
+                    return response; // can't retry
 
                 // throw exception if we've exceeded max retries
                 int maxAttempt = 1 + retryConfig.MaxRetries;
@@ -99,7 +89,7 @@ namespace Pathoschild.Http.Client.Retry
                 // set up retry
                 TimeSpan delay = retryConfig.GetDelay(attempt, response);
                 if (delay.TotalMilliseconds > 0)
-                    await Task.Delay(delay).ConfigureAwait(false);
+                    await Task.Delay(delay, request.CancellationToken).ConfigureAwait(false);
             }
         }
     }

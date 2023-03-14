@@ -42,14 +42,14 @@ namespace Pathoschild.Http.Client.Formatters
         /// <inheritdoc />
         public override object Deserialize(Type type, Stream stream, HttpContent content, IFormatterLogger formatterLogger)
         {
-            var reader = new StreamReader(stream); // don't dispose (stream disposal is handled elsewhere)
+            StreamReader reader = new(stream); // don't dispose (stream disposal is handled elsewhere)
             return reader.ReadToEnd();
         }
 
         /// <inheritdoc />
         public override void Serialize(Type type, object? value, Stream stream, HttpContent content, TransportContext transportContext)
         {
-            var writer = new StreamWriter(stream); // don't dispose (stream disposal is handled elsewhere)
+            StreamWriter writer = new(stream); // don't dispose (stream disposal is handled elsewhere)
             writer.Write(value != null ? value.ToString() : string.Empty);
             writer.Flush();
         }

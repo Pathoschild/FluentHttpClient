@@ -1,8 +1,10 @@
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Formatting;
+using System.Threading;
 using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
 
@@ -26,6 +28,9 @@ namespace Pathoschild.Http.Client.Internal
         /// <inheritdoc />
         public HttpStatusCode Status => this.Message.StatusCode;
 
+        /// <inheritdoc />
+        public CancellationToken CancellationToken { get; private set; }
+
 
         /*********
         ** Public methods
@@ -33,16 +38,25 @@ namespace Pathoschild.Http.Client.Internal
         /// <summary>Construct an instance.</summary>
         /// <param name="message">The underlying HTTP request message.</param>
         /// <param name="formatters">The formatters used for serializing and deserializing message bodies.</param>
-        public Response(HttpResponseMessage message, MediaTypeFormatterCollection formatters)
+        /// <param name="cancellationToken">The cancellation token.</param>
+        public Response(HttpResponseMessage message, MediaTypeFormatterCollection formatters, CancellationToken cancellationToken = default)
         {
             this.Message = message;
             this.Formatters = formatters;
+            this.CancellationToken = cancellationToken;
+        }
+
+        /// <inheritdoc />
+        public IResponse WithCancellationToken(CancellationToken cancellationToken)
+        {
+            this.CancellationToken = cancellationToken;
+            return this;
         }
 
         /// <inheritdoc />
         public Task<T> As<T>()
         {
-            return this.Message.Content.ReadAsAsync<T>(this.Formatters);
+            return this.Message.Content.ReadAsAsync<T>(this.Formatters, this.CancellationToken);
         }
 
         /// <inheritdoc />
@@ -54,19 +68,33 @@ namespace Pathoschild.Http.Client.Internal
         /// <inheritdoc />
         public Task<byte[]> AsByteArray()
         {
-            return this.AssertContent().ReadAsByteArrayAsync();
+            return this.AssertContent().ReadAsByteArrayAsync(
+#if NET5_0_OR_GREATER
+                this.CancellationToken
+#endif
+            );
         }
 
         /// <inheritdoc />
         public Task<string> AsString()
         {
-            return this.AssertContent().ReadAsStringAsync();
+            return this.AssertContent().ReadAsStringAsync(
+#if NET5_0_OR_GREATER
+                this.CancellationToken
+#endif
+            );
         }
 
         /// <inheritdoc />
         public async Task<Stream> AsStream()
         {
-            Stream stream = await this.AssertContent().ReadAsStreamAsync().ConfigureAwait(false);
+            Stream stream = await this.AssertContent()
+                .ReadAsStreamAsync(
+#if NET5_0_OR_GREATER
+                this.CancellationToken
+#endif
+                )
+                .ConfigureAwait(false);
             stream.Position = 0;
             return stream;
         }
@@ -74,21 +102,21 @@ namespace Pathoschild.Http.Client.Internal
         /// <inheritdoc />
         public async Task<JToken> AsRawJson()
         {
-            string content = await this.AsString();
+            string content = await this.AsString().ConfigureAwait(false);
             return JToken.Parse(content);
         }
 
         /// <inheritdoc />
         public async Task<JObject> AsRawJsonObject()
         {
-            string content = await this.AsString();
+            string content = await this.AsString().ConfigureAwait(false);
             return JObject.Parse(content);
         }
 
         /// <inheritdoc />
         public async Task<JArray> AsRawJsonArray()
         {
-            string content = await this.AsString();
+            string content = await this.AsString().ConfigureAwait(false);
             return JArray.Parse(content);
         }
 
@@ -98,6 +126,9 @@ namespace Pathoschild.Http.Client.Internal
         *********/
         /// <summary>Assert that the response has a body.</summary>
         /// <exception cref="NullReferenceException">The response has no response body to read.</exception>
+#if NET5_0_OR_GREATER
+        [MemberNotNull(nameof(Message))]
+#endif
         private HttpContent AssertContent()
         {
             return this.Message?.Content ?? throw new NullReferenceException("The response has no body to read.");

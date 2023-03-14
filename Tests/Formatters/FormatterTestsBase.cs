@@ -46,7 +46,7 @@ namespace Pathoschild.Http.Tests.Formatters
         /// <param name="contentType">The HTTP Accept and Content-Type header values.</param>
         protected HttpRequestMessage GetRequest(object content, MediaTypeFormatter formatter, Type type, string? contentType = null)
         {
-            HttpRequestMessage message = new HttpRequestMessage(HttpMethod.Get, "http://example.org")
+            HttpRequestMessage message = new(HttpMethod.Get, "http://example.org")
             {
                 Content = new ObjectContent(type, content, formatter)
             };
@@ -59,38 +59,43 @@ namespace Pathoschild.Http.Tests.Formatters
             return message;
         }
 
-        /// <summary>Get the serialized representation of the request body.</summary>
+        /// <summary>Get the serialized representation of a request body.</summary>
         /// <typeparam name="T">The request body type.</typeparam>
         /// <param name="content">The request body content.</param>
         /// <param name="request">The HTTP request to handle.</param>
         /// <param name="formatter">The media type formatter which will serialize the request body.</param>
         protected string GetSerialized<T>(T content, HttpRequestMessage request, MediaTypeFormatterBase formatter)
         {
-            using MemoryStream stream = new MemoryStream();
-            using StreamReader reader = new StreamReader(stream);
+            if (request.Content is null)
+                throw new InvalidOperationException("Can't get the serialized representation for a null message body.");
+
+            using MemoryStream stream = new();
+            using StreamReader reader = new(stream);
             formatter.Serialize(typeof(string), content, stream, request.Content, this.NullTransportContext);
             stream.Position = 0;
             return reader.ReadToEnd();
         }
 
-        /// <summary>Get the serialized representation of the request body.</summary>
+        /// <summary>Get the deserialized representation of a request body.</summary>
         /// <param name="type">The request body type.</param>
         /// <param name="content">The request body content.</param>
         /// <param name="request">The HTTP request to handle.</param>
         /// <param name="formatter">The media type formatter which will serialize the request body.</param>
         protected object GetDeserialized(Type type, string? content, HttpRequestMessage request, MediaTypeFormatterBase formatter)
         {
-            using (MemoryStream stream = new MemoryStream())
-            using (StreamWriter writer = new StreamWriter(stream))
-            {
-                // write content
-                writer.Write(content);
-                writer.Flush();
-                stream.Position = 0;
+            if (request.Content is null)
+                throw new InvalidOperationException("Can't get the deserialized representation for a null message body.");
 
-                // deserialize
-                return formatter.Deserialize(type, stream, request.Content, this.FormatterLogger);
-            }
+            using MemoryStream stream = new();
+            using StreamWriter writer = new(stream);
+
+            // write content
+            writer.Write(content);
+            writer.Flush();
+            stream.Position = 0;
+
+            // deserialize
+            return formatter.Deserialize(type, stream, request.Content, this.FormatterLogger);
         }
     }
 }

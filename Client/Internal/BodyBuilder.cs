@@ -89,11 +89,11 @@ namespace Pathoschild.Http.Client.Internal
         /// <inheritdoc />
         public HttpContent FileUpload(IEnumerable<KeyValuePair<string, Stream>> files)
         {
-            var content = new MultipartFormDataContent();
+            MultipartFormDataContent content = new();
 
             foreach (var file in files)
             {
-                StreamContent streamContent = new StreamContent(file.Value);
+                StreamContent streamContent = new(file.Value);
                 content.Add(streamContent, file.Key, file.Key);
             }
 

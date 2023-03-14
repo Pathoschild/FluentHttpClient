@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
@@ -14,6 +15,7 @@ using Pathoschild.Http.Client.Retry;
 namespace Pathoschild.Http.Client
 {
     /// <inheritdoc cref="IClient" />
+    [SuppressMessage("ReSharper", "UnusedMember.Global", Justification = "This is a public API.")]
     public class FluentClient : IClient
     {
         /*********
@@ -29,7 +31,7 @@ namespace Pathoschild.Http.Client
         private readonly IList<Func<IRequest, IRequest>> Defaults = new List<Func<IRequest, IRequest>>();
 
         /// <summary>Options for the fluent client.</summary>
-        private readonly FluentClientOptions Options = new FluentClientOptions();
+        private readonly FluentClientOptions Options = new();
 
 
         /*********
@@ -42,9 +44,9 @@ namespace Pathoschild.Http.Client
         public HttpClient BaseClient { get; }
 
         /// <inheritdoc />
-        public MediaTypeFormatterCollection Formatters { get; } = new MediaTypeFormatterCollection();
+        public MediaTypeFormatterCollection Formatters { get; } = new();
 
-        /// <summary>The request coordinator.</summary>
+        /// <inheritdoc />
         public IRequestCoordinator? RequestCoordinator { get; private set; }
 
 
@@ -158,7 +160,7 @@ namespace Pathoschild.Http.Client
         /// <summary>Set the default user agent header.</summary>
         private void SetDefaultUserAgent()
         {
-            Version version = typeof(FluentClient).GetTypeInfo().Assembly.GetName().Version;
+            Version version = typeof(FluentClient).GetTypeInfo().Assembly.GetName().Version!;
             this.SetUserAgent($"FluentHttpClient/{version} (+http://github.com/Pathoschild/FluentHttpClient)");
         }
 
@@ -170,7 +172,7 @@ namespace Pathoschild.Http.Client
             this.AssertNotDisposed();
 
             // clone request (to avoid issues when resending messages)
-            HttpRequestMessage requestMessage = await request.Message.CloneAsync().ConfigureAwait(false);
+            HttpRequestMessage requestMessage = await request.Message.CloneAsync(request.CancellationToken).ConfigureAwait(false);
 
             // dispatch request
             return await this.BaseClient
@@ -220,7 +222,7 @@ namespace Pathoschild.Http.Client
         /// <remarks>Whereas <see cref="GetDefaultHandler()"/> leaves the default proxy unchanged, this method will explicitly override it (e.g. setting a null proxy will disable the default proxy).</remarks>
         private static HttpClientHandler GetDefaultHandler(IWebProxy? proxy)
         {
-            var handler = FluentClient.GetDefaultHandler();
+            HttpClientHandler handler = FluentClient.GetDefaultHandler();
             handler.Proxy = proxy;
             handler.UseProxy = proxy != null;
             return handler;

@@ -54,8 +54,8 @@ namespace Pathoschild.Http.Client.Retry
         {
             return new RetryConfig(
                 maxRetries: 0,
-                shouldRetry: response => false,
-                getDelay: (attempt, response) => TimeSpan.Zero
+                shouldRetry: _ => false,
+                getDelay: (_, _) => TimeSpan.Zero
             );
         }
     }

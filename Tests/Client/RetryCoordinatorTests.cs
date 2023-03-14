@@ -31,10 +31,10 @@ namespace Pathoschild.Http.Tests.Client
             // arrange
             const int maxAttempts = 2;
             int attempts = 0;
-            var mockHandler = new MockHttpMessageHandler();
-            mockHandler.When(HttpMethod.Get, "*").With(req => ++attempts == maxAttempts).Respond(HttpStatusCode.OK); // succeed on last attempt
+            MockHttpMessageHandler mockHandler = new();
+            mockHandler.When(HttpMethod.Get, "*").With(_ => ++attempts == maxAttempts).Respond(HttpStatusCode.OK); // succeed on last attempt
             mockHandler.When(HttpMethod.Get, "*").Respond(HttpStatusCode.NotFound);
-            var client = new FluentClient(new Uri("https://example.org"), new HttpClient(mockHandler))
+            IClient client = new FluentClient(new Uri("https://example.org"), new HttpClient(mockHandler))
                 .SetRequestCoordinator(this.GetRetryConfig(maxAttempts - 1));
 
             // act
@@ -51,9 +51,9 @@ namespace Pathoschild.Http.Tests.Client
             // arrange
             const int maxAttempts = 3; // two test requests in non-retry mode
             int attempts = 0;
-            var mockHandler = new MockHttpMessageHandler();
-            mockHandler.When(HttpMethod.Get, "*").With(req => ++attempts == maxAttempts).Respond(HttpStatusCode.OK); // succeed on last attempt
-            mockHandler.When(HttpMethod.Get, "*").Respond(async request =>
+            MockHttpMessageHandler mockHandler = new();
+            mockHandler.When(HttpMethod.Get, "*").With(_ => ++attempts == maxAttempts).Respond(HttpStatusCode.OK); // succeed on last attempt
+            mockHandler.When(HttpMethod.Get, "*").Respond(async _ =>
             {
                 await Task.Delay(TimeSpan.FromSeconds(10));
                 Assert.Fail("The request unexpectedly didn't time out.");
@@ -88,8 +88,8 @@ namespace Pathoschild.Http.Tests.Client
         {
             // arrange
             const int maxAttempts = 2;
-            var mockHandler = new MockHttpMessageHandler();
-            var mockRequest = mockHandler.When(HttpMethod.Get, "*").Respond(async request =>
+            MockHttpMessageHandler mockHandler = new();
+            MockedRequest mockRequest = mockHandler.When(HttpMethod.Get, "*").Respond(async _ =>
             {
                 await Task.Delay(TimeSpan.FromSeconds(10)).ConfigureAwait(false);
                 Assert.Fail("The request unexpectedly wasn't cancelled.");
@@ -100,7 +100,7 @@ namespace Pathoschild.Http.Tests.Client
                 .SetRequestCoordinator(this.GetRetryConfig(maxAttempts - 1));
 
             // act & assert
-            CancellationTokenSource tokenSource = new CancellationTokenSource(TimeSpan.FromSeconds(1));
+            CancellationTokenSource tokenSource = new(TimeSpan.FromSeconds(1));
             Assert.ThrowsAsync<TaskCanceledException>(async () => await client.GetAsync("").WithCancellationToken(tokenSource.Token));
             Assert.AreEqual(1, mockHandler.GetMatchCount(mockRequest), "The client unexpectedly retried.");
         }
@@ -111,9 +111,9 @@ namespace Pathoschild.Http.Tests.Client
         {
             // arrange
             const int maxAttempts = 2;
-            var mockHttp = new MockHttpMessageHandler();
-            var mockRequest = mockHttp.When(HttpMethod.Get, "*").Respond(HttpStatusCode.NotFound);
-            var client = new FluentClient(new Uri("http://example.org"), new HttpClient(mockHttp))
+            MockHttpMessageHandler mockHttp = new();
+            MockedRequest mockRequest = mockHttp.When(HttpMethod.Get, "*").Respond(HttpStatusCode.NotFound);
+            IClient client = new FluentClient(new Uri("http://example.org"), new HttpClient(mockHttp))
                 .SetRequestCoordinator(this.GetRetryConfig(maxAttempts - 1));
 
             // act & assert
@@ -133,7 +133,7 @@ namespace Pathoschild.Http.Tests.Client
             return new RetryConfig(
                 maxRetries: maxRetries,
                 shouldRetry: res => res.StatusCode != HttpStatusCode.OK && (retryOnTimeout || res.StatusCode != RetryCoordinatorTests.TimeoutStatusCode),
-                getDelay: (attempt, res) => TimeSpan.FromMilliseconds(1)
+                getDelay: (_, _) => TimeSpan.FromMilliseconds(1)
             );
         }
     }
