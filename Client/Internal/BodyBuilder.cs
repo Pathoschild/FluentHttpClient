@@ -72,7 +72,7 @@ internal class BodyBuilder : IBodyBuilder
     /// <inheritdoc />
     public HttpContent FileUpload(FileInfo file)
     {
-        return this.FileUpload(new[] { file });
+        return this.FileUpload([file]);
     }
 
     /// <inheritdoc />
@@ -132,7 +132,7 @@ internal class BodyBuilder : IBodyBuilder
                 where pair.Value != null || this.Request.Options.IgnoreNullArguments == false
                 select $"{WebUtility.UrlEncode(pair.Key)}={WebUtility.UrlEncode(pair.Value?.ToString())}"
             )
-            : Enumerable.Empty<string>();
+            : [];
 
         return new StringContent(string.Join("&", pairs), Encoding.UTF8, "application/x-www-form-urlencoded");
     }

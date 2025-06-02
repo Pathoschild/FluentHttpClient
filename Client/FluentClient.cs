@@ -44,7 +44,7 @@ public class FluentClient : IClient
     public HttpClient BaseClient { get; }
 
     /// <inheritdoc />
-    public MediaTypeFormatterCollection Formatters { get; } = new();
+    public MediaTypeFormatterCollection Formatters { get; } = [];
 
     /// <inheritdoc />
     public IRequestCoordinator? RequestCoordinator { get; private set; }

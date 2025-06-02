@@ -41,7 +41,7 @@ public class RetryCoordinator : IRequestCoordinator
     /// <summary>Construct an instance.</summary>
     /// <param name="config">The retry configuration to apply.</param>
     public RetryCoordinator(IRetryConfig? config)
-        : this(new[] { config }) { }
+        : this([config]) { }
 
     /// <summary>Construct an instance.</summary>
     /// <param name="configs">The retry configurations to apply. Each config will be given the opportunity to retry a request.</param>
@@ -50,12 +50,7 @@ public class RetryCoordinator : IRequestCoordinator
         this.Configs = configs
             ?.Where(config => config != null)
             .Select(config => config!)
-            .ToArray() ??
-#if NET452
-                LegacyShims.EmptyArray<IRetryConfig>();
-#else
-                Array.Empty<IRetryConfig>();
-#endif
+            .ToArray() ?? [];
     }
 
     /// <inheritdoc />

@@ -15,7 +15,6 @@ using Microsoft.AspNet.WebUtilities;
 using Microsoft.Extensions.Primitives;
 using NUnit.Framework;
 using Pathoschild.Http.Client;
-using Pathoschild.Http.Client.Extensibility;
 using Pathoschild.Http.Client.Internal;
 using RichardSzalay.MockHttp;
 
@@ -149,7 +148,7 @@ public class RequestTests
         // act
         IRequest request = this
             .ConstructRequest(methodName)
-            .WithArguments(new Dictionary<string, object> { { keyA, valueA }, { keyB, valueB } });
+            .WithArguments(new Dictionary<string, object> { [keyA] = valueA, [keyB] = valueB });
 
         // assert
         this.AssertEqual(request.Message, methodName, ignoreArguments: true);
@@ -193,11 +192,10 @@ public class RequestTests
         // act
         IRequest request = this
             .ConstructRequest(methodName)
-            .WithArguments(new[]
-            {
+            .WithArguments([
                 new KeyValuePair<string, object>(keyA, valueA),
                 new KeyValuePair<string, object>(keyA, valueB)
-            });
+            ]);
 
         // assert
         this.AssertEqual(request.Message, methodName, ignoreArguments: true);
@@ -216,11 +214,10 @@ public class RequestTests
         IRequest request = this
             .ConstructRequest(methodName)
             .WithOptions(ignoreNullArguments: ignoreNullArguments)
-            .WithArguments(new[]
-            {
+            .WithArguments([
                 new KeyValuePair<string, object?>(keyA, valueA),
                 new KeyValuePair<string, object?>(keyB, valueB)
-            });
+            ]);
 
         // assert
         this.AssertEqual(request.Message, methodName, ignoreArguments: true);
@@ -261,7 +258,7 @@ public class RequestTests
         // act
         IRequest request = this
             .ConstructRequest(methodName)
-            .WithArguments(new Dictionary<string, object> { { key, value } });
+            .WithArguments(new Dictionary<string, object> { [key] = value });
 
         // assert
         this.AssertEqual(request.Message, methodName, ignoreArguments: true);
@@ -276,7 +273,7 @@ public class RequestTests
         // act
         IRequest request = this
             .ConstructRequest(methodName)
-            .WithArguments(new Dictionary<string, int> { { key, value } });
+            .WithArguments(new Dictionary<string, int> { [key] = value });
 
         // assert
         this.AssertEqual(request.Message, methodName, ignoreArguments: true);
@@ -291,10 +288,9 @@ public class RequestTests
         // act
         IRequest request = this
             .ConstructRequest(methodName)
-            .WithArguments(new[]
-            {
+            .WithArguments([
                 new KeyValuePair<string, int>(key, value )
-            });
+            ]);
 
         // assert
         this.AssertEqual(request.Message, methodName, ignoreArguments: true);
@@ -316,7 +312,7 @@ public class RequestTests
             Assert.Inconclusive($"The {nameof(args)} arguments needs an even number of values (one key and one value each).");
 
         // arrange
-        var argPairs = new List<KeyValuePair<string, object?>>();
+        List<KeyValuePair<string, object?>> argPairs = [];
         for (int i = 0; i < args.Length; i += 2)
         {
             string key = args[i]?.ToString() ?? throw new InvalidOperationException($"Invalid test case: {nameof(args)} index {i} must be a non-null value to use as an argument key.");
@@ -502,14 +498,13 @@ public class RequestTests
                 break;
 
             case "files":
-                request = request.WithBody(p => p.FileUpload(new[] { file }));
+                request = request.WithBody(p => p.FileUpload([file]));
                 break;
 
             case "stream":
-                request = request.WithBody(p => p.FileUpload(new[]
-                {
+                request = request.WithBody(p => p.FileUpload([
                     new KeyValuePair<string, Stream>(file.Name, file.OpenRead())
-                }));
+                ]));
                 break;
 
             default:
@@ -818,7 +813,7 @@ public class RequestTests
             HttpRequestMessage message = new(method, uri);
 
             // act
-            IRequest request = new Request(message, new MediaTypeFormatterCollection(), _ => new Task<HttpResponseMessage>(() => new HttpResponseMessage(HttpStatusCode.OK)), LegacyShims.EmptyArray<IHttpFilter>());
+            IRequest request = new Request(message, [], _ => new Task<HttpResponseMessage>(() => new HttpResponseMessage(HttpStatusCode.OK)), []);
 
             // assert
             this.AssertEqual(request.Message, method, uri);
@@ -838,7 +833,7 @@ public class RequestTests
     private IRequest ConstructResponseFromTask(Task<HttpResponseMessage> task)
     {
         HttpRequestMessage request = new(HttpMethod.Get, "http://example.org/");
-        return new Request(request, new MediaTypeFormatterCollection(), _ => task, LegacyShims.EmptyArray<IHttpFilter>());
+        return new Request(request, [], _ => task, []);
     }
 
     /// <summary>Construct an <see cref="IResponse"/> instance around an asynchronous task.</summary>
@@ -846,7 +841,7 @@ public class RequestTests
     private IRequest ConstructResponseFromTask(Func<HttpResponseMessage> task)
     {
         HttpRequestMessage request = new(HttpMethod.Get, "http://example.org/");
-        return new Request(request, new MediaTypeFormatterCollection(), _ => Task<HttpResponseMessage>.Factory.StartNew(task), LegacyShims.EmptyArray<IHttpFilter>());
+        return new Request(request, [], _ => Task<HttpResponseMessage>.Factory.StartNew(task), []);
     }
 
     /// <summary>Assert that an HTTP request's state matches the expected values.</summary>

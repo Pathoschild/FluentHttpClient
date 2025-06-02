@@ -138,7 +138,7 @@ public class ResponseTests
     public async Task AsArray(string contentA, string contentB)
     {
         // arrange
-        Model<string>[] expected = { new(contentA), new(contentB) };
+        Model<string>[] expected = [new(contentA), new(contentB)];
         IResponse response = this.ConstructResponse(expected);
 
         // act
@@ -404,7 +404,7 @@ public class ResponseTests
             HttpRequestMessage requestMessage = new(new HttpMethod(method), uri);
             responseMessage = requestMessage.CreateResponse(status);
             responseMessage.Content = new ObjectContent<T>(content, new JsonMediaTypeFormatter());
-            IResponse response = new Response(responseMessage, new MediaTypeFormatterCollection());
+            IResponse response = new Response(responseMessage, []);
 
             // verify
             this.AssertEqual(responseMessage.RequestMessage, method, uri);

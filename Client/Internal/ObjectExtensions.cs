@@ -12,7 +12,7 @@ internal static class ObjectExtensions
     public static IEnumerable<KeyValuePair<string, object?>> GetKeyValueArguments(this object? arguments)
     {
         if (arguments == null)
-            return Enumerable.Empty<KeyValuePair<string, object?>>();
+            return [];
 
         return (
             from property in arguments.GetType().GetRuntimeProperties()

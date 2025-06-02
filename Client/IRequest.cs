@@ -63,7 +63,7 @@ public interface IRequest
     /// <summary>Add HTTP query string arguments.</summary>
     /// <param name="arguments">The arguments to add.</param>
     /// <returns>Returns the request builder for chaining.</returns>
-    /// <example><code>client.WithArguments(new[] { new KeyValuePair&lt;string, string&gt;("genre", "drama"), new KeyValuePair&lt;string, int&gt;("genre", "comedy") })</code></example>
+    /// <example><code>client.WithArguments([new KeyValuePair&lt;string, string&gt;("genre", "drama"), new KeyValuePair&lt;string, int&gt;("genre", "comedy")])</code></example>
     IRequest WithArguments<TKey, TValue>(IEnumerable<KeyValuePair<TKey, TValue>>? arguments);
 
     /// <summary>Add HTTP query string arguments.</summary>
