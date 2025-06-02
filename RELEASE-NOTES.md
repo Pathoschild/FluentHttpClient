@@ -1,4 +1,9 @@
 # Release notes
+## 4.4.2
+Released 02 June 2025.
+
+* Fixed base URL not applied correctly when calling a relative URL on Unix (thanks to F2!).
+
 ## 4.4.1
 Released 05 June 2024.
 
