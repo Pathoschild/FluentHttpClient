@@ -34,10 +34,10 @@
         NUnit                             | 3.14.0 | next only supports .NET 6+.
     -->
     <PackageReference Include="Microsoft.AspNetCore.WebUtilities" Version="2.2.0" Condition="'$(NetCore2OrNewer)' == 'true'" />
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.9.0" />
-    <PackageReference Include="Moq" Version="4.20.70" Condition="'$(NetCore2OrNewer)' == 'true'" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.14.0" />
+    <PackageReference Include="Moq" Version="4.20.72" Condition="'$(NetCore2OrNewer)' == 'true'" />
     <PackageReference Include="NUnit" Version="3.14.0" Condition="'$(NetCore2OrNewer)' == 'true'" />
-    <PackageReference Include="NUnit3TestAdapter" Version="4.5.0" PrivateAssets="all" IncludeAssets="runtime; build; native; contentfiles; analyzers; buildtransitive" />
+    <PackageReference Include="NUnit3TestAdapter" Version="5.0.0" PrivateAssets="all" IncludeAssets="runtime; build; native; contentfiles; analyzers; buildtransitive" />
     <PackageReference Include="RichardSzalay.MockHttp" Version="7.0.0" />
 
     <!--
