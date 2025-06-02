@@ -35,22 +35,22 @@ public interface IBodyBuilder
     /****
     ** File upload
     ****/
-    /// <summary>Get a file upload body (using multi-part form data).</summary>
+    /// <summary>Get a file upload body (using multipart form data).</summary>
     /// <param name="fullPath">The absolute path to the file to upload.</param>
     /// <exception cref="KeyNotFoundException">The given path doesn't match a file.</exception>
     HttpContent FileUpload(string fullPath);
 
-    /// <summary>Get a file upload body (using multi-part form data).</summary>
+    /// <summary>Get a file upload body (using multipart form data).</summary>
     /// <param name="file">The file to upload.</param>
     /// <exception cref="KeyNotFoundException">The given file doesn't exist.</exception>
     HttpContent FileUpload(FileInfo file);
 
-    /// <summary>Get a file upload body (using multi-part form data).</summary>
+    /// <summary>Get a file upload body (using multipart form data).</summary>
     /// <param name="files">The files to upload.</param>
     /// <exception cref="KeyNotFoundException">A given file doesn't exist.</exception>
     HttpContent FileUpload(IEnumerable<FileInfo> files);
 
-    /// <summary>Get a file upload body (using multi-part form data).</summary>
+    /// <summary>Get a file upload body (using multipart form data).</summary>
     /// <param name="files">The file streams and file names to upload.</param>
     HttpContent FileUpload(IEnumerable<KeyValuePair<string, Stream>> files);
 
