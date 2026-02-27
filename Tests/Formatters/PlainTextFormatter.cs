@@ -72,4 +72,69 @@ public class PlainTextFormatterTests : FormatterTestsBase
         // assert
         Assert.Throws<InvalidOperationException>(() => this.GetRequest(content, formatter, type));
     }
+
+    /****
+    ** CanReadType
+    ****/
+    [Test(Description = "Ensure that CanReadType returns true for string.")]
+    public void CanReadType_String_ReturnsTrue()
+    {
+        PlainTextFormatter formatter = new();
+        Assert.That(formatter.CanReadType(typeof(string)), Is.True);
+    }
+
+    [Test(Description = "Ensure that CanReadType returns false for int.")]
+    public void CanReadType_Int_ReturnsFalse()
+    {
+        PlainTextFormatter formatter = new();
+        Assert.That(formatter.CanReadType(typeof(int)), Is.False);
+    }
+
+    [Test(Description = "Ensure that CanReadType returns false for object.")]
+    public void CanReadType_Object_ReturnsFalse()
+    {
+        PlainTextFormatter formatter = new();
+        Assert.That(formatter.CanReadType(typeof(object)), Is.False);
+    }
+
+    /****
+    ** CanWriteType
+    ****/
+    [Test(Description = "Ensure that CanWriteType returns true for string.")]
+    public void CanWriteType_String_ReturnsTrue()
+    {
+        PlainTextFormatter formatter = new();
+        Assert.That(formatter.CanWriteType(typeof(string)), Is.True);
+    }
+
+    [Test(Description = "Ensure that CanWriteType returns false for IFormattable when AllowIrreversibleSerialization is false.")]
+    public void CanWriteType_IFormattable_ReturnsFalse_WhenNotAllowed()
+    {
+        PlainTextFormatter formatter = new();
+        Assert.That(formatter.CanWriteType(typeof(int)), Is.False);
+    }
+
+    [Test(Description = "Ensure that CanWriteType returns true for IFormattable when AllowIrreversibleSerialization is true.")]
+    public void CanWriteType_IFormattable_ReturnsTrue_WhenAllowed()
+    {
+        PlainTextFormatter formatter = new() { AllowIrreversibleSerialization = true };
+        Assert.That(formatter.CanWriteType(typeof(int)), Is.True);
+    }
+
+    /****
+    ** Null value
+    ****/
+    [Test(Description = "Ensure that null value serializes to empty string.")]
+    public void Serialize_NullValue()
+    {
+        // arrange
+        PlainTextFormatter formatter = new();
+        HttpRequestMessage request = this.GetRequest("placeholder", formatter);
+
+        // act
+        string result = this.GetSerialized<string?>(null, request, formatter);
+
+        // assert
+        Assert.That(result, Is.EqualTo(string.Empty));
+    }
 }

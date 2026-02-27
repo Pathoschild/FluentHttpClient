@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
@@ -50,7 +51,7 @@ internal sealed class FormatterContent<T> : HttpContent
         this.Formatter = formatter;
         this.ObjectType = objectType;
 
-        string resolvedMediaType = mediaType ?? (formatter.SupportedMediaTypes.Count > 0 ? System.Linq.Enumerable.First(formatter.SupportedMediaTypes) : "application/octet-stream");
+        string resolvedMediaType = mediaType ?? (formatter.SupportedMediaTypes.Count > 0 ? formatter.SupportedMediaTypes.First() : "application/octet-stream");
         this.Headers.ContentType = new MediaTypeHeaderValue(resolvedMediaType);
     }
 
@@ -63,6 +64,14 @@ internal sealed class FormatterContent<T> : HttpContent
     {
         await this.Formatter.WriteToStreamAsync(this.ObjectType, this.Value, stream, this, CancellationToken.None).ConfigureAwait(false);
     }
+
+#if NET8_0_OR_GREATER
+    /// <inheritdoc />
+    protected override async Task SerializeToStreamAsync(Stream stream, TransportContext? context, CancellationToken cancellationToken)
+    {
+        await this.Formatter.WriteToStreamAsync(this.ObjectType, this.Value, stream, this, cancellationToken).ConfigureAwait(false);
+    }
+#endif
 
     /// <inheritdoc />
     protected override bool TryComputeLength(out long length)

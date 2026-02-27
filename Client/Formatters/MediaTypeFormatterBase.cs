@@ -44,37 +44,17 @@ public abstract class MediaTypeFormatterBase : IMediaTypeFormatter
     }
 
     /// <inheritdoc />
-    public Task<object?> ReadFromStreamAsync(Type type, Stream stream, HttpContent content, CancellationToken cancellationToken)
+    public virtual Task<object?> ReadFromStreamAsync(Type type, Stream stream, HttpContent content, CancellationToken cancellationToken)
     {
-        var completionSource = new TaskCompletionSource<object?>();
-        try
-        {
-            object result = this.Deserialize(type, stream, content);
-            completionSource.SetResult(result);
-        }
-        catch (Exception ex)
-        {
-            completionSource.SetException(ex);
-        }
-
-        return completionSource.Task;
+        object result = this.Deserialize(type, stream, content);
+        return Task.FromResult<object?>(result);
     }
 
     /// <inheritdoc />
-    public Task WriteToStreamAsync(Type type, object? value, Stream stream, HttpContent content, CancellationToken cancellationToken)
+    public virtual Task WriteToStreamAsync(Type type, object? value, Stream stream, HttpContent content, CancellationToken cancellationToken)
     {
-        var completionSource = new TaskCompletionSource<object?>();
-        try
-        {
-            this.Serialize(type, value, stream, content);
-            completionSource.SetResult(null);
-        }
-        catch (Exception ex)
-        {
-            completionSource.SetException(ex);
-        }
-
-        return completionSource.Task;
+        this.Serialize(type, value, stream, content);
+        return Task.CompletedTask;
     }
 
     /// <summary>Add a media type which can be read or written by this formatter.</summary>

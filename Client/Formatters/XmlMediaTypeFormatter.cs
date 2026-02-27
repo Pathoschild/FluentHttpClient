@@ -39,43 +39,60 @@ public class XmlMediaTypeFormatter : IMediaTypeFormatter
     }
 
     /// <inheritdoc />
-    public Task<object?> ReadFromStreamAsync(Type type, Stream stream, HttpContent content, CancellationToken cancellationToken)
+    public async Task<object?> ReadFromStreamAsync(Type type, Stream stream, HttpContent content, CancellationToken cancellationToken)
     {
-        object? result;
+        // buffer the input stream asynchronously, then deserialize synchronously
+        using MemoryStream buffer = new();
+        await stream.CopyToAsync(
+#if NET8_0_OR_GREATER
+            buffer, cancellationToken
+#else
+            buffer
+#endif
+        ).ConfigureAwait(false);
+        buffer.Position = 0;
 
         if (this.UseXmlSerializer)
         {
             XmlSerializer serializer = new(type);
-            result = serializer.Deserialize(stream);
+            return serializer.Deserialize(buffer);
         }
         else
         {
             DataContractSerializer serializer = new(type);
-            using XmlDictionaryReader reader = XmlDictionaryReader.CreateTextReader(stream, XmlDictionaryReaderQuotas.Max);
-            result = serializer.ReadObject(reader);
+            using XmlDictionaryReader reader = XmlDictionaryReader.CreateTextReader(buffer, XmlDictionaryReaderQuotas.Max);
+            return serializer.ReadObject(reader);
         }
-
-        return Task.FromResult<object?>(result);
     }
 
     /// <inheritdoc />
-    public Task WriteToStreamAsync(Type type, object? value, Stream stream, HttpContent content, CancellationToken cancellationToken)
+    public async Task WriteToStreamAsync(Type type, object? value, Stream stream, HttpContent content, CancellationToken cancellationToken)
     {
+        // serialize synchronously into a buffer, then copy to output stream asynchronously
+        using MemoryStream buffer = new();
+
         if (this.UseXmlSerializer)
         {
             XmlSerializer serializer = new(type);
-            using XmlWriter writer = XmlWriter.Create(stream, new XmlWriterSettings { CloseOutput = false });
+            using XmlWriter writer = XmlWriter.Create(buffer, new XmlWriterSettings { CloseOutput = false });
             serializer.Serialize(writer, value);
             writer.Flush();
         }
         else
         {
             DataContractSerializer serializer = new(type);
-            using XmlWriter writer = XmlWriter.Create(stream, new XmlWriterSettings { CloseOutput = false });
+            using XmlWriter writer = XmlWriter.Create(buffer, new XmlWriterSettings { CloseOutput = false });
             serializer.WriteObject(writer, value);
             writer.Flush();
         }
 
-        return Task.CompletedTask;
+        buffer.Position = 0;
+        await buffer.CopyToAsync(
+#if NET8_0_OR_GREATER
+            stream, cancellationToken
+#else
+            stream
+#endif
+        ).ConfigureAwait(false);
     }
 }

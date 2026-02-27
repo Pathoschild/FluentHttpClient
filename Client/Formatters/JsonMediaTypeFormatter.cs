@@ -38,25 +38,28 @@ public class JsonMediaTypeFormatter : IMediaTypeFormatter
     }
 
     /// <inheritdoc />
-    public Task<object?> ReadFromStreamAsync(Type type, Stream stream, HttpContent content, CancellationToken cancellationToken)
+    public async Task<object?> ReadFromStreamAsync(Type type, Stream stream, HttpContent content, CancellationToken cancellationToken)
     {
-        JsonSerializer serializer = JsonSerializer.Create(this.SerializerSettings);
-
         using StreamReader reader = new(stream, Encoding.UTF8, detectEncodingFromByteOrderMarks: true, bufferSize: 1024, leaveOpen: true);
-        using JsonTextReader jsonReader = new(reader);
-        object? result = serializer.Deserialize(jsonReader, type);
-        return Task.FromResult(result);
+        string json = await reader.ReadToEndAsync(
+#if NET8_0_OR_GREATER
+            cancellationToken
+#endif
+        ).ConfigureAwait(false);
+        return JsonConvert.DeserializeObject(json, type, this.SerializerSettings);
     }
 
     /// <inheritdoc />
-    public Task WriteToStreamAsync(Type type, object? value, Stream stream, HttpContent content, CancellationToken cancellationToken)
+    public async Task WriteToStreamAsync(Type type, object? value, Stream stream, HttpContent content, CancellationToken cancellationToken)
     {
-        JsonSerializer serializer = JsonSerializer.Create(this.SerializerSettings);
-
-        using StreamWriter writer = new(stream, new UTF8Encoding(false), bufferSize: 1024, leaveOpen: true);
-        using JsonTextWriter jsonWriter = new(writer);
-        serializer.Serialize(jsonWriter, value, type);
-        jsonWriter.Flush();
-        return Task.CompletedTask;
+        string json = JsonConvert.SerializeObject(value, type, this.SerializerSettings);
+        byte[] bytes = new UTF8Encoding(false).GetBytes(json);
+        await stream.WriteAsync(
+#if NET8_0_OR_GREATER
+            bytes.AsMemory(), cancellationToken
+#else
+            bytes, 0, bytes.Length, cancellationToken
+#endif
+        ).ConfigureAwait(false);
     }
 }
