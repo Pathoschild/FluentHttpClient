@@ -8,6 +8,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Pathoschild.Http.Client.Extensibility;
+using Pathoschild.Http.Client.Formatters;
 using Pathoschild.Http.Client.Internal;
 using Pathoschild.Http.Client.Retry;
 
@@ -303,7 +304,7 @@ public static class FluentClientExtensions
             Version = request.Version
         };
 
-#if NET5_0_OR_GREATER
+#if NET8_0_OR_GREATER
         foreach ((string key, object? value) in request.Options)
             clone.Options.Set(new HttpRequestOptionsKey<object?>(key), value);
 #else
@@ -328,7 +329,7 @@ public static class FluentClientExtensions
         Stream stream = new MemoryStream();
         await content
             .CopyToAsync(stream
-#if NET5_0_OR_GREATER
+#if NET8_0_OR_GREATER
                 , cancellationToken
 #endif
             )
@@ -362,23 +363,23 @@ public static class FluentClientExtensions
         UriBuilder builder = new(baseUrl);
 
         // special case: combine if either side is a fragment
-        if (!string.IsNullOrWhiteSpace(builder.Fragment) || resource.StartsWith('#'))
+        if (!string.IsNullOrWhiteSpace(builder.Fragment) || resource.StartsWith("#", StringComparison.Ordinal))
             return new Uri(baseUrl + resource);
 
         // special case: if resource is a query string, validate and append it
-        if (resource.StartsWith('?') || resource.StartsWith('&'))
+        if (resource.StartsWith("?", StringComparison.Ordinal) || resource.StartsWith("&", StringComparison.Ordinal))
         {
             bool baseHasQuery = !string.IsNullOrWhiteSpace(builder.Query);
             return baseHasQuery switch
             {
-                true when resource.StartsWith('?') => throw new FormatException($"Can't add resource name '{resource}' to base URL '{baseUrl}' because the latter already has a query string."),
-                false when resource.StartsWith('&') => throw new FormatException($"Can't add resource name '{resource}' to base URL '{baseUrl}' because the latter doesn't have a query string."),
+                true when resource.StartsWith("?", StringComparison.Ordinal) => throw new FormatException($"Can't add resource name '{resource}' to base URL '{baseUrl}' because the latter already has a query string."),
+                false when resource.StartsWith("&", StringComparison.Ordinal) => throw new FormatException($"Can't add resource name '{resource}' to base URL '{baseUrl}' because the latter doesn't have a query string."),
                 _ => new Uri(baseUrl + resource)
             };
         }
 
         // else make absolute URL
-        if (!builder.Path.EndsWith('/'))
+        if (!builder.Path.EndsWith("/", StringComparison.Ordinal))
         {
             builder.Path += "/";
             baseUrl = builder.Uri;

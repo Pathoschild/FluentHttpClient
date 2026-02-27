@@ -4,11 +4,11 @@ using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
-using System.Net.Http.Formatting;
 using System.Net.Http.Headers;
 using System.Reflection;
 using System.Threading.Tasks;
 using Pathoschild.Http.Client.Extensibility;
+using Pathoschild.Http.Client.Formatters;
 using Pathoschild.Http.Client.Internal;
 using Pathoschild.Http.Client.Retry;
 
@@ -44,7 +44,7 @@ public class FluentClient : IClient
     public HttpClient BaseClient { get; }
 
     /// <inheritdoc />
-    public MediaTypeFormatterCollection Formatters { get; } = [];
+    public MediaTypeFormatterCollection Formatters { get; } = [new JsonMediaTypeFormatter(), new XmlMediaTypeFormatter()];
 
     /// <inheritdoc />
     public IRequestCoordinator? RequestCoordinator { get; private set; }

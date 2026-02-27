@@ -3,13 +3,13 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
-using System.Net.Http.Formatting;
 using System.Net.Http.Headers;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
 using Pathoschild.Http.Client.Extensibility;
+using Pathoschild.Http.Client.Formatters;
 using Pathoschild.Http.Client.Retry;
 
 namespace Pathoschild.Http.Client.Internal;

@@ -2,10 +2,10 @@ using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Net;
 using System.Net.Http;
-using System.Net.Http.Formatting;
 using System.Threading;
 using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
+using Pathoschild.Http.Client.Formatters;
 
 namespace Pathoschild.Http.Client;
 

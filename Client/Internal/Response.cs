@@ -3,10 +3,10 @@ using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Net;
 using System.Net.Http;
-using System.Net.Http.Formatting;
 using System.Threading;
 using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
+using Pathoschild.Http.Client.Formatters;
 
 namespace Pathoschild.Http.Client.Internal;
 
@@ -69,7 +69,7 @@ public sealed class Response : IResponse
     public Task<byte[]> AsByteArray()
     {
         return this.AssertContent().ReadAsByteArrayAsync(
-#if NET5_0_OR_GREATER
+#if NET8_0_OR_GREATER
             this.CancellationToken
 #endif
         );
@@ -79,7 +79,7 @@ public sealed class Response : IResponse
     public Task<string> AsString()
     {
         return this.AssertContent().ReadAsStringAsync(
-#if NET5_0_OR_GREATER
+#if NET8_0_OR_GREATER
             this.CancellationToken
 #endif
         );
@@ -90,7 +90,7 @@ public sealed class Response : IResponse
     {
         Stream stream = await this.AssertContent()
             .ReadAsStreamAsync(
-#if NET5_0_OR_GREATER
+#if NET8_0_OR_GREATER
                 this.CancellationToken
 #endif
             )
@@ -129,7 +129,7 @@ public sealed class Response : IResponse
     *********/
     /// <summary>Assert that the response has a body.</summary>
     /// <exception cref="NullReferenceException">The response has no response body to read.</exception>
-#if NET5_0_OR_GREATER
+#if NET8_0_OR_GREATER
     [MemberNotNull(nameof(Message))]
 #endif
     private HttpContent AssertContent()

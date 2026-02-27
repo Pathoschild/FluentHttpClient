@@ -1,28 +1,15 @@
 using System;
 using System.IO;
-using System.Net;
 using System.Net.Http;
-using System.Net.Http.Formatting;
 using System.Net.Http.Headers;
 using Pathoschild.Http.Client.Formatters;
+using Pathoschild.Http.Client.Internal;
 
 namespace Pathoschild.Http.Tests.Formatters;
 
 /// <summary>Provides generic helper methods for <see cref="MediaTypeFormatterBase" /> unit tests.</summary>
 public abstract class FormatterTestsBase
 {
-    /*********
-    ** Fields
-    *********/
-    /// <summary>A null transport context.</summary>
-    /// <remarks><see cref="MediaTypeFormatterBase.Serialize"/> has the transport context marked as non-nullable, but we know the default implementations tested here allow null values. Since we can't easily construct a transport context, this field returns a null transport context marked as non-nullable.</remarks>
-    private readonly TransportContext NullTransportContext = null!;
-
-    /// <summary>A null formatter logger.</summary>
-    /// <remarks>See remarks on <see cref="NullTransportContext"/>.</remarks>
-    private readonly IFormatterLogger FormatterLogger = null!;
-
-
     /*********
     ** Protected methods
     *********/
@@ -31,7 +18,7 @@ public abstract class FormatterTestsBase
     /// <param name="content">The request body content.</param>
     /// <param name="formatter">The formatter with which the content can be serialized.</param>
     /// <param name="contentType">The HTTP Accept and Content-Type header values.</param>
-    protected HttpRequestMessage GetRequest<T>(T content, MediaTypeFormatter formatter, string? contentType = null)
+    protected HttpRequestMessage GetRequest<T>(T content, IMediaTypeFormatter formatter, string? contentType = null)
     {
         if (content == null)
             throw new ArgumentNullException(nameof(content));
@@ -44,11 +31,11 @@ public abstract class FormatterTestsBase
     /// <param name="formatter">The formatter with which the content can be serialized.</param>
     /// <param name="type">The object type of the <paramref name="content"/>.</param>
     /// <param name="contentType">The HTTP Accept and Content-Type header values.</param>
-    protected HttpRequestMessage GetRequest(object content, MediaTypeFormatter formatter, Type type, string? contentType = null)
+    protected HttpRequestMessage GetRequest(object content, IMediaTypeFormatter formatter, Type type, string? contentType = null)
     {
         HttpRequestMessage message = new(HttpMethod.Get, "http://example.org")
         {
-            Content = new ObjectContent(type, content, formatter)
+            Content = new FormatterContent<object>(content, type, formatter)
         };
         if (contentType != null)
         {
@@ -71,7 +58,7 @@ public abstract class FormatterTestsBase
 
         using MemoryStream stream = new();
         using StreamReader reader = new(stream);
-        formatter.Serialize(typeof(string), content, stream, request.Content, this.NullTransportContext);
+        formatter.Serialize(typeof(string), content, stream, request.Content);
         stream.Position = 0;
         return reader.ReadToEnd();
     }
@@ -95,6 +82,6 @@ public abstract class FormatterTestsBase
         stream.Position = 0;
 
         // deserialize
-        return formatter.Deserialize(type, stream, request.Content, this.FormatterLogger);
+        return formatter.Deserialize(type, stream, request.Content);
     }
 }

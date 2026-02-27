@@ -1,12 +1,12 @@
 using System.IO;
 using System.Net;
 using System.Net.Http;
-using System.Net.Http.Formatting;
 using System.Text;
 using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
 using NUnit.Framework;
 using Pathoschild.Http.Client;
+using Pathoschild.Http.Client.Formatters;
 using Pathoschild.Http.Client.Internal;
 
 namespace Pathoschild.Http.Tests.Client;
@@ -147,7 +147,9 @@ public class ResponseTests
             .VerifyTaskResultAsync();
 
         // assert
-        Assert.That(actual, Is.EquivalentTo(expected));
+        Assert.That(actual.Length, Is.EqualTo(expected.Length));
+        for (int i = 0; i < expected.Length; i++)
+            Assert.That(actual[i].Value, Is.EqualTo(expected[i].Value));
     }
 
     /****
@@ -402,9 +404,10 @@ public class ResponseTests
         {
             // construct response
             HttpRequestMessage requestMessage = new(new HttpMethod(method), uri);
-            responseMessage = requestMessage.CreateResponse(status);
-            responseMessage.Content = new ObjectContent<T>(content, new JsonMediaTypeFormatter());
-            IResponse response = new Response(responseMessage, []);
+            responseMessage = new HttpResponseMessage(status) { RequestMessage = requestMessage };
+            responseMessage.Content = new FormatterContent<T>(content, new JsonMediaTypeFormatter());
+            MediaTypeFormatterCollection formatters = [new JsonMediaTypeFormatter()];
+            IResponse response = new Response(responseMessage, formatters);
 
             // verify
             this.AssertEqual(responseMessage.RequestMessage, method, uri);

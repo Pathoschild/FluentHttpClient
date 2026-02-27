@@ -1,8 +1,6 @@
 using System;
 using System.IO;
-using System.Net;
 using System.Net.Http;
-using System.Net.Http.Formatting;
 using System.Reflection;
 
 namespace Pathoschild.Http.Client.Formatters;
@@ -40,14 +38,14 @@ public class PlainTextFormatter : MediaTypeFormatterBase
     }
 
     /// <inheritdoc />
-    public override object Deserialize(Type type, Stream stream, HttpContent content, IFormatterLogger formatterLogger)
+    public override object Deserialize(Type type, Stream stream, HttpContent content)
     {
         StreamReader reader = new(stream); // don't dispose (stream disposal is handled elsewhere)
         return reader.ReadToEnd();
     }
 
     /// <inheritdoc />
-    public override void Serialize(Type type, object? value, Stream stream, HttpContent content, TransportContext transportContext)
+    public override void Serialize(Type type, object? value, Stream stream, HttpContent content)
     {
         StreamWriter writer = new(stream); // don't dispose (stream disposal is handled elsewhere)
         writer.Write(value != null ? value.ToString() : string.Empty);
