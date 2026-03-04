@@ -4,17 +4,13 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
-using System.Net.Http.Formatting;
 using System.Text;
 using System.Threading.Tasks;
-#if NETCOREAPP2_0 || NET5_0_OR_GREATER
 using Microsoft.AspNetCore.WebUtilities;
-#else
-using Microsoft.AspNet.WebUtilities;
-#endif
 using Microsoft.Extensions.Primitives;
 using NUnit.Framework;
 using Pathoschild.Http.Client;
+using Pathoschild.Http.Client.Formatters;
 using Pathoschild.Http.Client.Internal;
 using RichardSzalay.MockHttp;
 
@@ -409,11 +405,7 @@ public class RequestTests
             .ConstructRequest(methodName)
             .WithBody(new FormUrlEncodedContent(new[]
             {
-#if NET5_0_OR_GREATER
                 new KeyValuePair<string?, string?>("argument", body)
-#else
-                new KeyValuePair<string, string>("argument", body)
-#endif
             }));
 
         // assert
@@ -434,7 +426,7 @@ public class RequestTests
     public async Task WithBody_Builder_HttpContent(string methodName, object body)
     {
         // arrange
-        HttpContent content = new ObjectContent(typeof(string), body, new JsonMediaTypeFormatter());
+        HttpContent content = new FormatterContent<object>(body, new JsonMediaTypeFormatter());
 
         // act
         IRequest request = this
@@ -539,7 +531,7 @@ public class RequestTests
         // act
         IRequest request = this
             .ConstructRequest(methodName)
-            .WithCustom(r => r.Content = new ObjectContent<string>(customBody, new JsonMediaTypeFormatter()));
+            .WithCustom(r => r.Content = new FormatterContent<string>(customBody, new JsonMediaTypeFormatter()));
 
         // assert
         this.AssertEqual(request.Message, methodName, ignoreArguments: true);
@@ -813,7 +805,8 @@ public class RequestTests
             HttpRequestMessage message = new(method, uri);
 
             // act
-            IRequest request = new Request(message, [], _ => new Task<HttpResponseMessage>(() => new HttpResponseMessage(HttpStatusCode.OK)), []);
+            MediaTypeFormatterCollection formatters = [new JsonMediaTypeFormatter()];
+            IRequest request = new Request(message, formatters, _ => new Task<HttpResponseMessage>(() => new HttpResponseMessage(HttpStatusCode.OK)), []);
 
             // assert
             this.AssertEqual(request.Message, method, uri);
@@ -833,7 +826,8 @@ public class RequestTests
     private IRequest ConstructResponseFromTask(Task<HttpResponseMessage> task)
     {
         HttpRequestMessage request = new(HttpMethod.Get, "http://example.org/");
-        return new Request(request, [], _ => task, []);
+        MediaTypeFormatterCollection formatters = [new JsonMediaTypeFormatter()];
+        return new Request(request, formatters, _ => task, []);
     }
 
     /// <summary>Construct an <see cref="IResponse"/> instance around an asynchronous task.</summary>
@@ -841,7 +835,8 @@ public class RequestTests
     private IRequest ConstructResponseFromTask(Func<HttpResponseMessage> task)
     {
         HttpRequestMessage request = new(HttpMethod.Get, "http://example.org/");
-        return new Request(request, [], _ => Task<HttpResponseMessage>.Factory.StartNew(task), []);
+        MediaTypeFormatterCollection formatters = [new JsonMediaTypeFormatter()];
+        return new Request(request, formatters, _ => Task<HttpResponseMessage>.Factory.StartNew(task), []);
     }
 
     /// <summary>Assert that an HTTP request's state matches the expected values.</summary>

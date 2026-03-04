@@ -4,6 +4,7 @@ using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
+using Pathoschild.Http.Client.Formatters;
 using Pathoschild.Http.Client.Internal;
 
 namespace Pathoschild.Http.Client.Retry;
@@ -68,7 +69,7 @@ public class RetryCoordinator : IRequestCoordinator
             }
             catch (TaskCanceledException) when (!request.CancellationToken.IsCancellationRequested)
             {
-                response = request.Message.CreateResponse(RetryCoordinator.TimeoutStatusCode);
+                response = new HttpResponseMessage(RetryCoordinator.TimeoutStatusCode) { RequestMessage = request.Message };
             }
 
             // find the applicable retry configuration

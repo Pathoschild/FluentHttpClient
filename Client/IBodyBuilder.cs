@@ -3,8 +3,8 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Net.Http;
-using System.Net.Http.Formatting;
 using System.Net.Http.Headers;
+using Pathoschild.Http.Client.Formatters;
 
 namespace Pathoschild.Http.Client;
 
@@ -69,5 +69,5 @@ public interface IBodyBuilder
     /// <param name="formatter">The media type formatter with which to format the request body format.</param>
     /// <param name="mediaType">The HTTP media type (or <c>null</c> for the <paramref name="formatter"/>'s default).</param>
     /// <returns>Returns the request builder for chaining.</returns>
-    HttpContent Model<T>(T body, MediaTypeFormatter formatter, string? mediaType = null);
+    HttpContent Model<T>(T body, IMediaTypeFormatter formatter, string? mediaType = null);
 }

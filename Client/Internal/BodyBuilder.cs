@@ -3,9 +3,9 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
-using System.Net.Http.Formatting;
 using System.Net.Http.Headers;
 using System.Text;
+using Pathoschild.Http.Client.Formatters;
 
 namespace Pathoschild.Http.Client.Internal;
 
@@ -106,15 +106,15 @@ internal class BodyBuilder : IBodyBuilder
     /// <inheritdoc />
     public HttpContent Model<T>(T body, MediaTypeHeaderValue? contentType = null)
     {
-        MediaTypeFormatter formatter = Factory.GetFormatter(this.Request.Formatters, contentType);
+        IMediaTypeFormatter formatter = Factory.GetFormatter(this.Request.Formatters, contentType);
         string? mediaType = contentType?.MediaType;
-        return new ObjectContent<T>(body, formatter, mediaType);
+        return new FormatterContent<T>(body, formatter, mediaType);
     }
 
     /// <inheritdoc />
-    public HttpContent Model<T>(T body, MediaTypeFormatter formatter, string? mediaType = null)
+    public HttpContent Model<T>(T body, IMediaTypeFormatter formatter, string? mediaType = null)
     {
-        return new ObjectContent<T>(body, formatter, mediaType);
+        return new FormatterContent<T>(body, formatter, mediaType);
     }
 
 

@@ -1,8 +1,8 @@
 using System;
 using System.Linq;
 using System.Net.Http;
-using System.Net.Http.Formatting;
 using System.Net.Http.Headers;
+using Pathoschild.Http.Client.Formatters;
 
 namespace Pathoschild.Http.Client.Internal;
 
@@ -19,13 +19,13 @@ internal static class Factory
     /// <param name="formatters">The formatters used for serializing and deserializing message bodies.</param>
     /// <param name="contentType">The HTTP content type (or <c>null</c> to automatically select one).</param>
     /// <exception cref="InvalidOperationException">No MediaTypeFormatters are available on the API client for this content type.</exception>
-    public static MediaTypeFormatter GetFormatter(MediaTypeFormatterCollection formatters, MediaTypeHeaderValue? contentType = null)
+    public static IMediaTypeFormatter GetFormatter(MediaTypeFormatterCollection formatters, MediaTypeHeaderValue? contentType = null)
     {
         if (!formatters.Any())
             throw new InvalidOperationException("No MediaTypeFormatters are available on the fluent client.");
 
-        MediaTypeFormatter? formatter = contentType != null
-            ? formatters.FirstOrDefault(f => f.SupportedMediaTypes.Any(m => m.MediaType == contentType.MediaType))
+        IMediaTypeFormatter? formatter = contentType != null
+            ? formatters.FirstOrDefault(f => f.SupportedMediaTypes.Any(m => m == contentType.MediaType))
             : formatters.FirstOrDefault();
         if (formatter == null)
             throw new InvalidOperationException($"No MediaTypeFormatters are available on the fluent client for the '{contentType}' content-type.");
@@ -42,7 +42,7 @@ internal static class Factory
         HttpRequestMessage request = new(method, resource);
 
         // add default headers
-        request.Headers.Add("accept", formatters.SelectMany(p => p.SupportedMediaTypes).Select(p => p.MediaType));
+        request.Headers.Add("accept", formatters.SelectMany(p => p.SupportedMediaTypes));
 
         return request;
     }

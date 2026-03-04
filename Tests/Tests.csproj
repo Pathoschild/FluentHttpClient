@@ -1,21 +1,12 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFrameworks>netcoreapp1.1;netcoreapp2.0;net452;net5.0</TargetFrameworks>
+    <TargetFrameworks>net8.0</TargetFrameworks>
     <AssemblyName>Pathoschild.Http.Tests</AssemblyName>
     <RootNamespace>Pathoschild.Http.Tests</RootNamespace>
     <GenerateRuntimeConfigurationFiles>true</GenerateRuntimeConfigurationFiles>
-    <PackageTargetFallback>$(PackageTargetFallback);dnxcore50</PackageTargetFallback>
 
     <LangVersion>latest</LangVersion>
     <Nullable>enable</Nullable>
-
-    <!-- suppress framework out of support warnings (deliberate to test legacy framework support) -->
-    <CheckEolTargetFramework>false</CheckEolTargetFramework>
-  </PropertyGroup>
-
-  <PropertyGroup>
-    <NetCore2OrNewer>false</NetCore2OrNewer>
-    <NetCore2OrNewer Condition="'$(TargetFramework)' != 'net452' AND '$(TargetFramework)' != 'netcoreapp1.1'">true</NetCore2OrNewer>
   </PropertyGroup>
 
   <ItemGroup>
@@ -23,36 +14,12 @@
   </ItemGroup>
 
   <ItemGroup>
-    <!--
-      main versions
-
-      We deliberately use old versions of some packages to support our target frameworks:
-
-        package                           | max    | reason
-        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ | ~~~~~~ | ~~~~~~~~~~~~~~~~~~~~~~~~~~~
-        Microsoft.AspNetCore.WebUtilities | 2.2.0  | next only supports .NET 8+.
-        NUnit                             | 3.14.0 | next only supports .NET 6+.
-    -->
-    <PackageReference Include="Microsoft.AspNetCore.WebUtilities" Version="2.2.0" Condition="'$(NetCore2OrNewer)' == 'true'" />
+    <PackageReference Include="Microsoft.AspNetCore.WebUtilities" Version="2.2.0" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.14.0" />
-    <PackageReference Include="Moq" Version="4.20.72" Condition="'$(NetCore2OrNewer)' == 'true'" />
-    <PackageReference Include="NUnit" Version="3.14.0" Condition="'$(NetCore2OrNewer)' == 'true'" />
+    <PackageReference Include="Moq" Version="4.20.72" />
+    <PackageReference Include="NUnit" Version="3.14.0" />
     <PackageReference Include="NUnit3TestAdapter" Version="5.0.0" PrivateAssets="all" IncludeAssets="runtime; build; native; contentfiles; analyzers; buildtransitive" />
     <PackageReference Include="RichardSzalay.MockHttp" Version="7.0.0" />
-
-    <!--
-      legacy versions for older platforms
-
-      We deliberately use old versions of some packages to support our target frameworks:
-
-        package | max    | reason
-        ~~~~~~~ | ~~~~~~ | ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-        Moq     | 4.10.1 | next is .NET Standard 2.0+ only.
-        NUnit   | 3.12.0 | next is .NET Standard 2.0+ only.
-    -->
-    <PackageReference Include="Microsoft.AspNet.WebUtilities" Version="1.0.0-rc1-final" Condition="'$(NetCore2OrNewer)' == 'false'" />
-    <PackageReference Include="Moq" Version="4.10.1" Condition="'$(NetCore2OrNewer)' == 'false'" />
-    <PackageReference Include="NUnit" Version="3.12.0" Condition="'$(NetCore2OrNewer)' == 'false'" />
   </ItemGroup>
 
   <ItemGroup>
