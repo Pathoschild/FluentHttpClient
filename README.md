@@ -14,6 +14,7 @@ Designed with discoverability and extensibility as core principles, just autocom
 methods are available at each step.
 
 ## Contents
+* [Why does this exist?](#why-does-this-exist)
 * [Get started](#get-started)
   * [Install](#install)
   * [Basic usage](#basic-usage)
@@ -35,6 +36,56 @@ methods are available at each step.
   * [Custom retry/coordination policy](#custom-retrycoordination-policy)
   * [Custom HTTP](#custom-http)
   * [Mocks for unit testing](#mocks-for-unit-testing)
+
+## Why does this exist?
+.NET has a built-in `HttpClient`, and there are various higher-level HTTP clients. However:
+
+- Using `HttpClient` can be tedious, with lots of repeated boilerplate code and low
+  discoverability. Usage also varies depending on your .NET version (and it isn't available at all
+  in some older versions), which makes multi-targeting harder.
+- Higher-level client libraries often reinvent the wheel. That means you can lose access to the
+  features, performance optimizations, best practices & patterns, and ecosystem of libraries which
+  come with using the built-in `HttpClient`.
+
+FluentHttpClient offers a middle ground: it's a _thin wrapper_ around the .NET `HttpClient` which
+greatly simplifies its API and makes it consistent across .NET versions, but you're still using the
+official `HttpClient` with all the benefits that provides.
+
+For example, this code using FluentHttpClient:
+```c#
+using var client = using new FluentClient("https://example.org/api");
+Blog result = await client
+   .GetAsync("blogs")
+   .WithArgument("search", searchText)
+   .WithBearerAuthentication(token)
+   .As<Blog>();
+```
+
+Is equivalent to this code when using `HttpClient` directly:
+```c#
+using var client = new HttpClient
+{
+    BaseAddress = new Uri("https://example.org/api/")
+};
+
+string url = "blogs";
+if (searchText != null)
+    url += $"?search={Uri.EscapeDataString(searchText)}";
+
+using var request = new HttpRequestMessage(HttpMethod.Get, url);
+request.Headers.UserAgent.Add(new ProductInfoHeaderValue("ExampleClient", "1.0.0")); // often required; a configurable user agent is added automatically by FluentHttpClient
+request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
+
+var response = await client.SendAsync(request);
+response.EnsureSuccessStatusCode();
+
+string json = await response.Content.ReadAsStringAsync();
+Blog result = JsonConvert.DeserializeObject<Blog>(json);
+```
+
+And that's just a _simple_ example; the `HttpClient` code can become much more complex if you want
+any of the other features built-in to FluentHttpClient like content negotiation, retry logic,
+error-handling, filters, etc.
 
 ## Get started
 ### Install
