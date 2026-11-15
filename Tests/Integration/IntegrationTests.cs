@@ -1,7 +1,10 @@
 using System;
+using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq.Expressions;
+using System.Net;
+
 #if NET452
 using System.Net;
 #endif
@@ -69,6 +72,28 @@ public class IntegrationTests
 
         // assert
         Assert.IsNotNull(result);
+    }
+
+    [Test(Description = "The client can download a large file.")]
+    public async Task DownloadLargeFile()
+    {
+        // arrange
+        IClient client = this.ConstructClient("https://proof.ovh.net/");
+        bool progressInvoked = false;
+        string resource = "files/1Mb.dat"; // this is the resource we want to download
+        string filePath = Path.Combine(Path.GetTempPath(), "1Mb.dat"); // this is the path where we want to save the downloaded file
+        int bufferSize = 4096; // this is the size of the buffer we will use to read the response stream
+        IProgress<double> progress = new Progress<double>(percent =>
+        {
+            Debug.WriteLine($"Download progress: {percent}%");
+            progressInvoked = true;
+        }); // this is the progress reporter that will be invoked during the download
+
+        // act
+        await client.DownloadFileAsync(resource, filePath, bufferSize, progress);
+
+        // assert
+        Assert.IsTrue(progressInvoked);
     }
 
     [Test(Description = "The client can fetch a resource from the English Wikipedia's API.")]
