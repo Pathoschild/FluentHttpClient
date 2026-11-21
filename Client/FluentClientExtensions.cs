@@ -296,7 +296,7 @@ public static class FluentClientExtensions
     /// <param name="cancellationToken">A cancellation token.</param>
     public static async Task DownloadFileAsync(this IClient client, string resource, string path, int bufferSize = 4096, IProgress<double>? progress = null, CancellationToken cancellationToken = default)
     {
-        // Dispatch the request and get the streaming response
+        // fetch response
         IResponse response = await client
             .GetAsync(resource)
             .WithOptions(completeWhen: HttpCompletionOption.ResponseHeadersRead)
@@ -304,37 +304,57 @@ public static class FluentClientExtensions
             .AsResponse()
             .ConfigureAwait(false);
 
-        // Attempt to determine the content length for progress reporting
+        // get content length if possible
         long contentLength = response.Message.Content.Headers.ContentLength ?? 0;
 
+        // init file
         using Stream responseStream = await response.AsStream().ConfigureAwait(false);
         using FileStream fileStream = File.Create(path, bufferSize);
 
-        int bytesRead;
-        long totalBytesRead = 0L;
-        byte[] buffer = new byte[bufferSize];
-
-        // Read the response stream in chunks and write to the file, reporting progress if requested
+        // stream file to disk
         double lastReportedProgress = 0;
-        while ((bytesRead = await responseStream.ReadAsync(buffer, 0, buffer.Length, cancellationToken).ConfigureAwait(false)) > 0)
         {
-            await fileStream.WriteAsync(buffer, 0, bytesRead, cancellationToken).ConfigureAwait(false);
-            totalBytesRead += bytesRead;
+            int bytesRead;
+            long totalBytesRead = 0L;
+            byte[] buffer = new byte[bufferSize];
 
-            if (contentLength > 0)
+            long lastTickReported = 0;
+            const long throttleMilliseconds = 250;
+
+            while ((bytesRead = await responseStream.ReadAsync(buffer, 0, buffer.Length, cancellationToken).ConfigureAwait(false)) > 0)
             {
-                double percentDownloaded = (totalBytesRead / (contentLength * 1d)) * 100;
-                if (percentDownloaded > 100)
-                    percentDownloaded = 100;
+                // stream next chunk
+                await fileStream.WriteAsync(buffer, 0, bytesRead, cancellationToken).ConfigureAwait(false);
+                totalBytesRead += bytesRead;
 
-                if (percentDownloaded > lastReportedProgress)
+                // get current tick
+                long tick =
+#if NET5_0_OR_GREATER
+                    Environment.TickCount64;
+#else
+                    Environment.TickCount;
+#endif
+                if (tick < lastTickReported)
+                    lastTickReported = tick; // workaround: `Environment.TickCount` eventually wraps around, which would stop any further progress updates
+
+                // notify progress tracker
+                if (contentLength > 0 && tick >= lastTickReported + throttleMilliseconds)
                 {
-                    progress?.Report(percentDownloaded);
-                    lastReportedProgress = percentDownloaded;
+                    double percentDownloaded = (totalBytesRead / (contentLength * 1d)) * 100;
+                    if (percentDownloaded > 100)
+                        percentDownloaded = 100;
+
+                    if (percentDownloaded > lastReportedProgress)
+                    {
+                        progress?.Report(percentDownloaded);
+                        lastReportedProgress = percentDownloaded;
+                        lastTickReported = tick;
+                    }
                 }
             }
         }
 
+        // send final progress update
         if (lastReportedProgress < 100)
             progress?.Report(100);
     }
