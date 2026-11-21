@@ -76,23 +76,27 @@ public class IntegrationTests
     [Test(Description = "The client can download a large file.")]
     public async Task DownloadLargeFile()
     {
-        // arrange
-        IClient client = this.ConstructClient("https://proof.ovh.net/");
-        bool progressInvoked = false;
-        string resource = "files/1Mb.dat"; // this is the resource we want to download
-        string filePath = Path.Combine(Path.GetTempPath(), "1Mb.dat"); // this is the path where we want to save the downloaded file
-        int bufferSize = 4096; // this is the size of the buffer we will use to read the response stream
-        IProgress<double> progress = new Progress<double>(percent =>
+        string saveToPath = Path.Combine(Path.GetTempPath(), "1Mb.dat");
+        try
         {
-            Debug.WriteLine($"Download progress: {percent}%");
-            progressInvoked = true;
-        }); // this is the progress reporter that will be invoked during the download
+            // arrange
+            IClient client = this.ConstructClient("https://proof.ovh.net/");
 
-        // act
-        await client.DownloadFileAsync(resource, filePath, bufferSize, progress);
+            // act
+            bool progressInvoked = false;
+            await client.DownloadFileAsync("files/1Mb.dat", saveToPath, 4096, new Progress<double>(percent =>
+            {
+                Debug.WriteLine($"Download progress: {percent}%");
+                progressInvoked = true;
+            }));
 
-        // assert
-        Assert.IsTrue(progressInvoked);
+            // assert
+            Assert.IsTrue(progressInvoked);
+        }
+        finally
+        {
+            File.Delete(saveToPath);
+        }
     }
 
     [Test(Description = "The client can fetch a resource from the English Wikipedia's API.")]
