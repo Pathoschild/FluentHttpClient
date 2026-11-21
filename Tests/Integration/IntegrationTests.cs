@@ -57,6 +57,15 @@ public class IntegrationTests
     /*********
     ** Unit tests
     *********/
+    /// <summary>The setup code to before any tests in the fixture.</summary>
+    [OneTimeSetUp]
+    public void OneTimeSetUp()
+    {
+#if NET452
+        ServicePointManager.SecurityProtocol |= SecurityProtocolType.Tls12;
+#endif
+    }
+
     [Test(Description = "The client can stream a large file.")]
     public async Task StreamLargeFile()
     {
@@ -102,10 +111,6 @@ public class IntegrationTests
     [Test(Description = "The client can fetch a resource from the English Wikipedia's API.")]
     public async Task EnglishWikipedia()
     {
-#if NET452
-        ServicePointManager.SecurityProtocol |= SecurityProtocolType.Tls12;
-#endif
-
         // arrange
         IClient client = this.ConstructClient("https://en.wikipedia.org/");
 
@@ -122,10 +127,6 @@ public class IntegrationTests
     [Test(Description = "The client can fetch a resource from the Chinese Wikipedia's API, including proper Unicode handling.")]
     public async Task ChineseWikipedia()
     {
-#if NET452
-        ServicePointManager.SecurityProtocol |= SecurityProtocolType.Tls12;
-#endif
-
         // arrange
         IClient client = this.ConstructClient("https://zh.wikipedia.org/");
 
