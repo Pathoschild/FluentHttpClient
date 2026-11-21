@@ -300,11 +300,12 @@ public static class FluentClientExtensions
     public static async Task DownloadFileAsync(this IClient client, string resource, string path, int bufferSize = 4096, IProgress<double>? progress = null, CancellationToken cancellationToken = default)
     {
         // Dispatch the request and get the streaming response
-        var response = await client
+        IResponse response = await client
             .GetAsync(resource)
             .WithOptions(completeWhen: HttpCompletionOption.ResponseHeadersRead)
             .WithCancellationToken(cancellationToken)
-            .AsResponse();
+            .AsResponse()
+            .ConfigureAwait(false);
 
         // Attempt to determine the content length for progress reporting
         long? contentLength = response.Message.Content.Headers.ContentLength;
