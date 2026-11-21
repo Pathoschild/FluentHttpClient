@@ -287,16 +287,13 @@ public static class FluentClientExtensions
         });
     }
 
-    /// <summary>
-    /// Download a file from the specified resource and save it to the specified path, reporting progress if requested.
-    /// </summary>
+    /// <summary>Download a resource to a file path, reporting incremental download progress if requested.</summary>
     /// <param name="client">The HTTP client.</param>
     /// <param name="resource">The resource to download.</param>
     /// <param name="path">The path to save the downloaded file.</param>
     /// <param name="bufferSize">The buffer size to use when reading the response stream.</param>
-    /// <param name="progress">An optional progress reporter.</param>
+    /// <param name="progress">An optional progress reporter, which receives incremental progress updates (from 0 to 100) as it downloads.</param>
     /// <param name="cancellationToken">A cancellation token.</param>
-    /// <returns>A task representing the asynchronous operation.</returns>
     public static async Task DownloadFileAsync(this IClient client, string resource, string path, int bufferSize = 4096, IProgress<double>? progress = null, CancellationToken cancellationToken = default)
     {
         // Dispatch the request and get the streaming response
@@ -308,7 +305,7 @@ public static class FluentClientExtensions
             .ConfigureAwait(false);
 
         // Attempt to determine the content length for progress reporting
-        long? contentLength = response.Message.Content.Headers.ContentLength;
+        long contentLength = response.Message.Content.Headers.ContentLength ?? 0;
 
         using Stream responseStream = await response.Message.Content.ReadAsStreamAsync().ConfigureAwait(false);
         using FileStream fileStream = File.Create(path, bufferSize);
@@ -318,17 +315,28 @@ public static class FluentClientExtensions
         byte[] buffer = new byte[bufferSize];
 
         // Read the response stream in chunks and write to the file, reporting progress if requested
+        double lastReportedProgress = 0;
         while ((bytesRead = await responseStream.ReadAsync(buffer, 0, buffer.Length, cancellationToken).ConfigureAwait(false)) > 0)
         {
             await fileStream.WriteAsync(buffer, 0, bytesRead, cancellationToken).ConfigureAwait(false);
             totalBytesRead += bytesRead;
 
-            if (contentLength.HasValue)
+            if (contentLength > 0)
             {
-                double progressPercentage = ((totalBytesRead * 1d) / (contentLength.Value * 1d)) * 100;
-                progress?.Report(progressPercentage);
+                double percentDownloaded = (totalBytesRead / (contentLength * 1d)) * 100;
+                if (percentDownloaded > 100)
+                    percentDownloaded = 100;
+
+                if (percentDownloaded > lastReportedProgress)
+                {
+                    progress?.Report(percentDownloaded);
+                    lastReportedProgress = percentDownloaded;
+                }
             }
         }
+
+        if (lastReportedProgress < 100)
+            progress?.Report(100);
     }
 
     /*********

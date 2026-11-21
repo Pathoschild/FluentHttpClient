@@ -70,7 +70,7 @@ public class IntegrationTests
     public async Task StreamLargeFile()
     {
         // arrange
-        IClient client = this.ConstructClient("https://proof.ovh.net/");
+        using IClient client = this.ConstructClient("https://proof.ovh.net/");
 
         // act
         Stream result = await client
@@ -89,18 +89,21 @@ public class IntegrationTests
         try
         {
             // arrange
-            IClient client = this.ConstructClient("https://proof.ovh.net/");
+            using IClient client = this.ConstructClient("https://proof.ovh.net/");
 
             // act
             bool progressInvoked = false;
+            double lastProgressReported = 0;
             await client.DownloadFileAsync("files/1Mb.dat", saveToPath, 4096, new Progress<double>(percent =>
             {
                 Debug.WriteLine($"Download progress: {percent}%");
                 progressInvoked = true;
+                lastProgressReported = percent;
             }));
 
             // assert
             Assert.IsTrue(progressInvoked);
+            Assert.AreEqual(100, lastProgressReported);
         }
         finally
         {
@@ -112,7 +115,7 @@ public class IntegrationTests
     public async Task EnglishWikipedia()
     {
         // arrange
-        IClient client = this.ConstructClient("https://en.wikipedia.org/");
+        using IClient client = this.ConstructClient("https://en.wikipedia.org/");
 
         // act
         WikipediaMetadata response = await client
@@ -128,7 +131,7 @@ public class IntegrationTests
     public async Task ChineseWikipedia()
     {
         // arrange
-        IClient client = this.ConstructClient("https://zh.wikipedia.org/");
+        using IClient client = this.ConstructClient("https://zh.wikipedia.org/");
 
         // act
         WikipediaMetadata response = await client
