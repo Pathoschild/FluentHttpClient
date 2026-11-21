@@ -85,7 +85,7 @@ public class IntegrationTests
     [Test(Description = "The client can download a large file.")]
     public async Task DownloadLargeFile()
     {
-        string saveToPath = Path.Combine(Path.GetTempPath(), "1Mb.dat");
+        string saveToPath = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString("N"));
         try
         {
             // arrange
