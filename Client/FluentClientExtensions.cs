@@ -307,7 +307,7 @@ public static class FluentClientExtensions
         // Attempt to determine the content length for progress reporting
         long contentLength = response.Message.Content.Headers.ContentLength ?? 0;
 
-        using Stream responseStream = await response.Message.Content.ReadAsStreamAsync().ConfigureAwait(false);
+        using Stream responseStream = await response.AsStream().ConfigureAwait(false);
         using FileStream fileStream = File.Create(path, bufferSize);
 
         int bytesRead;
