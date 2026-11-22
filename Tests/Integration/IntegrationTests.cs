@@ -1,7 +1,9 @@
 using System;
+using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq.Expressions;
+
 #if NET452
 using System.Net;
 #endif
@@ -55,11 +57,20 @@ public class IntegrationTests
     /*********
     ** Unit tests
     *********/
+    /// <summary>The setup code to before any tests in the fixture.</summary>
+    [OneTimeSetUp]
+    public void OneTimeSetUp()
+    {
+#if NET452
+        ServicePointManager.SecurityProtocol |= SecurityProtocolType.Tls12;
+#endif
+    }
+
     [Test(Description = "The client can stream a large file.")]
     public async Task StreamLargeFile()
     {
         // arrange
-        IClient client = this.ConstructClient("https://proof.ovh.net/");
+        using IClient client = this.ConstructClient("https://proof.ovh.net/");
 
         // act
         Stream result = await client
@@ -71,15 +82,40 @@ public class IntegrationTests
         Assert.IsNotNull(result);
     }
 
+    [Test(Description = "The client can download a large file.")]
+    public async Task DownloadLargeFile()
+    {
+        string saveToPath = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString("N"));
+        try
+        {
+            // arrange
+            using IClient client = this.ConstructClient("https://proof.ovh.net/");
+
+            // act
+            bool progressInvoked = false;
+            double lastProgressReported = 0;
+            await client.DownloadFileAsync("files/1Mb.dat", saveToPath, 4096, new Progress<double>(percent =>
+            {
+                Debug.WriteLine($"Download progress: {percent}%");
+                progressInvoked = true;
+                lastProgressReported = percent;
+            }));
+
+            // assert
+            Assert.IsTrue(progressInvoked);
+            Assert.AreEqual(100, lastProgressReported);
+        }
+        finally
+        {
+            File.Delete(saveToPath);
+        }
+    }
+
     [Test(Description = "The client can fetch a resource from the English Wikipedia's API.")]
     public async Task EnglishWikipedia()
     {
-#if NET452
-        ServicePointManager.SecurityProtocol |= SecurityProtocolType.Tls12;
-#endif
-
         // arrange
-        IClient client = this.ConstructClient("https://en.wikipedia.org/");
+        using IClient client = this.ConstructClient("https://en.wikipedia.org/");
 
         // act
         WikipediaMetadata response = await client
@@ -94,12 +130,8 @@ public class IntegrationTests
     [Test(Description = "The client can fetch a resource from the Chinese Wikipedia's API, including proper Unicode handling.")]
     public async Task ChineseWikipedia()
     {
-#if NET452
-        ServicePointManager.SecurityProtocol |= SecurityProtocolType.Tls12;
-#endif
-
         // arrange
-        IClient client = this.ConstructClient("https://zh.wikipedia.org/");
+        using IClient client = this.ConstructClient("https://zh.wikipedia.org/");
 
         // act
         WikipediaMetadata response = await client

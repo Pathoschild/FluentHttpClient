@@ -287,6 +287,86 @@ public static class FluentClientExtensions
         });
     }
 
+    /// <summary>Download a resource to a file path, reporting incremental download progress if requested.</summary>
+    /// <param name="client">The HTTP client.</param>
+    /// <param name="resource">The resource to download.</param>
+    /// <param name="path">The path to save the downloaded file.</param>
+    /// <param name="bufferSize">The buffer size to use when reading the response stream.</param>
+    /// <param name="progress">An optional progress reporter, which receives incremental progress updates (from 0 to 100) as it downloads.</param>
+    /// <param name="cancellationToken">A cancellation token.</param>
+    public static async Task DownloadFileAsync(this IClient client, string resource, string path, int bufferSize = 4096, IProgress<double>? progress = null, CancellationToken cancellationToken = default)
+    {
+        // fetch response
+        IResponse response = await client
+            .GetAsync(resource)
+            .WithOptions(completeWhen: HttpCompletionOption.ResponseHeadersRead)
+            .WithCancellationToken(cancellationToken)
+            .AsResponse()
+            .ConfigureAwait(false);
+
+        // get content length if possible
+        long contentLength = response.Message.Content.Headers.ContentLength ?? 0;
+
+        // init file
+        using Stream responseStream = await response.AsStream().ConfigureAwait(false);
+        using FileStream fileStream = File.Create(path, bufferSize);
+
+        // stream file to disk
+        double lastReportedProgress = 0;
+        {
+            int bytesRead;
+            long totalBytesRead = 0L;
+
+            long lastTickReported = 0;
+            const long throttleMilliseconds = 250;
+
+#if NET5_0_OR_GREATER
+            Memory<byte> buffer = new byte[bufferSize];
+            while ((bytesRead = await responseStream.ReadAsync(buffer, cancellationToken).ConfigureAwait(false)) > 0)
+#else
+            byte[] buffer = new byte[bufferSize];
+            while ((bytesRead = await responseStream.ReadAsync(buffer, 0, buffer.Length, cancellationToken).ConfigureAwait(false)) > 0)
+#endif
+            {
+                // stream next chunk
+#if NET5_0_OR_GREATER
+                await fileStream.WriteAsync(buffer, cancellationToken).ConfigureAwait(false);
+#else
+                await fileStream.WriteAsync(buffer, 0, bytesRead, cancellationToken).ConfigureAwait(false);
+#endif
+                totalBytesRead += bytesRead;
+
+                // get current tick
+                long tick =
+#if NET5_0_OR_GREATER
+                    Environment.TickCount64;
+#else
+                    Environment.TickCount;
+#endif
+                if (tick < lastTickReported)
+                    lastTickReported = tick; // workaround: `Environment.TickCount` eventually wraps around, which would stop any further progress updates
+
+                // notify progress tracker
+                if (contentLength > 0 && tick >= lastTickReported + throttleMilliseconds)
+                {
+                    double percentDownloaded = (totalBytesRead / (contentLength * 1d)) * 100;
+                    if (percentDownloaded > 100)
+                        percentDownloaded = 100;
+
+                    if (percentDownloaded > lastReportedProgress)
+                    {
+                        progress?.Report(percentDownloaded);
+                        lastReportedProgress = percentDownloaded;
+                        lastTickReported = tick;
+                    }
+                }
+            }
+        }
+
+        // send final progress update
+        if (lastReportedProgress < 100)
+            progress?.Report(100);
+    }
 
     /*********
     ** Internal methods
