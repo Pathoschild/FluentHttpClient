@@ -316,15 +316,24 @@ public static class FluentClientExtensions
         {
             int bytesRead;
             long totalBytesRead = 0L;
-            byte[] buffer = new byte[bufferSize];
 
             long lastTickReported = 0;
             const long throttleMilliseconds = 250;
 
+#if NET5_0_OR_GREATER
+            Memory<byte> buffer = new byte[bufferSize];
+            while ((bytesRead = await responseStream.ReadAsync(buffer, cancellationToken).ConfigureAwait(false)) > 0)
+#else
+            byte[] buffer = new byte[bufferSize];
             while ((bytesRead = await responseStream.ReadAsync(buffer, 0, buffer.Length, cancellationToken).ConfigureAwait(false)) > 0)
+#endif
             {
                 // stream next chunk
+#if NET5_0_OR_GREATER
+                await fileStream.WriteAsync(buffer, cancellationToken).ConfigureAwait(false);
+#else
                 await fileStream.WriteAsync(buffer, 0, bytesRead, cancellationToken).ConfigureAwait(false);
+#endif
                 totalBytesRead += bytesRead;
 
                 // get current tick
